@@ -3,7 +3,6 @@ package com.virtuslab.gitmachete.frontend.actions.contextmenu;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
-import java.util.Objects;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
@@ -14,7 +13,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.vcs.log.Hash;
 import com.intellij.vcs.log.impl.VcsLogContentUtil;
 import com.intellij.vcs.log.impl.VcsProjectLog;
-import io.vavr.control.Option;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
@@ -71,19 +69,19 @@ public class ShowSelectedInGitLogAction extends BaseGitMacheteRepositoryReadyAct
     val gitRepository = getSelectedGitRepository(anActionEvent);
 
     if (gitRepository != null) {
-      log().debug(() -> "Queuing show '${selectedBranchName}' branch in Git log background task");
+      LOG.debug(() -> "Queuing show '${selectedBranchName}' branch in Git log background task");
 
       val branches = gitRepository.getBranches();
 
-      @SuppressWarnings("nullness:return") val maybeHash = Option.of(selectedBranchName)
-          .map(branches::findBranchByName).filter(Objects::nonNull).map(branches::getHash);
+      val selectedBranch = branches.findBranchByName(selectedBranchName);
+      val selectedBranchHash = selectedBranch != null ? branches.getHash(selectedBranch) : null;
 
-      if (maybeHash.isEmpty()) {
-        log().error("Unable to find commit hash for branch '${selectedBranchName}'");
+      if (selectedBranchHash == null) {
+        LOG.error("Unable to find commit hash for branch '${selectedBranchName}'");
         return;
       }
 
-      VcsLogContentUtil.runInMainLog(project, logUi -> jumpToRevisionUnderProgress(project, maybeHash.get()));
+      VcsLogContentUtil.runInMainLog(project, logUi -> jumpToRevisionUnderProgress(project, selectedBranchHash));
     }
   }
 
@@ -94,7 +92,7 @@ public class ShowSelectedInGitLogAction extends BaseGitMacheteRepositoryReadyAct
         try {
           val logUi = VcsProjectLog.getInstance(project).getMainLogUi();
           if (logUi == null) {
-            log().error("Main log ui is null");
+            LOG.error("Main log ui is null");
             return;
           }
           logUi.getVcsLog().jumpToReference(hash.asString()).get();
@@ -103,7 +101,7 @@ public class ShowSelectedInGitLogAction extends BaseGitMacheteRepositoryReadyAct
           if (e.getMessage() != null) {
             msg = e.getMessage();
           }
-          log().error(msg);
+          LOG.error(msg);
         }
       }
     }.queue();

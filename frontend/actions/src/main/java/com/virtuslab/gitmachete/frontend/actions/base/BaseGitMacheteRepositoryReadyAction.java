@@ -4,6 +4,7 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
@@ -18,10 +19,11 @@ public abstract class BaseGitMacheteRepositoryReadyAction extends BaseProjectDep
     super.onUpdate(anActionEvent);
 
     boolean isEnabled = getGitMacheteRepositorySnapshot(anActionEvent) != null;
-    anActionEvent.getPresentation().setEnabled(isEnabled);
+    val presentation = anActionEvent.getPresentation();
+    presentation.setEnabled(isEnabled);
 
     if (!isEnabled) {
-      anActionEvent.getPresentation().setDescription(
+      presentation.setDescription(
           getNonHtmlString(
               "action.GitMachete.BaseGitMacheteRepositoryReadyAction.description.disabled.undefined.git-machete-repository"));
     }
