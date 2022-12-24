@@ -141,12 +141,6 @@
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
-            <action id="GitMachete.DiscoverAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction"
-                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.DISCOVER">
-                <override-text place="GitMacheteToolbar"/>
-            </action>
-
             <separator/>
 
             <action id="GitMachete.FetchAllRemotesAction"
@@ -212,6 +206,12 @@
             </action>
 
             <separator/>
+
+            <action id="GitMachete.DiscoverAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction"
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.DISCOVER">
+                <override-text place="GitMacheteToolbar"/>
+            </action>
 
             <action id="GitMachete.HelpAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.HelpAction"
