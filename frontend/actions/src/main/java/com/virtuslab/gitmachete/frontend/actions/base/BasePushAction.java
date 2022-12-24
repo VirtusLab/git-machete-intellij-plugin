@@ -64,6 +64,11 @@ public abstract class BasePushAction extends BaseGitMacheteRepositoryReadyAction
 
     syncToRemoteStatusDependentActionUpdate(anActionEvent);
 
+    val presentation = anActionEvent.getPresentation();
+    if (!presentation.isEnabled()) {
+      return;
+    }
+
     val branchName = getNameOfBranchUnderAction(anActionEvent);
     val managedBranchByName = getManagedBranchByName(anActionEvent, branchName);
     val relation = managedBranchByName != null
@@ -73,7 +78,6 @@ public abstract class BasePushAction extends BaseGitMacheteRepositoryReadyAction
 
     if (branchName != null && relation != null && isForcePushRequired(relation)) {
       if (GitSharedSettings.getInstance(project).isBranchProtected(branchName)) {
-        val presentation = anActionEvent.getPresentation();
         presentation.setDescription(
             getNonHtmlString("action.GitMachete.BasePushAction.force-push-disabled-for-protected-branch").fmt(branchName));
         presentation.setEnabled(false);

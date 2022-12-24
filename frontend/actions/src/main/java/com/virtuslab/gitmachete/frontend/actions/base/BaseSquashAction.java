@@ -53,6 +53,10 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
     super.onUpdate(anActionEvent);
 
     val presentation = anActionEvent.getPresentation();
+    if (!presentation.isEnabled()) {
+      return;
+    }
+
     val branchName = getNameOfBranchUnderAction(anActionEvent);
     val managedBranch = getManagedBranchByName(anActionEvent, branchName);
     val nonRootBranch = managedBranch != null && managedBranch.isNonRoot()

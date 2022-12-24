@@ -32,8 +32,12 @@ public class FetchAllRemotesAction extends BaseProjectDependentAction {
   protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
 
-    val project = getProject(anActionEvent);
     val presentation = anActionEvent.getPresentation();
+    if (!presentation.isEnabled()) {
+      return;
+    }
+
+    val project = getProject(anActionEvent);
     if (GitFetchSupport.fetchSupport(project).isFetchRunning()) {
       presentation.setEnabled(false);
       presentation
