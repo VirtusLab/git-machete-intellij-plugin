@@ -1,10 +1,13 @@
 package com.virtuslab.gitmachete.frontend.actions.traverse;
 
+import static com.virtuslab.gitmachete.frontend.actions.traverse.CheckoutAndExecute.checkoutAndExecuteOnUIThread;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageConstants;
 import com.intellij.openapi.ui.MessageDialogBuilder;
+import com.intellij.util.ModalityUiUtil;
 import git4idea.repo.GitRepository;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
@@ -28,13 +31,13 @@ public class TraverseSyncToParent {
   private final BaseEnhancedGraphTable graphTable;
   private final IGitMacheteRepositorySnapshot repositorySnapshot;
   private final INonRootManagedBranchSnapshot gitMacheteBranch;
-  private final Runnable traverseNextEntry;
+  private final @UI Runnable traverseNextEntry;
 
   public TraverseSyncToParent(GitRepository gitRepository,
       BaseEnhancedGraphTable graphTable,
       IGitMacheteRepositorySnapshot repositorySnapshot,
       INonRootManagedBranchSnapshot gitMacheteBranch,
-      Runnable traverseNextEntry) {
+      @UI Runnable traverseNextEntry) {
     this.project = gitRepository.getProject();
     this.gitRepository = gitRepository;
     this.graphTable = graphTable;
@@ -43,31 +46,43 @@ public class TraverseSyncToParent {
     this.traverseNextEntry = traverseNextEntry;
   }
 
-  @UIEffect
   public void execute() {
-    @UI Runnable syncToRemoteRunnable = new TraverseSyncToRemote(gitRepository, graphTable, gitMacheteBranch,
+    Runnable syncToRemoteRunnable = new TraverseSyncToRemote(gitRepository, graphTable, gitMacheteBranch,
         traverseNextEntry)::execute;
 
     val syncToParentStatus = gitMacheteBranch.getSyncToParentStatus();
     switch (syncToParentStatus) {
+      case InSync :
+        ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, syncToRemoteRunnable);
+        break;
+
       case MergedToParent :
-        if (!handleMergedToParent()) {
-          return;
-        }
+        @UI Runnable slideOut = () -> {
+          if (handleMergedToParent()) {
+            graphTable.queueRepositoryUpdateAndModelRefresh(syncToRemoteRunnable);
+          }
+        };
+        // Note that we're checking out the **parent** of the branch to be slid out.
+        // This probably makes more sense than checking out the branch itself because:
+        //   * it still focuses the user's attention on the branch's neighbourhood in branch layout,
+        //   * while leaving the option to delete the freshly slid-out branch (as current branch can't be easily deleted).
+        checkoutAndExecuteOnUIThread(gitRepository, graphTable, gitMacheteBranch.getParent().getName(), slideOut);
+
         break;
 
       case InSyncButForkPointOff :
       case OutOfSync :
-        if (!handleOutOfSyncOrInSyncButForkPointOff(syncToParentStatus, syncToRemoteRunnable)) {
-          return;
-        }
+        @UI Runnable rebase = () -> {
+          if (handleOutOfSyncOrInSyncButForkPointOff(syncToParentStatus, syncToRemoteRunnable)) {
+            graphTable.queueRepositoryUpdateAndModelRefresh(syncToRemoteRunnable);
+          }
+        };
+        checkoutAndExecuteOnUIThread(gitRepository, graphTable, gitMacheteBranch.getName(), rebase);
         break;
 
       default :
         break;
     }
-
-    graphTable.queueRepositoryUpdateAndModelRefresh(syncToRemoteRunnable);
   }
 
   @UIEffect
@@ -91,7 +106,8 @@ public class TraverseSyncToParent {
             graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
           }
         }.queue();
-        // the ongoing traverse is now down to the newly-created backgroundable; NOT down to outer method
+        // The ongoing traverse is now a responsibility of the freshly-queued backgroundable;
+        // NOT a responsibility of the outer method.
         return false;
 
       case MessageConstants.NO :
@@ -130,7 +146,8 @@ public class TraverseSyncToParent {
             graphTable.queueRepositoryUpdateAndModelRefresh(syncToRemoteRunnable);
           }
         }.queue();
-        // the ongoing traverse is now down to the newly-created backgroundable; NOT down to outer method
+        // The ongoing traverse is now a responsibility of the freshly-queued backgroundable;
+        // NOT a responsibility of the outer method.
         return false;
 
       case MessageConstants.NO :

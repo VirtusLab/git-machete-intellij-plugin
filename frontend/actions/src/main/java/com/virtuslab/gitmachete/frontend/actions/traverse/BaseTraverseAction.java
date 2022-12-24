@@ -3,17 +3,13 @@ package com.virtuslab.gitmachete.frontend.actions.traverse;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
-import java.util.Collections;
-
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
-import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryReadyAction;
@@ -52,7 +48,6 @@ public abstract class BaseTraverseAction extends BaseGitMacheteRepositoryReadyAc
     if (branchLayout == null || branchLayout.getRootEntries().isEmpty()) {
       presentation.setEnabled(false);
       presentation.setDescription(getNonHtmlString("action.GitMachete.BaseTraverseAction.description.empty-layout"));
-      return;
     }
   }
 
@@ -82,12 +77,7 @@ public abstract class BaseTraverseAction extends BaseGitMacheteRepositoryReadyAc
       if (yesNoResult) {
         val initialBranchName = getNameOfBranchUnderAction(anActionEvent);
         if (initialBranchName != null) {
-          val currentBranchName = getCurrentBranchNameIfManaged(anActionEvent);
-          if (initialBranchName.equals(currentBranchName)) {
-            traverseFrom(gitRepository, graphTable, initialBranchName);
-          } else {
-            checkoutAndTraverseFrom(gitRepository, graphTable, initialBranchName);
-          }
+          traverseFrom(gitRepository, graphTable, initialBranchName);
         } else {
           LOG.warn("Skipping traverse action because initialBranchName is undefined");
         }
@@ -95,17 +85,6 @@ public abstract class BaseTraverseAction extends BaseGitMacheteRepositoryReadyAc
     }
   }
 
-  private void checkoutAndTraverseFrom(GitRepository gitRepository, BaseEnhancedGraphTable graphTable, String branchName) {
-    log().debug(() -> "Queuing '${branchName}' branch checkout background task");
-
-    @UI Runnable traverseRunnable = () -> traverseFrom(gitRepository, graphTable, branchName);
-    Runnable repositoryRefreshRunnable = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseRunnable);
-    val gitBrancher = GitBrancher.getInstance(gitRepository.getProject());
-    val repositories = Collections.singletonList(gitRepository);
-    gitBrancher.checkout(/* reference */ branchName, /* detach */ false, repositories, repositoryRefreshRunnable);
-  }
-
-  @UIEffect
   private void traverseFrom(GitRepository gitRepository, BaseEnhancedGraphTable graphTable, String branchName) {
     val repositorySnapshot = graphTable.getGitMacheteRepositorySnapshot();
     if (repositorySnapshot == null) {
@@ -118,7 +97,7 @@ public abstract class BaseTraverseAction extends BaseGitMacheteRepositoryReadyAc
       Runnable traverseNextEntry = () -> {
         var nextBranch = branchLayout != null ? branchLayout.findNextEntry(branchName) : null;
         if (nextBranch != null) {
-          checkoutAndTraverseFrom(gitRepository, graphTable, nextBranch.getName());
+          traverseFrom(gitRepository, graphTable, nextBranch.getName());
         }
       };
 

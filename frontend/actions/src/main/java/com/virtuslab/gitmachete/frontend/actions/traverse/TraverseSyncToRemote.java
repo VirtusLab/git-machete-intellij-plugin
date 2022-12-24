@@ -1,20 +1,26 @@
 package com.virtuslab.gitmachete.frontend.actions.traverse;
 
 import static com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperationType.NO_OPERATION;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.InSyncToRemote;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.NoRemotes;
 import static com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTimeoutStatus.FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING;
+import static com.virtuslab.gitmachete.frontend.actions.traverse.CheckoutAndExecute.checkoutAndExecuteOnUIThread;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
+import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.MessageConstants;
 import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.openapi.vcs.VcsNotifier;
+import com.intellij.util.ModalityUiUtil;
 import git4idea.GitLocalBranch;
 import git4idea.push.GitPushSource;
 import git4idea.repo.GitRepository;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
+import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.IBranchReference;
@@ -37,12 +43,12 @@ public class TraverseSyncToRemote {
   private final GitRepository gitRepository;
   private final BaseEnhancedGraphTable graphTable;
   private final IBranchReference gitMacheteBranchOld;
-  private final Runnable traverseNextEntry;
+  private final @UI Runnable traverseNextEntry;
 
   public TraverseSyncToRemote(GitRepository gitRepository,
       BaseEnhancedGraphTable graphTable,
       IManagedBranchSnapshot gitMacheteBranchOld,
-      Runnable traverseNextEntry) {
+      @UI Runnable traverseNextEntry) {
     this.project = gitRepository.getProject();
     this.gitRepository = gitRepository;
     this.graphTable = graphTable;
@@ -50,7 +56,6 @@ public class TraverseSyncToRemote {
     this.traverseNextEntry = traverseNextEntry;
   }
 
-  @UIEffect
   public void execute() {
     // we need to re-retrieve the gitMacheteBranch as its syncToRemote status could have changed after TraverseSyncToParent
     val repositorySnapshot = graphTable.getGitMacheteRepositorySnapshot();
@@ -83,35 +88,51 @@ public class TraverseSyncToRemote {
     }
 
     switch (syncToRemoteStatus) {
+      case NoRemotes :
+      case InSyncToRemote :
+        ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, traverseNextEntry);
+        break;
+
       case Untracked :
-        if (!handleUntracked(gitMacheteBranch, localBranch)) {
-          return;
-        }
+        @UI Runnable pushUntracked = () -> {
+          if (handleUntracked(gitMacheteBranch, localBranch)) {
+            graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
+          }
+        };
+        checkoutAndExecuteOnUIThread(gitRepository, graphTable, gitMacheteBranch.getName(), pushUntracked);
         break;
 
       case AheadOfRemote :
-        if (!handleAheadOfRemote(gitMacheteBranch, localBranch)) {
-          return;
-        }
+        @UI Runnable pushAheadOfRemote = () -> {
+          if (handleAheadOfRemote(gitMacheteBranch, localBranch)) {
+            graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
+          }
+        };
+        checkoutAndExecuteOnUIThread(gitRepository, graphTable, gitMacheteBranch.getName(), pushAheadOfRemote);
         break;
 
       case DivergedFromAndNewerThanRemote :
       case DivergedFromAndOlderThanRemote :
-        if (!handleDivergedFromRemote(gitMacheteBranch, syncToRemoteStatus, localBranch)) {
-          return;
-        }
+        @UI Runnable pushForceDiverged = () -> {
+          if (handleDivergedFromRemote(gitMacheteBranch, syncToRemoteStatus, localBranch)) {
+            graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
+          }
+        };
+        checkoutAndExecuteOnUIThread(gitRepository, graphTable, gitMacheteBranch.getName(), pushForceDiverged);
         break;
 
       case BehindRemote :
-        if (!handleBehindRemote(gitMacheteBranch)) {
-          return;
-        }
+        @UI Runnable pullBehindRemote = () -> {
+          if (handleBehindRemote(gitMacheteBranch)) {
+            graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
+          }
+        };
+        checkoutAndExecuteOnUIThread(gitRepository, graphTable, gitMacheteBranch.getName(), pullBehindRemote);
         break;
 
       default :
         break;
     }
-    graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
   }
 
   @UIEffect
