@@ -12,6 +12,8 @@ import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
+import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
+import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryReadyAction;
 import com.virtuslab.gitmachete.frontend.actions.base.IBranchNameProvider;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.InfoDialog;
@@ -45,9 +47,40 @@ public abstract class BaseTraverseAction extends BaseGitMacheteRepositoryReadyAc
     val repositorySnapshot = graphTable.getGitMacheteRepositorySnapshot();
     val branchLayout = repositorySnapshot != null ? repositorySnapshot.getBranchLayout() : null;
 
-    if (branchLayout == null || branchLayout.getRootEntries().isEmpty()) {
+    if (repositorySnapshot == null || branchLayout == null || branchLayout.getRootEntries().isEmpty()) {
       presentation.setEnabled(false);
       presentation.setDescription(getNonHtmlString("action.GitMachete.BaseTraverseAction.description.empty-layout"));
+      return;
+    }
+
+    String branchUnderAction = getNameOfBranchUnderAction(anActionEvent);
+    if (branchUnderAction == null) {
+      presentation.setEnabled(false);
+      presentation
+          .setDescription(getNonHtmlString("action.GitMachete.BaseTraverseAction.description.current-branch-unmanaged"));
+      return;
+    }
+
+    boolean anythingToBeDone = false;
+    for (var branch = branchUnderAction; branch != null; branch = branchLayout.findNextEntryName(branch)) {
+      val managedBranch = repositorySnapshot.getManagedBranchByName(branch);
+      if (managedBranch == null) {
+        continue;
+      }
+      if (managedBranch.isNonRoot() && managedBranch.asNonRoot().getSyncToParentStatus() != SyncToParentStatus.InSync) {
+        anythingToBeDone = true;
+        break;
+      }
+      val syncToRemoteStatus = managedBranch.getRelationToRemote().getSyncToRemoteStatus();
+      if (syncToRemoteStatus != SyncToRemoteStatus.InSyncToRemote && syncToRemoteStatus != SyncToRemoteStatus.NoRemotes) {
+        anythingToBeDone = true;
+        break;
+      }
+    }
+    if (!anythingToBeDone) {
+      presentation.setEnabled(false);
+      presentation.setDescription(
+          getNonHtmlString("action.GitMachete.BaseTraverseAction.description.nothing-to-be-done").fmt(branchUnderAction));
     }
   }
 

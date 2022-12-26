@@ -59,6 +59,11 @@ public class BranchLayout {
     return null;
   }
 
+  public @Nullable String findNextEntryName(String branchName) {
+    val nextEntry = findNextEntry(branchName);
+    return nextEntry != null ? nextEntry.getName() : null;
+  }
+
   public @Nullable BranchLayoutEntry findPreviousEntry(String branchName) {
     val entriesOrderedList = allEntries.map(BranchLayoutEntry::getName);
     val currentIndex = entriesOrderedList.indexOf(branchName);
