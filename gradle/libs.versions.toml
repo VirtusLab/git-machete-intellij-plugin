@@ -50,7 +50,7 @@ pluginPackages-jetbrains-intellij = "org.jetbrains.intellij.plugins:gradle-intel
 #      which is different in our case (as this is the Kotlin version bundled into IntelliJ 2022.1).
 pluginPackages-jetbrains-kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.20"
 pluginPackages-spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.12.0"
-pluginPackages-taskTree = "com.dorongold.plugins:task-tree:2.1.0"
+pluginPackages-taskTree = "com.dorongold.plugins:task-tree:2.1.1"
 pluginPackages-versionCatalogUpdate = "nl.littlerobots.version-catalog-update:nl.littlerobots.version-catalog-update.gradle.plugin:0.5.3"
 pluginPackages-versionsFilter = "se.ascp.gradle:gradle-versions-filter:0.1.16"
 
