@@ -1,8 +1,9 @@
 # Changelog
 
 ## v3.3.0
-- Improved performance of the plugin on large repos with 100,000s of commits in history.
 - Added the interactive traverse feature.
+- Improved performance of the plugin on large repos with 100,000s of commits in history.
+- Moved Discover action to near the end of the toolbar.
 
 ## v3.2.2
 - Improve CI build stability.
