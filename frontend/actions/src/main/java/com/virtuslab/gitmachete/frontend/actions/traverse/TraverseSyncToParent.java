@@ -62,12 +62,9 @@ public class TraverseSyncToParent {
             graphTable.queueRepositoryUpdateAndModelRefresh(syncToRemoteRunnable);
           }
         };
-        // Note that we're checking out the **parent** of the branch to be slid out.
-        // This probably makes more sense than checking out the branch itself because:
-        //   * it still focuses the user's attention on the branch's neighbourhood in branch layout,
-        //   * while leaving the option to delete the freshly slid-out branch (as current branch can't be easily deleted).
-        checkoutAndExecuteOnUIThread(gitRepository, graphTable, gitMacheteBranch.getParent().getName(), slideOut);
-
+        // Note that checking out the branch to be slid out has the unfortunate side effect
+        // that we won't suggest deleting the branch after the slide out.
+        checkoutAndExecuteOnUIThread(gitRepository, graphTable, gitMacheteBranch.getName(), slideOut);
         break;
 
       case InSyncButForkPointOff :
