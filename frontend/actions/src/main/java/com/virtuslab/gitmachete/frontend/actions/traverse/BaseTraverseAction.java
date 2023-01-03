@@ -135,7 +135,7 @@ public abstract class BaseTraverseAction extends BaseGitMacheteRepositoryReadyAc
       };
 
       if (gitMacheteBranch.isNonRoot()) {
-        new TraverseSyncToParent(gitRepository, graphTable, repositorySnapshot, gitMacheteBranch.asNonRoot(), traverseNextEntry)
+        new TraverseSyncToParent(gitRepository, graphTable, gitMacheteBranch, traverseNextEntry)
             .execute();
       } else {
         new TraverseSyncToRemote(gitRepository, graphTable, gitMacheteBranch, traverseNextEntry).execute();

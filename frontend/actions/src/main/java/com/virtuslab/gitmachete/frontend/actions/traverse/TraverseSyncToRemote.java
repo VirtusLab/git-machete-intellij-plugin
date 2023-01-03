@@ -1,8 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.traverse;
 
 import static com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperationType.NO_OPERATION;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.InSyncToRemote;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.NoRemotes;
 import static com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTimeoutStatus.FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING;
 import static com.virtuslab.gitmachete.frontend.actions.traverse.CheckoutAndExecute.checkoutAndExecuteOnUIThread;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
@@ -42,17 +40,17 @@ public class TraverseSyncToRemote {
   private final Project project;
   private final GitRepository gitRepository;
   private final BaseEnhancedGraphTable graphTable;
-  private final IBranchReference gitMacheteBranchOld;
+  private final IBranchReference branch;
   private final @UI Runnable traverseNextEntry;
 
   public TraverseSyncToRemote(GitRepository gitRepository,
       BaseEnhancedGraphTable graphTable,
-      IManagedBranchSnapshot gitMacheteBranchOld,
+      IBranchReference branch,
       @UI Runnable traverseNextEntry) {
     this.project = gitRepository.getProject();
     this.gitRepository = gitRepository;
     this.graphTable = graphTable;
-    this.gitMacheteBranchOld = gitMacheteBranchOld;
+    this.branch = branch;
     this.traverseNextEntry = traverseNextEntry;
   }
 
@@ -64,7 +62,7 @@ public class TraverseSyncToRemote {
       return;
     }
 
-    val gitMacheteBranch = repositorySnapshot.getManagedBranchByName(gitMacheteBranchOld.getName());
+    val gitMacheteBranch = repositorySnapshot.getManagedBranchByName(branch.getName());
     if (gitMacheteBranch == null) {
       LOG.warn("gitMacheteBranch is null");
       return;
