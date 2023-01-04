@@ -244,12 +244,11 @@ public class TraverseSyncToRemote {
                 .fmt(FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING)
             : getNonHtmlString("action.GitMachete.BasePullAction.notification.prefix.fetch-perform");
         val fetchNotificationTextPrefix = fetchNotificationPrefix + (fetchNotificationPrefix.isEmpty() ? "" : " ");
-        new FastForwardMergeBackgroundable(gitRepository, mergeProps, fetchNotificationTextPrefix) {
-          @Override
-          public void onSuccess() {
-            graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
-          }
-        }.queue();
+        Runnable doInUIThreadWhenReady = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
+        new FastForwardMergeBackgroundable(gitRepository, mergeProps, fetchNotificationTextPrefix, doInUIThreadWhenReady)
+            .queue();
+        // The ongoing traverse is now a responsibility of the freshly-queued backgroundable;
+        // NOT a responsibility of the outer method.
         return false;
 
       case MessageConstants.NO :

@@ -11,6 +11,8 @@ import git4idea.GitReference;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 import lombok.val;
+import org.checkerframework.checker.guieffect.qual.UI;
+import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.tainting.qual.Untainted;
 
 import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
@@ -24,9 +26,15 @@ public class FastForwardMergeBackgroundable extends CheckRemoteBranchBackgrounda
   private final MergeProps mergeProps;
 
   private final @Untainted String fetchNotificationTextPrefix;
+  private final @UI Runnable doInUIThreadWhenReady;
 
   public FastForwardMergeBackgroundable(GitRepository gitRepository, MergeProps mergeProps,
       @Untainted String fetchNotificationTextPrefix) {
+    this(gitRepository, mergeProps, fetchNotificationTextPrefix, () -> {});
+  }
+
+  public FastForwardMergeBackgroundable(GitRepository gitRepository, MergeProps mergeProps,
+      @Untainted String fetchNotificationTextPrefix, @UI Runnable doInUIThreadWhenReady) {
     super(gitRepository,
         /* remoteBranchName */ mergeProps.getStayingBranch().getName(),
         /* taskFailNotificationTitle */ getString(
@@ -35,6 +43,7 @@ public class FastForwardMergeBackgroundable extends CheckRemoteBranchBackgrounda
     this.gitRepository = gitRepository;
     this.mergeProps = mergeProps;
     this.fetchNotificationTextPrefix = fetchNotificationTextPrefix;
+    this.doInUIThreadWhenReady = doInUIThreadWhenReady;
   }
 
   @Override
@@ -51,9 +60,21 @@ public class FastForwardMergeBackgroundable extends CheckRemoteBranchBackgrounda
     }
   }
 
+  /** Do not override {@code onSuccess}. Instead, pass {@code doInUIThreadWhenReady} callback to the constructor. */
+  @Override
+  public final void onSuccess() {}
+
   @ContinuesInBackground
   private void mergeCurrentBranch() {
-    new MergeCurrentBranchFastForwardOnlyBackgroundable(gitRepository, mergeProps.getStayingBranch()).queue();
+    new MergeCurrentBranchFastForwardOnlyBackgroundable(gitRepository, mergeProps.getStayingBranch()) {
+      @Override
+      @UIEffect
+      public void onSuccess() {
+        super.onSuccess();
+
+        doInUIThreadWhenReady.run();
+      }
+    }.queue();
   }
 
   @ContinuesInBackground
@@ -73,6 +94,14 @@ public class FastForwardMergeBackgroundable extends CheckRemoteBranchBackgrounda
         refspecFromChildToParent,
         getString("action.GitMachete.BaseFastForwardMergeToParentAction.task-title"),
         fetchNotificationTextPrefix + failFFMergeNotification,
-        fetchNotificationTextPrefix + successFFMergeNotification).queue();
+        fetchNotificationTextPrefix + successFFMergeNotification) {
+      @Override
+      @UIEffect
+      public void onSuccess() {
+        super.onSuccess();
+
+        doInUIThreadWhenReady.run();
+      }
+    }.queue();
   }
 }
