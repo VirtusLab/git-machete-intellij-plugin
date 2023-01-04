@@ -90,6 +90,9 @@ public class TraverseSyncToRemote {
     switch (syncToRemoteStatus) {
       case NoRemotes :
       case InSyncToRemote :
+        // A repository refresh isn't needed here.
+        // Each side-effecting action like push/rebase is responsible for refreshing repository on its own,
+        // so we can assume that the repository is already up to date once we enter void execute().
         ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, traverseNextEntry);
         break;
 
