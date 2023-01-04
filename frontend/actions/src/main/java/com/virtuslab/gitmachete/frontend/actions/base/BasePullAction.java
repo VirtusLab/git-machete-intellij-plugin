@@ -1,6 +1,5 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
-import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.createRefspec;
 import static com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTimeoutStatus.FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
@@ -117,16 +116,12 @@ public abstract class BasePullAction extends BaseGitMacheteRepositoryReadyAction
       Runnable onSuccessRunnable) {
     val remoteName = remoteBranch.getRemoteName();
 
-    // This strategy is used to fetch branch from remote repository to remote branch in our repository.
-    val refspecFromRemoteRepoToOurRemoteBranch = createRefspec("refs/heads/*",
-        "refs/remotes/${remoteName}/*", /* allowNonFastForward */ true);
-
     String taskTitle = getString("action.GitMachete.BasePullAction.task-title");
 
     new FetchBackgroundable(
         gitRepository,
         remoteName,
-        refspecFromRemoteRepoToOurRemoteBranch,
+        /* refspec */ null, // let's use the default refspec for the given remote, as defined in git config
         taskTitle,
         getNonHtmlString("action.GitMachete.BasePullAction.notification.title.pull-fail").fmt(remoteBranch.getName()),
         getString("action.GitMachete.BasePullAction.notification.title.pull-success.HTML").fmt(remoteBranch.getName())) {
