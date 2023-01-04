@@ -22,6 +22,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryReadyAction;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
+import com.virtuslab.qual.async.ContinuesInBackground;
 
 @ExtensionMethod(GitMacheteBundle.class)
 @CustomLog
@@ -58,6 +59,7 @@ public class ShowSelectedInGitLogAction extends BaseGitMacheteRepositoryReadyAct
   }
 
   @Override
+  @ContinuesInBackground
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     val selectedBranchName = getSelectedBranchName(anActionEvent);
@@ -85,6 +87,7 @@ public class ShowSelectedInGitLogAction extends BaseGitMacheteRepositoryReadyAct
     }
   }
 
+  @ContinuesInBackground
   private void jumpToRevisionUnderProgress(Project project, Hash hash) {
     new Task.Backgroundable(project, getString("action.GitMachete.ShowSelectedInGitLogAction.task-title")) {
       @Override

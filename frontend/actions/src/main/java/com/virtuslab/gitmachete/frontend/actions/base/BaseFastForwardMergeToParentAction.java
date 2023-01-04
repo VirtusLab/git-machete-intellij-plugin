@@ -16,6 +16,7 @@ import org.checkerframework.checker.tainting.qual.Untainted;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FastForwardMergeBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
+import com.virtuslab.qual.async.ContinuesInBackground;
 
 @CustomLog
 public abstract class BaseFastForwardMergeToParentAction extends BaseGitMacheteRepositoryReadyAction
@@ -51,6 +52,7 @@ public abstract class BaseFastForwardMergeToParentAction extends BaseGitMacheteR
   }
 
   @Override
+  @ContinuesInBackground
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     val gitRepository = getSelectedGitRepository(anActionEvent);

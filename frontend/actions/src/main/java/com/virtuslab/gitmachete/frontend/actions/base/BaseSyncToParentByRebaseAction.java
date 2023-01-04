@@ -22,6 +22,7 @@ import com.virtuslab.gitmachete.frontend.actions.backgroundables.RebaseOnParentB
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
+import com.virtuslab.qual.async.ContinuesInBackground;
 
 @ExtensionMethod({Arrays.class, GitMacheteBundle.class})
 @CustomLog
@@ -113,6 +114,7 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
   }
 
   @Override
+  @ContinuesInBackground
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     LOG.debug("Performing");
@@ -129,6 +131,7 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
     }
   }
 
+  @ContinuesInBackground
   private void doRebase(AnActionEvent anActionEvent, INonRootManagedBranchSnapshot branchToRebase) {
     val gitRepository = getSelectedGitRepository(anActionEvent);
     val gitMacheteRepositorySnapshot = getGitMacheteRepositorySnapshot(anActionEvent);

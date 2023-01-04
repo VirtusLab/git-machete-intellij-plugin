@@ -16,6 +16,7 @@ import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideOutBackgro
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
+import com.virtuslab.qual.async.ContinuesInBackground;
 
 @ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class})
 @CustomLog
@@ -55,6 +56,7 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
   }
 
   @Override
+  @ContinuesInBackground
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     LOG.debug("Performing");
@@ -66,6 +68,7 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
     }
   }
 
+  @ContinuesInBackground
   @UIEffect
   private void doSlideOut(AnActionEvent anActionEvent, IManagedBranchSnapshot branchToSlideOut) {
     LOG.debug(() -> "Entering: branchToSlideOut = ${branchToSlideOut}");

@@ -12,6 +12,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryReadyAction;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
+import com.virtuslab.qual.async.ContinuesInBackground;
 
 @CustomLog
 public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAction
@@ -65,6 +66,7 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
   }
 
   @Override
+  @ContinuesInBackground
   @UIEffect
   public final void actionPerformed(AnActionEvent anActionEvent) {
     boolean newState = !Toggleable.isSelected(anActionEvent.getPresentation());

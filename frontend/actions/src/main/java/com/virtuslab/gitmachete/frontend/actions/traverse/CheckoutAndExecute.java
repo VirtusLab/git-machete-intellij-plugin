@@ -11,11 +11,13 @@ import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UI;
 
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
+import com.virtuslab.qual.async.ContinuesInBackground;
 
 @CustomLog
 final class CheckoutAndExecute {
   private CheckoutAndExecute() {}
 
+  @ContinuesInBackground
   static void checkoutAndExecuteOnUIThread(GitRepository gitRepository, BaseEnhancedGraphTable graphTable, String branchName,
       @UI Runnable doOnUIThreadAfterCheckout) {
     val currentBranch = gitRepository.getCurrentBranch();

@@ -31,6 +31,7 @@ import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.DeleteBranchOnSlideOutSuggestionDialog;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
+import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
@@ -64,6 +65,7 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
   }
 
   @Override
+  @ContinuesInBackground
   @UIThreadUnsafe
   public void run(ProgressIndicator indicator) {
     val slideOutBranchIsCurrent = branchToSlideOutName.equals(currentBranchNameIfManaged);
@@ -87,6 +89,7 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
     }
   }
 
+  @ContinuesInBackground
   @UIEffect
   private void suggestBranchDeletion(String branchName) {
     val slideOutOptions = new DeleteBranchOnSlideOutSuggestionDialog(project, branchName).showAndGetSlideOutOptions();

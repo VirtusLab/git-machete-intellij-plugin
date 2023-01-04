@@ -1,7 +1,9 @@
 package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
 import static com.virtuslab.gitmachete.frontend.actions.base.BaseResetToRemoteAction.VCS_NOTIFIER_TITLE;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.fmt;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
+import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getRootDirectory;
 import static git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector.Operation.RESET;
 
 import com.intellij.dvcs.DvcsUtil;
@@ -18,14 +20,10 @@ import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import git4idea.util.LocalChangesWouldBeOverwrittenHelper;
 import lombok.CustomLog;
-import lombok.experimental.ExtensionMethod;
 import lombok.val;
 
-import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
-import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
-@ExtensionMethod({GitMacheteBundle.class, GitVfsUtils.class})
 @CustomLog
 public class ResetCurrentToRemoteBackgroundable extends Task.Backgroundable {
 
@@ -65,8 +63,8 @@ public class ResetCurrentToRemoteBackgroundable extends Task.Backgroundable {
         if (result.success()) {
           VcsNotifier.getInstance(myProject).notifySuccess( /* displayId */ null,
               /* title */ "",
-              getString("action.GitMachete.BaseResetToRemoteAction.notification.title.reset-success.HTML")
-                  .fmt(localBranchName));
+              fmt(getString("action.GitMachete.BaseResetToRemoteAction.notification.title.reset-success.HTML"),
+                  localBranchName));
           LOG.debug(() -> "Branch '${localBranchName}' has been reset to '${remoteTrackingBranchName}");
 
         } else if (localChangesDetector.wasMessageDetected()) {
@@ -82,7 +80,7 @@ public class ResetCurrentToRemoteBackgroundable extends Task.Backgroundable {
               result.getErrorOutputAsHtmlString());
         }
 
-        val repositoryRoot = gitRepository.getRootDirectory();
+        val repositoryRoot = getRootDirectory(gitRepository);
         GitRepositoryManager.getInstance(myProject).updateRepository(repositoryRoot);
         VfsUtil.markDirtyAndRefresh(/* async */ false, /* recursive */ true, /* reloadChildren */ false, repositoryRoot);
       }

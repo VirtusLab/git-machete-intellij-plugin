@@ -23,6 +23,7 @@ import com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTimeoutStat
 import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
+import com.virtuslab.qual.async.ContinuesInBackground;
 
 @ExtensionMethod(GitMacheteBundle.class)
 @CustomLog
@@ -62,6 +63,7 @@ public abstract class BasePullAction extends BaseGitMacheteRepositoryReadyAction
   }
 
   @Override
+  @ContinuesInBackground
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     log().debug("Performing");
@@ -96,17 +98,19 @@ public abstract class BasePullAction extends BaseGitMacheteRepositoryReadyAction
               .fmt(FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING)
           : getNonHtmlString("action.GitMachete.BasePullAction.notification.prefix.fetch-perform");
       val fetchNotificationTextPrefix = fetchNotificationPrefix + (fetchNotificationPrefix.isEmpty() ? "" : " ");
-      Runnable fastForwardRunnable = () -> new FastForwardMergeBackgroundable(gitRepository, mergeProps,
-          fetchNotificationTextPrefix).queue();
+      val fastForwardBackgroundable = new FastForwardMergeBackgroundable(gitRepository, mergeProps,
+          fetchNotificationTextPrefix);
 
       if (isUpToDate) {
-        fastForwardRunnable.run();
+        fastForwardBackgroundable.queue();
       } else {
-        updateRepositoryFetchBackgroundable(gitRepository, remoteBranch, /* onSuccessRunnable */ fastForwardRunnable);
+        updateRepositoryFetchBackgroundable(gitRepository, remoteBranch,
+            /* onSuccessRunnable */ () -> fastForwardBackgroundable.queue());
       }
     }
   }
 
+  @ContinuesInBackground
   private void updateRepositoryFetchBackgroundable(
       GitRepository gitRepository,
       IRemoteTrackingBranchReference remoteBranch,

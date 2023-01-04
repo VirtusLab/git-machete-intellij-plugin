@@ -17,6 +17,7 @@ import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMach
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyUnmanagedBranchName;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
+import com.virtuslab.qual.async.ContinuesInBackground;
 
 @ExtensionMethod(GitMacheteBundle.class)
 @CustomLog
@@ -32,6 +33,7 @@ public class SlideInUnmanagedBelowAction extends BaseGitMacheteRepositoryReadyAc
   }
 
   @Override
+  @ContinuesInBackground
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     val gitRepository = getSelectedGitRepository(anActionEvent);

@@ -24,6 +24,7 @@ import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideOutBackgro
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
+import com.virtuslab.qual.async.ContinuesInBackground;
 
 @ExtensionMethod({GitMacheteBundle.class, GitVfsUtils.class})
 @CustomLog
@@ -46,6 +47,7 @@ public class TraverseSyncToParent {
     this.traverseNextEntry = traverseNextEntry;
   }
 
+  @ContinuesInBackground
   public void execute() {
     val repositorySnapshot = graphTable.getGitMacheteRepositorySnapshot();
     if (repositorySnapshot == null) {
@@ -100,6 +102,7 @@ public class TraverseSyncToParent {
     }
   }
 
+  @ContinuesInBackground
   @UIEffect
   private boolean handleMergedToParent(
       IGitMacheteRepositorySnapshot repositorySnapshot,
@@ -137,6 +140,7 @@ public class TraverseSyncToParent {
     }
   }
 
+  @ContinuesInBackground
   @UIEffect
   private boolean handleOutOfSyncOrInSyncButForkPointOff(
       IGitMacheteRepositorySnapshot repositorySnapshot,

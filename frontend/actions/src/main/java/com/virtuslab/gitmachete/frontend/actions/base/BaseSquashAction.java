@@ -32,6 +32,7 @@ import com.virtuslab.gitmachete.frontend.actions.common.VcsCommitMetadataAdapter
 import com.virtuslab.gitmachete.frontend.actions.dialogs.GitNewCommitMessageActionDialog;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
+import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod(GitMacheteBundle.class)
@@ -91,6 +92,7 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
   }
 
   @Override
+  @ContinuesInBackground
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     val branchName = getNameOfBranchUnderAction(anActionEvent);
@@ -121,6 +123,7 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
     private final String message;
   }
 
+  @ContinuesInBackground
   @UIEffect
   private void doSquash(
       GitRepository gitRepository,

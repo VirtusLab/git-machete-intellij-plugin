@@ -15,6 +15,7 @@ import org.checkerframework.checker.tainting.qual.Untainted;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.OverrideForkPointBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.OverrideForkPointDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
+import com.virtuslab.qual.async.ContinuesInBackground;
 
 @CustomLog
 public abstract class BaseOverrideForkPointAction extends BaseGitMacheteRepositoryReadyAction
@@ -46,6 +47,7 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
   }
 
   @Override
+  @ContinuesInBackground
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     val project = getProject(anActionEvent);

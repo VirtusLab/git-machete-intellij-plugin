@@ -32,6 +32,7 @@ import com.virtuslab.gitmachete.frontend.actions.dialogs.InfoDialog;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
+import com.virtuslab.qual.async.ContinuesInBackground;
 
 @ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class, StringEscapeUtils.class})
 @CustomLog
@@ -91,6 +92,7 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
   }
 
   @Override
+  @ContinuesInBackground
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     log().debug("Performing");
@@ -167,6 +169,7 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
     }
   }
 
+  @ContinuesInBackground
   private void doResetNonCurrentBranchToRemoteWithKeep(
       GitRepository gitRepository,
       ILocalBranchReference localBranch,
@@ -185,6 +188,7 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
             .queue();
   }
 
+  @ContinuesInBackground
   protected void doResetCurrentBranchToRemoteWithKeep(
       GitRepository gitRepository,
       ILocalBranchReference localBranch,

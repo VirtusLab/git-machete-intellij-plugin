@@ -24,6 +24,7 @@ import org.checkerframework.checker.tainting.qual.Untainted;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
+import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
@@ -72,6 +73,7 @@ public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteReposi
   }
 
   @Override
+  @ContinuesInBackground
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
 
@@ -102,6 +104,7 @@ public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteReposi
     }
   }
 
+  @ContinuesInBackground
   @UIEffect
   public static void doMergeIntoCurrentBranch(GitRepository gitRepository, MergeProps mergeProps) {
     val stayingBranch = mergeProps.getStayingBranch().getName();
@@ -122,6 +125,7 @@ public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteReposi
 
   }
 
+  @ContinuesInBackground
   @UIEffect
   private void doMergeIntoNonCurrentBranch(GitRepository gitRepository, MergeProps mergeProps) {
     val stayingBranch = mergeProps.getStayingBranch().getName();

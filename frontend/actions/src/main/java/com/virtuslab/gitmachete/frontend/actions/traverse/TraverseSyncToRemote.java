@@ -32,6 +32,7 @@ import com.virtuslab.gitmachete.frontend.actions.dialogs.DivergedFromRemoteDialo
 import com.virtuslab.gitmachete.frontend.actions.dialogs.GitPushDialog;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
+import com.virtuslab.qual.async.ContinuesInBackground;
 
 @ExtensionMethod(GitMacheteBundle.class)
 @CustomLog
@@ -54,6 +55,7 @@ public class TraverseSyncToRemote {
     this.traverseNextEntry = traverseNextEntry;
   }
 
+  @ContinuesInBackground
   public void execute() {
     // we need to re-retrieve the gitMacheteBranch as its syncToRemote status could have changed after TraverseSyncToParent
     val repositorySnapshot = graphTable.getGitMacheteRepositorySnapshot();
@@ -180,6 +182,7 @@ public class TraverseSyncToRemote {
     }
   }
 
+  @ContinuesInBackground
   @UIEffect
   private boolean handleDivergedFromRemote(IManagedBranchSnapshot gitMacheteBranch,
       SyncToRemoteStatus syncToRemoteStatus,
@@ -200,8 +203,15 @@ public class TraverseSyncToRemote {
         new ResetCurrentToRemoteBackgroundable(
             getString("action.GitMachete.BaseResetToRemoteAction.task-title"),
             /* canBeCancelled */ true, gitMacheteBranch.getName(), remoteTrackingBranch.getName(),
-            gitRepository).queue();
-        return true;
+            gitRepository) {
+          @Override
+          public void onSuccess() {
+            graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
+          }
+        }.queue();
+        // The ongoing traverse is now a responsibility of the freshly-queued backgroundable;
+        // NOT a responsibility of the outer method.
+        return false;
 
       case DO_NOT_SYNC :
         return true;
@@ -211,6 +221,7 @@ public class TraverseSyncToRemote {
     }
   }
 
+  @ContinuesInBackground
   @UIEffect
   private boolean handleBehindRemote(IManagedBranchSnapshot gitMacheteBranch) {
     val remoteTrackingBranch = gitMacheteBranch.getRemoteTrackingBranch();
@@ -233,8 +244,13 @@ public class TraverseSyncToRemote {
                 .fmt(FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING)
             : getNonHtmlString("action.GitMachete.BasePullAction.notification.prefix.fetch-perform");
         val fetchNotificationTextPrefix = fetchNotificationPrefix + (fetchNotificationPrefix.isEmpty() ? "" : " ");
-        new FastForwardMergeBackgroundable(gitRepository, mergeProps, fetchNotificationTextPrefix).queue();
-        return true;
+        new FastForwardMergeBackgroundable(gitRepository, mergeProps, fetchNotificationTextPrefix) {
+          @Override
+          public void onSuccess() {
+            graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
+          }
+        }.queue();
+        return false;
 
       case MessageConstants.NO :
         return true;

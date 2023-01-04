@@ -17,6 +17,7 @@ import org.checkerframework.checker.tainting.qual.Untainted;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
+import com.virtuslab.qual.async.ContinuesInBackground;
 
 @ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class})
 @CustomLog
@@ -68,14 +69,9 @@ public abstract class BaseCheckoutAction extends BaseGitMacheteRepositoryReadyAc
   }
 
   @Override
+  @ContinuesInBackground
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-    Runnable callInAwtLater = () -> {};
-    perform(anActionEvent, callInAwtLater);
-  }
-
-  @UIEffect
-  public void perform(AnActionEvent anActionEvent, Runnable callInAwtLater) {
     val targetBranchName = getTargetBranchName(anActionEvent);
     if (targetBranchName == null || targetBranchName.isEmpty()) {
       return;
@@ -87,7 +83,7 @@ public abstract class BaseCheckoutAction extends BaseGitMacheteRepositoryReadyAc
     if (gitRepository != null) {
       log().debug(() -> "Queuing '${targetBranchName}' branch checkout background task");
       GitBrancher.getInstance(project).checkout(/* reference */ targetBranchName, /* detach */ false,
-          Collections.singletonList(gitRepository), callInAwtLater);
+          Collections.singletonList(gitRepository), /* callInAwtLater */ () -> {});
     }
   }
 }

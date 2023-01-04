@@ -26,6 +26,7 @@ import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileReader;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
+import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod(GitVfsUtils.class)
@@ -43,6 +44,7 @@ public class RediscoverSuggester {
   // TODO (#270): a candidate for custom settings tab
   private final int DAYS_AFTER_WHICH_TO_SUGGEST_DISCOVER = 14;
 
+  @ContinuesInBackground
   @UIEffect
   public void perform() {
     val macheteFilePath = gitRepository.getMacheteFilePath();
@@ -94,6 +96,7 @@ public class RediscoverSuggester {
     return millisDiff / (24 * 60 * 60 * 1000);
   }
 
+  @ContinuesInBackground
   public void enqueueChecksAndSuggestIfApplicable(Path macheteFilePath) {
     new Task.Backgroundable(
         gitRepository.getProject(),

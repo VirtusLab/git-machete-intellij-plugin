@@ -27,6 +27,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
+import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod(GitVfsUtils.class)
@@ -40,6 +41,7 @@ public class GitMacheteRepositoryDiscoverer {
   private final Consumer<IGitMacheteRepositorySnapshot> onSuccessRepositorySnapshotConsumer;
   private final Consumer<IGitMacheteRepository> onSuccessRepositoryConsumer;
 
+  @ContinuesInBackground
   public void enqueue(Path macheteFilePath) {
     LOG.info("Enqueuing automatic discover");
     val selectedRepository = gitRepositorySelectionProvider.getSelectedGitRepository();

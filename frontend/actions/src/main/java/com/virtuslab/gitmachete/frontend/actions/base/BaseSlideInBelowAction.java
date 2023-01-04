@@ -36,6 +36,7 @@ import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideInNonRootB
 import com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
+import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.guieffect.IgnoreUIThreadUnsafeCalls;
 
 @ExtensionMethod(GitMacheteBundle.class)
@@ -80,6 +81,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
   }
 
   @Override
+  @ContinuesInBackground
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     val project = getProject(anActionEvent);
@@ -155,6 +157,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
     }.queue();
   }
 
+  @ContinuesInBackground
   // The UI thread-unsafe calls are actually happening within Runnable lambdas
   // which are going to be executed outside of UI thread.
   @IgnoreUIThreadUnsafeCalls({

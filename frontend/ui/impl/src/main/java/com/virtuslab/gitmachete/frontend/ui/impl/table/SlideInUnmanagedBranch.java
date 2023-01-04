@@ -20,6 +20,7 @@ import lombok.val;
 import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
+import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod(GitVfsUtils.class)
@@ -32,6 +33,7 @@ public class SlideInUnmanagedBranch {
   private final IGitRepositorySelectionProvider gitRepositorySelectionProvider;
   private final Consumer<ILocalBranchReference> onSuccessInferredParentBranchConsumer;
 
+  @ContinuesInBackground
   public void enqueue() {
     LOG.info("Enqueuing unmanaged branch notification");
     val selectedRepository = gitRepositorySelectionProvider.getSelectedGitRepository();

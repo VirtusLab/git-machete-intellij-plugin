@@ -37,6 +37,7 @@ import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.services.SelectedGitRepositoryService;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
+import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.guieffect.IgnoreUIThreadUnsafeCalls;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
@@ -50,8 +51,9 @@ public class DiscoverAction extends BaseProjectDependentAction {
   }
 
   @Override
-  @UIEffect
+  @ContinuesInBackground
   @IgnoreUIThreadUnsafeCalls("com.virtuslab.gitmachete.backend.api.IGitMacheteRepository.discoverLayoutAndCreateSnapshot()")
+  @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     val project = getProject(anActionEvent);
     val selectedRepoService = project.getService(SelectedGitRepositoryService.class)
@@ -97,12 +99,14 @@ public class DiscoverAction extends BaseProjectDependentAction {
     }
   }
 
+  @ContinuesInBackground
   private Consumer<IGitMacheteRepositorySnapshot> saveAndDoNotOpenMacheteFileSnapshotConsumer(GitRepository gitRepository,
       BaseEnhancedGraphTable graphTable, IBranchLayoutWriter branchLayoutWriter) {
     return repositorySnapshot -> saveDiscoveredLayout(repositorySnapshot,
         gitRepository.getMacheteFilePath(), gitRepository.getProject(), graphTable, branchLayoutWriter, () -> {});
   }
 
+  @ContinuesInBackground
   private Consumer<IGitMacheteRepositorySnapshot> saveAndOpenMacheteFileSnapshotConsumer(GitRepository gitRepository,
       BaseEnhancedGraphTable graphTable, IBranchLayoutWriter branchLayoutWriter) {
     return repositorySnapshot -> saveDiscoveredLayout(repositorySnapshot,
@@ -125,6 +129,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
     }
   }
 
+  @ContinuesInBackground
   private void saveDiscoveredLayout(IGitMacheteRepositorySnapshot repositorySnapshot,
       Path macheteFilePath,
       Project project,

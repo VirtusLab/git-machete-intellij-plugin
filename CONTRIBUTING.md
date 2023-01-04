@@ -49,8 +49,8 @@ Use IntelliJ IDEA Community Edition/Ultimate.
    To investigate the UI you may want to use `Tools > Internal Actions > UI > UI Inspector`.
 
 9. (optional) Set `Class count before import with '*'` and `Names count to use static import with '*'` to a very high number (e.g. 500)
-   to avoid problems with CheckStyle when editing code. To do that go to `File > Settings > Editor > Code Style > Java/Kotlin/Scala`
-   (`Preferences > Editor > Code Style > Java/Kotlin/Scala` on macOS).
+   to avoid problems with CheckStyle when editing code. To do that go to `File > Settings > Editor > Code Style > Java > Imports`
+   (`Preferences > Editor > Code Style > Java > Imports` on macOS).
 
 ### Git config/hooks
 

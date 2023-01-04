@@ -82,6 +82,8 @@ import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRenderer;
 import com.virtuslab.gitmachete.frontend.ui.services.SelectedGitRepositoryService;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
+import com.virtuslab.qual.async.ContinuesInBackground;
+import com.virtuslab.qual.async.DoesNotContinueInBackground;
 import com.virtuslab.qual.guieffect.IgnoreUIThreadUnsafeCalls;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
@@ -211,6 +213,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     Disposer.register(this, messageBusConnection);
   }
 
+  @DoesNotContinueInBackground(reason = "because the call to trackCurrentBranchChange happens in listener")
   @UIEffect
   private void subscribeToGitRepositoryFilesChanges() {
     Topic<GitRepositoryChangeListener> topic = GitRepository.GIT_REPO_CHANGE;
@@ -224,6 +227,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     Disposer.register(this, messageBusConnection);
   }
 
+  @ContinuesInBackground
   @IgnoreUIThreadUnsafeCalls("com.virtuslab.gitmachete.backend.api.IGitMacheteRepository.inferParentForLocalBranch"
       + "(io.vavr.collection.Set, java.lang.String)")
   private void inferParentForUnmanagedBranchNotificationAndNotify(String branchName) {
@@ -281,6 +285,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
   // This method can only be executed on UI thread since it writes certain field(s)
   // which we only ever want to write on UI thread to avoid race conditions.
+  @ContinuesInBackground
   @UIEffect
   private void trackCurrentBranchChange(GitRepository repository) {
     val repositoryCurrentBranch = repository.getCurrentBranch();
@@ -308,6 +313,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     gitRepositorySelectionProvider.addSelectionChangeObserver(() -> queueRepositoryUpdateAndModelRefresh());
   }
 
+  @ContinuesInBackground
   @UIEffect
   private void refreshModel(
       GitRepository gitRepository,
@@ -447,6 +453,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     });
   }
 
+  @ContinuesInBackground
   public void queueDiscover(Path macheteFilePath, @UI Runnable doOnUIThreadWhenReady) {
     new GitMacheteRepositoryDiscoverer(
         project,
@@ -457,6 +464,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
             .enqueue(macheteFilePath);
   }
 
+  @ContinuesInBackground
   private Consumer<IGitMacheteRepositorySnapshot> getSuccessfulDiscoverRepositorySnapshotConsumer(
       @UI Runnable doOnUIThreadWhenReady) {
     return (IGitMacheteRepositorySnapshot repositorySnapshot) -> ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> {
@@ -488,6 +496,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   }
 
   @Override
+  @ContinuesInBackground
   @UIEffect
   public void refreshModel() {
     val gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
@@ -509,6 +518,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     setAutoCreateColumnsFromModel(false);
   }
 
+  @ContinuesInBackground
   @Override
   public void queueRepositoryUpdateAndModelRefresh(@UI Runnable doOnUIThreadWhenReady) {
     LOG.debug("Entering");

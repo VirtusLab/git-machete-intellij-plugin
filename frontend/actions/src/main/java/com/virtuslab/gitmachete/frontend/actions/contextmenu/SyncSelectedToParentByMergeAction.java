@@ -13,6 +13,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.gitmachete.frontend.actions.base.BaseSyncToParentByMergeAction;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.WarnAboutSyncToParentByMergeDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
+import com.virtuslab.qual.async.ContinuesInBackground;
 
 public class SyncSelectedToParentByMergeAction extends BaseSyncToParentByMergeAction
     implements
@@ -26,6 +27,7 @@ public class SyncSelectedToParentByMergeAction extends BaseSyncToParentByMergeAc
   }
 
   @Override
+  @ContinuesInBackground
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     val project = getProject(anActionEvent);

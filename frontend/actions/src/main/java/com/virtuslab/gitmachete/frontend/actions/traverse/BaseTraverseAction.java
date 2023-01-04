@@ -20,6 +20,7 @@ import com.virtuslab.gitmachete.frontend.actions.dialogs.InfoDialog;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
+import com.virtuslab.qual.async.ContinuesInBackground;
 
 @ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class})
 @CustomLog
@@ -85,6 +86,7 @@ public abstract class BaseTraverseAction extends BaseGitMacheteRepositoryReadyAc
   }
 
   @Override
+  @ContinuesInBackground
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     val gitRepository = getSelectedGitRepository(anActionEvent);
@@ -118,6 +120,7 @@ public abstract class BaseTraverseAction extends BaseGitMacheteRepositoryReadyAc
     }
   }
 
+  @ContinuesInBackground
   private void traverseFrom(GitRepository gitRepository, BaseEnhancedGraphTable graphTable, String branchName) {
     val repositorySnapshot = graphTable.getGitMacheteRepositorySnapshot();
     if (repositorySnapshot == null) {
