@@ -24,8 +24,8 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.gitmachete.backend.api.IBranchReference;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
+import com.virtuslab.gitmachete.frontend.actions.backgroundables.FastForwardMergeBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.ResetCurrentToRemoteBackgroundable;
-import com.virtuslab.gitmachete.frontend.actions.common.FastForwardMerge;
 import com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTimeoutStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.DivergedFromRemoteDialog;
@@ -233,7 +233,7 @@ public class TraverseSyncToRemote {
                 .fmt(FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING)
             : getNonHtmlString("action.GitMachete.BasePullAction.notification.prefix.fetch-perform");
         val fetchNotificationTextPrefix = fetchNotificationPrefix + (fetchNotificationPrefix.isEmpty() ? "" : " ");
-        FastForwardMerge.createBackgroundable(gitRepository, mergeProps, fetchNotificationTextPrefix).queue();
+        new FastForwardMergeBackgroundable(gitRepository, mergeProps, fetchNotificationTextPrefix).queue();
         return true;
 
       case MessageConstants.NO :
