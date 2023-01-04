@@ -5,16 +5,17 @@ import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.creat
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
+import com.intellij.openapi.progress.ProgressIndicator;
 import git4idea.GitReference;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
-import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.tainting.qual.Untainted;
 
 import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod(GitMacheteBundle.class)
 public final class FastForwardMergeBackgroundable extends CheckRemoteBranchBackgroundable {
@@ -37,8 +38,10 @@ public final class FastForwardMergeBackgroundable extends CheckRemoteBranchBackg
   }
 
   @Override
-  @UIEffect
-  public void onSuccess() {
+  @UIThreadUnsafe
+  public void run(ProgressIndicator indicator) {
+    super.run(indicator);
+
     val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(GitReference::getName).getOrNull();
     if (mergeProps.getMovingBranch().getName().equals(currentBranchName)) {
       mergeCurrentBranch();
