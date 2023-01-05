@@ -10,6 +10,7 @@ import git4idea.repo.GitRepository;
 import lombok.CustomLog;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.tainting.qual.Untainted;
 
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
@@ -19,7 +20,7 @@ public class FetchBackgroundable extends Task.Backgroundable {
 
   private final GitRepository gitRepository;
   private final String remoteName;
-  private final String refspec;
+  private final @Nullable String refspec;
   private final @Untainted String failureNotificationText;
   private final String successNotificationText;
 
@@ -29,7 +30,7 @@ public class FetchBackgroundable extends Task.Backgroundable {
   public FetchBackgroundable(
       GitRepository gitRepository,
       String remoteName,
-      String refspec,
+      @Nullable String refspec,
       String taskTitle,
       @Untainted String failureNotificationText,
       String successNotificationText) {
@@ -54,7 +55,10 @@ public class FetchBackgroundable extends Task.Backgroundable {
       LOG.warn("Remote '${remoteName}' does not exist");
       return;
     }
-    val fetchResult = fetchSupport.fetch(gitRepository, remote, refspec);
+
+    val fetchResult = refspec != null
+        ? fetchSupport.fetch(gitRepository, remote, refspec)
+        : fetchSupport.fetch(gitRepository, remote);
     fetchResult.showNotificationIfFailed(failureNotificationText);
     fetchResult.throwExceptionIfFailed();
   }

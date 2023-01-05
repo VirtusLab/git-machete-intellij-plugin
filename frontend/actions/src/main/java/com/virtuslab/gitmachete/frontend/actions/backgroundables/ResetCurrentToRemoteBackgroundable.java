@@ -1,7 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
 import static com.virtuslab.gitmachete.frontend.actions.base.BaseResetToRemoteAction.VCS_NOTIFIER_TITLE;
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.fmt;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getRootDirectory;
 import static git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector.Operation.RESET;
@@ -20,11 +19,16 @@ import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
 import git4idea.util.LocalChangesWouldBeOverwrittenHelper;
 import lombok.CustomLog;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 
+import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
+@ExtensionMethod({GitMacheteBundle.class})
+// For some reason, using `@ExtensionMethod({GitVfsUtils.class})` on this class
+// leads to weird Checker Framework errors :/
 public class ResetCurrentToRemoteBackgroundable extends Task.Backgroundable {
 
   private final String localBranchName;
@@ -63,8 +67,8 @@ public class ResetCurrentToRemoteBackgroundable extends Task.Backgroundable {
         if (result.success()) {
           VcsNotifier.getInstance(myProject).notifySuccess( /* displayId */ null,
               /* title */ "",
-              fmt(getString("action.GitMachete.BaseResetToRemoteAction.notification.title.reset-success.HTML"),
-                  localBranchName));
+              getString("action.GitMachete.BaseResetToRemoteAction.notification.title.reset-success.HTML")
+                  .fmt(localBranchName));
           LOG.debug(() -> "Branch '${localBranchName}' has been reset to '${remoteTrackingBranchName}");
 
         } else if (localChangesDetector.wasMessageDetected()) {

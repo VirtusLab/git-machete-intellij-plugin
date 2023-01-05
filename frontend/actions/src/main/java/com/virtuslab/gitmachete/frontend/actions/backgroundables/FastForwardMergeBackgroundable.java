@@ -2,7 +2,6 @@ package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
 import static com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable.LOCAL_REPOSITORY_NAME;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.createRefspec;
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.fmt;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
@@ -10,15 +9,18 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import git4idea.GitReference;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.tainting.qual.Untainted;
 
 import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
+import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
+@ExtensionMethod({GitMacheteBundle.class})
 public class FastForwardMergeBackgroundable extends CheckRemoteBranchBackgroundable {
 
   private final GitRepository gitRepository;
@@ -26,6 +28,7 @@ public class FastForwardMergeBackgroundable extends CheckRemoteBranchBackgrounda
   private final MergeProps mergeProps;
 
   private final @Untainted String fetchNotificationTextPrefix;
+
   private final @UI Runnable doInUIThreadWhenReady;
 
   public FastForwardMergeBackgroundable(GitRepository gitRepository, MergeProps mergeProps,
@@ -84,10 +87,10 @@ public class FastForwardMergeBackgroundable extends CheckRemoteBranchBackgrounda
     val refspecFromChildToParent = createRefspec(stayingFullName, movingFullName, /* allowNonFastForward */ false);
     val stayingName = mergeProps.getStayingBranch().getName();
     val movingName = mergeProps.getMovingBranch().getName();
-    val successFFMergeNotification = fmt(getString(
-        "action.GitMachete.BaseFastForwardMergeToParentAction.notification.text.ff-success"), stayingName, movingName);
-    val failFFMergeNotification = fmt(getNonHtmlString(
-        "action.GitMachete.BaseFastForwardMergeToParentAction.notification.text.ff-fail"), stayingName, movingName);
+    val successFFMergeNotification = getString(
+        "action.GitMachete.BaseFastForwardMergeToParentAction.notification.text.ff-success").fmt(stayingName, movingName);
+    val failFFMergeNotification = getNonHtmlString(
+        "action.GitMachete.BaseFastForwardMergeToParentAction.notification.text.ff-fail").fmt(stayingName, movingName);
     new FetchBackgroundable(
         gitRepository,
         LOCAL_REPOSITORY_NAME,

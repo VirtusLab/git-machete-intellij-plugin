@@ -35,6 +35,8 @@ import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
+// For some reason, using `@ExtensionMethod({GitMacheteBundle.class})` on this class
+// leads to weird Checker Framework errors :/
 public class SlideOutBackgroundable extends Task.Backgroundable {
 
   private final Project project;
