@@ -2,7 +2,7 @@
 # throughout the whole project. This way of applying plugins was needed for the build-related code in buildSrc/src/main/,
 # see https://docs.gradle.org/current/samples/sample_convention_plugins.html#things_to_note
 [versions]
-checker = "3.28.0"
+checker = "3.29.0"
 ideProbe = "0.51.0"
 powerMock = "2.0.9"
 
@@ -37,7 +37,7 @@ slf4j-simple = "org.slf4j:slf4j-simple:1.7.36"
 vavr = "io.vavr:vavr:0.10.4"
 # Plugins
 pluginPackages-aspectj-postCompileWeaving = "io.freefair.gradle:aspectj-plugin:6.6.1"
-pluginPackages-checkerFramework = "org.checkerframework:checkerframework-gradle-plugin:0.6.20"
+pluginPackages-checkerFramework = "org.checkerframework:checkerframework-gradle-plugin:0.6.21"
 pluginPackages-grgit = "org.ajoberstar.grgit:grgit-gradle:5.0.0"
 pluginPackages-jetbrains-changelog = "org.jetbrains.intellij.plugins:gradle-changelog-plugin:2.0.0"
 # @pin TODO (#859): gradle-grammarkit-plugin 2022.3 requires `targetCompatibility` to be Java 17, not Java 11.
