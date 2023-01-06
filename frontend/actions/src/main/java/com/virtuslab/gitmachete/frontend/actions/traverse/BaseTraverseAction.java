@@ -6,8 +6,6 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import git4idea.repo.GitRepository;
-import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
-import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -23,13 +21,7 @@ import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.async.ContinuesInBackground;
 
 @ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class})
-@CustomLog
 public abstract class BaseTraverseAction extends BaseGitMacheteRepositoryReadyAction implements IBranchNameProvider {
-
-  @Override
-  public LambdaLogger log() {
-    return LOG;
-  }
 
   public static final String SHOW_TRAVERSE_INFO = "git-machete.traverse.approval.show";
 
@@ -114,7 +106,7 @@ public abstract class BaseTraverseAction extends BaseGitMacheteRepositoryReadyAc
         if (initialBranchName != null) {
           traverseFrom(gitRepository, graphTable, initialBranchName);
         } else {
-          LOG.warn("Skipping traverse action because initialBranchName is undefined");
+          log().warn("Skipping traverse action because initialBranchName is undefined");
         }
       }
     }

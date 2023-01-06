@@ -7,8 +7,6 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
-import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
-import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -25,17 +23,11 @@ import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.async.ContinuesInBackground;
 
 @ExtensionMethod(GitMacheteBundle.class)
-@CustomLog
 public abstract class BasePullAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
       IExpectsKeyGitMacheteRepository,
       ISyncToRemoteStatusDependentAction {
-
-  @Override
-  public LambdaLogger log() {
-    return LOG;
-  }
 
   @Override
   public @I18nFormat({}) String getActionName() {

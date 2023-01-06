@@ -60,7 +60,7 @@ public class FetchAllRemotesAction extends BaseProjectDependentAction {
   @ContinuesInBackground
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-    log().debug("Performing");
+    LOG.debug("Performing");
 
     val project = getProject(anActionEvent);
     val gitRepository = getSelectedGitRepository(anActionEvent);

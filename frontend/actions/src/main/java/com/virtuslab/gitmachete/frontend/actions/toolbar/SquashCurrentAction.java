@@ -5,12 +5,15 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
+import lombok.CustomLog;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseSquashAction;
 
+@CustomLog
 public class SquashCurrentAction extends BaseSquashAction {
   @Override
   public @Nullable String getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
@@ -48,5 +51,10 @@ public class SquashCurrentAction extends BaseSquashAction {
         }
       }
     }
+  }
+
+  @Override
+  public LambdaLogger log() {
+    return LOG;
   }
 }

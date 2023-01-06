@@ -6,12 +6,15 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Untracked;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import io.vavr.collection.List;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
+import lombok.CustomLog;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BasePushAction;
 
+@CustomLog
 public class PushCurrentAction extends BasePushAction {
   @Override
   public @Nullable String getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
@@ -38,5 +41,10 @@ public class PushCurrentAction extends BasePushAction {
         && List.of(AheadOfRemote, DivergedFromAndNewerThanRemote, Untracked).contains(syncToRemoteStatus);
 
     presentation.setVisible(isAheadOrDivergedAndNewerOrUntracked);
+  }
+
+  @Override
+  public LambdaLogger log() {
+    return LOG;
   }
 }

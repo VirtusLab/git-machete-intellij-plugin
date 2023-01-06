@@ -6,6 +6,8 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitLineHandler;
 import git4idea.repo.GitRepository;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
+import lombok.CustomLog;
 import lombok.val;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -14,6 +16,7 @@ import org.checkerframework.checker.tainting.qual.Untainted;
 import com.virtuslab.gitmachete.backend.api.IBranchReference;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
+@CustomLog
 public class MergeCurrentBranchFastForwardOnlyBackgroundable extends GitCommandUpdatingCurrentBranchBackgroundable {
 
   private final IBranchReference targetBranch;
@@ -28,6 +31,11 @@ public class MergeCurrentBranchFastForwardOnlyBackgroundable extends GitCommandU
       IBranchReference targetBranch) {
     super(gitRepository, getString("action.GitMachete.BaseFastForwardMergeToParentAction.task-title"));
     this.targetBranch = targetBranch;
+  }
+
+  @Override
+  protected LambdaLogger log() {
+    return LOG;
   }
 
   @Override

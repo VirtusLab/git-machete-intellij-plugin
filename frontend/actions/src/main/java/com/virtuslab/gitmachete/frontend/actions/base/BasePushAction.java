@@ -14,8 +14,6 @@ import git4idea.config.GitSharedSettings;
 import git4idea.push.GitPushSource;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
-import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
-import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -27,16 +25,10 @@ import com.virtuslab.gitmachete.frontend.actions.dialogs.GitPushDialog;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 
 @ExtensionMethod(GitMacheteBundle.class)
-@CustomLog
 public abstract class BasePushAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
       ISyncToRemoteStatusDependentAction {
-
-  @Override
-  public LambdaLogger log() {
-    return LOG;
-  }
 
   @Override
   public @I18nFormat({}) String getActionName() {

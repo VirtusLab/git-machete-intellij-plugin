@@ -14,8 +14,6 @@ import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
-import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
-import lombok.CustomLog;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
@@ -27,16 +25,10 @@ import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
-@CustomLog
 public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
       ISyncToParentStatusDependentAction {
-
-  @Override
-  public LambdaLogger log() {
-    return LOG;
-  }
 
   @Override
   public @I18nFormat({}) String getActionNameForDisabledDescription() {
@@ -106,17 +98,17 @@ public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteReposi
 
   @ContinuesInBackground
   @UIEffect
-  public static void doMergeIntoCurrentBranch(GitRepository gitRepository, MergeProps mergeProps) {
+  public void doMergeIntoCurrentBranch(GitRepository gitRepository, MergeProps mergeProps) {
     val stayingBranch = mergeProps.getStayingBranch().getName();
     val project = gitRepository.getProject();
-    LOG.debug(() -> "Entering: project = ${project}, gitRepository = ${gitRepository}," +
+    log().debug(() -> "Entering: project = ${project}, gitRepository = ${gitRepository}," +
         " stayingBranch = ${stayingBranch}");
 
     new Task.Backgroundable(project, getString("action.GitMachete.BaseSyncToParentByMergeAction.task-title.current")) {
       @Override
       @UIThreadUnsafe
       public void run(ProgressIndicator indicator) {
-        LOG.info("Merging ${stayingBranch} into current branch");
+        log().info("Merging ${stayingBranch} into current branch");
 
         GitBrancher.getInstance(project)
             .merge(stayingBranch, GitBrancher.DeleteOnMergeOption.NOTHING, Collections.singletonList(gitRepository));
@@ -130,7 +122,7 @@ public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteReposi
   private void doMergeIntoNonCurrentBranch(GitRepository gitRepository, MergeProps mergeProps) {
     val stayingBranch = mergeProps.getStayingBranch().getName();
     val movingBranch = mergeProps.getMovingBranch().getName();
-    LOG.debug(() -> "Entering: gitRepository = ${gitRepository}," +
+    log().debug(() -> "Entering: gitRepository = ${gitRepository}," +
         " stayingBranch = ${stayingBranch}, movingBranch = ${movingBranch}");
 
     val gitBrancher = GitBrancher.getInstance(gitRepository.getProject());

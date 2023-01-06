@@ -14,8 +14,6 @@ import git4idea.GitReference;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
-import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
-import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.apache.commons.text.StringEscapeUtils;
@@ -35,7 +33,6 @@ import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.async.ContinuesInBackground;
 
 @ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class, StringEscapeUtils.class})
-@CustomLog
 public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
@@ -45,11 +42,6 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
 
   public static final String VCS_NOTIFIER_TITLE = getString(
       "action.GitMachete.BaseResetToRemoteAction.notification.title");
-
-  @Override
-  public LambdaLogger log() {
-    return LOG;
-  }
 
   @Override
   public @I18nFormat({}) String getActionName() {

@@ -6,8 +6,6 @@ import java.util.Collections;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import git4idea.branch.GitBrancher;
-import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
-import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -20,15 +18,9 @@ import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.async.ContinuesInBackground;
 
 @ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class})
-@CustomLog
 public abstract class BaseCheckoutAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IExpectsKeySelectedBranchName {
-
-  @Override
-  public LambdaLogger log() {
-    return LOG;
-  }
 
   protected abstract @Nullable String getTargetBranchName(AnActionEvent anActionEvent);
 

@@ -40,7 +40,7 @@ import git4idea.update.GitUpdateInfoAsLog;
 import git4idea.update.GitUpdatedRanges;
 import git4idea.util.GitUntrackedFilesHelper;
 import git4idea.util.LocalChangesWouldBeOverwrittenHelper;
-import lombok.CustomLog;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
@@ -51,7 +51,6 @@ import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod(GitMacheteBundle.class)
-@CustomLog
 public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task.Backgroundable {
 
   protected final Project project;
@@ -64,6 +63,8 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
     this.project = gitRepository.getProject();
     this.gitRepository = gitRepository;
   }
+
+  protected abstract LambdaLogger log();
 
   protected abstract @Untainted @I18nFormat({}) String getOperationName();
 
@@ -117,7 +118,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
         updatedRanges = GitUpdatedRanges.calcInitialPositions(project,
             java.util.Collections.singletonMap(gitRepository, refPair));
       } else {
-        LOG.warn("Couldn't find the branch with name '${targetBranchName}'");
+        log().warn("Couldn't find the branch with name '${targetBranchName}'");
       }
     }
     return updatedRanges;

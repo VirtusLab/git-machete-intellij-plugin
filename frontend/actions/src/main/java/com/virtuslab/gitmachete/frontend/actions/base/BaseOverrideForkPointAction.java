@@ -5,8 +5,6 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory.GENERAL;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
-import lombok.CustomLog;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
@@ -17,17 +15,11 @@ import com.virtuslab.gitmachete.frontend.actions.dialogs.OverrideForkPointDialog
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.qual.async.ContinuesInBackground;
 
-@CustomLog
 public abstract class BaseOverrideForkPointAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
       IExpectsKeyGitMacheteRepository,
       ISyncToParentStatusDependentAction {
-
-  @Override
-  public LambdaLogger log() {
-    return LOG;
-  }
 
   @Override
   public @I18nFormat({}) String getActionNameForDisabledDescription() {

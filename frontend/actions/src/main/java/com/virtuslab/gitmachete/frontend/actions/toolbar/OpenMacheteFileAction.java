@@ -45,7 +45,7 @@ public class OpenMacheteFileAction extends BaseProjectDependentAction {
     val gitDir = repo != null ? repo.getMainGitDirectory() : null;
 
     if (repo == null || gitDir == null) {
-      log().warn("Skipping the action because Git repository directory is undefined");
+      LOG.warn("Skipping the action because Git repository directory is undefined");
       return;
     }
 

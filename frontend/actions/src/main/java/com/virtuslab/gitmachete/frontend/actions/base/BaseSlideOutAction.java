@@ -5,8 +5,6 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
-import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -19,16 +17,10 @@ import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.async.ContinuesInBackground;
 
 @ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class})
-@CustomLog
 public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
       IExpectsKeyGitMacheteRepository {
-
-  @Override
-  public LambdaLogger log() {
-    return LOG;
-  }
 
   @Override
   @UIEffect
@@ -59,7 +51,7 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
   @ContinuesInBackground
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-    LOG.debug("Performing");
+    log().debug("Performing");
 
     val branchName = getNameOfBranchUnderAction(anActionEvent);
     val branch = getManagedBranchByName(anActionEvent, branchName);
@@ -71,16 +63,16 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
   @ContinuesInBackground
   @UIEffect
   private void doSlideOut(AnActionEvent anActionEvent, IManagedBranchSnapshot branchToSlideOut) {
-    LOG.debug(() -> "Entering: branchToSlideOut = ${branchToSlideOut}");
-    LOG.debug("Refreshing repository state");
+    log().debug(() -> "Entering: branchToSlideOut = ${branchToSlideOut}");
+    log().debug("Refreshing repository state");
 
     val branchLayout = getBranchLayout(anActionEvent);
     val selectedGitRepository = getSelectedGitRepository(anActionEvent);
 
     if (branchLayout == null) {
-      LOG.debug("branchLayout is null");
+      log().debug("branchLayout is null");
     } else if (selectedGitRepository == null) {
-      LOG.debug("selectedGitRepository is null");
+      log().debug("selectedGitRepository is null");
     } else {
       new SlideOutBackgroundable(getString("action.GitMachete.BaseSlideOutAction.task.title"), branchToSlideOut,
           selectedGitRepository, getCurrentMacheteBranchIfManaged(anActionEvent), branchLayout,

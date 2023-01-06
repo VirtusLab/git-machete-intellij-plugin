@@ -11,8 +11,6 @@ import java.util.Arrays;
 
 import com.intellij.dvcs.repo.Repository;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
-import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -25,16 +23,10 @@ import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.async.ContinuesInBackground;
 
 @ExtensionMethod({Arrays.class, GitMacheteBundle.class})
-@CustomLog
 public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
       IExpectsKeyGitMacheteRepository {
-
-  @Override
-  public LambdaLogger log() {
-    return LOG;
-  }
 
   @Override
   @UIEffect
@@ -117,7 +109,7 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
   @ContinuesInBackground
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-    LOG.debug("Performing");
+    log().debug("Performing");
 
     val branchName = getNameOfBranchUnderAction(anActionEvent);
     val branch = getManagedBranchByName(anActionEvent, branchName);
@@ -126,7 +118,7 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
       if (branch.isNonRoot()) {
         doRebase(anActionEvent, branch.asNonRoot());
       } else {
-        LOG.warn("Skipping the action because the branch '${branch.getName()}' is a root branch");
+        log().warn("Skipping the action because the branch '${branch.getName()}' is a root branch");
       }
     }
   }

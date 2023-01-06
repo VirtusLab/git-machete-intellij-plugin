@@ -6,6 +6,8 @@ import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.openapi.ui.Messages;
+import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
+import lombok.CustomLog;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -15,6 +17,7 @@ import com.virtuslab.gitmachete.frontend.actions.dialogs.WarnAboutSyncToParentBy
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
 import com.virtuslab.qual.async.ContinuesInBackground;
 
+@CustomLog
 public class SyncSelectedToParentByMergeAction extends BaseSyncToParentByMergeAction
     implements
       IExpectsKeySelectedBranchName {
@@ -49,5 +52,10 @@ public class SyncSelectedToParentByMergeAction extends BaseSyncToParentByMergeAc
     }
 
     super.actionPerformed(anActionEvent);
+  }
+
+  @Override
+  public LambdaLogger log() {
+    return LOG;
   }
 }

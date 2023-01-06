@@ -70,7 +70,7 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
   @UIEffect
   public final void actionPerformed(AnActionEvent anActionEvent) {
     boolean newState = !Toggleable.isSelected(anActionEvent.getPresentation());
-    log().debug("Triggered with newState = ${newState}");
+    LOG.debug("Triggered with newState = ${newState}");
 
     val graphTable = getGraphTable(anActionEvent);
     graphTable.setListingCommits(newState);

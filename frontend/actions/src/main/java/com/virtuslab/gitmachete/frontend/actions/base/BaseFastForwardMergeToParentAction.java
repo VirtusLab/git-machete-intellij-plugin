@@ -6,8 +6,6 @@ import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCate
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import io.vavr.collection.List;
-import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
-import lombok.CustomLog;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
@@ -18,16 +16,10 @@ import com.virtuslab.gitmachete.frontend.actions.backgroundables.FastForwardMerg
 import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
 import com.virtuslab.qual.async.ContinuesInBackground;
 
-@CustomLog
 public abstract class BaseFastForwardMergeToParentAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
       ISyncToParentStatusDependentAction {
-
-  @Override
-  public LambdaLogger log() {
-    return LOG;
-  }
 
   @Override
   public @I18nFormat({}) String getActionNameForDisabledDescription() {

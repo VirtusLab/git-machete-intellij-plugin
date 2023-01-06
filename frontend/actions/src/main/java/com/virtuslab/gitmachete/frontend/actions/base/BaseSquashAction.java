@@ -20,8 +20,6 @@ import git4idea.rebase.log.squash.GitSquashOperation;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import kotlin.Unit;
-import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
-import lombok.CustomLog;
 import lombok.Data;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
@@ -36,17 +34,11 @@ import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod(GitMacheteBundle.class)
-@CustomLog
 public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider {
 
   private final String NL = System.lineSeparator();
-
-  @Override
-  public LambdaLogger log() {
-    return LOG;
-  }
 
   @Override
   @UIEffect
@@ -155,7 +147,7 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
             @Override
             @UIThreadUnsafe
             public void run(ProgressIndicator indicator) {
-              LOG.info("Checking out '${branchName}' branch and squashing it");
+              log().info("Checking out '${branchName}' branch and squashing it");
 
               if (!isSquashingCurrentBranch) {
                 val uiHandler = new GitBranchUiHandlerImpl(project, indicator);

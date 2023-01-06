@@ -57,7 +57,7 @@ public class SlideInUnmanagedBelowAction extends BaseGitMacheteRepositoryReadyAc
             .getOrElse(false);
 
     if (entryAlreadyExistsBelowGivenParent && slideInOptions.shouldReattach()) {
-      log().debug("Skipping action: Branch layout entry already exists below given parent");
+      LOG.debug("Skipping action: Branch layout entry already exists below given parent");
       return;
     }
 
