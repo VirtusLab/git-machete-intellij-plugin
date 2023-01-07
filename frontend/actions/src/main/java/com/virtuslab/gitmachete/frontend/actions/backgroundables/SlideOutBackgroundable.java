@@ -21,6 +21,7 @@ import git4idea.config.GitConfigUtil;
 import git4idea.repo.GitRepository;
 import lombok.CustomLog;
 import lombok.val;
+import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -46,6 +47,7 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
   private final BranchLayout branchLayout;
   private final GitRepository gitRepository;
   private final BaseEnhancedGraphTable graphTable;
+  private final @UI Runnable doInUIThreadWhenReady;
 
   public static final String DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY = "machete.slideOut.deleteLocalBranch";
 
@@ -53,7 +55,8 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
       GitRepository gitRepository,
       @Nullable IManagedBranchSnapshot currentBranchNameIfManaged,
       BranchLayout branchLayout,
-      BaseEnhancedGraphTable graphTable) {
+      BaseEnhancedGraphTable graphTable,
+      @UI Runnable doInUIThreadWhenReady) {
     super(gitRepository.getProject(), title);
     this.project = gitRepository.getProject();
     this.branchToSlideOutName = branchToSlideOut.getName();
@@ -61,6 +64,7 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
     this.branchLayout = branchLayout;
     this.gitRepository = gitRepository;
     this.graphTable = graphTable;
+    this.doInUIThreadWhenReady = doInUIThreadWhenReady;
 
     LOG.debug(() -> "Entering: branchToSlideOut = ${branchToSlideOutName}");
     LOG.debug("Refreshing repository state");
@@ -74,7 +78,7 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
     if (slideOutBranchIsCurrent) {
       LOG.debug("Skipping (optional) local branch deletion because it is equal to current branch");
       slideOutBranch(branchToSlideOutName);
-      graphTable.queueRepositoryUpdateAndModelRefresh();
+      graphTable.queueRepositoryUpdateAndModelRefresh(doInUIThreadWhenReady);
       VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
           /* title */ "",
           fmt(getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.of-current.HTML"),
@@ -87,9 +91,14 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
         ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, () -> suggestBranchDeletion(branchToSlideOutName));
       } else {
         handleBranchDeletionDecision(branchToSlideOutName, shouldDelete);
+        ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, doInUIThreadWhenReady);
       }
     }
   }
+
+  /** Do not override {@code onSuccess}. Instead, pass {@code doInUIThreadWhenReady} callback to the constructor. */
+  @Override
+  public final void onSuccess() {}
 
   @ContinuesInBackground
   @UIEffect
@@ -113,6 +122,12 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
               "action.GitMachete.BaseSlideOutAction.notification.message.slide-out-info.canceled.HTML"), branchName);
           VcsNotifier.getInstance(project).notifyInfo(/* displayId */ null, title, message);
         }
+      }
+
+      @Override
+      @UIEffect
+      public void onSuccess() {
+        doInUIThreadWhenReady.run();
       }
     }.queue();
   }

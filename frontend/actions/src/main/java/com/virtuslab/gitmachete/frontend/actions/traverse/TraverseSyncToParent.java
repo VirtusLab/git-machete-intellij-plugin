@@ -119,15 +119,11 @@ public class TraverseSyncToParent {
 
     switch (slideOutDialog.show(project)) {
       case MessageConstants.YES :
+        // For a branch merged to its parent, we're not syncing to remote.
+        // Let's just go straight to the next branch.
+        Runnable doInUIThreadWhenReady = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
         new SlideOutBackgroundable(getString("action.GitMachete.BaseSlideOutAction.task.title"),
-            managedBranch, gitRepository, currentBranchIfManaged, branchLayout, graphTable) {
-          @Override
-          public void onSuccess() {
-            // For a branch merged to its parent, we're not syncing to remote.
-            // Let's just go straight to the next branch.
-            graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
-          }
-        }.queue();
+            managedBranch, gitRepository, currentBranchIfManaged, branchLayout, graphTable, doInUIThreadWhenReady);
         // The ongoing traverse is now a responsibility of the freshly-queued backgroundable;
         // NOT a responsibility of the outer method.
         return false;

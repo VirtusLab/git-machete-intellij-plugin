@@ -76,7 +76,7 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
     } else {
       new SlideOutBackgroundable(getString("action.GitMachete.BaseSlideOutAction.task.title"), branchToSlideOut,
           selectedGitRepository, getCurrentMacheteBranchIfManaged(anActionEvent), branchLayout,
-          getGraphTable(anActionEvent)).queue();
+          getGraphTable(anActionEvent), /* doInUIThreadWhenReady */ () -> {}).queue();
     }
   }
 
