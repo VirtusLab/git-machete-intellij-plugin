@@ -3,8 +3,6 @@ package com.virtuslab.gitmachete.frontend.actions.traverse;
 import static com.intellij.openapi.ui.MessageConstants.NO;
 import static com.intellij.openapi.ui.MessageConstants.YES;
 import static com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperationType.NO_OPERATION;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.DivergedFromAndNewerThanRemote;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.DivergedFromAndOlderThanRemote;
 import static com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTimeoutStatus.FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING;
 import static com.virtuslab.gitmachete.frontend.actions.traverse.CheckoutAndExecute.checkoutAndExecuteOnUIThread;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
@@ -35,8 +33,9 @@ import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.qual.async.ContinuesInBackground;
 
-@ExtensionMethod(GitMacheteBundle.class)
 @CustomLog
+@ExtensionMethod(GitMacheteBundle.class)
+@SuppressWarnings("MissingSwitchDefault")
 public class TraverseSyncToRemote {
 
   private final Project project;
@@ -98,47 +97,27 @@ public class TraverseSyncToRemote {
         break;
 
       case Untracked :
-        @UI Runnable pushUntracked = () -> {
-          if (handleUntracked(gitMacheteBranch, localBranch)) {
-            graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
-          }
-        };
+        @UI Runnable pushUntracked = () -> handleUntracked(gitMacheteBranch, localBranch);
         checkoutAndExecuteOnUIThread(gitRepository, graphTable, gitMacheteBranch.getName(), pushUntracked);
         break;
 
       case AheadOfRemote :
-        @UI Runnable pushAheadOfRemote = () -> {
-          if (handleAheadOfRemote(gitMacheteBranch, localBranch)) {
-            graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
-          }
-        };
+        @UI Runnable pushAheadOfRemote = () -> handleAheadOfRemote(gitMacheteBranch, localBranch);
         checkoutAndExecuteOnUIThread(gitRepository, graphTable, gitMacheteBranch.getName(), pushAheadOfRemote);
         break;
 
       case DivergedFromAndNewerThanRemote :
-        @UI Runnable pushForceDiverged = () -> {
-          if (handleDivergedFromAndNewerThanRemote(gitMacheteBranch, localBranch)) {
-            graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
-          }
-        };
+        @UI Runnable pushForceDiverged = () -> handleDivergedFromAndNewerThanRemote(gitMacheteBranch, localBranch);
         checkoutAndExecuteOnUIThread(gitRepository, graphTable, gitMacheteBranch.getName(), pushForceDiverged);
         break;
 
       case DivergedFromAndOlderThanRemote :
-        @UI Runnable resetToRemote = () -> {
-          if (handleDivergedFromAndOlderThanRemote(gitMacheteBranch)) {
-            graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
-          }
-        };
+        @UI Runnable resetToRemote = () -> handleDivergedFromAndOlderThanRemote(gitMacheteBranch);
         checkoutAndExecuteOnUIThread(gitRepository, graphTable, gitMacheteBranch.getName(), resetToRemote);
         break;
 
       case BehindRemote :
-        @UI Runnable pullBehindRemote = () -> {
-          if (handleBehindRemote(gitMacheteBranch)) {
-            graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
-          }
-        };
+        @UI Runnable pullBehindRemote = () -> handleBehindRemote(gitMacheteBranch);
         checkoutAndExecuteOnUIThread(gitRepository, graphTable, gitMacheteBranch.getName(), pullBehindRemote);
         break;
 
@@ -149,7 +128,7 @@ public class TraverseSyncToRemote {
 
   @ContinuesInBackground
   @UIEffect
-  private boolean handleUntracked(IManagedBranchSnapshot gitManagedBranch, GitLocalBranch localBranch) {
+  private void handleUntracked(IManagedBranchSnapshot gitManagedBranch, GitLocalBranch localBranch) {
     val pushApprovalDialogBuilder = MessageDialogBuilder.yesNoCancel(
         getString("action.GitMachete.BaseTraverseAction.dialog.push-approval.title"),
         getString("action.GitMachete.BaseTraverseAction.dialog.push-approval.untracked.text.HTML")
@@ -161,21 +140,17 @@ public class TraverseSyncToRemote {
         Runnable doInUIThreadWhenReady = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
         new GitPushDialog(project, gitRepository, GitPushSource.create(localBranch), /* isForcePushRequired */ false,
             doInUIThreadWhenReady).show();
-        // The ongoing traverse is now a responsibility of the freshly-queued backgroundable;
-        // NOT a responsibility of the outer method.
-        return false;
+        break;
 
       case NO :
-        return true;
-
-      default :
-        return false;
+        graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
+        break;
     }
   }
 
   @ContinuesInBackground
   @UIEffect
-  private boolean handleAheadOfRemote(IManagedBranchSnapshot gitMacheteBranch, GitLocalBranch localBranch) {
+  private void handleAheadOfRemote(IManagedBranchSnapshot gitMacheteBranch, GitLocalBranch localBranch) {
     val remoteTrackingBranch = gitMacheteBranch.getRemoteTrackingBranch();
     assert remoteTrackingBranch != null : "remoteTrackingBranch is null";
     val pushApprovalDialogBuilder = MessageDialogBuilder.yesNoCancel(
@@ -189,21 +164,17 @@ public class TraverseSyncToRemote {
         Runnable doInUIThreadWhenReady = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
         new GitPushDialog(project, gitRepository, GitPushSource.create(localBranch), /* isForcePushRequired */ false,
             doInUIThreadWhenReady).show();
-        // The ongoing traverse is now a responsibility of the freshly-queued backgroundable;
-        // NOT a responsibility of the outer method.
-        return false;
+        break;
 
       case NO :
-        return true;
-
-      default :
-        return false;
+        graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
+        break;
     }
   }
 
   @ContinuesInBackground
   @UIEffect
-  private boolean handleDivergedFromAndNewerThanRemote(IManagedBranchSnapshot gitMacheteBranch, GitLocalBranch localBranch) {
+  private void handleDivergedFromAndNewerThanRemote(IManagedBranchSnapshot gitMacheteBranch, GitLocalBranch localBranch) {
     val remoteTrackingBranch = gitMacheteBranch.getRemoteTrackingBranch();
     assert remoteTrackingBranch != null : "remoteTrackingBranch is null";
     val forcePushApprovalDialogBuilder = MessageDialogBuilder.yesNoCancel(
@@ -217,21 +188,18 @@ public class TraverseSyncToRemote {
         Runnable doInUIThreadWhenReady = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
         new GitPushDialog(project, gitRepository, GitPushSource.create(localBranch), /* isForcePushRequired */ true,
             doInUIThreadWhenReady).show();
-        // The ongoing traverse is now a responsibility of the freshly-queued backgroundable;
-        // NOT a responsibility of the outer method.
-        return false;
+        break;
 
       case NO :
-        return true;
+        graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
+        break;
 
-      default :
-        return false;
     }
   }
 
   @ContinuesInBackground
   @UIEffect
-  private boolean handleDivergedFromAndOlderThanRemote(IManagedBranchSnapshot gitMacheteBranch) {
+  private void handleDivergedFromAndOlderThanRemote(IManagedBranchSnapshot gitMacheteBranch) {
     val remoteTrackingBranch = gitMacheteBranch.getRemoteTrackingBranch();
     assert remoteTrackingBranch != null : "remoteTrackingBranch is null";
     val resetApprovalDialogBuilder = MessageDialogBuilder.yesNoCancel(
@@ -250,21 +218,17 @@ public class TraverseSyncToRemote {
             graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
           }
         }.queue();
-        // The ongoing traverse is now a responsibility of the freshly-queued backgroundable;
-        // NOT a responsibility of the outer method.
-        return false;
+        break;
 
       case NO :
-        return true;
-
-      default :
-        return false;
+        graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
+        break;
     }
   }
 
   @ContinuesInBackground
   @UIEffect
-  private boolean handleBehindRemote(IManagedBranchSnapshot gitMacheteBranch) {
+  private void handleBehindRemote(IManagedBranchSnapshot gitMacheteBranch) {
     val remoteTrackingBranch = gitMacheteBranch.getRemoteTrackingBranch();
     assert remoteTrackingBranch != null : "remoteTrackingBranch is null";
     val pullApprovalDialogBuilder = MessageDialogBuilder.yesNoCancel(
@@ -288,15 +252,11 @@ public class TraverseSyncToRemote {
         Runnable doInUIThreadWhenReady = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
         new FastForwardMergeBackgroundable(gitRepository, mergeProps, fetchNotificationTextPrefix, doInUIThreadWhenReady)
             .queue();
-        // The ongoing traverse is now a responsibility of the freshly-queued backgroundable;
-        // NOT a responsibility of the outer method.
-        return false;
+        break;
 
       case NO :
-        return true;
-
-      default :
-        return false;
+        graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
+        break;
     }
   }
 }

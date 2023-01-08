@@ -1,11 +1,12 @@
 package com.virtuslab.gitmachete.frontend.actions.traverse;
 
+import static com.intellij.openapi.ui.MessageConstants.NO;
+import static com.intellij.openapi.ui.MessageConstants.YES;
 import static com.virtuslab.gitmachete.frontend.actions.traverse.CheckoutAndExecute.checkoutAndExecuteOnUIThread;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.MessageConstants;
 import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.util.ModalityUiUtil;
 import git4idea.repo.GitRepository;
@@ -26,8 +27,9 @@ import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.async.ContinuesInBackground;
 
-@ExtensionMethod({GitMacheteBundle.class, GitVfsUtils.class})
 @CustomLog
+@ExtensionMethod({GitMacheteBundle.class, GitVfsUtils.class})
+@SuppressWarnings("MissingSwitchDefault")
 public class TraverseSyncToParent {
 
   private final Project project;
@@ -77,11 +79,8 @@ public class TraverseSyncToParent {
         break;
 
       case MergedToParent :
-        @UI Runnable slideOut = () -> {
-          if (handleMergedToParent(repositorySnapshot, gitMacheteBranch.asNonRoot())) {
-            graphTable.queueRepositoryUpdateAndModelRefresh(syncToRemoteRunnable);
-          }
-        };
+        @UI Runnable slideOut = () -> handleMergedToParent(repositorySnapshot, gitMacheteBranch.asNonRoot(),
+            syncToRemoteRunnable);
         // Note that checking out the branch to be slid out has the unfortunate side effect
         // that we won't suggest deleting the branch after the slide out.
         checkoutAndExecuteOnUIThread(gitRepository, graphTable, branch.getName(), slideOut);
@@ -89,11 +88,8 @@ public class TraverseSyncToParent {
 
       case InSyncButForkPointOff :
       case OutOfSync :
-        @UI Runnable rebase = () -> {
-          if (handleOutOfSyncOrInSyncButForkPointOff(repositorySnapshot, gitMacheteBranch.asNonRoot(), syncToRemoteRunnable)) {
-            graphTable.queueRepositoryUpdateAndModelRefresh(syncToRemoteRunnable);
-          }
-        };
+        @UI Runnable rebase = () -> handleOutOfSyncOrInSyncButForkPointOff(repositorySnapshot, gitMacheteBranch.asNonRoot(),
+            syncToRemoteRunnable);
         checkoutAndExecuteOnUIThread(gitRepository, graphTable, branch.getName(), rebase);
         break;
 
@@ -104,9 +100,10 @@ public class TraverseSyncToParent {
 
   @ContinuesInBackground
   @UIEffect
-  private boolean handleMergedToParent(
+  private void handleMergedToParent(
       IGitMacheteRepositorySnapshot repositorySnapshot,
-      INonRootManagedBranchSnapshot managedBranch) {
+      INonRootManagedBranchSnapshot managedBranch,
+      Runnable syncToRemoteRunnable) {
     val branchLayout = repositorySnapshot.getBranchLayout();
     val currentBranchIfManaged = repositorySnapshot.getCurrentBranchIfManaged();
     val slideOutDialog = MessageDialogBuilder.yesNoCancel(
@@ -118,30 +115,26 @@ public class TraverseSyncToParent {
         .cancelText(getString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
 
     switch (slideOutDialog.show(project)) {
-      case MessageConstants.YES :
+      case YES :
         // For a branch merged to its parent, we're not syncing to remote.
         // Let's just go straight to the next branch.
         Runnable doInUIThreadWhenReady = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
         new SlideOutBackgroundable(getString("action.GitMachete.BaseSlideOutAction.task.title"),
             managedBranch, gitRepository, currentBranchIfManaged, branchLayout, graphTable, doInUIThreadWhenReady);
-        // The ongoing traverse is now a responsibility of the freshly-queued backgroundable;
-        // NOT a responsibility of the outer method.
-        return false;
+        break;
 
-      case MessageConstants.NO :
-        return true;
-
-      default :
-        return false;
+      case NO :
+        graphTable.queueRepositoryUpdateAndModelRefresh(syncToRemoteRunnable);
+        break;
     }
   }
 
   @ContinuesInBackground
   @UIEffect
-  private boolean handleOutOfSyncOrInSyncButForkPointOff(
+  private void handleOutOfSyncOrInSyncButForkPointOff(
       IGitMacheteRepositorySnapshot repositorySnapshot,
       INonRootManagedBranchSnapshot managedBranch,
-      @UI Runnable syncToRemoteRunnable) {
+      Runnable syncToRemoteRunnable) {
     var title = getString("action.GitMachete.BaseTraverseAction.dialog.out-of-sync-to-parent.title");
     var text = getString(
         "action.GitMachete.BaseTraverseAction.dialog.out-of-sync-to-parent.text.HTML");
@@ -158,7 +151,7 @@ public class TraverseSyncToParent {
         .cancelText(getString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
 
     switch (rebaseDialog.show(project)) {
-      case MessageConstants.YES :
+      case YES :
         new RebaseOnParentBackgroundable(
             getString("action.GitMachete.BaseSyncToParentByRebaseAction.task-title"),
             gitRepository, repositorySnapshot, managedBranch, /* shouldExplicitlyCheckout */ false) {
@@ -167,15 +160,11 @@ public class TraverseSyncToParent {
             graphTable.queueRepositoryUpdateAndModelRefresh(syncToRemoteRunnable);
           }
         }.queue();
-        // The ongoing traverse is now a responsibility of the freshly-queued backgroundable;
-        // NOT a responsibility of the outer method.
-        return false;
+        break;
 
-      case MessageConstants.NO :
-        return true;
-
-      default :
-        return false;
+      case NO :
+        graphTable.queueRepositoryUpdateAndModelRefresh(syncToRemoteRunnable);
+        break;
     }
   }
 
