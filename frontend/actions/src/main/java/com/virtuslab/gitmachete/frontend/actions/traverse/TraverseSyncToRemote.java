@@ -158,9 +158,12 @@ public class TraverseSyncToRemote {
 
     switch (pushApprovalDialogBuilder.show(project)) {
       case YES :
-        // TODO (#1424): git push continues in background
-        new GitPushDialog(project, gitRepository, GitPushSource.create(localBranch), /* isForcePushRequired */ false).show();
-        return true;
+        Runnable doInUIThreadWhenReady = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
+        new GitPushDialog(project, gitRepository, GitPushSource.create(localBranch), /* isForcePushRequired */ false,
+            doInUIThreadWhenReady).show();
+        // The ongoing traverse is now a responsibility of the freshly-queued backgroundable;
+        // NOT a responsibility of the outer method.
+        return false;
 
       case NO :
         return true;
@@ -183,9 +186,12 @@ public class TraverseSyncToRemote {
 
     switch (pushApprovalDialogBuilder.show(project)) {
       case YES :
-        // TODO (#1424): git push continues in background
-        new GitPushDialog(project, gitRepository, GitPushSource.create(localBranch), /* isForcePushRequired */ false).show();
-        return true;
+        Runnable doInUIThreadWhenReady = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
+        new GitPushDialog(project, gitRepository, GitPushSource.create(localBranch), /* isForcePushRequired */ false,
+            doInUIThreadWhenReady).show();
+        // The ongoing traverse is now a responsibility of the freshly-queued backgroundable;
+        // NOT a responsibility of the outer method.
+        return false;
 
       case NO :
         return true;
@@ -208,9 +214,12 @@ public class TraverseSyncToRemote {
 
     switch (forcePushApprovalDialogBuilder.show(project)) {
       case YES :
-        // TODO (#1424): git push continues in background
-        new GitPushDialog(project, gitRepository, GitPushSource.create(localBranch), /* isForcePushRequired */ true).show();
-        return true;
+        Runnable doInUIThreadWhenReady = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
+        new GitPushDialog(project, gitRepository, GitPushSource.create(localBranch), /* isForcePushRequired */ true,
+            doInUIThreadWhenReady).show();
+        // The ongoing traverse is now a responsibility of the freshly-queued backgroundable;
+        // NOT a responsibility of the outer method.
+        return false;
 
       case NO :
         return true;
