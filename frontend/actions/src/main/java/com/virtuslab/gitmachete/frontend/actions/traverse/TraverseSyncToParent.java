@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.frontend.actions.traverse;
 
 import static com.intellij.openapi.ui.MessageConstants.NO;
 import static com.intellij.openapi.ui.MessageConstants.YES;
+import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.DivergedFromAndOlderThanRemote;
 import static com.virtuslab.gitmachete.frontend.actions.traverse.CheckoutAndExecute.checkoutAndExecuteOnUIThread;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
@@ -70,6 +71,7 @@ public class TraverseSyncToParent {
     Runnable syncToRemoteRunnable = new TraverseSyncToRemote(gitRepository, graphTable, branch, traverseNextEntry)::execute;
 
     val syncToParentStatus = gitMacheteBranch.asNonRoot().getSyncToParentStatus();
+    val syncToRemoteStatus = gitMacheteBranch.getRelationToRemote().getSyncToRemoteStatus();
     switch (syncToParentStatus) {
       case InSync :
         // A repository refresh isn't needed here.
@@ -88,9 +90,13 @@ public class TraverseSyncToParent {
 
       case InSyncButForkPointOff :
       case OutOfSync :
-        @UI Runnable rebase = () -> handleOutOfSyncOrInSyncButForkPointOff(repositorySnapshot, gitMacheteBranch.asNonRoot(),
-            syncToRemoteRunnable);
-        checkoutAndExecuteOnUIThread(gitRepository, graphTable, branch.getName(), rebase);
+        if (syncToRemoteStatus == DivergedFromAndOlderThanRemote) {
+          ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, syncToRemoteRunnable);
+        } else {
+          @UI Runnable rebase = () -> handleOutOfSyncOrInSyncButForkPointOff(repositorySnapshot, gitMacheteBranch.asNonRoot(),
+              syncToRemoteRunnable);
+          checkoutAndExecuteOnUIThread(gitRepository, graphTable, branch.getName(), rebase);
+        }
         break;
 
       default :
