@@ -4,7 +4,6 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 
 import java.util.Arrays;
 
-import com.intellij.openapi.progress.Task;
 import com.tngtech.archunit.core.domain.AccessTarget;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaMethod;
@@ -107,9 +106,13 @@ public class BackgroundTaskEnqueuingTestSuite extends BaseArchUnitTestSuite {
           public void check(JavaMethod method, ConditionEvents events) {
             method.getCallsFromSelf().forEach(call -> {
               val callTarget = call.getTarget();
-              if (callTarget.getName().equals("queue") && callTarget.getOwner().isAssignableTo(Task.Backgroundable.class) ||
-                  callTarget.getName().equals("checkout")
-                      && callTarget.getOwner().isAssignableTo(git4idea.branch.GitBrancher.class)) {
+              String callTargetName = callTarget.getName();
+              JavaClass callTargetOwner = callTarget.getOwner();
+              if (callTargetName.equals("queue")
+                  && callTargetOwner.isAssignableTo(com.intellij.openapi.progress.Task.Backgroundable.class) ||
+                  callTargetName.equals("checkout") && callTargetOwner.isAssignableTo(git4idea.branch.GitBrancher.class) ||
+                  callTargetName.equals("show")
+                      && callTargetOwner.isAssignableTo(com.intellij.dvcs.push.ui.VcsPushDialog.class)) {
                 String message = "a non-${ContinuesInBackgroundName} method ${method.getFullName()} " +
                     "enqueues a background task via method ${callTarget.getFullName()}; " +
                     "mark this method as ${ContinuesInBackgroundName} if you're aware of the race conditions " +

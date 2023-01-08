@@ -70,8 +70,9 @@
         <module name="MissingSwitchDefault"/>
         <module name="MultipleStringLiterals">
             <property name="allowedDuplicates" value="3"/>
-            <!-- Allow for more than 3 occurrences of an empty string, a single-space string or ", " string in the given file -->
-            <property name="ignoreStringsRegexp" value="^&quot;(| |, )&quot;$"/>
+            <!-- Allow for more than 3 occurrences of an empty string, a single-space string,
+                 ", " string or "... is null" string in the given file -->
+            <property name="ignoreStringsRegexp" value="^&quot;(| |, |.* is null)&quot;$"/>
         </module>
         <module name="MultipleVariableDeclarations"/>
         <module name="ModifiedControlVariable"/>

@@ -23,6 +23,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.GitPushDialog;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
+import com.virtuslab.qual.async.ContinuesInBackground;
 
 @ExtensionMethod(GitMacheteBundle.class)
 public abstract class BasePushAction extends BaseGitMacheteRepositoryReadyAction
@@ -74,6 +75,7 @@ public abstract class BasePushAction extends BaseGitMacheteRepositoryReadyAction
   }
 
   @Override
+  @ContinuesInBackground
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
 
@@ -93,6 +95,7 @@ public abstract class BasePushAction extends BaseGitMacheteRepositoryReadyAction
     return List.of(DivergedFromAndNewerThanRemote, DivergedFromAndOlderThanRemote).contains(syncToRemoteStatus);
   }
 
+  @ContinuesInBackground
   @UIEffect
   private void doPush(Project project,
       GitRepository repository,
