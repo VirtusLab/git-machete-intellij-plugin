@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.dialogs;
 
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
+
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
@@ -10,7 +12,6 @@ import com.intellij.dvcs.push.PushSupport;
 import com.intellij.dvcs.push.VcsPushOptionValue;
 import com.intellij.dvcs.push.ui.VcsPushDialog;
 import com.intellij.dvcs.repo.Repository;
-import com.intellij.dvcs.ui.DvcsBundle;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -89,7 +90,7 @@ public final class GitPushDialog extends VcsPushDialog {
   @UIEffect
   public void push(boolean forcePush) {
 
-    String title = DvcsBundle.message("push.process.pushing");
+    String title = getString("string.GitMachete.GitPushDialog.task-title");
     executeAfterRunningPrePushHandlers(new Task.Backgroundable(myProject, title, /* canBeCancelled */ true) {
       @Override
       public void run(ProgressIndicator indicator) {
