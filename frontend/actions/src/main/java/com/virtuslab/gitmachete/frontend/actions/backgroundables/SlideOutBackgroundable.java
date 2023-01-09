@@ -88,7 +88,8 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
       val root = gitRepository.getRoot();
       val shouldDelete = getDeleteLocalBranchOnSlideOutGitConfigValue(root);
       if (shouldDelete == null) {
-        ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, () -> suggestBranchDeletion(branchToSlideOutName));
+        ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL,
+            () -> suggestBranchDeletion(branchToSlideOutName, doInUIThreadWhenReady));
       } else {
         handleBranchDeletionDecision(branchToSlideOutName, shouldDelete);
         ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, doInUIThreadWhenReady);
@@ -102,7 +103,7 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
 
   @ContinuesInBackground
   @UIEffect
-  private void suggestBranchDeletion(String branchName) {
+  private void suggestBranchDeletion(String branchName, @UI Runnable doInUIThreadWhenBranchDeletionReady) {
     val slideOutOptions = new DeleteBranchOnSlideOutSuggestionDialog(project, branchName).showAndGetSlideOutOptions();
 
     new Task.Backgroundable(project, getString("action.GitMachete.BaseSlideOutAction.task.title")) {
@@ -127,7 +128,7 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
       @Override
       @UIEffect
       public void onSuccess() {
-        doInUIThreadWhenReady.run();
+        doInUIThreadWhenBranchDeletionReady.run();
       }
     }.queue();
   }
