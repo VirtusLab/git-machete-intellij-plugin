@@ -11,13 +11,21 @@ public final class WriteActionUtils {
   private WriteActionUtils() {}
 
   public static <E extends Throwable> void runWriteActionOnUIThread(@UI ThrowableRunnable<E> action) {
-    ApplicationManager.getApplication()
-        .invokeLater(new Runnable() {
-          @Override
-          @SneakyThrows
-          public void run() {
-            WriteAction.run(action);
-          }
-        });
+    ApplicationManager.getApplication().invokeLater(getWriteActionRunnable(action));
   }
+
+  public static <E extends Throwable> void blockingRunWriteActionOnUIThread(@UI ThrowableRunnable<E> action) {
+    ApplicationManager.getApplication().invokeAndWait(getWriteActionRunnable(action));
+  }
+
+  private static <E extends Throwable> @UI Runnable getWriteActionRunnable(@UI ThrowableRunnable<E> action) {
+    return new Runnable() {
+      @Override
+      @SneakyThrows
+      public void run() {
+        WriteAction.run(action);
+      }
+    };
+  }
+
 }

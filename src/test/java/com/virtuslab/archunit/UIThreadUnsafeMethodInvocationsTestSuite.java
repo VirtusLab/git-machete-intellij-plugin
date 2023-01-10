@@ -153,11 +153,12 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
   // Some of these methods might actually access the filesystem;
   // still, they're lightweight enough so that we can give them a free pass.
   private static final String[] whitelistedMethodFullNames_java_io = {
+      "java.io.BufferedOutputStream.<init>(java.io.OutputStream)",
       "java.io.File.canExecute()",
       "java.io.File.getAbsolutePath()",
       "java.io.File.isFile()",
       "java.io.File.toString()",
-      "java.io.BufferedOutputStream.<init>(java.io.OutputStream)"
+      "java.io.IOException.getMessage()"
   };
 
   private static final String[] whitelistedMethodFullNames_java_nio = {

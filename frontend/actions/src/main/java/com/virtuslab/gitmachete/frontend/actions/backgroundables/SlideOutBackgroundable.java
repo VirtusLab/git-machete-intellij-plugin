@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
-import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.runWriteActionOnUIThread;
+import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.blockingRunWriteActionOnUIThread;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.fmt;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
@@ -152,12 +152,14 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
     graphTable.queueRepositoryUpdateAndModelRefresh();
   }
 
-  @UIThreadUnsafe
   private void slideOutBranch(String branchName) {
     LOG.info("Sliding out '${branchName}' branch in memory");
     val newBranchLayout = branchLayout.slideOut(branchName);
 
-    runWriteActionOnUIThread(() -> {
+    // Let's execute the write action in a blocking way, in order to prevent branch deletion from running concurrently.
+    // If branch deletion completes before the new branch layout is saved, we might end up with an issue like
+    // https://github.com/VirtusLab/git-machete-intellij-plugin/issues/971.
+    blockingRunWriteActionOnUIThread(() -> {
       try {
         val macheteFilePath = getMacheteFilePath(gitRepository);
         val branchLayoutWriter = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutWriter.class);

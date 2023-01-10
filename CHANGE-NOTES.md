@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.3.1
+- Fixed a race condition in the Slide-out action.
+
 ## v3.3.0
 - Added the interactive traverse feature.
 - Improved performance of the plugin on large repos with 100,000s of commits in history.

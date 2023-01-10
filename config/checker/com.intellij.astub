@@ -213,6 +213,8 @@ interface Application {
   void invokeLater(@UI Runnable runnable);
 
   void invokeLater(@UI Runnable runnable, ModalityState state);
+
+  void invokeAndWait(@UI Runnable runnable);
 }
 
 @UI

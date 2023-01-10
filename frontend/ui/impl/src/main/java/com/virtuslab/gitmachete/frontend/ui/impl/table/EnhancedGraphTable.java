@@ -85,7 +85,6 @@ import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.async.DoesNotContinueInBackground;
 import com.virtuslab.qual.guieffect.IgnoreUIThreadUnsafeCalls;
-import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 /**
  *  This class compared to {@link SimpleGraphTable} has graph table refreshing and provides
@@ -398,8 +397,6 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     }
   }
 
-  @IgnoreUIThreadUnsafeCalls("com.virtuslab.gitmachete.frontend.ui.impl.table.EnhancedGraphTable.slideOutSkippedBranches" +
-      "(com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot, git4idea.repo.GitRepository)")
   private Notification getSkippedBranchesNotification(IGitMacheteRepositorySnapshot repositorySnapshot,
       GitRepository gitRepository) {
     val notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(
@@ -410,9 +407,6 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     notification.addAction(NotificationAction.createSimple(
         getString("action.GitMachete.EnhancedGraphTable.automatic-discover.slide-out-skipped"), () -> {
           notification.expire();
-          // Note that we're essentially writing to machete file on UI thread here.
-          // This is still acceptable since it simplifies the flow (no background task needed)
-          // and this action is not going to be invoked frequently.
           slideOutSkippedBranches(repositorySnapshot, gitRepository);
         }));
     notification.addAction(NotificationAction.createSimple(
@@ -423,7 +417,6 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     return notification;
   }
 
-  @UIThreadUnsafe
   private void slideOutSkippedBranches(IGitMacheteRepositorySnapshot repositorySnapshot, GitRepository gitRepository) {
     BranchLayout newBranchLayout = repositorySnapshot.getBranchLayout();
     for (val branchName : repositorySnapshot.getSkippedBranchNames()) {
