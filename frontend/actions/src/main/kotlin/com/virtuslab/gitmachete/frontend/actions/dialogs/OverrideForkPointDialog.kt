@@ -89,53 +89,54 @@ class OverrideForkPointDialog(
           .commentCompat(escapeHtml4(parent.pointedCommit.shortMessage))
       }
 
-      rowCompat {
-        radioButton(
-          fmt(
-            getString(
-              "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.inferred"
+      val forkPoint = branch.forkPoint
+      if (forkPoint != null) {
+        rowCompat {
+          radioButton(
+            fmt(
+              getString(
+                "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.inferred"
+              ),
+              forkPoint.shortHash
             ),
-            branch.forkPoint?.shortHash ?: "cannot resolve commit hash"
-          ),
-          OverrideOption.INFERRED
-        )
-          .commentCompat(escapeHtml4(branch.forkPoint?.shortMessage) ?: "cannot resolve commit message")
+            OverrideOption.INFERRED
+          )
+            .commentCompat(escapeHtml4(forkPoint.shortMessage))
+        }
       }
 
-      rowCompat {
-        val rb: Cell<JBRadioButton> = radioButton(
-          fmt(
+      val commits = branch.commitsUntilParent + listOf(branch.forkPoint, parent.pointedCommit)
+      val comboItems = commits.filterNotNull().distinct().reversed()
+      if (comboItems.isNotEmpty()) {
+        rowCompat {
+          val rb: Cell<JBRadioButton> = radioButton(
             getString(
               "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.custom"
             ),
-            branch.forkPoint?.shortHash ?: "cannot resolve commit hash"
-          ),
-          OverrideOption.CUSTOM
-        )
+            OverrideOption.CUSTOM
+          )
 
-        val list = branch.commitsUntilParent + listOf(branch.forkPoint, parent.pointedCommit)
-        val items = list.filterNotNull().distinct().reversed()
-
-        comboBox(
-          items,
-          object : DefaultListCellRenderer() {
-            override fun getListCellRendererComponent(
-              list: JList<*>?,
-              value: Any?,
-              index: Int,
-              isSelected: Boolean,
-              cellHasFocus: Boolean
-            ): Component {
-              val commit = value as? ICommitOfManagedBranch
-              if (commit != null) {
-                text = "<html><tt>[${commit.shortHash}]</tt> ${escapeHtml4(commit.shortMessage)}</html>"
+          comboBox(
+            comboItems,
+            object : DefaultListCellRenderer() {
+              override fun getListCellRendererComponent(
+                list: JList<*>?,
+                value: Any?,
+                index: Int,
+                isSelected: Boolean,
+                cellHasFocus: Boolean
+              ): Component {
+                val commit = value as? ICommitOfManagedBranch
+                if (commit != null) {
+                  text = "<html><tt>[${commit.shortHash}]</tt> ${escapeHtml4(commit.shortMessage)}</html>"
+                }
+                return this
               }
-              return this
             }
-          }
-        ).enabledIf(rb.selected).bindItem(
-          MutableProperty(::customCommit) { customCommit = it }
-        )
+          ).enabledIf(rb.selected).bindItem(
+            MutableProperty(::customCommit) { customCommit = it }
+          )
+        }
       }
     }
       .bind(
