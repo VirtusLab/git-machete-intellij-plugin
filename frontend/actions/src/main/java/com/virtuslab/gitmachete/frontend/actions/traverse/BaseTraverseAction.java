@@ -96,7 +96,7 @@ public abstract class BaseTraverseAction extends BaseGitMacheteRepositoryReadyAc
             getString("action.GitMachete.BaseTraverseAction.dialog.traverse-approval.title"),
             getString("action.GitMachete.BaseTraverseAction.dialog.traverse-approval.text.HTML"),
             SHOW_TRAVERSE_INFO,
-            /* myHeight */ 100);
+            /* myHeight */ 120);
 
         yesNoResult = traverseInfoDialog.showAndGet();
       }
