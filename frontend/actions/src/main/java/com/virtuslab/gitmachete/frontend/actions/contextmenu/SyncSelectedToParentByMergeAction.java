@@ -13,7 +13,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseSyncToParentByMergeAction;
-import com.virtuslab.gitmachete.frontend.actions.dialogs.WarnAboutSyncToParentByMergeDialog;
+import com.virtuslab.gitmachete.frontend.actions.dialogs.DoNotAskOption;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
 import com.virtuslab.qual.async.ContinuesInBackground;
 
@@ -42,7 +42,7 @@ public class SyncSelectedToParentByMergeAction extends BaseSyncToParentByMergeAc
 
       dialogBuilder
           .icon(Messages.getWarningIcon())
-          .doNotAsk(new WarnAboutSyncToParentByMergeDialog(project));
+          .doNotAsk(new DoNotAskOption(project, SyncSelectedToParentByMergeAction.SHOW_MERGE_WARNING));
 
       val dialogResult = dialogBuilder.ask(project);
 
