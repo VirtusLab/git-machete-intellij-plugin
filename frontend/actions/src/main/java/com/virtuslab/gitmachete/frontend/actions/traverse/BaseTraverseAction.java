@@ -5,6 +5,8 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.ui.MessageDialogBuilder;
+import com.intellij.openapi.ui.Messages;
 import git4idea.repo.GitRepository;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
@@ -14,7 +16,7 @@ import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryReadyAction;
 import com.virtuslab.gitmachete.frontend.actions.base.IBranchNameProvider;
-import com.virtuslab.gitmachete.frontend.actions.dialogs.InfoDialog;
+import com.virtuslab.gitmachete.frontend.actions.dialogs.DoNotAskOption;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
@@ -91,14 +93,13 @@ public abstract class BaseTraverseAction extends BaseGitMacheteRepositoryReadyAc
     if (branchLayout != null && branchLayout.getRootEntries().nonEmpty() && gitRepository != null) {
       if (PropertiesComponent.getInstance(project).getBoolean(SHOW_TRAVERSE_INFO, /* defaultValue */ true)) {
 
-        val traverseInfoDialog = new InfoDialog(
-            project,
+        val traverseInfoDialog = MessageDialogBuilder.okCancel(
             getString("action.GitMachete.BaseTraverseAction.dialog.traverse-approval.title"),
-            getString("action.GitMachete.BaseTraverseAction.dialog.traverse-approval.text.HTML"),
-            SHOW_TRAVERSE_INFO,
-            /* myHeight */ 120);
+            getString("action.GitMachete.BaseTraverseAction.dialog.traverse-approval.text.HTML"))
+            .icon(Messages.getInformationIcon())
+            .doNotAsk(new DoNotAskOption(project, SHOW_TRAVERSE_INFO));
 
-        yesNoResult = traverseInfoDialog.showAndGet();
+        yesNoResult = traverseInfoDialog.ask(project);
       }
 
       if (yesNoResult) {

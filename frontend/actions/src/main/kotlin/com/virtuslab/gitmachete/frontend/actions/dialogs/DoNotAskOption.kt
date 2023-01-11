@@ -4,13 +4,12 @@ import com.intellij.ide.util.PropertiesComponent
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DoNotAskOption
 import com.intellij.openapi.ui.Messages
-import com.virtuslab.gitmachete.frontend.actions.contextmenu.SyncSelectedToParentByMergeAction
 
-class WarnAboutSyncToParentByMergeDialog(val project: Project) : DoNotAskOption.Adapter() {
+class DoNotAskOption(val project: Project, val keyName: String) : DoNotAskOption.Adapter() {
 
   override fun rememberChoice(isSelected: Boolean, exitCode: Int) {
     if (exitCode == Messages.OK && isSelected) {
-      PropertiesComponent.getInstance(project).setValue(SyncSelectedToParentByMergeAction.SHOW_MERGE_WARNING, false, /* defaultValue */ true)
+      PropertiesComponent.getInstance(project).setValue(keyName, false, /* defaultValue */ true)
     }
   }
 }

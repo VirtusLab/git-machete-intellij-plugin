@@ -9,6 +9,8 @@ import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCate
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.ui.MessageDialogBuilder;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitReference;
 import git4idea.repo.GitRepository;
@@ -26,7 +28,7 @@ import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.ResetCurrentToRemoteBackgroundable;
-import com.virtuslab.gitmachete.frontend.actions.dialogs.InfoDialog;
+import com.virtuslab.gitmachete.frontend.actions.dialogs.DoNotAskOption;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
@@ -139,13 +141,11 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
           remoteTrackingBranch.getName().escapeHtml4(),
           currentCommitSha);
 
-      val resetInfoDialog = new InfoDialog(project,
+      val resetInfoDialog = MessageDialogBuilder.okCancel(
           getString("action.GitMachete.BaseResetToRemoteAction.info-dialog.title"),
-          content,
-          SHOW_RESET_INFO,
-          /* myHeight */ 200);
+          content).icon(Messages.getInformationIcon()).doNotAsk(new DoNotAskOption(project, SHOW_RESET_INFO));
 
-      if (!resetInfoDialog.showAndGet()) {
+      if (!resetInfoDialog.ask(project)) {
         return;
       }
     }
