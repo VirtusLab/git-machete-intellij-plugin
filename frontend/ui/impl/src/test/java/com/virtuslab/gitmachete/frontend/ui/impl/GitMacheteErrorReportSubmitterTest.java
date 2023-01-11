@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.frontend.ui.impl;
 
+import static com.virtuslab.gitmachete.frontend.ui.impl.GitMacheteErrorReportSubmitter.MAX_GITHUB_URI_LENGTH;
+
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -147,4 +149,12 @@ public class GitMacheteErrorReportSubmitterTest {
     Assert.assertEquals(expectedUri("with_suppressed_exceptions"), uri.toString());
   }
 
+  @Test
+  public void shouldNotConstructUriLongerThanGitHubLimit() throws Exception {
+    val event = getMockEvent("exception message", 1000);
+
+    URI uri = reportSubmitter.constructNewGitHubIssueUri(new IdeaLoggingEvent[]{event}, /* additionalInfo */ null);
+    Assert.assertEquals(expectedUri("long_uri"), uri.toString());
+    Assert.assertTrue("URI is longer than ${MAX_GITHUB_URI_LENGTH} bytes", uri.toString().length() <= MAX_GITHUB_URI_LENGTH);
+  }
 }

@@ -20,6 +20,7 @@ import com.intellij.openapi.diagnostic.SubmittedReportInfo;
 import com.intellij.openapi.extensions.PluginId;
 import com.intellij.util.Consumer;
 import com.intellij.util.ModalityUiUtil;
+import io.vavr.collection.List;
 import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.experimental.ExtensionMethod;
@@ -32,6 +33,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 @CustomLog
 @ExtensionMethod(Arrays.class)
 public class GitMacheteErrorReportSubmitter extends ErrorReportSubmitter {
+
+  public static final int MAX_GITHUB_URI_LENGTH = 8192;
 
   @Override
   public String getReportActionText() {
@@ -55,6 +58,8 @@ public class GitMacheteErrorReportSubmitter extends ErrorReportSubmitter {
   }
 
   URI constructNewGitHubIssueUri(IdeaLoggingEvent[] events, @Nullable String additionalInfo) throws URISyntaxException {
+    val uriBuilder = new URIBuilder("https://github.com/VirtusLab/git-machete-intellij-plugin/issues/new");
+
     String title = events.stream()
         .map(event -> {
           val throwable = event.getThrowable();
@@ -62,13 +67,21 @@ public class GitMacheteErrorReportSubmitter extends ErrorReportSubmitter {
           return (throwable != null ? exceptionMessage : event.getMessage()).stripTrailing();
         })
         .collect(Collectors.joining("; "));
-    String reportBody = getReportBody(events, additionalInfo);
+    uriBuilder.setParameter("title", title);
 
-    val uriBuilder = new URIBuilder("https://github.com/VirtusLab/git-machete-intellij-plugin/issues/new");
-    uriBuilder.addParameter("title", title);
-    uriBuilder.addParameter("labels", "bug");
-    uriBuilder.addParameter("body", reportBody);
-    return uriBuilder.build();
+    uriBuilder.setParameter("labels", "bug");
+
+    URI uri;
+    List<String> reportBodyLines = List.ofAll(getReportBody(events, additionalInfo).lines())
+        .append("<placeholder-for-do-while>");
+    do {
+      // Let's cut the body gradually line-by-line until the resulting URI fits into the GitHub limits.
+      // It's hard to predict the perfect exact cut in advance due to URL encoding.
+      reportBodyLines = reportBodyLines.dropRight(1);
+      uriBuilder.setParameter("body", reportBodyLines.mkString(System.lineSeparator()));
+      uri = uriBuilder.build();
+    } while (uri.toString().length() > MAX_GITHUB_URI_LENGTH);
+    return uri;
   }
 
   private String getReportBody(
