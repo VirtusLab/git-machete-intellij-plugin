@@ -27,6 +27,7 @@ prohibit-java-code-commented-out
 prohibit-java-lines-split-needlessly
 prohibit-java-unused-custom-log
 prohibit-kotlin-undefined-property-keys
+prohibit-kotlin-unsafe-cast
 prohibit-non-ascii-characters
 prohibit-properties-unused-keys
 prohibit-tab-character

@@ -86,7 +86,7 @@ data class IntellijVersions(
     } else if (propertyValue is String) {
       return listOf(propertyValue)
     } else if (propertyValue is List<*>) {
-      return propertyValue.map { it as String }
+      return propertyValue.mapNotNull { it as? String }
     } else {
       throw IllegalStateException("Unexpected property value found for $versionKey: $propertyValue")
     }

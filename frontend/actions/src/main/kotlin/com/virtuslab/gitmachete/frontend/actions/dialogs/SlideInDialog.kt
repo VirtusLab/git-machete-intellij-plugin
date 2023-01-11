@@ -126,8 +126,8 @@ class SlideInDialog(
       GitBranchUtil.sortBranchNames(gitRepository.branches.localBranches.map { it.name })
         .filter { it != parentName }
 
-    val model = branchField.model as MutableCollectionComboBoxModel
-    model.update(branches)
+    val model = branchField.model as? MutableCollectionComboBoxModel
+    model?.update(branches)
 
     branchField.selectAll()
   }

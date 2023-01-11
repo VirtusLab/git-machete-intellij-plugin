@@ -2,6 +2,7 @@
 
 ## v3.3.1
 - Fixed a race condition in the Slide-out action.
+- Fixed a `NullPointerException` in Override Fork Point action.
 
 ## v3.3.0
 - Added the interactive traverse feature.

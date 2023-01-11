@@ -126,8 +126,10 @@ class OverrideForkPointDialog(
               isSelected: Boolean,
               cellHasFocus: Boolean
             ): Component {
-              val commit: ICommitOfManagedBranch = value as ICommitOfManagedBranch
-              text = "<html><tt>[${commit.shortHash}]</tt> ${escapeHtml4(commit.shortMessage)}</html>"
+              val commit = value as? ICommitOfManagedBranch
+              if (commit != null) {
+                text = "<html><tt>[${commit.shortHash}]</tt> ${escapeHtml4(commit.shortMessage)}</html>"
+              }
               return this
             }
           }

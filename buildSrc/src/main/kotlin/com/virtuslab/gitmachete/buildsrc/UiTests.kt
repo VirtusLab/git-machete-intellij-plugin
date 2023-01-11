@@ -15,13 +15,13 @@ fun Project.configureUiTests() {
   tasks["compileUiTestScala"].finalizedBy("classpathIndexCleanup")
   tasks["processUiTestResources"].finalizedBy("classpathIndexCleanup")
 
-  val sourceSets = extensions["sourceSets"] as SourceSetContainer
-  val uiTest = sourceSets["uiTest"]
+  val sourceSets = extensions["sourceSets"] as? SourceSetContainer
+  val uiTest = sourceSets!!["uiTest"]
   val uiTestsDir = "${System.getProperty("user.home")}/.ideprobe-uitests"
 
   val uiTestTargets: List<String> =
     if (project.properties["against"] != null) {
-      intellijVersions.resolveIntelliJVersions(project.properties["against"] as String)
+      intellijVersions.resolveIntelliJVersions(project.properties["against"] as? String)
     } else {
       listOf(intellijVersions.buildTarget)
     }

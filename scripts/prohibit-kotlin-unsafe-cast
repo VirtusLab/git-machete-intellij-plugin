@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail -u
+
+self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
+source "$self_dir"/utils.sh
+
+# Allow `as` in comments and import statements.
+if git grep -En -e ' as ' --and --not -e '^( *//| *\*|import )' -- '*.kt' ':!**/kotlinUIDslBuilderCompat.kt'; then
+  die 'A likely null-unsafe `as` cast detected; use the null-safe `as?` instead'
+fi

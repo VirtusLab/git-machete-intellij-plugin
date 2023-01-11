@@ -50,7 +50,8 @@ internal class GitNewCommitMessageActionDialog(
     editor.editorField.addSettingsProvider { editorEx ->
       // display at least several rows for one-line messages
       val MIN_ROWS = 3
-      if ((editorEx as EditorImpl).visibleLineCount < MIN_ROWS) {
+      val editorImpl = editorEx as? EditorImpl
+      if (editorImpl != null && editorImpl.visibleLineCount < MIN_ROWS) {
         verticalStretch = 1.5F
       }
       horizontalStretch = 1.5F
