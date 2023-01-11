@@ -31,6 +31,7 @@ Use IntelliJ IDEA Community Edition/Ultimate.
     * [Scala plugin](https://plugins.jetbrains.com/plugin/1347-scala) might be useful for editing UI tests.
 
 5. (optional) Install further non-bundled plugins from Marketplace:
+   * [AWK Support](https://plugins.jetbrains.com/plugin/17037-awk-support)
    * [Grammar-Kit IntelliJ plugin](https://plugins.jetbrains.com/plugin/6606-grammar-kit) can be used instead of Gradle plugin
      to manually generate grammar and lexer code from `.bnf` and `.flex` files.
    * [HOCON plugin](https://plugins.jetbrains.com/plugin/10481-hocon) for `.conf` file support in UI tests

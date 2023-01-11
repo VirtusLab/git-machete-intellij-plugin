@@ -2,24 +2,11 @@
 
 set -e -o pipefail -u
 
-awk_script="$(cat <<'EOF'
-
-  FNR == 1 { prev_non_empty = "" }
-
-  ( /^ {3}/ && prev_non_empty !~ /^ {2}/ ) || ( /^ {5}/ && prev_non_empty !~ /^ {4}/ ) {
-    print FILENAME ":" FNR ": likely three or four spaces used for indent instead of two"
-    exit_code = 1
-  }
-
-  /^.+$/ { prev_non_empty = $0 }
-
-  END { exit exit_code }
-
-EOF
-)"
+self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
+self_name=$(basename -s .sh "$0")
 
 git ls-files \
   ':!*.flex' ':!gradlew' ':!*.java' ':!*.kt' ':!*.md' \
   ':!plugin-verifier.gradle' '!*.scala' ':!scripts/setup-multiroot-sandbox' \
   ':!*.svg' ':!testCommon/src/test/resources/*.sh' ':!*.xml' \
-   | xargs awk "$awk_script"
+   | xargs awk -f "$self_dir/$self_name.awk"
