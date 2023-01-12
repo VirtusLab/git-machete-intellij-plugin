@@ -8,7 +8,6 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.provideDelegate
 import org.jsoup.Jsoup
-import java.io.File
 
 open class UpdateIntellijVersions : DefaultTask() {
 
@@ -105,7 +104,7 @@ open class UpdateIntellijVersions : DefaultTask() {
     }
 
     if (originalVersions != updatedVersions) {
-      PropertiesHelper.storeProperties(updatedVersions.toProperties(), File("intellij-versions.properties"))
+      PropertiesHelper.storeProperties(updatedVersions.toProperties(), project.rootDir.resolve("intellij-versions.properties"))
     }
   }
 }
