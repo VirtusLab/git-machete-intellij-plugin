@@ -75,7 +75,7 @@ class OverrideForkPointDialog(
       }
     }
 
-    buttonsGroupCompat {
+    val radioButtonsGroup = buttonsGroupCompat {
       rowCompat {
         radioButton(
           fmt(
@@ -109,14 +109,14 @@ class OverrideForkPointDialog(
       val comboItems = commits.filterNotNull().distinct().reversed()
       if (comboItems.isNotEmpty()) {
         rowCompat {
-          val rb: Cell<JBRadioButton> = radioButton(
+          val customCommitRadioButton: Cell<JBRadioButton> = radioButton(
             getString(
               "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.custom"
             ),
             OverrideOption.CUSTOM
           )
 
-          comboBox(
+          val customCommitComboBox = comboBox(
             comboItems,
             object : DefaultListCellRenderer() {
               override fun getListCellRendererComponent(
@@ -133,15 +133,18 @@ class OverrideForkPointDialog(
                 return this
               }
             }
-          ).enabledIf(rb.selected).bindItem(
+          )
+
+          customCommitComboBox.enabledIf(customCommitRadioButton.selected).bindItem(
             MutableProperty(::customCommit) { customCommit = it }
           )
         }
       }
     }
-      .bind(
-        MutableProperty(::myOverrideOption) { myOverrideOption = it },
-        OverrideOption::class.java
-      )
+
+    radioButtonsGroup.bind(
+      MutableProperty(::myOverrideOption) { myOverrideOption = it },
+      OverrideOption::class.java
+    )
   }
 }
