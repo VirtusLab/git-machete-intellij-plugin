@@ -5,12 +5,10 @@ set -e -o pipefail -u
 self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 source "$self_dir"/utils.sh
 
-if ! [[ ${CI-} ]]; then exit 0; fi
-
 case ${CIRCLE_BRANCH-} in
   # We don't want a crucial (non-regular-PR) build to fail because some linked website has a random downtime.
-  develop|release/*|backport/*|master|hotfix/*) extra_options='' ;;
-  *) extra_options='--use=lint-no-dead-urls' ;;
+  develop|release/*|backport/*|master|hotfix/*) rc_path=.remarkrc-allow-dead-urls.yml ;;
+  *) rc_path=.remarkrc.yml ;;
 esac
 
-remark --use=validate-links $extra_options --ignore-path=.gitignore --frail .
+remark --frail --ignore-path=.gitignore --rc-path=$rc_path .
