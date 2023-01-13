@@ -34,7 +34,7 @@ function create_repo() {
 
   local dir=$1
   mkdir -p $dir
-  cd $dir
+  cd $dir || exit 1
   shift
   git init "$@"
   if [[ "$(uname -s)" != *MINGW*_NT* ]]; then
@@ -52,7 +52,7 @@ function create_repo() {
   # To make sure the tests can run automatically in such scenario,
   # let's disable automatic commit signing on a per-repository level.
   git config --local commit.gpgSign false
-  cd -
+  cd - || exit 1
 }
 
 function create_branch() {
@@ -70,8 +70,9 @@ function commit() {
     exit 100
   fi
 
-  local b=$(git symbolic-ref --short HEAD)
-  local f=${b//\//-}-$(sed 's/[ /]/-/g' <<< "$@").txt
+  local b f
+  b=$(git symbolic-ref --short HEAD)
+  f=${b//\//-}-$(sed 's/[ /]/-/g' <<< "$@").txt
   touch $f
   git add $f
   git commit -m "$*"
@@ -79,6 +80,7 @@ function commit() {
 }
 
 function push() {
-  local b=$(git symbolic-ref --short HEAD)
+  local b
+  b=$(git symbolic-ref --short HEAD)
   git push -u ${1-origin} $b
 }

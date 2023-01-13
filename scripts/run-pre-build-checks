@@ -16,6 +16,7 @@ enforce-issue-number-for-todos
 enforce-newline-at-eof
 enforce-properties-keys-with-valid-class-names
 enforce-settings-gradle-match-directories
+enforce-shell-scripts-pass-shellcheck
 enforce-version-bump
 
 if [[ $0 != *.git/hooks/pre-commit ]]; then

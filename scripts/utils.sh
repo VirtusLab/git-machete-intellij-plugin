@@ -30,7 +30,7 @@ function die() {
 }
 
 function extract_version_from_gradle_file_stdin() {
-  [[ -t 0 ]] && die "${FUNCNAME[0]}: expecting non-terminal stdin, aborting" || true
+  if [[ -t 0 ]]; then die "${FUNCNAME[0]}: expecting non-terminal stdin, aborting"; fi
 
   # Let's avoid any external process calls (cat/grep) to speed things up.
 

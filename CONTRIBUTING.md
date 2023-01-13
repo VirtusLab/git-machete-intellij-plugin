@@ -55,6 +55,8 @@ Use IntelliJ IDEA Community Edition/Ultimate.
 
 ### Git config/hooks
 
+Install [shellcheck](https://github.com/koalaman/shellcheck#installing), e.g. via `brew install shellcheck` on macOS.
+
 From the main project folder, run the following commands:
 
 ```shell

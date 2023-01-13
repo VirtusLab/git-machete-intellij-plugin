@@ -14,7 +14,7 @@ cd machete-sandbox
     commit 1st round of fixes
   # Let's simulate a squash-merge that would be performed by GitHub...
   # actually using the `git machete squash`'s secret technique under the hood:
-  squashed_commit_hash=$(git commit-tree HEAD^{tree} -p develop -m 'Allow ownership links - squashed 2 commits')
+  squashed_commit_hash=$(git commit-tree "HEAD^{tree}" -p develop -m 'Allow ownership links - squashed 2 commits')
   git update-ref refs/heads/develop "$squashed_commit_hash"
 
   machete_file='

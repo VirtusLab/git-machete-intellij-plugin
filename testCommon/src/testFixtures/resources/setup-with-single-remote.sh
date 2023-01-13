@@ -52,6 +52,7 @@ cd machete-sandbox
     commit HOTFIX Add the trigger - fixes
     push
     git reset --keep HEAD~1
+    # shellcheck disable=SC2154
     set_fake_git_date 2020-01-$((commit_day_of_month-2))
     commit HOTFIX Add the trigger - fixes
     # Let's clean up the upstream so that we can't rely on `git config` for finding out the remote branch;

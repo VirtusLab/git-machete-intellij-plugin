@@ -9,9 +9,11 @@ exit_code=0
 
 for file in $(git ls-files '*.astub'); do
   # Print the lines present in the first output but missing from the second
+  # First <(...) covers all annotations used across the file,
+  # second <(...) covers all symbols imported in the file.
   output=$(comm -23 \
-    <(grep -Po '(?<=@)[a-zA-Z0-9.]*' "$file" | sort -u   `: all annotations used across the file`) \
-    <(grep -Po '(?<=import ).*(?=;)' "$file" | rev | cut -d. -f1 | rev | sort -u   `: all symbols imported in the file`)
+    <(grep -Po '(?<=@)[a-zA-Z0-9.]*' "$file" | sort -u) \
+    <(grep -Po '(?<=import ).*(?=;)' "$file" | rev | cut -d. -f1 | rev | sort -u)
   )
 
   if [[ $output ]]; then

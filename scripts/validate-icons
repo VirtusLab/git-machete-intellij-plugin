@@ -19,10 +19,9 @@ for referenced_file in $(git grep -Pho '(?<=loadIcon\(").*(?="\))' -- 'frontend/
     die "Dark icon '$referenced_file' referenced from MacheteIcons.java is missing from resources!"
   fi
 
-  files=($referenced_file_path $referenced_file_path_dark)
-  for file in $files; do
-    width=$(git grep -Pho '(?<=width=")[0-9]*(?=")' -- $file | head -1)
-    height=$(git grep -Pho '(?<=height=")[0-9]*(?=")' -- $file | head -1)
+  for file in "$referenced_file_path" "$referenced_file_path_dark"; do
+    width=$(git grep -Pho '(?<=width=")[0-9]*(?=")' -- "$file" | head -1)
+    height=$(git grep -Pho '(?<=height=")[0-9]*(?=")' -- "$file" | head -1)
     if [[ $width != 16 || $height != 16 ]]; then
       die "Icon '$file' has invalid dimensions ${width}x${height}. Required dimensions are 16x16!"
     fi
