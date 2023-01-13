@@ -2,7 +2,7 @@
 name: Feature request
 about: Request a new feature to the plugin
 title: ''
-labels: "externally requested"
+labels: ["externally requested", "feature"]
 assignees: ''
 
 ---
