@@ -36,10 +36,11 @@ RUN apt-get install --no-install-recommends -y imagemagick zip
 # (package       => needed for command(s))
 # binutils       => strings
 # jq             => jq
+# shellcheck     => shellcheck
 # sudo           => sudo
 # unzip          => zipinfo
 # xxd            => xxd
-RUN apt-get install --no-install-recommends -y binutils jq sudo unzip xxd
+RUN apt-get install --no-install-recommends -y binutils jq shellcheck sudo unzip xxd
 
 # Markdown validation utilities
 RUN \
