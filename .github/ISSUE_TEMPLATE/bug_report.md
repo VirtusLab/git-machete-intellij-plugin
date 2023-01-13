@@ -2,7 +2,7 @@
 name: Bug report
 about: Create a report to help us improve our plugin
 title: ''
-labels: bug
+labels: ["bug", "externally requested"]
 assignees: ''
 
 ---

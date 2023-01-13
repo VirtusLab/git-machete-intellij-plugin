@@ -2,7 +2,7 @@
 name: Help/Support
 about: Ask a question or request support about the plugin
 title: ''
-labels: question
+labels: ["externally requested", "question"]
 assignees: ''
 
 ---
