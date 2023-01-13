@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 ## Bug description
-Please include steps to reproduce (like `go to...`/`click on...` etc.) + expected and actual behavior.
+<!--- Please include steps to reproduce (like `go to...`/`click on...` etc.) + expected and actual behavior.
 
 For more non-trivial issues, we would also appreciate if you included the following details:
  - Git Machete plugin version
@@ -16,10 +16,10 @@ For more non-trivial issues, we would also appreciate if you included the follow
  - IDE version [e.g. 2020.3.4]
  - Operating system [e.g. Windows]
 
-Note that this information will be included automatically when reporting an error directly from IDE's error dialog.
+Note that this information will be included automatically when reporting an error directly from IDE's error dialog. --->
 
 ## (optional) Logs
-Enable logging on DEBUG level for this plugin by adding
+<!--- Enable logging on DEBUG level for this plugin by adding
 ```
 com.virtuslab
 ```
@@ -32,8 +32,8 @@ Consider placing the logs within the `details` (aka "spoiler") tags as the may b
 <details>
 <summary>Logs</summary>
 Logs go here
-</details>
+</details> --->
 
 ## (optional) Screenshots
-If applicable, add screenshots (or screen recordings, see [Peek](https://github.com/phw/peek#peek---an-animated-gif-recorder) on Linux)
-to help explain your problem.
+<!--- If applicable, add screenshots (or screen recordings, see [Peek](https://github.com/phw/peek#peek---an-animated-gif-recorder) on Linux)
+to help explain your problem. --->
