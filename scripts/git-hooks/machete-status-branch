@@ -3,7 +3,12 @@
 set -e -o pipefail -u
 
 # As per git hook spec, we can rely on this script being executed in the main repository dir.
-source scripts/utils.sh
+# Let's skip the grep check, as:
+# 1. neither `grep` nor `git grep` is needed in this simple script
+# 2. there's a performance overhead in checking for grep/git grep which isn't desired in a frequently executed hook
+# 3. `PATH` might not be set up correctly in popen-style executions of bash,
+#    which might lead to a wrong `grep` binary getting executed
+source scripts/utils.sh --skip-grep-check
 
 [[ ${1-} ]] || die "usage: $(basename "$0") <branch-name>"
 branch=$1

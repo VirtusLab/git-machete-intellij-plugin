@@ -93,19 +93,24 @@ public final class StatusBranchHookExecutor extends BaseHookExecutor {
             "did not complete within ${EXECUTION_TIMEOUT_SECONDS} seconds; ignoring the output");
         return null;
       }
-      if (process.exitValue() != 0) {
-        LOG.warn("machete-status-branch hook (${hookFilePath}) for ${branchName} " +
-            "returned with non-zero (${process.exitValue()}) exit code; ignoring the output");
-        return null;
-      }
 
       // It's quite likely that the hook's output will be terminated with a newline,
       // and we don't want that to be displayed.
       strippedStdout = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8).trim();
       strippedStderr = IOUtils.toString(process.getErrorStream(), StandardCharsets.UTF_8).trim();
 
-      LOG.debug("Output of machete-status-branch hook (${hookFilePath}) " +
-          "for ${branchName} is '${strippedStdout}'");
+      if (process.exitValue() != 0) {
+        LOG.warn("machete-status-branch hook (${hookFilePath}) for ${branchName} " +
+            "returned with non-zero (${process.exitValue()}) exit code; " +
+            "stdout: '${strippedStdout}'; " +
+            "stderr: '${strippedStderr}'");
+        return null;
+      }
+
+      LOG.debug("machete-status-branch hook (${hookFilePath}) for ${branchName} " +
+          "completed successfully; " +
+          "stdout: '${strippedStdout}'; " +
+          "stderr: '${strippedStderr}'");
       return strippedStdout;
     } catch (IOException | InterruptedException e) {
       val message = "An error occurred while running machete-status-branch hook (${hookFilePath})" +
