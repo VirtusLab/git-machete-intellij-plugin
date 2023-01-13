@@ -8,4 +8,4 @@ assignees: ''
 ---
 
 ## Feature description
-<!--- Describe your idea. --->
+<!-- Describe your idea. -->
