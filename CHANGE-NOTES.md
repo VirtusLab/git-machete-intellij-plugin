@@ -6,6 +6,7 @@
 - Improved Override Fork Point dialog: inapplicable options are hidden, placeholders are no longer displayed.
 - Fixed an error with a too long GitHub URI when reporting exceptions in the plugin.
 - Fixed a too short traverse info dialog.
+- Clarified Slide In dialog: a branch to slide in can be created on the spot
 
 ## v3.3.0
 - Added the interactive traverse feature.
