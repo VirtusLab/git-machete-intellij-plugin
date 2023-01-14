@@ -28,6 +28,11 @@ public abstract class BaseTraverseAction extends BaseGitMacheteRepositoryReadyAc
   public static final String SHOW_TRAVERSE_INFO = "git-machete.traverse.approval.show";
 
   @Override
+  protected boolean isSideEffecting() {
+    return true;
+  }
+
+  @Override
   @UIEffect
   protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);

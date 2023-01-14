@@ -13,12 +13,12 @@ import com.intellij.dvcs.push.VcsPushOptionValue;
 import com.intellij.dvcs.push.ui.VcsPushDialog;
 import com.intellij.dvcs.repo.Repository;
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import com.virtuslab.gitmachete.frontend.actions.backgroundables.SideEffectingBackgroundable;
 import com.virtuslab.qual.async.BackgroundableQueuedElsewhere;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
@@ -26,6 +26,7 @@ public final class GitPushDialog extends VcsPushDialog {
   private final boolean isForcePushRequired;
   private final @UI Runnable doInUIThreadWhenReady;
   private final Action pushAction;
+  private final Project project;
 
   @UIEffect
   public GitPushDialog(
@@ -51,6 +52,7 @@ public final class GitPushDialog extends VcsPushDialog {
     this.isForcePushRequired = isForcePushRequired;
     this.doInUIThreadWhenReady = doInUIThreadWhenReady;
     this.pushAction = new PushSwingAction();
+    this.project = project;
 
     // Note: since the class is final, `this` is already @Initialized at this point.
 
@@ -95,10 +97,10 @@ public final class GitPushDialog extends VcsPushDialog {
   public void push(boolean forcePush) {
 
     String title = getString("string.GitMachete.GitPushDialog.task-title");
-    executeAfterRunningPrePushHandlers(new Task.Backgroundable(myProject, title) {
+    executeAfterRunningPrePushHandlers(new SideEffectingBackgroundable(project, title, /* name */ "push") {
       @Override
       @UIThreadUnsafe
-      public void run(ProgressIndicator indicator) {
+      public void doRun(ProgressIndicator indicator) {
         myController.push(forcePush);
       }
 

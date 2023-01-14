@@ -5,7 +5,6 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
 import git4idea.fetch.GitFetchResult;
 import git4idea.fetch.GitFetchSupport;
 import io.vavr.control.Option;
@@ -15,6 +14,7 @@ import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
+import com.virtuslab.gitmachete.frontend.actions.backgroundables.SideEffectingBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction;
 import com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTimeoutStatus;
 import com.virtuslab.qual.async.ContinuesInBackground;
@@ -26,6 +26,11 @@ public class FetchAllRemotesAction extends BaseProjectDependentAction {
   @Override
   public LambdaLogger log() {
     return LOG;
+  }
+
+  @Override
+  protected boolean isSideEffecting() {
+    return true;
   }
 
   @Override
@@ -65,12 +70,12 @@ public class FetchAllRemotesAction extends BaseProjectDependentAction {
     val project = getProject(anActionEvent);
     val gitRepository = getSelectedGitRepository(anActionEvent);
     val title = getString("action.GitMachete.FetchAllRemotesAction.task-title");
-    new Task.Backgroundable(project, title) {
+    new SideEffectingBackgroundable(project, title, "fetch") {
       private @MonotonicNonNull GitFetchResult result = null;
 
       @Override
       @UIThreadUnsafe
-      public void run(ProgressIndicator indicator) {
+      public void doRun(ProgressIndicator indicator) {
         result = GitFetchSupport.fetchSupport(project).fetchAllRemotes(Option.of(gitRepository).toJavaList());
         if (gitRepository != null) {
           val repoName = gitRepository.getRoot().getName();

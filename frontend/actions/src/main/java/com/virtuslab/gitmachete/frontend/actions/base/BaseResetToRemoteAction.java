@@ -46,6 +46,11 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
       "action.GitMachete.BaseResetToRemoteAction.notification.title");
 
   @Override
+  protected boolean isSideEffecting() {
+    return true;
+  }
+
+  @Override
   public @I18nFormat({}) String getActionName() {
     return getString("action.GitMachete.BaseResetToRemoteAction.action-name");
   }

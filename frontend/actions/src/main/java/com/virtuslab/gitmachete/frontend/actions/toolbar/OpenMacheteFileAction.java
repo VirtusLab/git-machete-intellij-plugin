@@ -29,6 +29,11 @@ import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 public class OpenMacheteFileAction extends BaseProjectDependentAction {
 
   @Override
+  protected boolean isSideEffecting() {
+    return false;
+  }
+
+  @Override
   public LambdaLogger log() {
     return LOG;
   }

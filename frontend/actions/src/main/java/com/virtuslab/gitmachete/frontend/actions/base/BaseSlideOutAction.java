@@ -22,6 +22,11 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
       IExpectsKeyGitMacheteRepository {
 
   @Override
+  protected boolean isSideEffecting() {
+    return true;
+  }
+
+  @Override
   @UIEffect
   protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);

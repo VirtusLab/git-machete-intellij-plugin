@@ -1,17 +1,24 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
+
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.tainting.qual.Untainted;
 
+import com.virtuslab.gitmachete.frontend.actions.common.SideEffectingActionTrackingService;
+import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 
+@ExtensionMethod({GitMacheteBundle.class})
 public abstract class BaseProjectDependentAction extends DumbAwareAction implements IWithLogger {
   @UIEffect
   private boolean isUpdateInProgressOnUIThread;
@@ -23,6 +30,21 @@ public abstract class BaseProjectDependentAction extends DumbAwareAction impleme
     return !isUpdateInProgressOnUIThread;
   }
 
+  protected abstract boolean isSideEffecting();
+
+  @SuppressWarnings("tainting:return")
+  protected static @Nullable @Untainted String getOngoingSideEffectingActions(Project project) {
+    val actions = project.getService(SideEffectingActionTrackingService.class).getOngoingActions();
+    if (actions.isEmpty()) {
+      return null;
+    }
+    if (actions.size() == 1) {
+      return actions.head();
+    }
+    val sorted = actions.toList();
+    return sorted.init().mkString(", ") + " and " + sorted.last();
+  }
+
   @Override
   @UIEffect
   public final void update(AnActionEvent anActionEvent) {
@@ -30,13 +52,25 @@ public abstract class BaseProjectDependentAction extends DumbAwareAction impleme
 
     isUpdateInProgressOnUIThread = true;
 
-    val maybeProject = anActionEvent.getProject();
+    val project = anActionEvent.getProject();
     val presentation = anActionEvent.getPresentation();
-    if (maybeProject == null) {
+    if (project == null) {
       presentation.setEnabledAndVisible(false);
     } else {
-      presentation.setEnabledAndVisible(true);
-      onUpdate(anActionEvent);
+      val ongoingSideEffectingActions = getOngoingSideEffectingActions(project);
+      if (isSideEffecting() && ongoingSideEffectingActions != null) {
+        // Note that we still need to call onUpdate to decide whether the action should remain visible.
+        // At the start of each `update()` call, presentation is apparently always set to visible;
+        // let's still call setEnabledAndVisible(true) to ensure a consistent behavior.
+        presentation.setEnabledAndVisible(true);
+        onUpdate(anActionEvent);
+        presentation.setEnabled(false);
+        presentation.setDescription(getNonHtmlString("action.GitMachete.description.disabled.another-actions-ongoing")
+            .fmt(ongoingSideEffectingActions));
+      } else {
+        presentation.setEnabledAndVisible(true);
+        onUpdate(anActionEvent);
+      }
     }
 
     isUpdateInProgressOnUIThread = false;

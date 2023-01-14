@@ -28,6 +28,11 @@ public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteReposi
       ISyncToParentStatusDependentAction {
 
   @Override
+  protected boolean isSideEffecting() {
+    return true;
+  }
+
+  @Override
   public @I18nFormat({}) String getActionNameForDisabledDescription() {
     return getString("action.GitMachete.BaseSyncToParentByMergeAction.description-action-name");
   }

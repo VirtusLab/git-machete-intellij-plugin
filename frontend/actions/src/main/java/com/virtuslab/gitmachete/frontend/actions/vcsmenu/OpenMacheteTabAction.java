@@ -17,6 +17,11 @@ import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction
 @CustomLog
 public class OpenMacheteTabAction extends BaseProjectDependentAction {
   @Override
+  protected boolean isSideEffecting() {
+    return false;
+  }
+
+  @Override
   public LambdaLogger log() {
     return LOG;
   }

@@ -8,7 +8,6 @@ import static git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector.Operat
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VfsUtil;
 import git4idea.commands.Git;
@@ -29,7 +28,7 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 @ExtensionMethod({GitMacheteBundle.class})
 // For some reason, using `@ExtensionMethod({GitVfsUtils.class})` on this class
 // leads to weird Checker Framework errors :/
-public class ResetCurrentToRemoteBackgroundable extends Task.Backgroundable {
+public class ResetCurrentToRemoteBackgroundable extends SideEffectingBackgroundable {
 
   private final String localBranchName;
   private final String remoteTrackingBranchName;
@@ -37,7 +36,7 @@ public class ResetCurrentToRemoteBackgroundable extends Task.Backgroundable {
 
   public ResetCurrentToRemoteBackgroundable(String title,
       String localBranchName, String remoteTrackingBranchName, GitRepository gitRepository) {
-    super(gitRepository.getProject(), title);
+    super(gitRepository.getProject(), title, "reset");
     this.localBranchName = localBranchName;
     this.remoteTrackingBranchName = remoteTrackingBranchName;
     this.gitRepository = gitRepository;
@@ -45,7 +44,7 @@ public class ResetCurrentToRemoteBackgroundable extends Task.Backgroundable {
 
   @Override
   @UIThreadUnsafe
-  public void run(ProgressIndicator indicator) {
+  public void doRun(ProgressIndicator indicator) {
     if (myProject != null && localBranchName != null && remoteTrackingBranchName != null) {
 
       LOG.debug(() -> "Resetting '${localBranchName}' to '${remoteTrackingBranchName}'");

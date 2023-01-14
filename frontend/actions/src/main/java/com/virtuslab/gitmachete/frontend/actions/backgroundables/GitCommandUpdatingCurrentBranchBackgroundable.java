@@ -14,7 +14,6 @@ import com.intellij.notification.NotificationAction;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsNotifier;
@@ -51,7 +50,7 @@ import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod(GitMacheteBundle.class)
-public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task.Backgroundable {
+public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends SideEffectingBackgroundable {
 
   protected final Project project;
   protected final GitRepository gitRepository;
@@ -59,7 +58,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
   public GitCommandUpdatingCurrentBranchBackgroundable(
       GitRepository gitRepository,
       String taskTitle) {
-    super(gitRepository.getProject(), taskTitle);
+    super(gitRepository.getProject(), taskTitle, "update of current branch");
     this.project = gitRepository.getProject();
     this.gitRepository = gitRepository;
   }
@@ -75,7 +74,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
 
   @Override
   @UIThreadUnsafe
-  public final void run(ProgressIndicator indicator) {
+  public final void doRun(ProgressIndicator indicator) {
     val handler = createGitLineHandler();
     if (handler == null) {
       return;

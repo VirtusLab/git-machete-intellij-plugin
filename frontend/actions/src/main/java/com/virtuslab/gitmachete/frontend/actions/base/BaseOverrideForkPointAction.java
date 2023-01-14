@@ -22,6 +22,11 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
       ISyncToParentStatusDependentAction {
 
   @Override
+  protected boolean isSideEffecting() {
+    return true;
+  }
+
+  @Override
   public @I18nFormat({}) String getActionNameForDisabledDescription() {
     return getString("action.GitMachete.BaseOverrideForkPointAction.description-action-name");
   }

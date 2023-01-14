@@ -26,6 +26,11 @@ public class ToggleListingCommitsAction extends BaseGitMacheteRepositoryReadyAct
   }
 
   @Override
+  protected boolean isSideEffecting() {
+    return false;
+  }
+
+  @Override
   @UIEffect
   protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);

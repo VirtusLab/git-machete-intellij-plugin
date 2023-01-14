@@ -6,10 +6,10 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.Objects;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.branch.GitBrancher;
@@ -26,8 +26,8 @@ import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
-@ExtensionMethod(GitVfsUtils.class)
-public class RenameBackgroundable extends Task.Backgroundable {
+@ExtensionMethod({GitVfsUtils.class, Objects.class})
+public class RenameBackgroundable extends SideEffectingBackgroundable {
 
   protected final Project project;
   private final GitRepository gitRepository;
@@ -41,7 +41,7 @@ public class RenameBackgroundable extends Task.Backgroundable {
       BaseEnhancedGraphTable graphTable, BranchLayout branchLayout,
       String currentBranchName,
       String newBranchName) {
-    super(gitRepository.getProject(), getString("action.GitMachete.RenameBackgroundable.task-title"));
+    super(gitRepository.getProject(), getString("action.GitMachete.RenameBackgroundable.task-title"), "rename");
     this.project = gitRepository.getProject();
     this.gitRepository = gitRepository;
     this.graphTable = graphTable;
@@ -53,7 +53,7 @@ public class RenameBackgroundable extends Task.Backgroundable {
   @Override
   @UIThreadUnsafe
   @ContinuesInBackground
-  public void run(ProgressIndicator indicator) {
+  public void doRun(ProgressIndicator indicator) {
     graphTable.disableEnqueuingUpdates();
 
     Path macheteFilePath = gitRepository.getMacheteFilePath();
@@ -64,15 +64,12 @@ public class RenameBackgroundable extends Task.Backgroundable {
 
     gitBrancher.renameBranch(currentBranchName, newBranchName, Collections.singletonList(gitRepository));
 
-    blockingRunWriteActionOnUIThread(() -> {
-      MacheteFileWriter.writeBranchLayout(
-          macheteFilePath,
-          branchLayoutWriter,
-          newBranchLayout,
-          /* backupOldLayout */ true,
-          /* requestor */ this);
-
-    });
+    blockingRunWriteActionOnUIThread(() -> MacheteFileWriter.writeBranchLayout(
+        macheteFilePath,
+        branchLayoutWriter,
+        newBranchLayout,
+        /* backupOldLayout */ true,
+        /* requestor */ this));
 
     // `gitBrancher.renameBranch` continues asynchronously and doesn't allow for passing a callback to execute once complete.
     // (Stepping deeper is not an option since we would lose some important logic or become very dependent on the internals of git4idea).
@@ -87,12 +84,11 @@ public class RenameBackgroundable extends Task.Backgroundable {
     VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
         /* title */ getString(
             "action.GitMachete.BaseSlideInBelowAction.notification.title.branch-layout-write-fail"),
-        exceptionMessage == null ? "" : exceptionMessage);
+        exceptionMessage.requireNonNullElse(""));
   }
 
   @Override
   public void onFinished() {
     graphTable.enableEnqueuingUpdates();
   }
-
 }

@@ -44,6 +44,11 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
       IExpectsKeyGitMacheteRepository {
 
   @Override
+  protected boolean isSideEffecting() {
+    return true;
+  }
+
+  @Override
   @UIEffect
   protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);

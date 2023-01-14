@@ -30,6 +30,11 @@ public abstract class BaseRenameAction extends BaseGitMacheteRepositoryReadyActi
       IExpectsKeyGitMacheteRepository {
 
   @Override
+  protected boolean isSideEffecting() {
+    return true;
+  }
+
+  @Override
   @UIEffect
   protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);

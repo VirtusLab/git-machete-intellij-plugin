@@ -32,6 +32,11 @@ public abstract class BasePushAction extends BaseGitMacheteRepositoryReadyAction
       ISyncToRemoteStatusDependentAction {
 
   @Override
+  protected boolean isSideEffecting() {
+    return true;
+  }
+
+  @Override
   public @I18nFormat({}) String getActionName() {
     return getString("action.GitMachete.BasePushAction.action-name");
   }

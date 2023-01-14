@@ -1,7 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -18,7 +17,7 @@ import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
-public class OverrideForkPointBackgroundable extends Task.Backgroundable {
+public class OverrideForkPointBackgroundable extends SideEffectingBackgroundable {
 
   private final GitRepository gitRepository;
   private final INonRootManagedBranchSnapshot nonRootBranch;
@@ -29,7 +28,7 @@ public class OverrideForkPointBackgroundable extends Task.Backgroundable {
   public OverrideForkPointBackgroundable(String title, GitRepository gitRepository,
       INonRootManagedBranchSnapshot nonRootBranch, BaseEnhancedGraphTable graphTable,
       @Nullable ICommitOfManagedBranch selectedCommit) {
-    super(gitRepository.getProject(), title);
+    super(gitRepository.getProject(), title, "fork point override");
     this.gitRepository = gitRepository;
     this.nonRootBranch = nonRootBranch;
     this.graphTable = graphTable;
@@ -38,7 +37,7 @@ public class OverrideForkPointBackgroundable extends Task.Backgroundable {
 
   @Override
   @UIThreadUnsafe
-  public void run(ProgressIndicator indicator) {
+  public void doRun(ProgressIndicator indicator) {
     if (selectedCommit != null) {
       LOG.debug("Enqueueing fork point override");
       overrideForkPoint(nonRootBranch, selectedCommit);

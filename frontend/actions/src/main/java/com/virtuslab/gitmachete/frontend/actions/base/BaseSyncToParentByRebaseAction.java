@@ -29,6 +29,11 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
       IExpectsKeyGitMacheteRepository {
 
   @Override
+  protected boolean isSideEffecting() {
+    return true;
+  }
+
+  @Override
   @UIEffect
   protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
@@ -133,7 +138,7 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
 
     if (gitRepository != null && gitMacheteRepositorySnapshot != null) {
       new RebaseOnParentBackgroundable(
-          getString("action.GitMachete.BaseSyncToParentByRebaseAction.task-title"),
+          getNonHtmlString("action.GitMachete.BaseSyncToParentByRebaseAction.task-title"),
           gitRepository, gitMacheteRepositorySnapshot,
           branchToRebase,
           shouldExplicitlyCheckout).queue();

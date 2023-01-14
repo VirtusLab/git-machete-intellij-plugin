@@ -22,6 +22,11 @@ public abstract class BaseFastForwardMergeToParentAction extends BaseGitMacheteR
       ISyncToParentStatusDependentAction {
 
   @Override
+  protected boolean isSideEffecting() {
+    return true;
+  }
+
+  @Override
   public @I18nFormat({}) String getActionNameForDisabledDescription() {
     return getString("action.GitMachete.BaseFastForwardMergeToParentAction.description-action-name");
   }

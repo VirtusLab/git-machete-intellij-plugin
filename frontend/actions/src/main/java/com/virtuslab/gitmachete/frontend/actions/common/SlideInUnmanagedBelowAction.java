@@ -28,6 +28,11 @@ public class SlideInUnmanagedBelowAction extends BaseGitMacheteRepositoryReadyAc
       IExpectsKeyUnmanagedBranchName {
 
   @Override
+  protected boolean isSideEffecting() {
+    return true;
+  }
+
+  @Override
   public LambdaLogger log() {
     return LOG;
   }

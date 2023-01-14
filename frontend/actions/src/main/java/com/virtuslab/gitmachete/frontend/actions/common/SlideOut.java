@@ -30,6 +30,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
+import com.virtuslab.gitmachete.frontend.actions.backgroundables.SideEffectingBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.DeleteBranchOnSlideOutSuggestionDialog;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
@@ -190,11 +191,11 @@ public class SlideOut {
 
   @ContinuesInBackground
   private void setDeleteLocalBranchOnSlideOutGitConfigValue(VirtualFile root, String value) {
-    new Task.Backgroundable(project, getString("action.GitMachete.set-git-config.task-title")) {
+    new SideEffectingBackgroundable(project, getString("action.GitMachete.set-git-config.task-title"), "setting git config") {
 
       @Override
       @UIThreadUnsafe
-      public void run(ProgressIndicator indicator) {
+      public void doRun(ProgressIndicator indicator) {
         try {
           val additionalParameters = "--local";
           GitConfigUtil.setValue(project, root, DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY, value, additionalParameters);

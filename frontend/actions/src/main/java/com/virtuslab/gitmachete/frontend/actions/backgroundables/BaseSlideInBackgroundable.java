@@ -5,9 +5,9 @@ import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.blocking
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.nio.file.Path;
+import java.util.Objects;
 
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.repo.GitRepository;
@@ -26,8 +26,8 @@ import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
-@ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class})
-public abstract class BaseSlideInBackgroundable extends Task.Backgroundable {
+@ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class, Objects.class})
+public abstract class BaseSlideInBackgroundable extends SideEffectingBackgroundable {
 
   protected final Project project;
   protected final GitRepository gitRepository;
@@ -42,7 +42,7 @@ public abstract class BaseSlideInBackgroundable extends Task.Backgroundable {
       IBranchLayoutWriter branchLayoutWriter,
       Runnable preSlideInRunnable,
       SlideInOptions slideInOptions) {
-    super(gitRepository.getProject(), getString("action.GitMachete.BaseSlideInBackgroundable.task-title"));
+    super(gitRepository.getProject(), getString("action.GitMachete.BaseSlideInBackgroundable.task-title"), "slide-in");
     this.project = gitRepository.getProject();
     this.gitRepository = gitRepository;
     this.branchLayout = branchLayout;
@@ -53,7 +53,7 @@ public abstract class BaseSlideInBackgroundable extends Task.Backgroundable {
 
   @Override
   @UIThreadUnsafe
-  public void run(ProgressIndicator indicator) {
+  public void doRun(ProgressIndicator indicator) {
     preSlideInRunnable.run();
 
     // `preSlideInRunnable` may perform some sneakily-asynchronous operations (e.g. checkoutRemoteBranch).
@@ -104,12 +104,9 @@ public abstract class BaseSlideInBackgroundable extends Task.Backgroundable {
     VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
         /* title */ getString(
             "action.GitMachete.BaseSlideInBelowAction.notification.title.branch-layout-write-fail"),
-        exceptionMessage == null ? "" : exceptionMessage);
+        exceptionMessage.requireNonNullElse(""));
   }
 
   abstract @Nullable BranchLayout deriveNewBranchLayout(BranchLayout targetBranchLayout, BranchLayoutEntry entryToSlideIn);
 
-  protected static String getMessageOrEmpty(Throwable t) {
-    return t.getMessage() != null ? t.getMessage() : "";
-  }
 }

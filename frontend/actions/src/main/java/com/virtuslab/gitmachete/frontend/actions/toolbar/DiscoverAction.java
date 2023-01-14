@@ -46,6 +46,11 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 public class DiscoverAction extends BaseProjectDependentAction {
 
   @Override
+  protected boolean isSideEffecting() {
+    return true;
+  }
+
+  @Override
   public LambdaLogger log() {
     return LOG;
   }

@@ -1,7 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitUtil;
 import git4idea.fetch.GitFetchSupport;
@@ -16,7 +15,7 @@ import org.checkerframework.checker.tainting.qual.Untainted;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
-public class FetchBackgroundable extends Task.Backgroundable {
+public class FetchBackgroundable extends SideEffectingBackgroundable {
 
   private final GitRepository gitRepository;
   private final String remoteName;
@@ -34,7 +33,7 @@ public class FetchBackgroundable extends Task.Backgroundable {
       String taskTitle,
       @Untainted String failureNotificationText,
       String successNotificationText) {
-    super(gitRepository.getProject(), taskTitle);
+    super(gitRepository.getProject(), taskTitle, "fetch");
     this.gitRepository = gitRepository;
     this.remoteName = remoteName;
     this.refspec = refspec;
@@ -44,7 +43,7 @@ public class FetchBackgroundable extends Task.Backgroundable {
 
   @Override
   @UIThreadUnsafe
-  public void run(ProgressIndicator indicator) {
+  public void doRun(ProgressIndicator indicator) {
     val fetchSupport = GitFetchSupport.fetchSupport(gitRepository.getProject());
     GitRemote remote = remoteName.equals(LOCAL_REPOSITORY_NAME)
         ? GitRemote.DOT

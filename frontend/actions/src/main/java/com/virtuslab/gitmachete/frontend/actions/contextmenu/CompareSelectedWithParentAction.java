@@ -11,6 +11,11 @@ import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelecte
 @CustomLog
 public class CompareSelectedWithParentAction extends BaseCompareWithParentAction implements IExpectsKeySelectedBranchName {
   @Override
+  protected boolean isSideEffecting() {
+    return false;
+  }
+
+  @Override
   public LambdaLogger log() {
     return LOG;
   }

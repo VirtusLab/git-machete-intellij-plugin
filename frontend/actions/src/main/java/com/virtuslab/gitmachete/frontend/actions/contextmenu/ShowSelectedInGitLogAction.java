@@ -25,6 +25,11 @@ public class ShowSelectedInGitLogAction extends BaseGitMacheteRepositoryReadyAct
       IExpectsKeySelectedBranchName {
 
   @Override
+  protected boolean isSideEffecting() {
+    return false;
+  }
+
+  @Override
   public LambdaLogger log() {
     return LOG;
   }

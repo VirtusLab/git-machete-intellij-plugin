@@ -9,7 +9,6 @@ import java.util.Collections;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.vcs.log.VcsCommitMetadata;
 import git4idea.branch.GitBranchUiHandlerImpl;
@@ -26,6 +25,7 @@ import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
+import com.virtuslab.gitmachete.frontend.actions.backgroundables.SideEffectingBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.common.VcsCommitMetadataAdapterForSquash;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.GitNewCommitMessageActionDialog;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
@@ -39,6 +39,11 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
       IBranchNameProvider {
 
   private final String NL = System.lineSeparator();
+
+  @Override
+  protected boolean isSideEffecting() {
+    return true;
+  }
 
   @Override
   @UIEffect
@@ -143,10 +148,10 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
 
     dialog.show(
         newMessage -> {
-          new Task.Backgroundable(project, taskName) {
+          new SideEffectingBackgroundable(project, taskName, "squash") {
             @Override
             @UIThreadUnsafe
-            public void run(ProgressIndicator indicator) {
+            public void doRun(ProgressIndicator indicator) {
               log().info("Checking out '${branchName}' branch and squashing it");
 
               if (!isSquashingCurrentBranch) {

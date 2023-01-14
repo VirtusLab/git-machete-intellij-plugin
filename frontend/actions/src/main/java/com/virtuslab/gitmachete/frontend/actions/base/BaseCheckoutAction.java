@@ -21,6 +21,10 @@ import com.virtuslab.qual.async.ContinuesInBackground;
 public abstract class BaseCheckoutAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IExpectsKeySelectedBranchName {
+  @Override
+  protected boolean isSideEffecting() {
+    return true;
+  }
 
   protected abstract @Nullable String getTargetBranchName(AnActionEvent anActionEvent);
 
