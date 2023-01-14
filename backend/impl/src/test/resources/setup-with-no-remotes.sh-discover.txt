@@ -1,34 +1,34 @@
-  develop *
+  develop *  <3 files>
   |
   | Allow ownership links
   | 1st round of fixes
-  x-allow-ownership-link
+  x-allow-ownership-link  <4 files>
   | |
   | | Build arbitrarily long chains
-  | x-build-chain
+  | x-build-chain  <4 files>
   | |
   | | Kill the process after 10 seconds
-  | o-kill-process
+  | o-kill-process  <5 files>
   |
   | Call web service
   | 1st round of fixes
   | 2nd round of fixes
-  o-call-ws
+  o-call-ws  <6 files>
     |
     | Drop unneeded SQL constraints
-    x-drop-constraint
+    x-drop-constraint  <6 files>
     |
     | Evict conflicting dependencies
-    o-evict-deps
+    o-evict-deps  <7 files>
       |
       | Fix component labels
-      o-fix/component-labels
+      o-fix/component-labels  <8 files>
         |
         | Introduce global context
-        o-global-context
+        o-global-context  <9 files>
           |
           | Enable Scala/Python interoperability
-          o-interop-scala-python
+          o-interop-scala-python  <10 files>
             |
             | Enforce the use of Java 11
-            o-java-11-enforce
+            o-java-11-enforce  <11 files>

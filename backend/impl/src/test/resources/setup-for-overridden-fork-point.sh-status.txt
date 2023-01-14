@@ -1,4 +1,4 @@
-  develop
+  develop  <2 files>
   |
   | Build arbitrarily long chains
-  o-build-chain *
+  o-build-chain *  <4 files>

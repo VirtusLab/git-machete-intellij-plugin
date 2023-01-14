@@ -1,15 +1,15 @@
-  develop (ahead of origin)
+  develop (ahead of origin)  <6 files>
   |
   | Allow ownership links
   | 1st round of fixes
-  x-allow-ownership-link  PR #123 (diverged from & older than origin)
+  x-allow-ownership-link  PR #123 (diverged from & older than origin)  <4 files>
   | |
   | | Build arbitrarily long chains
-  | x-build-chain (untracked)
+  | x-build-chain (untracked)  <4 files>
   |
-  m-call-ws  PR #124 (ahead of origin)
+  m-call-ws  PR #124 (ahead of origin)  <6 files>
 
-  master (behind origin)
+  master (behind origin)  <2 files>
   |
   | HOTFIX Add the trigger (amended)
-  o-hotfix/add-trigger * (diverged from origin)
+  o-hotfix/add-trigger * (diverged from origin)  <3 files>

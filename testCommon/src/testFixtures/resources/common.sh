@@ -3,7 +3,7 @@
 status_branch_hook=$(cat <<'EOF'
 #!/usr/bin/env bash
 branch=$1
-file_count=$(git ls-tree $branch | wc -l)
+file_count=$(git ls-tree $branch | wc -l | sed 's/^ *//')
 echo "<$file_count files>"
 EOF
 )
@@ -37,7 +37,7 @@ function create_repo() {
   cd $dir
   shift
   git init "$@"
-  if [ "$(expr substr $(uname -s) 1 10)" != "MINGW64_NT" && "$(expr substr $(uname -s) 1 10)" != "MINGW32_NT" ]; then
+  if [[ "$(uname -s)" != *MINGW*_NT* ]]; then
     mkdir -p .git/hooks/
     local hook_path=.git/hooks/machete-status-branch
     echo "$status_branch_hook" > $hook_path

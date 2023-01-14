@@ -1,25 +1,25 @@
-  master
+  master  <2 files>
   |
   | HOTFIX Add the trigger
   | HOTFIX Add the trigger - fixes
-  o-hotfix/add-trigger (diverged from & older than origin)
+  o-hotfix/add-trigger (diverged from & older than origin)  <4 files>
 
-  develop
+  develop  <3 files>
   |
   | Allow ownership links
-  x-allow-ownership-link (behind origin)
+  x-allow-ownership-link (behind origin)  <3 files>
   | |
   | | 1st round of fixes -> fork point ??? commit 9d422de seems to be a part of the unique history of allow-ownership-link
   | | Use new icons
-  | ?-update-icons (behind origin)
+  | ?-update-icons (behind origin)  <5 files>
   |   |
   |   | Build arbitrarily long chains
-  |   o-build-chain (untracked)
+  |   o-build-chain (untracked)  <6 files>
   |
   | Call web service
   | 1st round of fixes
   | 2nd round of fixes
-  o-call-ws (ahead of origin)
+  o-call-ws (ahead of origin)  <6 files>
     |
     | Drop unneeded SQL constraints
-    x-drop-constraint (untracked)
+    x-drop-constraint (untracked)  <6 files>
