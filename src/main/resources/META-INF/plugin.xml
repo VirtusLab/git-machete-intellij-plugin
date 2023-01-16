@@ -135,6 +135,12 @@
 
             <separator/>
 
+            <action id="GitMachete.RenameSelectedAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.RenameSelectedAction"
+                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.RENAME">
+                <override-text place="GitMacheteContextMenu"/>
+            </action>
+
             <action id="GitMachete.SlideInBelowSelectedAction"
                     class="com.virtuslab.gitmachete.frontend.actions.contextmenu.SlideInBelowSelectedAction"
                     icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.SLIDE_IN">

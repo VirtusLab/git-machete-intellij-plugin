@@ -31,6 +31,8 @@ public final class MacheteIcons {
 
   public static final Icon REFRESH_STATUS = loadIcon("refresh");
 
+  public static final Icon RENAME = loadIcon("rename");
+
   public static final Icon RESET = loadIcon("reset");
 
   public static final Icon SLIDE_IN = loadIcon("slideIn");
