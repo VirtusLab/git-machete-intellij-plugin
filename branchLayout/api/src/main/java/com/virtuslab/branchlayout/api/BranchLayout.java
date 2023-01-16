@@ -74,6 +74,19 @@ public class BranchLayout {
     return null;
   }
 
+  public BranchLayout rename(String currentBranchName, String newBranchName) {
+    return new BranchLayout(rootEntries.flatMap(rootEntry -> rename(rootEntry, currentBranchName, newBranchName)));
+  }
+
+  private List<BranchLayoutEntry> rename(BranchLayoutEntry entry, String currentBranchName, String newBranchName) {
+    val newChildren = entry.getChildren().flatMap(child -> rename(child, currentBranchName, newBranchName));
+    if (entry.getName().equals(currentBranchName)) {
+      return List.of(new BranchLayoutEntry(newBranchName, entry.getCustomAnnotation(), entry.getChildren()));
+    } else {
+      return List.of(entry.withChildren(newChildren));
+    }
+  }
+
   public BranchLayout slideOut(String branchName) {
     return new BranchLayout(rootEntries.flatMap(rootEntry -> slideOut(rootEntry, branchName)));
   }
