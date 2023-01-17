@@ -54,14 +54,6 @@ public class RenameBackgroundable extends Task.Backgroundable {
   @Override
   @UIThreadUnsafe
   public void run(ProgressIndicator indicator) {
-    renameRunnable.run();
-
-    // `renameRunnable` may perform some sneakily-asynchronous operations (e.g. checkoutRemoteBranch).
-    // The high-level method used within the runnable does not allow us to schedule the tasks after them.
-    // (Stepping deeper is not an option since we would lose some important logic or become very dependent on the internals of git4idea).
-    // Hence, we wait for the creation of the branch (with exponential backoff).
-    waitForCreationOfLocalBranch();
-
     Path macheteFilePath = gitRepository.getMacheteFilePath();
 
     val newBranchLayout = branchLayout.rename(currentBranchName, newBranchName);
@@ -72,6 +64,14 @@ public class RenameBackgroundable extends Task.Backgroundable {
           newBranchLayout,
           /* backupOldLayout */ true,
           /* requestor */ this);
+
+      renameRunnable.run();
+
+      // `renameRunnable` may perform some sneakily-asynchronous operations (e.g. renameBranch).
+      // The high-level method used within the runnable does not allow us to schedule the tasks after them.
+      // (Stepping deeper is not an option since we would lose some important logic or become very dependent on the internals of git4idea).
+      // Hence, we wait for the creation of the branch (with exponential backoff).
+      waitForCreationOfLocalBranch();
     });
   }
 
