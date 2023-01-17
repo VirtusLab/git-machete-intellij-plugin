@@ -1,13 +1,14 @@
 package com.virtuslab.gitmachete.backend.unit;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 import io.vavr.collection.List;
 import lombok.SneakyThrows;
 import lombok.val;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.reflect.Whitebox;
 
@@ -42,7 +43,7 @@ public class GitMacheteRepository_deriveRelationToRemoteUnitTestSuite extends Ba
     RelationToRemote relationToRemote = invokeDeriveRelationToRemote(coreLocalBranch);
 
     // then
-    Assert.assertEquals(SyncToRemoteStatus.NoRemotes, relationToRemote.getSyncToRemoteStatus());
+    assertEquals(SyncToRemoteStatus.NoRemotes, relationToRemote.getSyncToRemoteStatus());
   }
 
   @Test
@@ -57,7 +58,7 @@ public class GitMacheteRepository_deriveRelationToRemoteUnitTestSuite extends Ba
     RelationToRemote relationToRemote = invokeDeriveRelationToRemote(coreLocalBranch);
 
     // then
-    Assert.assertEquals(SyncToRemoteStatus.Untracked, relationToRemote.getSyncToRemoteStatus());
+    assertEquals(SyncToRemoteStatus.Untracked, relationToRemote.getSyncToRemoteStatus());
   }
 
   @Test
@@ -83,7 +84,7 @@ public class GitMacheteRepository_deriveRelationToRemoteUnitTestSuite extends Ba
     RelationToRemote relationToRemote = invokeDeriveRelationToRemote(coreLocalBranch);
 
     // then
-    Assert.assertEquals(SyncToRemoteStatus.DivergedFromAndNewerThanRemote, relationToRemote.getSyncToRemoteStatus());
+    assertEquals(SyncToRemoteStatus.DivergedFromAndNewerThanRemote, relationToRemote.getSyncToRemoteStatus());
   }
 
   @Test
@@ -109,7 +110,7 @@ public class GitMacheteRepository_deriveRelationToRemoteUnitTestSuite extends Ba
     RelationToRemote relationToRemote = invokeDeriveRelationToRemote(coreLocalBranch);
 
     // then
-    Assert.assertEquals(SyncToRemoteStatus.DivergedFromAndOlderThanRemote, relationToRemote.getSyncToRemoteStatus());
+    assertEquals(SyncToRemoteStatus.DivergedFromAndOlderThanRemote, relationToRemote.getSyncToRemoteStatus());
   }
 
   @Test
@@ -134,7 +135,7 @@ public class GitMacheteRepository_deriveRelationToRemoteUnitTestSuite extends Ba
     RelationToRemote relationToRemote = invokeDeriveRelationToRemote(coreLocalBranch);
 
     // then
-    Assert.assertEquals(SyncToRemoteStatus.DivergedFromAndNewerThanRemote, relationToRemote.getSyncToRemoteStatus());
+    assertEquals(SyncToRemoteStatus.DivergedFromAndNewerThanRemote, relationToRemote.getSyncToRemoteStatus());
   }
 
   @Test
@@ -155,7 +156,7 @@ public class GitMacheteRepository_deriveRelationToRemoteUnitTestSuite extends Ba
     RelationToRemote relationToRemote = invokeDeriveRelationToRemote(coreLocalBranch);
 
     // then
-    Assert.assertEquals(SyncToRemoteStatus.AheadOfRemote, relationToRemote.getSyncToRemoteStatus());
+    assertEquals(SyncToRemoteStatus.AheadOfRemote, relationToRemote.getSyncToRemoteStatus());
   }
 
   @Test
@@ -176,7 +177,7 @@ public class GitMacheteRepository_deriveRelationToRemoteUnitTestSuite extends Ba
     RelationToRemote relationToRemote = invokeDeriveRelationToRemote(coreLocalBranch);
 
     // then
-    Assert.assertEquals(SyncToRemoteStatus.BehindRemote, relationToRemote.getSyncToRemoteStatus());
+    assertEquals(SyncToRemoteStatus.BehindRemote, relationToRemote.getSyncToRemoteStatus());
   }
 
   @Test
@@ -197,6 +198,6 @@ public class GitMacheteRepository_deriveRelationToRemoteUnitTestSuite extends Ba
     RelationToRemote relationToRemote = invokeDeriveRelationToRemote(coreLocalBranch);
 
     // then
-    Assert.assertEquals(SyncToRemoteStatus.InSyncToRemote, relationToRemote.getSyncToRemoteStatus());
+    assertEquals(SyncToRemoteStatus.InSyncToRemote, relationToRemote.getSyncToRemoteStatus());
   }
 }

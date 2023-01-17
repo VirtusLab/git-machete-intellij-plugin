@@ -2,13 +2,15 @@ package com.virtuslab.gitmachete.backend.unit;
 
 import static com.virtuslab.gitmachete.backend.unit.UnitTestUtils.createGitCoreCommit;
 import static com.virtuslab.gitmachete.backend.unit.UnitTestUtils.createGitCoreLocalBranch;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 
 import io.vavr.collection.Stream;
 import lombok.SneakyThrows;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.reflect.Whitebox;
 
@@ -50,7 +52,7 @@ public class GitMacheteRepository_deriveParentAwareForkPointUnitTestSuite extend
     IGitCoreCommit result = invokeDeriveParentAwareForkPoint(childBranch, parentBranch);
 
     // then
-    Assert.assertTrue(result == null);
+    assertNull(result);
   }
 
   @Test
@@ -69,8 +71,8 @@ public class GitMacheteRepository_deriveParentAwareForkPointUnitTestSuite extend
     IGitCoreCommit result = invokeDeriveParentAwareForkPoint(childBranch, parentBranch);
 
     // then
-    Assert.assertTrue(result != null);
-    Assert.assertEquals(parentCommit, result);
+    assertNotNull(result);
+    assertEquals(parentCommit, result);
   }
 
   @Test
@@ -91,7 +93,7 @@ public class GitMacheteRepository_deriveParentAwareForkPointUnitTestSuite extend
     IGitCoreCommit result = invokeDeriveParentAwareForkPoint(childBranch, parentBranch);
 
     // then
-    Assert.assertNotNull(result);
-    Assert.assertEquals(parentCommit, result);
+    assertNotNull(result);
+    assertEquals(parentCommit, result);
   }
 }

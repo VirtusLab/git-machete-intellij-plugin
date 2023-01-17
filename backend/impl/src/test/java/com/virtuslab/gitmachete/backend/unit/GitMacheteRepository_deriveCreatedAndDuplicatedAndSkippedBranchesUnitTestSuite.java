@@ -2,13 +2,14 @@ package com.virtuslab.gitmachete.backend.unit;
 
 import static com.virtuslab.gitmachete.backend.unit.UnitTestUtils.createGitCoreCommit;
 import static com.virtuslab.gitmachete.backend.unit.UnitTestUtils.createGitCoreLocalBranch;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.vavr.collection.List;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.reflect.Whitebox;
 
@@ -39,10 +40,10 @@ public class GitMacheteRepository_deriveCreatedAndDuplicatedAndSkippedBranchesUn
     val repositorySnapshot = invokeCreateSnapshot(branchLayout, branchAndEntry.branch);
 
     // then
-    Assert.assertEquals(List.of(branchAndEntry.entry).map(BranchLayoutEntry::getName),
+    assertEquals(List.of(branchAndEntry.entry).map(BranchLayoutEntry::getName),
         repositorySnapshot.getManagedBranches().map(IManagedBranchSnapshot::getName));
-    Assert.assertTrue(repositorySnapshot.getDuplicatedBranchNames().isEmpty());
-    Assert.assertTrue(repositorySnapshot.getSkippedBranchNames().isEmpty());
+    assertTrue(repositorySnapshot.getDuplicatedBranchNames().isEmpty());
+    assertTrue(repositorySnapshot.getSkippedBranchNames().isEmpty());
   }
 
   @Test
@@ -57,11 +58,10 @@ public class GitMacheteRepository_deriveCreatedAndDuplicatedAndSkippedBranchesUn
     val repositorySnapshot = invokeCreateSnapshot(branchLayout, branchAndEntry.branch);
 
     // then
-    Assert.assertEquals(
-        List.of(branchAndEntry.entry).map(BranchLayoutEntry::getName),
+    assertEquals(List.of(branchAndEntry.entry).map(BranchLayoutEntry::getName),
         repositorySnapshot.getManagedBranches().map(IManagedBranchSnapshot::getName));
-    Assert.assertEquals(List.of(mainBranchName).toSet(), repositorySnapshot.getDuplicatedBranchNames());
-    Assert.assertTrue(repositorySnapshot.getSkippedBranchNames().isEmpty());
+    assertEquals(List.of(mainBranchName).toSet(), repositorySnapshot.getDuplicatedBranchNames());
+    assertTrue(repositorySnapshot.getSkippedBranchNames().isEmpty());
   }
 
   @Test
@@ -76,11 +76,10 @@ public class GitMacheteRepository_deriveCreatedAndDuplicatedAndSkippedBranchesUn
     val repositorySnapshot = invokeCreateSnapshot(branchLayout, branchAndEntry.branch);
 
     // then
-    Assert.assertEquals(
-        List.of(branchAndEntry.entry).map(BranchLayoutEntry::getName),
+    assertEquals(List.of(branchAndEntry.entry).map(BranchLayoutEntry::getName),
         repositorySnapshot.getManagedBranches().map(IManagedBranchSnapshot::getName));
-    Assert.assertTrue(repositorySnapshot.getDuplicatedBranchNames().isEmpty());
-    Assert.assertEquals(List.of(skippedBranchName).toSet(), repositorySnapshot.getSkippedBranchNames());
+    assertTrue(repositorySnapshot.getDuplicatedBranchNames().isEmpty());
+    assertEquals(List.of(skippedBranchName).toSet(), repositorySnapshot.getSkippedBranchNames());
   }
 
   @Test
@@ -96,11 +95,10 @@ public class GitMacheteRepository_deriveCreatedAndDuplicatedAndSkippedBranchesUn
     val repositorySnapshot = invokeCreateSnapshot(branchLayout, branchAndEntry.branch);
 
     // then
-    Assert.assertEquals(
-        List.of(branchAndEntry.entry).map(BranchLayoutEntry::getName),
+    assertEquals(List.of(branchAndEntry.entry).map(BranchLayoutEntry::getName),
         repositorySnapshot.getManagedBranches().map(IManagedBranchSnapshot::getName));
-    Assert.assertTrue(repositorySnapshot.getDuplicatedBranchNames().isEmpty());
-    Assert.assertEquals(List.of(duplicatedAndSkippedBranchName).toSet(), repositorySnapshot.getSkippedBranchNames());
+    assertTrue(repositorySnapshot.getDuplicatedBranchNames().isEmpty());
+    assertEquals(List.of(duplicatedAndSkippedBranchName).toSet(), repositorySnapshot.getSkippedBranchNames());
   }
 
   private BranchAndEntry createBranchAndEntry(String name, List<BranchLayoutEntry> childEntries) {

@@ -3,11 +3,11 @@ package com.virtuslab.gitmachete.backend.unit;
 import static com.virtuslab.gitmachete.backend.unit.UnitTestUtils.TestGitCoreReflogEntry;
 import static com.virtuslab.gitmachete.backend.unit.UnitTestUtils.createGitCoreCommit;
 import static com.virtuslab.gitmachete.backend.unit.UnitTestUtils.createGitCoreLocalBranch;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.vavr.collection.List;
 import lombok.SneakyThrows;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.reflect.Whitebox;
 
@@ -41,7 +41,7 @@ public class GitMacheteRepository_deriveSyncToParentStatusUnitTestSuite extends 
     SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(childBranch, parentBranch, MISSING_FORK_POINT);
 
     // then
-    Assert.assertEquals(SyncToParentStatus.InSync, syncToParentStatus);
+    assertEquals(SyncToParentStatus.InSync, syncToParentStatus);
   }
 
   @Test
@@ -55,7 +55,7 @@ public class GitMacheteRepository_deriveSyncToParentStatusUnitTestSuite extends 
     SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(childBranch, parentBranch, MISSING_FORK_POINT);
 
     // then
-    Assert.assertEquals(SyncToParentStatus.MergedToParent, syncToParentStatus);
+    assertEquals(SyncToParentStatus.MergedToParent, syncToParentStatus);
   }
 
   @Test
@@ -72,7 +72,7 @@ public class GitMacheteRepository_deriveSyncToParentStatusUnitTestSuite extends 
     SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(childBranch, parentBranch, parentCommit);
 
     // then
-    Assert.assertEquals(SyncToParentStatus.InSync, syncToParentStatus);
+    assertEquals(SyncToParentStatus.InSync, syncToParentStatus);
   }
 
   @Test
@@ -90,7 +90,7 @@ public class GitMacheteRepository_deriveSyncToParentStatusUnitTestSuite extends 
     SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(childBranch, parentBranch, forkPointCommit);
 
     // then
-    Assert.assertEquals(SyncToParentStatus.InSyncButForkPointOff, syncToParentStatus);
+    assertEquals(SyncToParentStatus.InSyncButForkPointOff, syncToParentStatus);
   }
 
   @Test
@@ -108,7 +108,7 @@ public class GitMacheteRepository_deriveSyncToParentStatusUnitTestSuite extends 
     SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(childBranch, parentBranch, MISSING_FORK_POINT);
 
     // then
-    Assert.assertEquals(SyncToParentStatus.OutOfSync, syncToParentStatus);
+    assertEquals(SyncToParentStatus.OutOfSync, syncToParentStatus);
   }
 
   @Test
@@ -127,6 +127,6 @@ public class GitMacheteRepository_deriveSyncToParentStatusUnitTestSuite extends 
     SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(childBranch, parentBranch, MISSING_FORK_POINT);
 
     // then
-    Assert.assertEquals(SyncToParentStatus.OutOfSync, syncToParentStatus);
+    assertEquals(SyncToParentStatus.OutOfSync, syncToParentStatus);
   }
 }

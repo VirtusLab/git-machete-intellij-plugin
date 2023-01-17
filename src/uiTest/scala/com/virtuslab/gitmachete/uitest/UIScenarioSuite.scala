@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.uitest
 
-import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite
+import com.virtuslab.gitmachete.testcommon.GitRepositoryBackedIntegrationTestSuiteInitializer
 import com.virtuslab.gitmachete.testcommon.SetupScripts.SETUP_README_SCENARIOS
 import org.junit._
 import org.junit.runner.RunWith
@@ -10,7 +10,7 @@ import org.virtuslab.ideprobe.ProbeDriver
 object UIScenarioSuite extends UISuite {}
 
 @RunWith(classOf[JUnit4])
-class UIScenarioSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_README_SCENARIOS) {
+class UIScenarioSuite extends GitRepositoryBackedIntegrationTestSuiteInitializer(SETUP_README_SCENARIOS) {
   import UIScenarioSuite._
 
   private val project = intelliJ.project

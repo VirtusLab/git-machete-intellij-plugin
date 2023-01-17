@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.uitest
 
-import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite
+import com.virtuslab.gitmachete.testcommon.GitRepositoryBackedIntegrationTestSuiteInitializer
 import com.virtuslab.gitmachete.testcommon.SetupScripts.SETUP_WITH_SINGLE_REMOTE
 import org.junit._
 import org.junit.rules.TestWatcher
@@ -18,7 +18,7 @@ import scala.sys.process._
 object UITestSuite extends UISuite {}
 
 @RunWith(classOf[JUnit4])
-class UITestSuite extends BaseGitRepositoryBackedIntegrationTestSuite(SETUP_WITH_SINGLE_REMOTE) {
+class UITestSuite extends GitRepositoryBackedIntegrationTestSuiteInitializer(SETUP_WITH_SINGLE_REMOTE) {
 
   import UITestSuite._
 
