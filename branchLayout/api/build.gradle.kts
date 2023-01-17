@@ -3,5 +3,5 @@ import com.virtuslab.gitmachete.buildsrc.*
 dependencies { api(project(":qual")) }
 
 lombok()
-junit()
+junit5()
 vavr()

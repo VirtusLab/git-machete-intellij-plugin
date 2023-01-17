@@ -1,10 +1,10 @@
 package com.virtuslab.branchlayout.impl.readwrite;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -13,8 +13,7 @@ import java.util.stream.Collectors;
 import io.vavr.collection.List;
 import lombok.SneakyThrows;
 import lombok.val;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
@@ -41,7 +40,7 @@ public class BranchLayoutFileReaderTestSuite {
     assertNotNull(branchLayout.getEntryByName("A"));
     assertNotNull(branchLayout.getEntryByName("B"));
     assertNotNull(branchLayout.getEntryByName("C"));
-    Assert.assertEquals(2, branchLayout.getRootEntries().size());
+    assertEquals(2, branchLayout.getRootEntries().size());
 
     val a = branchLayout.getRootEntries().get(0);
     val b = a.getChildren().get(0);

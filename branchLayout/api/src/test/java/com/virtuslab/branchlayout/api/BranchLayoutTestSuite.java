@@ -1,12 +1,13 @@
 package com.virtuslab.branchlayout.api;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.vavr.collection.List;
 import lombok.val;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class BranchLayoutTestSuite {
 
@@ -42,11 +43,11 @@ public class BranchLayoutTestSuite {
     val rootEntry = new BranchLayoutEntry(rootName, /* customAnnotation */ null, List.of(entry0, entry1));
     val branchLayout = new BranchLayout(List.of(rootEntry));
     //then
-    assertEquals(branchLayout.findNextEntry(childName1).getName(), parentName1);
-    assertEquals(branchLayout.findPreviousEntry(childName1).getName(), childName0);
-    assertEquals(branchLayout.findNextEntry(parentName0).getName(), childName0);
-    assertEquals(branchLayout.findPreviousEntry(childName0).getName(), parentName0);
-    assertEquals(branchLayout.findPreviousEntry(parentName1).getName(), childName1);
+    assertEquals(parentName1, branchLayout.findNextEntry(childName1).getName());
+    assertEquals(childName0, branchLayout.findPreviousEntry(childName1).getName());
+    assertEquals(childName0, branchLayout.findNextEntry(parentName0).getName());
+    assertEquals(parentName0, branchLayout.findPreviousEntry(childName0).getName());
+    assertEquals(childName1, branchLayout.findPreviousEntry(parentName1).getName());
     assertNull(branchLayout.findPreviousEntry(rootName));
     assertNull(branchLayout.findNextEntry(childName2));
   }
@@ -78,9 +79,9 @@ public class BranchLayoutTestSuite {
     //then
     assertNull(branchLayout.findPreviousEntry(rootName));
     assertNull(branchLayout.findNextEntry(rootName2));
-    assertEquals(branchLayout.findNextEntry(rootName1).getName(), rootName2);
-    assertEquals(branchLayout.findPreviousEntry(rootName1).getName(), rootName);
-    assertEquals(branchLayout.findPreviousEntry(rootName2).getName(), rootName1);
+    assertEquals(rootName2, branchLayout.findNextEntry(rootName1).getName());
+    assertEquals(rootName, branchLayout.findPreviousEntry(rootName1).getName());
+    assertEquals(rootName1, branchLayout.findPreviousEntry(rootName2).getName());
   }
 
   @Test
@@ -118,7 +119,7 @@ public class BranchLayoutTestSuite {
     assertEquals(1, result.getRootEntries().size());
     assertEquals(rootName, result.getRootEntries().get(0).getName());
     val children = result.getRootEntries().get(0).getChildren();
-    assertEquals(children.size(), 2);
+    assertEquals(2, children.size());
     assertEquals(childName0, children.get(0).getName());
     assertEquals(childName1, children.get(1).getName());
 
@@ -265,10 +266,10 @@ public class BranchLayoutTestSuite {
     BranchLayout result = branchLayout.slideOut(branchToSlideOutName);
 
     // then
-    assertEquals(result.getRootEntries().size(), 1);
-    assertEquals(result.getRootEntries().get(0).getName(), rootName);
+    assertEquals(1, result.getRootEntries().size());
+    assertEquals(rootName, result.getRootEntries().get(0).getName());
     val children = result.getRootEntries().get(0).getChildren();
-    assertEquals(children.size(), 0);
+    assertEquals(0, children.size());
   }
 
   @Test
@@ -295,9 +296,9 @@ public class BranchLayoutTestSuite {
     BranchLayout result = branchLayout.slideOut(rootName);
 
     // then
-    assertEquals(result.getRootEntries().size(), 2);
-    assertEquals(result.getRootEntries().get(0).getName(), childName0);
-    assertEquals(result.getRootEntries().get(1).getName(), childName1);
+    assertEquals(2, result.getRootEntries().size());
+    assertEquals(childName0, result.getRootEntries().get(0).getName());
+    assertEquals(childName1, result.getRootEntries().get(1).getName());
   }
 
   @Test
@@ -323,9 +324,9 @@ public class BranchLayoutTestSuite {
     BranchLayout result = branchLayout.slideOut(childName);
 
     // then
-    assertEquals(result.getRootEntries().size(), 1);
-    assertEquals(result.getRootEntries().get(0).getName(), rootName);
-    assertEquals(result.getRootEntries().get(0).getChildren().size(), 0);
+    assertEquals(1, result.getRootEntries().size());
+    assertEquals(rootName, result.getRootEntries().get(0).getName());
+    assertEquals(0, result.getRootEntries().get(0).getChildren().size());
   }
 
   @Test
@@ -345,7 +346,7 @@ public class BranchLayoutTestSuite {
     BranchLayout result = branchLayout.slideOut(rootName);
 
     // then
-    assertEquals(result.getRootEntries().size(), 0);
+    assertEquals(0, result.getRootEntries().size());
   }
 
   @Test
@@ -367,8 +368,8 @@ public class BranchLayoutTestSuite {
     BranchLayout result = branchLayout.slideOut(rootName);
 
     // then
-    assertEquals(result.getRootEntries().size(), 1);
-    assertEquals(result.getRootEntries().get(0).getName(), masterRootName);
+    assertEquals(1, result.getRootEntries().size());
+    assertEquals(masterRootName, result.getRootEntries().get(0).getName());
   }
 
   @Test
@@ -381,7 +382,7 @@ public class BranchLayoutTestSuite {
     BranchLayout result = branchLayout.slideOut(branchToSlideOutName);
 
     // then no exception thrown
-    Assert.assertTrue(result.getRootEntries().isEmpty());
+    assertTrue(result.getRootEntries().isEmpty());
   }
 
   private static BranchLayout getExampleBranchLayout() {
@@ -393,7 +394,7 @@ public class BranchLayoutTestSuite {
 
   @Test
   public void withBranchLayouts_givenTheyAreEquivalent_shouldBeConsideredEqual() {
-    Assert.assertTrue(getExampleBranchLayout().equals(getExampleBranchLayout()));
+    assertEquals(getExampleBranchLayout(), getExampleBranchLayout());
   }
 
   @Test
@@ -401,8 +402,8 @@ public class BranchLayoutTestSuite {
     val emptyBranchLayout = new BranchLayout(List.empty());
     val branchLayout = getExampleBranchLayout();
 
-    Assert.assertFalse(branchLayout.equals(emptyBranchLayout));
-    Assert.assertFalse(emptyBranchLayout.equals(branchLayout));
+    assertNotEquals(branchLayout, emptyBranchLayout);
+    assertNotEquals(emptyBranchLayout, branchLayout);
   }
 
   @Test
@@ -414,8 +415,8 @@ public class BranchLayoutTestSuite {
         new BranchLayoutEntry("B", /* customAnnotation */ null,
             List.of(new BranchLayoutEntry("BA", /* customAnnotation */ null, List.empty())))));
 
-    Assert.assertFalse(branchLayout.equals(branchLayoutWithExtraChildBranch));
-    Assert.assertFalse(branchLayoutWithExtraChildBranch.equals(branchLayout));
+    assertNotEquals(branchLayout, branchLayoutWithExtraChildBranch);
+    assertNotEquals(branchLayoutWithExtraChildBranch, branchLayout);
   }
 
   @Test
@@ -427,8 +428,8 @@ public class BranchLayoutTestSuite {
             List.of(new BranchLayoutEntry("BA", /* customAnnotation */ null, List.empty()))),
         new BranchLayoutEntry("EXTRA_BRANCH", /* customAnnotation */ null, List.empty())));
 
-    Assert.assertFalse(branchLayout.equals(branchLayoutWithExtraRootBranch));
-    Assert.assertFalse(branchLayoutWithExtraRootBranch.equals(branchLayout));
+    assertNotEquals(branchLayout, branchLayoutWithExtraRootBranch);
+    assertNotEquals(branchLayoutWithExtraRootBranch, branchLayout);
   }
 
   @Test
@@ -439,8 +440,8 @@ public class BranchLayoutTestSuite {
         new BranchLayoutEntry("B", /* customAnnotation */ null,
             List.of(new BranchLayoutEntry("BA", /* customAnnotation */ null, List.empty())))));
 
-    Assert.assertFalse(branchLayout.equals(branchLayoutDifferentRootName));
-    Assert.assertFalse(branchLayoutDifferentRootName.equals(branchLayout));
+    assertNotEquals(branchLayout, branchLayoutDifferentRootName);
+    assertNotEquals(branchLayoutDifferentRootName, branchLayout);
   }
 
   @Test
@@ -451,8 +452,8 @@ public class BranchLayoutTestSuite {
         new BranchLayoutEntry("B", /* customAnnotation */ null,
             List.of(new BranchLayoutEntry("DIFFERENT_NAME", /* customAnnotation */ null, List.empty())))));
 
-    Assert.assertFalse(branchLayout.equals(branchLayoutDifferentLeafName));
-    Assert.assertFalse(branchLayoutDifferentLeafName.equals(branchLayout));
+    assertNotEquals(branchLayout, branchLayoutDifferentLeafName);
+    assertNotEquals(branchLayoutDifferentLeafName, branchLayout);
   }
 
   @Test
@@ -463,8 +464,8 @@ public class BranchLayoutTestSuite {
         new BranchLayoutEntry("B", "DIFFERENT_ANNOTATION",
             List.of(new BranchLayoutEntry("BA", /* customAnnotation */ null, List.empty())))));
 
-    Assert.assertFalse(branchLayout.equals(branchLayoutDifferentAnnotation));
-    Assert.assertFalse(branchLayoutDifferentAnnotation.equals(branchLayout));
+    assertNotEquals(branchLayout, branchLayoutDifferentAnnotation);
+    assertNotEquals(branchLayoutDifferentAnnotation, branchLayout);
   }
 
   @Test
@@ -483,7 +484,7 @@ public class BranchLayoutTestSuite {
             List.of(new BranchLayoutEntry("AA", /* customAnnotation */ null, List.empty()),
                 new BranchLayoutEntry("AB", "ANNOTATION", List.empty())))));
 
-    Assert.assertTrue(branchLayout.equals(branchLayoutShuffled));
-    Assert.assertTrue(branchLayoutShuffled.equals(branchLayout));
+    assertEquals(branchLayout, branchLayoutShuffled);
+    assertEquals(branchLayoutShuffled, branchLayout);
   }
 }
