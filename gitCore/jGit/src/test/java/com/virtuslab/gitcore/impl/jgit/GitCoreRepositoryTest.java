@@ -1,24 +1,23 @@
 package com.virtuslab.gitcore.impl.jgit;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import lombok.SneakyThrows;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.revwalk.RevWalk;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({GitCoreRepository.class, RevWalk.class})
+@ExtendWith(MockitoExtension.class)
 public class GitCoreRepositoryTest {
 
   private final GitCoreRepository gitCoreRepository = Whitebox.newInstance(GitCoreRepository.class);
 
-  @Before
+  @BeforeEach
   @SneakyThrows
   public void mockGitCoreRepository() {
     PowerMockito.stub(PowerMockito.method(RevWalk.class, "parseCommit")).toThrow(new Exception("Mock"));
@@ -28,6 +27,6 @@ public class GitCoreRepositoryTest {
 
   @Test
   public void shouldContainExceptionsInsideOptionReturningMethods() throws Exception {
-    Assert.assertNull(gitCoreRepository.parseRevision(""));
+    assertNull(gitCoreRepository.parseRevision(""));
   }
 }

@@ -1,12 +1,12 @@
 package com.virtuslab.gitcore.impl.jgit;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.charset.StandardCharsets;
 
 import lombok.val;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class GitCoreCommitTest {
 
