@@ -12,9 +12,9 @@ dependencies {
 
 addIntellijToCompileClasspath(withGit4Idea = true)
 apacheCommonsText()
-junit()
+junit5()
 lombok()
-powerMock()
+powerMock5()
 slf4jLambdaApi()
 vavr()
 

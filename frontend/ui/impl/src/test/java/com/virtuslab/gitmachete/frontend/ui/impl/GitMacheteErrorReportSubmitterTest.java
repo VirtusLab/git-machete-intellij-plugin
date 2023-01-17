@@ -1,6 +1,8 @@
 package com.virtuslab.gitmachete.frontend.ui.impl;
 
 import static com.virtuslab.gitmachete.frontend.ui.impl.GitMacheteErrorReportSubmitter.MAX_GITHUB_URI_LENGTH;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -15,24 +17,23 @@ import lombok.SneakyThrows;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
-@RunWith(PowerMockRunner.class)
+@ExtendWith(MockitoExtension.class)
 @PrepareForTest({ApplicationInfo.class, PluginManagerCore.class, SystemUtils.class})
 public class GitMacheteErrorReportSubmitterTest {
 
   private GitMacheteErrorReportSubmitter reportSubmitter;
   private static final LambdaLogger errorReportSubmitterLogger = PowerMockito.mock(LambdaLogger.class);
 
-  @BeforeClass
+  @BeforeAll
   public static void setUpStatic() {
     Whitebox.setInternalState(GitMacheteErrorReportSubmitter.class, errorReportSubmitterLogger);
     Whitebox.setInternalState(SystemUtils.class, "OS_NAME", "Mock OS X");
@@ -42,7 +43,7 @@ public class GitMacheteErrorReportSubmitterTest {
     PowerMockito.mockStatic(PluginManagerCore.class);
   }
 
-  @Before
+  @BeforeEach
   public void setUp() {
     reportSubmitter = new GitMacheteErrorReportSubmitter();
 
@@ -113,7 +114,7 @@ public class GitMacheteErrorReportSubmitterTest {
     val event0 = getMockEvent("exception message", 0);
 
     URI uri = reportSubmitter.constructNewGitHubIssueUri(new IdeaLoggingEvent[]{event0}, /* additionalInfo */ null);
-    Assert.assertEquals(expectedUri("without_stack_trace"), uri.toString());
+    assertEquals(expectedUri("without_stack_trace"), uri.toString());
   }
 
   @Test
@@ -121,7 +122,7 @@ public class GitMacheteErrorReportSubmitterTest {
     val event10 = getMockEvent("exception message", 10);
 
     URI uri = reportSubmitter.constructNewGitHubIssueUri(new IdeaLoggingEvent[]{event10}, /* additionalInfo */ null);
-    Assert.assertEquals(expectedUri("with_stack_trace"), uri.toString());
+    assertEquals(expectedUri("with_stack_trace"), uri.toString());
   }
 
   @Test
@@ -130,7 +131,7 @@ public class GitMacheteErrorReportSubmitterTest {
     val event10 = getMockEvent("another exception message", 10);
 
     URI uri = reportSubmitter.constructNewGitHubIssueUri(new IdeaLoggingEvent[]{event0, event10}, /* additionalInfo */ null);
-    Assert.assertEquals(expectedUri("for_multiple_events"), uri.toString());
+    assertEquals(expectedUri("for_multiple_events"), uri.toString());
   }
 
   @Test
@@ -138,7 +139,7 @@ public class GitMacheteErrorReportSubmitterTest {
     val event = getWrappedExceptionsEvent(5);
 
     URI uri = reportSubmitter.constructNewGitHubIssueUri(new IdeaLoggingEvent[]{event}, /* additionalInfo */ null);
-    Assert.assertEquals(expectedUri("with_wrapped_exceptions"), uri.toString());
+    assertEquals(expectedUri("with_wrapped_exceptions"), uri.toString());
   }
 
   @Test
@@ -146,7 +147,7 @@ public class GitMacheteErrorReportSubmitterTest {
     val event = getSuppressedExceptionsEvent();
 
     URI uri = reportSubmitter.constructNewGitHubIssueUri(new IdeaLoggingEvent[]{event}, /* additionalInfo */ null);
-    Assert.assertEquals(expectedUri("with_suppressed_exceptions"), uri.toString());
+    assertEquals(expectedUri("with_suppressed_exceptions"), uri.toString());
   }
 
   @Test
@@ -154,7 +155,7 @@ public class GitMacheteErrorReportSubmitterTest {
     val event = getMockEvent("exception message", 1000);
 
     URI uri = reportSubmitter.constructNewGitHubIssueUri(new IdeaLoggingEvent[]{event}, /* additionalInfo */ null);
-    Assert.assertEquals(expectedUri("long_uri"), uri.toString());
-    Assert.assertTrue("URI is longer than ${MAX_GITHUB_URI_LENGTH} bytes", uri.toString().length() <= MAX_GITHUB_URI_LENGTH);
+    assertEquals(expectedUri("long_uri"), uri.toString());
+    assertTrue(uri.toString().length() <= MAX_GITHUB_URI_LENGTH, "URI is longer than ${MAX_GITHUB_URI_LENGTH} bytes");
   }
 }
