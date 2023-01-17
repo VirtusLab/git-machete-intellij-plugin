@@ -57,7 +57,7 @@ dependencies {
   implementation(libs.pluginPackages.taskTree)
   implementation(libs.pluginPackages.versionCatalogUpdate)
   implementation(libs.pluginPackages.versionsFilter)
-  testImplementation(libs.junit)
+  testImplementation(libs.junit5)
 }
 
 apply<GradleVersionsFilterPlugin>()

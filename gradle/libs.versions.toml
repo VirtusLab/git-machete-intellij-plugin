@@ -21,9 +21,12 @@ jetbrains-annotations = "org.jetbrains:annotations:24.0.0"
 jgit = "org.eclipse.jgit:org.eclipse.jgit:6.4.0.202211300538-r"
 jsoup = "org.jsoup:jsoup:1.15.3"
 junit = "junit:junit:4.13.2"
+junit5 = "org.junit.jupiter:junit-jupiter-api:5.9.2"
 lombok = "org.projectlombok:lombok:1.18.24"
 powerMock-apiMockito2 = { module = "org.powermock:powermock-api-mockito2", version.ref = "powerMock" }
 powerMock-moduleJunit4 = { module = "org.powermock:powermock-module-junit4", version.ref = "powerMock" }
+powerMock-apiMockito25 = "org.powermock:powermock-api-mockito2:2.0.9"
+powerMock-moduleJunit5 = "org.mockito:mockito-junit-jupiter:5.0.0"
 scala-library = "org.scala-lang:scala-library:2.13.8"
 slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
 # @pin because slf4j-simple 2.0.0 isn't compatible with slf4j-api v1.x.y, which is still pulled in by our dependencies.
@@ -62,4 +65,8 @@ ideProbe = [
 powerMock = [
     "powerMock-apiMockito2",
     "powerMock-moduleJunit4",
+]
+powerMock5 = [
+    "powerMock-apiMockito25",
+    "powerMock-moduleJunit5"
 ]

@@ -144,6 +144,12 @@ fun Project.junit() {
   }
 }
 
+fun Project.junit5() {
+  dependencies {
+    "testImplementation"(lib("junit5"))
+  }
+}
+
 fun Project.lombok() {
   dependencies {
     val lombok = lib("lombok")
@@ -157,6 +163,12 @@ fun Project.lombok() {
 fun Project.powerMock() {
   dependencies {
     "testImplementation"(bundle("powerMock"))
+  }
+}
+
+fun Project.powerMock5() {
+  dependencies {
+    "testImplementation"(bundle("powerMock5"))
   }
 }
 
