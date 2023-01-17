@@ -144,15 +144,9 @@ fun Project.junit() {
   }
 }
 
-fun Project.junit5() {
+fun Project.junitParams() {
   dependencies {
-    "testImplementation"(lib("junit5"))
-  }
-}
-
-fun Project.junit5Params() {
-  dependencies {
-    "testImplementation"(lib("junit5-params"))
+    "testImplementation"(lib("junit-params"))
   }
 }
 
@@ -169,12 +163,6 @@ fun Project.lombok() {
 fun Project.powerMock() {
   dependencies {
     "testImplementation"(bundle("powerMock"))
-  }
-}
-
-fun Project.powerMock5() {
-  dependencies {
-    "testImplementation"(bundle("powerMock5"))
   }
 }
 

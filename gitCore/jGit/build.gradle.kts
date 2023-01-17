@@ -3,8 +3,8 @@ import com.virtuslab.gitmachete.buildsrc.*
 dependencies { api(project(":gitCore:api")) }
 
 jgit()
-junit5()
-powerMock5()
+junit()
+powerMock()
 lombok()
 slf4jLambdaApi()
 slf4jTestImpl()

@@ -5,7 +5,7 @@ dependencies {
   api(project(":branchLayout:api"))
 }
 
-junit5()
+junit()
 lombok()
 slf4jLambdaApi()
 slf4jTestImpl()

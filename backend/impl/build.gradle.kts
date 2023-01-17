@@ -14,10 +14,10 @@ dependencies {
 addIntellijToCompileClasspath(withGit4Idea = false)
 commonsIO()
 jcabiAspects()
-junit5()
-junit5Params()
+junit()
+junitParams()
 lombok()
-powerMock5()
+powerMock()
 slf4jLambdaApi()
 vavr()
 

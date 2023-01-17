@@ -9,6 +9,6 @@ dependencies {
   testFixturesAnnotationProcessor(rootProject.libs.lombok)
   testFixturesAnnotationProcessor(rootProject.libs.betterStrings)
   testFixturesCompileOnly(rootProject.libs.lombok)
-  testFixturesImplementation(rootProject.libs.junit5)
+  testFixturesImplementation(rootProject.libs.junit)
   testFixturesImplementation(rootProject.libs.commonsIO)
 }
