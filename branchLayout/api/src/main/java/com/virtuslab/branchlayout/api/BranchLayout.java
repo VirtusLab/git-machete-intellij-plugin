@@ -81,7 +81,7 @@ public class BranchLayout {
   private List<BranchLayoutEntry> rename(BranchLayoutEntry entry, String currentBranchName, String newBranchName) {
     val newChildren = entry.getChildren().flatMap(child -> rename(child, currentBranchName, newBranchName));
     if (entry.getName().equals(currentBranchName)) {
-      return List.of(new BranchLayoutEntry(newBranchName, entry.getCustomAnnotation(), entry.getChildren()));
+      return List.of(entry.withName(newBranchName));
     } else {
       return List.of(entry.withChildren(newChildren));
     }
