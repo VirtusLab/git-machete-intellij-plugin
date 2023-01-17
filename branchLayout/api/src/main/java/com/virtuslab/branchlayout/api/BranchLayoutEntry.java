@@ -21,6 +21,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 @ToString
 public final class BranchLayoutEntry {
   @Getter
+  @With
   private final String name;
 
   @Getter
