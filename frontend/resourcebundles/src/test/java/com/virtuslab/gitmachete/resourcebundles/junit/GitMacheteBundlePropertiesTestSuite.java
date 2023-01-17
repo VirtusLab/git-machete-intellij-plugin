@@ -1,13 +1,13 @@
 package com.virtuslab.gitmachete.resourcebundles.junit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Properties;
 
 import lombok.SneakyThrows;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class GitMacheteBundlePropertiesTestSuite {
 
@@ -32,9 +32,9 @@ public class GitMacheteBundlePropertiesTestSuite {
         .forEach(t -> {
           String key = (String) t.getKey();
           String value = (String) t.getValue();
-          assertEquals("HTML property should start with <html> (key=${key})", "<html>", value.substring(0, 6));
-          assertEquals("HTML property should end with </html> (key=${key})", "</html>", value.substring(value.length() - 7));
-          assertEquals("HTML property key should have a .HTML suffix (key=${key})", ".HTML", key.substring(key.length() - 5));
+          assertEquals("<html>", value.substring(0, 6), "HTML property should start with <html> (key=${key})");
+          assertEquals("</html>", value.substring(value.length() - 7), "HTML property should end with </html> (key=${key})");
+          assertEquals(".HTML", key.substring(key.length() - 5), "HTML property key should have a .HTML suffix (key=${key})");
         });
   }
 
@@ -46,9 +46,8 @@ public class GitMacheteBundlePropertiesTestSuite {
     properties.forEach((keyObj, valueObj) -> {
       String key = (String) keyObj;
       String value = (String) valueObj;
-      assertFalse(
-          "Key '${key}' has value wrapped in double quotes (\"). Remove unnecessary wrapping",
-          value.endsWith("\"") && value.startsWith("\""));
+      assertFalse(value.endsWith("\"") && value.startsWith("\""),
+          "Key '${key}' has value wrapped in double quotes (\"). Remove unnecessary wrapping");
     });
   }
 
@@ -60,14 +59,12 @@ public class GitMacheteBundlePropertiesTestSuite {
     properties.forEach((keyObj, valueObj) -> {
       String key = (String) keyObj;
       String value = (String) valueObj;
-      assertFalse(
+      assertFalse(value.matches(".*\\{\\d+}.*") && value.matches("^'[^'].*|.*[^']'[^'].*|.*[^']'$"),
           "Key '${key}' has a format element ({number}), but contains a single apostrophe (')." +
-              "Use a double apostrophe ('') instead",
-          value.matches(".*\\{\\d+}.*") && value.matches("^'[^'].*|.*[^']'[^'].*|.*[^']'$"));
-      assertFalse(
+              "Use a double apostrophe ('') instead");
+      assertFalse(!value.matches(".*\\{\\d+}.*") && value.matches(".*''.*"),
           "Key '${key}' has NO format element ({number}), but contains a double apostrophe ('')." +
-              "Use a single apostrophe (') instead",
-          !value.matches(".*\\{\\d+}.*") && value.matches(".*''.*"));
+              "Use a single apostrophe (') instead");
     });
   }
 

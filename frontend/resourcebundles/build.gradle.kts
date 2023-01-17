@@ -1,5 +1,5 @@
 import com.virtuslab.gitmachete.buildsrc.*
 
 jetbrainsAnnotations()
-junit()
+junit5()
 lombok()
