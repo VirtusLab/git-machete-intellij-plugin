@@ -8,16 +8,16 @@ import java.nio.file.Path;
 
 import lombok.SneakyThrows;
 
-public abstract class BaseGitRepositoryBackedIntegrationTestSuite {
+public class GitRepositoryBackedIntegrationTestSuiteInitializer {
 
   protected final String scriptName;
-  protected final Path parentDirectoryPath;
-  protected final Path rootDirectoryPath;
-  protected final Path mainGitDirectoryPath;
-  protected final Path worktreeGitDirectoryPath;
+  public final Path parentDirectoryPath;
+  public final Path rootDirectoryPath;
+  public final Path mainGitDirectoryPath;
+  public final Path worktreeGitDirectoryPath;
 
   @SneakyThrows
-  protected BaseGitRepositoryBackedIntegrationTestSuite(String scriptName) {
+  public GitRepositoryBackedIntegrationTestSuiteInitializer(String scriptName) {
     this.scriptName = scriptName;
     parentDirectoryPath = Files.createTempDirectory("machete-tests-");
     if (scriptName.equals("setup-with-single-remote.sh")) {

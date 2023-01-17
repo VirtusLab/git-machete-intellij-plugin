@@ -150,6 +150,12 @@ fun Project.junit5() {
   }
 }
 
+fun Project.junit5Params() {
+  dependencies {
+    "testImplementation"(lib("junit5-params"))
+  }
+}
+
 fun Project.lombok() {
   dependencies {
     val lombok = lib("lombok")

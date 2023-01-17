@@ -12,7 +12,7 @@ import static com.virtuslab.gitmachete.testcommon.TestFileUtils.cleanUpDir;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
-import static org.junit.runners.Parameterized.Parameters;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
@@ -23,17 +23,8 @@ import io.vavr.collection.List;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.modules.junit4.PowerMockRunnerDelegate;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
@@ -42,46 +33,41 @@ import com.virtuslab.gitcore.api.IGitCoreRepositoryFactory;
 import com.virtuslab.gitcore.impl.jgit.GitCoreRepositoryFactory;
 import com.virtuslab.gitmachete.backend.api.*;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryCache;
-import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite;
+import com.virtuslab.gitmachete.testcommon.GitRepositoryBackedIntegrationTestSuiteInitializer;
+import org.powermock.api.mockito.PowerMockito;
 
-@RunWith(PowerMockRunner.class)
-@PowerMockRunnerDelegate(Parameterized.class)
-@PrepareForTest(ApplicationManager.class)
-public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
+public class StatusAndDiscoverIntegrationTestSuite {
 
   private static final IGitCoreRepositoryFactory gitCoreRepositoryFactory = new GitCoreRepositoryFactory();
 
-  private final IBranchLayoutReader branchLayoutReader = new BranchLayoutReader();
-  private final IGitMacheteRepository gitMacheteRepository;
-  private IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot;
+  private final IBranchLayoutReader branchLayoutReader = RuntimeBinding
+      .instantiateSoleImplementingClass(IBranchLayoutReader.class);
+  private final GitMacheteRepositoryCache gitMacheteRepositoryCache = new GitMacheteRepositoryCache();
 
-  @Parameters(name = "{0} (#{index})")
   public static String[] getScriptNames() {
     return ALL_SETUP_SCRIPTS;
   }
 
   @SneakyThrows
-  public StatusAndDiscoverIntegrationTestSuite(String scriptName) {
-    super(scriptName);
-
+  @ParameterizedTest
+  @MethodSource("getScriptNames")
+  public void yieldsSameStatusAsCli(String scriptName) {
+    val it = new GitRepositoryBackedIntegrationTestSuiteInitializer(scriptName);
     // This setup needs to happen BEFORE GitMacheteRepositoryCache is created
-    val application = PowerMockito.mock(Application.class);
-    PowerMockito.when(application.getService(IGitCoreRepositoryFactory.class)).thenReturn(gitCoreRepositoryFactory);
-    PowerMockito.stub(PowerMockito.method(ApplicationManager.class, "getApplication")).toReturn(application);
+    val application = mock(Application.class);
+    when(application.getService(any<IGitCoreRepositoryFactory>())).thenReturn(gitCoreRepositoryFactory);
+    when(ApplicationManager.getApplication()).toReturn(application);
 
-    GitMacheteRepositoryCache gitMacheteRepositoryCache = new GitMacheteRepositoryCache();
-    gitMacheteRepository = gitMacheteRepositoryCache.getInstance(rootDirectoryPath, mainGitDirectoryPath,
-        worktreeGitDirectoryPath);
-  }
+    val gitMacheteRepositoryCache = new GitMacheteRepositoryCache();
+    val gitMacheteRepository = gitMacheteRepositoryCache.getInstance(it.rootDirectoryPath, it.mainGitDirectoryPath,
+        it.worktreeGitDirectoryPath);
 
-  @Test
-  @SneakyThrows
-  public void yieldsSameStatusAsCli() {
-    String gitMacheteCliStatus = gitMacheteCliStatusOutput();
+    String gitMacheteCliStatus = gitMacheteCliStatusOutput(scriptName);
 
-    BranchLayout branchLayout = branchLayoutReader.read(new FileInputStream(mainGitDirectoryPath.resolve("machete").toFile()));
-    gitMacheteRepositorySnapshot = gitMacheteRepository.createSnapshotForLayout(branchLayout);
-    String ourStatus = ourGitMacheteRepositorySnapshotAsString();
+    BranchLayout branchLayout = branchLayoutReader
+        .read(new FileInputStream(it.mainGitDirectoryPath.resolve("machete").toFile()));
+    val gitMacheteRepositorySnapshot = gitMacheteRepository.createSnapshotForLayout(branchLayout);
+    String ourStatus = ourGitMacheteRepositorySnapshotAsString(gitMacheteRepositorySnapshot);
 
     System.out.println("CLI OUTPUT:");
     System.out.println(gitMacheteCliStatus);
@@ -89,16 +75,29 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
     System.out.println("OUR OUTPUT:");
     System.out.println(ourStatus);
 
-    Assert.assertEquals(gitMacheteCliStatus.trim(), ourStatus.trim());
+    assertEquals(gitMacheteCliStatus.trim(), ourStatus.trim());
+
+    cleanUpDir(it.parentDirectoryPath);
   }
 
-  @Test
   @SneakyThrows
-  public void discoversSameLayoutAsCli() {
-    String gitMacheteCliDiscoverOutput = gitMacheteCliDiscoverOutput();
+  @ParameterizedTest
+  @MethodSource("getScriptNames")
+  public void discoversSameLayoutAsCli(String scriptName) {
+    val it = new GitRepositoryBackedIntegrationTestSuiteInitializer(scriptName);
+    // This setup needs to happen BEFORE GitMacheteRepositoryCache is created
+    val application = mock(Application.class);
+    when(application.getService(any<IGitCoreRepositoryFactory>())).thenReturn(gitCoreRepositoryFactory);
+    when(ApplicationManager.getApplication()).toReturn(application);
 
-    gitMacheteRepositorySnapshot = gitMacheteRepository.discoverLayoutAndCreateSnapshot();
-    String ourDiscoverOutput = ourGitMacheteRepositorySnapshotAsString();
+    val gitMacheteRepositoryCache = new GitMacheteRepositoryCache();
+    val gitMacheteRepository = gitMacheteRepositoryCache.getInstance(it.rootDirectoryPath, it.mainGitDirectoryPath,
+        it.worktreeGitDirectoryPath);
+
+    String gitMacheteCliDiscoverOutput = gitMacheteCliDiscoverOutput(scriptName);
+
+    val gitMacheteRepositorySnapshot = gitMacheteRepository.discoverLayoutAndCreateSnapshot();
+    String ourDiscoverOutput = ourGitMacheteRepositorySnapshotAsString(gitMacheteRepositorySnapshot);
 
     System.out.println("CLI OUTPUT:");
     System.out.println(gitMacheteCliDiscoverOutput);
@@ -106,36 +105,28 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
     System.out.println("OUR OUTPUT:");
     System.out.println(ourDiscoverOutput);
 
-    Assert.assertEquals(gitMacheteCliDiscoverOutput, ourDiscoverOutput);
+    assertEquals(gitMacheteCliDiscoverOutput, ourDiscoverOutput);
+
+    cleanUpDir(it.parentDirectoryPath);
   }
 
-  @Rule(order = Integer.MIN_VALUE)
-  public final TestWatcher cleanUpAfterSuccessfulTest = new TestWatcher() {
-    @Override
-    protected void succeeded(Description description) {
-      cleanUpDir(parentDirectoryPath);
-    }
-
-    // After a failed test, keep the parent directory intact for further manual inspection.
-  };
-
   @SneakyThrows
-  private String gitMacheteCliStatusOutput() {
+  private String gitMacheteCliStatusOutput(String scriptName) {
     return IOUtils.resourceToString("/${scriptName}-status.txt", StandardCharsets.UTF_8);
   }
 
   @SneakyThrows
-  private String gitMacheteCliDiscoverOutput() {
+  private String gitMacheteCliDiscoverOutput(String scriptName) {
     return IOUtils.resourceToString("/${scriptName}-discover.txt", StandardCharsets.UTF_8);
   }
 
-  private String ourGitMacheteRepositorySnapshotAsString() {
+  private String ourGitMacheteRepositorySnapshotAsString(IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot) {
     val sb = new StringBuilder();
     val branches = gitMacheteRepositorySnapshot.getRootBranches();
     int lastRootBranchIndex = branches.size() - 1;
     for (int currentRootBranch = 0; currentRootBranch <= lastRootBranchIndex; currentRootBranch++) {
       val b = branches.get(currentRootBranch);
-      printRootBranch(b, sb);
+      printRootBranch(gitMacheteRepositorySnapshot, b, sb);
       if (currentRootBranch < lastRootBranchIndex)
         sb.append(System.lineSeparator());
     }
@@ -143,12 +134,14 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
     return sb.toString();
   }
 
-  private void printRootBranch(IRootManagedBranchSnapshot branch, StringBuilder sb) {
+  private void printRootBranch(IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot, IRootManagedBranchSnapshot branch,
+      StringBuilder sb) {
     sb.append("  ");
-    printCommonParts(branch, /* path */ List.empty(), sb);
+    printCommonParts(gitMacheteRepositorySnapshot, branch, /* path */ List.empty(), sb);
   }
 
   private void printNonRootBranch(
+      IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot,
       INonRootManagedBranchSnapshot branch,
       List<INonRootManagedBranchSnapshot> path,
       StringBuilder sb) {
@@ -193,10 +186,11 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
       sb.append("m");
     sb.append("-");
 
-    printCommonParts(branch, path, sb);
+    printCommonParts(gitMacheteRepositorySnapshot, branch, path, sb);
   }
 
-  private void printCommonParts(IManagedBranchSnapshot branch, List<INonRootManagedBranchSnapshot> path, StringBuilder sb) {
+  private void printCommonParts(IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot, IManagedBranchSnapshot branch,
+      List<INonRootManagedBranchSnapshot> path, StringBuilder sb) {
     sb.append(branch.getName());
 
     val currBranch = gitMacheteRepositorySnapshot.getCurrentBranchIfManaged();
@@ -230,7 +224,7 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
     sb.append(System.lineSeparator());
 
     for (val childBranch : branch.getChildren()) {
-      printNonRootBranch(childBranch, path.append(childBranch), sb);
+      printNonRootBranch(gitMacheteRepositorySnapshot, childBranch, path.append(childBranch), sb);
     }
   }
 }
