@@ -160,6 +160,7 @@ public class BranchLayoutTestSuite {
   public void withBranchRename_givenBranchLayout_renamesRoot() {
     // given
     String rootName = "root";
+    String rootAnnotation = "this is root";
     String child = "child";
     String newRootName = "master";
 
@@ -171,7 +172,7 @@ public class BranchLayoutTestSuite {
     List<BranchLayoutEntry> childBranches = List.of(
         new BranchLayoutEntry(child, /* customAnnotation */ null, List.empty()));
 
-    val rootEntry = new BranchLayoutEntry(rootName, /* customAnnotation */ null, childBranches);
+    val rootEntry = new BranchLayoutEntry(rootName, rootAnnotation, childBranches);
     val branchLayout = new BranchLayout(List.of(rootEntry));
 
     // when
@@ -180,6 +181,63 @@ public class BranchLayoutTestSuite {
     // then
     assertEquals(result.getRootEntries().size(), 1);
     assertEquals(result.getRootEntries().get(0).getName(), newRootName);
+    assertEquals(result.getRootEntries().get(0).getCustomAnnotation(), rootAnnotation);
+    val children = result.getRootEntries().get(0).getChildren();
+    assertEquals(children.size(), 1);
+  }
+
+  @Test
+  public void withBranchRename_givenBranchLayout_renamesToTheSameName() {
+    // given
+    String rootName = "root";
+    String child = "child";
+
+    /*-
+        root         rename         root
+          child      ----->           child
+    */
+
+    List<BranchLayoutEntry> childBranches = List.of(
+        new BranchLayoutEntry(child, /* customAnnotation */ null, List.empty()));
+
+    val rootEntry = new BranchLayoutEntry(rootName, /* customAnnotation */ null, childBranches);
+    val branchLayout = new BranchLayout(List.of(rootEntry));
+
+    // when
+    BranchLayout result = branchLayout.rename(rootName, rootName);
+
+    // then
+    assertEquals(result.getRootEntries().size(), 1);
+    assertEquals(result.getRootEntries().get(0).getName(), rootName);
+    val children = result.getRootEntries().get(0).getChildren();
+    assertEquals(children.size(), 1);
+  }
+
+  @Test
+  public void withBranchRename_givenBranchLayout_renameOfNonexistingDoesNothing() {
+    // given
+    String rootName = "root";
+    String child = "child";
+    String nonExisting = "fix/foo";
+    String newNonExistingName = "bugfix/bar";
+
+    /*-
+        root         rename         root
+          child      ----->           child
+    */
+
+    List<BranchLayoutEntry> childBranches = List.of(
+        new BranchLayoutEntry(child, /* customAnnotation */ null, List.empty()));
+
+    val rootEntry = new BranchLayoutEntry(rootName, /* customAnnotation */ null, childBranches);
+    val branchLayout = new BranchLayout(List.of(rootEntry));
+
+    // when
+    BranchLayout result = branchLayout.rename(nonExisting, newNonExistingName);
+
+    // then
+    assertEquals(result.getRootEntries().size(), 1);
+    assertEquals(result.getRootEntries().get(0).getName(), rootName);
     val children = result.getRootEntries().get(0).getChildren();
     assertEquals(children.size(), 1);
   }
