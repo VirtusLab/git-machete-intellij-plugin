@@ -111,6 +111,7 @@ public class BackgroundTaskEnqueuingTestSuite extends BaseArchUnitTestSuite {
               if (callTargetName.equals("queue")
                   && callTargetOwner.isAssignableTo(com.intellij.openapi.progress.Task.Backgroundable.class) ||
                   callTargetName.equals("checkout") && callTargetOwner.isAssignableTo(git4idea.branch.GitBrancher.class) ||
+                  callTargetName.equals("renameBranch") && callTargetOwner.isAssignableTo(git4idea.branch.GitBrancher.class) ||
                   callTargetName.equals("show")
                       && callTargetOwner.isAssignableTo(com.intellij.dvcs.push.ui.VcsPushDialog.class)) {
                 String message = "a non-${ContinuesInBackgroundName} method ${method.getFullName()} " +

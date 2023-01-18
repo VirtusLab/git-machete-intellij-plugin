@@ -75,6 +75,9 @@ public class BranchLayout {
   }
 
   public BranchLayout rename(String currentBranchName, String newBranchName) {
+    if (currentBranchName.equals(newBranchName)) {
+      return new BranchLayout(rootEntries);
+    }
     return new BranchLayout(rootEntries.flatMap(rootEntry -> rename(rootEntry, currentBranchName, newBranchName)));
   }
 

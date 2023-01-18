@@ -1,8 +1,11 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQuotedStringOrCurrent;
+import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.runWriteActionOnUIThread;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
+import java.nio.file.Path;
 import java.util.Collections;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -10,7 +13,6 @@ import com.intellij.openapi.project.Project;
 import git4idea.branch.GitBranchOperationType;
 import git4idea.branch.GitBrancher;
 import git4idea.branch.GitNewBranchDialog;
-import git4idea.i18n.GitBundle;
 import git4idea.repo.GitRepository;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
@@ -19,13 +21,13 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
-import com.virtuslab.gitmachete.frontend.actions.backgroundables.RenameBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
+import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
+import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.async.ContinuesInBackground;
-import com.virtuslab.qual.guieffect.IgnoreUIThreadUnsafeCalls;
 
-@ExtensionMethod(GitMacheteBundle.class)
+@ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class})
 public abstract class BaseRenameAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
@@ -75,12 +77,11 @@ public abstract class BaseRenameAction extends BaseGitMacheteRepositoryReadyActi
 
   @ContinuesInBackground
   @UIEffect
-  @IgnoreUIThreadUnsafeCalls({"git4idea.branch.GitBrancher$renameBranch(java.lang.String, java.lang.String, java.util.List)"})
-  private static void rename(Project project,
+  private void rename(Project project,
       GitRepository gitRepository,
       String currentBranchName, BranchLayout branchLayout, IBranchLayoutWriter branchLayoutWriter) {
     val gitNewBranchDialog = new GitNewBranchDialog(project, Collections.singletonList(gitRepository),
-        GitBundle.message("branches.rename.branch", currentBranchName),
+        getString("action.GitMachete.BaseRenameAction.description").fmt(currentBranchName),
         currentBranchName,
         /* showCheckOutOption */ false,
         /* showResetOption */ false,
@@ -91,15 +92,20 @@ public abstract class BaseRenameAction extends BaseGitMacheteRepositoryReadyActi
     val options = gitNewBranchDialog.showAndGetOptions();
 
     if (options != null) {
-      GitBrancher brancher = GitBrancher.getInstance(project);
-      Runnable renameRunnable = () -> brancher.renameBranch(currentBranchName, options.getName(),
-          Collections.singletonList(gitRepository)); // runs in background
-      new RenameBackgroundable(gitRepository,
-          branchLayout,
-          branchLayoutWriter,
-          renameRunnable,
-          currentBranchName,
-          options.getName()).queue();
+      Path macheteFilePath = gitRepository.getMacheteFilePath();
+      val newBranchLayout = branchLayout.rename(currentBranchName, options.getName());
+
+      runWriteActionOnUIThread(() -> {
+        MacheteFileWriter.writeBranchLayout(
+            macheteFilePath,
+            branchLayoutWriter,
+            newBranchLayout,
+            /* backupOldLayout */ true,
+            /* requestor */ this);
+
+        GitBrancher.getInstance(project).renameBranch(currentBranchName, options.getName(),
+            Collections.singletonList(gitRepository));
+      });
     }
   }
 }
