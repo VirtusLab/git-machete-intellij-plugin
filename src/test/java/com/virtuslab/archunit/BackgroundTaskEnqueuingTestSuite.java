@@ -147,6 +147,7 @@ public class BackgroundTaskEnqueuingTestSuite extends BaseArchUnitTestSuite {
               JavaClass callTargetOwner = callTarget.getOwner();
               if (callTargetOwner.isAssignableTo(Task.Backgroundable.class) && callTargetName.equals("queue") ||
                   callTargetOwner.isAssignableTo(GitBrancher.class) && callTargetName.equals("checkout") ||
+                  callTargetOwner.isAssignableTo(GitBrancher.class) && callTargetName.equals("renameBranch") ||
                   callTargetOwner.isAssignableTo(VcsPushDialog.class) && callTargetName.equals("show") ||
                   callTarget.getRawReturnType().isEquivalentTo(java.util.concurrent.Future.class)) {
                 String message = "a non-${ContinuesInBackgroundName} method ${method.getFullName()} " +
