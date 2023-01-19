@@ -23,13 +23,13 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionChangeObserver;
-import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionComponentProvider;
+import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
 
 @CustomLog
 public final class GitRepositoryComboBox extends JComboBox<GitRepository>
     implements
       Disposable,
-      IGitRepositorySelectionComponentProvider {
+      IGitRepositorySelectionProvider {
 
   private final java.util.List<IGitRepositorySelectionChangeObserver> observers = new SmartList<>();
 

@@ -31,7 +31,7 @@
 
         <!-- Plugin-specific services -->
         <projectService
-            serviceInterface="com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionComponentProvider"
+            serviceInterface="com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider"
             serviceImplementation="com.virtuslab.gitmachete.frontend.ui.impl.gitrepositoryselection.GitRepositoryComboBox"/>
     </extensions>
 

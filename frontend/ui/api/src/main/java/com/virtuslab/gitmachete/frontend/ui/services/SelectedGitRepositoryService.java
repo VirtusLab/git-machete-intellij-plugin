@@ -8,16 +8,15 @@ import git4idea.repo.GitRepository;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionChangeObserver;
-import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionComponentProvider;
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
 
 @Service
-public final class SelectedGitRepositoryService implements IGitRepositorySelectionComponentProvider {
+public final class SelectedGitRepositoryService implements IGitRepositorySelectionProvider {
 
-  private final IGitRepositorySelectionComponentProvider selectionComponent;
+  private final IGitRepositorySelectionProvider selectionComponent;
 
   public SelectedGitRepositoryService(Project project) {
-    this.selectionComponent = project.getService(IGitRepositorySelectionComponentProvider.class);
+    this.selectionComponent = project.getService(IGitRepositorySelectionProvider.class);
   }
 
   @Override
