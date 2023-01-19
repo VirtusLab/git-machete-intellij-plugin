@@ -57,15 +57,15 @@
                 serviceInterface="com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphCache"
                 serviceImplementation="com.virtuslab.gitmachete.frontend.graph.impl.repository.RepositoryGraphCache"/>
         <applicationService
-                serviceInterface="com.virtuslab.gitmachete.frontend.ui.api.table.IBaseEnhancedGraphTableFactory"
-                serviceImplementation="com.virtuslab.gitmachete.frontend.ui.impl.table.EnhancedGraphTableFactory"/>
-        <applicationService
                 serviceInterface="com.virtuslab.gitmachete.frontend.ui.api.table.ISimpleGraphTableProvider"
                 serviceImplementation="com.virtuslab.gitmachete.frontend.ui.impl.table.SimpleGraphTableProvider"/>
 
         <projectService
                 serviceInterface="com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider"
                 serviceImplementation="com.virtuslab.gitmachete.frontend.ui.impl.gitrepositoryselection.GitRepositoryComboBox"/>
+        <projectService
+                serviceInterface="com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable"
+                serviceImplementation="com.virtuslab.gitmachete.frontend.ui.impl.table.EnhancedGraphTable"/>
     </extensions>
 
     <resource-bundle>GitMacheteBundle</resource-bundle>

@@ -11,7 +11,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
-import com.virtuslab.gitmachete.frontend.ui.services.GraphTableService;
 
 public abstract class BaseProjectDependentAction extends DumbAwareAction implements IWithLogger {
   @UIEffect
@@ -61,7 +60,7 @@ public abstract class BaseProjectDependentAction extends DumbAwareAction impleme
   }
 
   protected BaseEnhancedGraphTable getGraphTable(AnActionEvent anActionEvent) {
-    return getProject(anActionEvent).getService(GraphTableService.class).getGraphTable();
+    return getProject(anActionEvent).getService(BaseEnhancedGraphTable.class);
   }
 
   protected @Nullable GitRepository getSelectedGitRepository(AnActionEvent anActionEvent) {

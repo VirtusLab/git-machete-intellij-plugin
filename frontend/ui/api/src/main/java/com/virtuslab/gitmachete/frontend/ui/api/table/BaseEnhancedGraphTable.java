@@ -6,18 +6,21 @@ import javax.swing.table.AbstractTableModel;
 
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 
 /**
  *  This class compared to SimpleGraphTable has graph table refreshing
  */
 
-public abstract class BaseEnhancedGraphTable extends BaseGraphTable
-    implements
-      IGitMacheteRepositorySnapshotProvider {
+public abstract class BaseEnhancedGraphTable extends BaseGraphTable {
   @UIEffect
   protected BaseEnhancedGraphTable(AbstractTableModel model) {
     super(model);
   }
+
+  public abstract @Nullable IGitMacheteRepositorySnapshot getGitMacheteRepositorySnapshot();
 
   @UIEffect
   public abstract void setListingCommits(boolean isListingCommits);

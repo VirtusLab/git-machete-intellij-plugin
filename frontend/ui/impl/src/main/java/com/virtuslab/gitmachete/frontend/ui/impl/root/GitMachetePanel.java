@@ -24,7 +24,6 @@ import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.impl.RediscoverSuggester;
-import com.virtuslab.gitmachete.frontend.ui.services.GraphTableService;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 
 @ExtensionMethod(GitVfsUtils.class)
@@ -64,7 +63,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
   }
 
   public BaseEnhancedGraphTable getGraphTable() {
-    return project.getService(GraphTableService.class).getGraphTable();
+    return project.getService(BaseEnhancedGraphTable.class);
   }
 
   @UIEffect

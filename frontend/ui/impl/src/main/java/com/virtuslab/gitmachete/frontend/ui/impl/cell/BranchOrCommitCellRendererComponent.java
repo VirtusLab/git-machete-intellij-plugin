@@ -66,7 +66,7 @@ import com.virtuslab.gitmachete.frontend.graph.api.paint.IGraphCellPainterFactor
 import com.virtuslab.gitmachete.frontend.graph.api.paint.PaintParameters;
 import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IRenderPart;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
-import com.virtuslab.gitmachete.frontend.ui.api.table.IGitMacheteRepositorySnapshotProvider;
+import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 
 @ExtensionMethod({GitMacheteBundle.class, StringEscapeUtils.class})
 public final class BranchOrCommitCellRendererComponent extends SimpleColoredRenderer {
@@ -93,9 +93,9 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
 
     this.graphTable = table;
 
-    assert table instanceof IGitMacheteRepositorySnapshotProvider
-        : "Table variable is not instance of ${IGitMacheteRepositorySnapshotProvider.class.getSimpleName()}";
-    val gitMacheteRepositorySnapshot = ((IGitMacheteRepositorySnapshotProvider) graphTable).getGitMacheteRepositorySnapshot();
+    assert table instanceof BaseEnhancedGraphTable
+        : "Table variable is not instance of ${BaseEnhancedGraphTable.class.getSimpleName()}";
+    val gitMacheteRepositorySnapshot = ((BaseEnhancedGraphTable) graphTable).getGitMacheteRepositorySnapshot();
 
     assert value instanceof BranchOrCommitCell : "value is not an instance of " + BranchOrCommitCell.class.getSimpleName();
     val cell = (BranchOrCommitCell) value;
