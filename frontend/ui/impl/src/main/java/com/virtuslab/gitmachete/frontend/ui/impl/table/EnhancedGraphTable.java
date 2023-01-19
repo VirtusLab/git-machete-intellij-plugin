@@ -80,7 +80,6 @@ import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepos
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRenderer;
-import com.virtuslab.gitmachete.frontend.ui.services.SelectedGitRepositoryService;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.async.DoesNotContinueInBackground;
@@ -185,7 +184,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   }
 
   private IGitRepositorySelectionProvider getGitRepositorySelectionProvider() {
-    return project.getService(SelectedGitRepositoryService.class).getGitRepositorySelectionProvider();
+    return project.getService(IGitRepositorySelectionProvider.class);
   }
 
   private void subscribeToMacheteFileChange() {

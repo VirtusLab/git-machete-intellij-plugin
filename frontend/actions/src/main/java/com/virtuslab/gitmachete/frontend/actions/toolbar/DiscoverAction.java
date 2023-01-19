@@ -34,8 +34,8 @@ import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction
 import com.virtuslab.gitmachete.frontend.actions.dialogs.GraphTableDialog;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
+import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
-import com.virtuslab.gitmachete.frontend.ui.services.SelectedGitRepositoryService;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.guieffect.IgnoreUIThreadUnsafeCalls;
@@ -56,9 +56,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     val project = getProject(anActionEvent);
-    val selectedRepoService = project.getService(SelectedGitRepositoryService.class)
-        .getGitRepositorySelectionProvider();
-    val gitRepository = selectedRepoService.getSelectedGitRepository();
+    val gitRepository = project.getService(IGitRepositorySelectionProvider.class).getSelectedGitRepository();
     if (gitRepository == null) {
       VcsNotifier.getInstance(project).notifyError(
           /* displayId */ null,

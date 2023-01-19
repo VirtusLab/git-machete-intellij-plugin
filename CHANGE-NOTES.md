@@ -2,6 +2,8 @@
 
 ## v3.3.2
 
+- Fixed poor performance of action updates, as reported by @ekitrak.
+
 ## v3.3.1
 - Fixed a race condition in the Slide-out action.
 - Fixed a `NullPointerException` in Override Fork Point action.

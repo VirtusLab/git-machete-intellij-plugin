@@ -21,10 +21,10 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.defs.ActionGroupIds;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
+import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.impl.RediscoverSuggester;
 import com.virtuslab.gitmachete.frontend.ui.services.GraphTableService;
-import com.virtuslab.gitmachete.frontend.ui.services.SelectedGitRepositoryService;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 
 @ExtensionMethod(GitVfsUtils.class)
@@ -39,8 +39,8 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     LOG.debug("Instantiating");
     this.project = project;
 
-    val selectedGitRepositoryService = project.getService(SelectedGitRepositoryService.class);
-    val selectionComponent = selectedGitRepositoryService.getSelectionComponent();
+    val gitRepositorySelectionProvider = project.getService(IGitRepositorySelectionProvider.class);
+    val selectionComponent = gitRepositorySelectionProvider.getSelectionComponent();
     val graphTable = getGraphTable();
 
     // This class is final, so the instance is `@Initialized` at this point.
@@ -52,7 +52,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     addAncestorListener(new AncestorListenerAdapter() {
       @Override
       public void ancestorAdded(AncestorEvent event) {
-        val gitRepository = selectedGitRepositoryService.getSelectedGitRepository();
+        val gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository();
         if (gitRepository != null) {
           val macheteFilePath = gitRepository.getMacheteFilePath();
           Runnable queueDiscoverOperation = () -> graphTable.queueDiscover(macheteFilePath, () -> {});
