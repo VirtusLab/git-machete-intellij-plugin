@@ -59,7 +59,6 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
@@ -133,9 +132,9 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     super(new GraphTableModel(NullRepositoryGraph.getInstance()));
 
     this.project = project;
-    this.branchLayoutReader = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutReader.class);
-    this.branchLayoutWriter = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutWriter.class);
-    this.repositoryGraphCache = RuntimeBinding.instantiateSoleImplementingClass(IRepositoryGraphCache.class);
+    this.branchLayoutReader = ApplicationManager.getApplication().getService(IBranchLayoutReader.class);
+    this.branchLayoutWriter = ApplicationManager.getApplication().getService(IBranchLayoutWriter.class);
+    this.repositoryGraphCache = ApplicationManager.getApplication().getService(IRepositoryGraphCache.class);
     this.isListingCommits = false;
 
     // InitializationChecker allows us to invoke the below methods because the class is final

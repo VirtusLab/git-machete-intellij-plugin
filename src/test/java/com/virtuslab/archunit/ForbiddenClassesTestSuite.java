@@ -10,7 +10,6 @@ public class ForbiddenClassesTestSuite extends BaseArchUnitTestSuite {
   public void no_classes_should_depend_on_java_collections() {
     noClasses()
         .that().resideOutsideOfPackages(
-            "com.virtuslab.binding",
             "com.virtuslab.gitmachete.frontend.actions..",
             "com.virtuslab.gitmachete.frontend.file..",
             "com.virtuslab..impl..")

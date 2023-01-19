@@ -157,13 +157,7 @@ and include the logs from IntelliJ in the issue.
 Go to `Help > Diagnostic Tools > Debug Log Settings` and then paste the following lines:
 
 ```
-binding
-branchlayout
-gitcore
-gitmachete.backend
-gitmachete.frontend.actions
-gitmachete.frontend.graph
-gitmachete.frontend.ui
+com.virtuslab
 ```
 
 Then reproduce the bug and go to `Help > Show Log in Files` (`Help > Show Log in Finder` on macOS) to open the log file.

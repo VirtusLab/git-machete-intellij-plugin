@@ -196,7 +196,7 @@ allprojects {
   configureCheckstyle()
   configureSpotless()
 
-  // A few libraries (like JGit and reflections) transitively pull in a version of slf4j-api
+  // A few libraries (like JGit) transitively pull in a version of slf4j-api
   // that might be different from the slf4j-api version that IntelliJ depends on.
   // SLF4J guarantees that the code compiled against a certain slf4j-api version will work with any
   // other version of slf4j-api (http://www.slf4j.org/manual.html#compatibility).

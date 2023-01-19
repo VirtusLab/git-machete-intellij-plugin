@@ -8,6 +8,7 @@ import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteF
 import java.io.IOException;
 import java.util.Collections;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -25,7 +26,6 @@ import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
@@ -162,7 +162,7 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
     blockingRunWriteActionOnUIThread(() -> {
       try {
         val macheteFilePath = getMacheteFilePath(gitRepository);
-        val branchLayoutWriter = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutWriter.class);
+        val branchLayoutWriter = ApplicationManager.getApplication().getService(IBranchLayoutWriter.class);
         LOG.info("Writing new branch layout into ${macheteFilePath}");
         MacheteFileWriter.writeBranchLayout(macheteFilePath, branchLayoutWriter,
             newBranchLayout, /* backupOldFile */ true, /* requestor */ this);

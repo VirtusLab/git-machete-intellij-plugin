@@ -37,6 +37,7 @@ import java.util.Objects;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.SimpleColoredRenderer;
 import com.intellij.ui.SimpleTextAttributes;
@@ -52,7 +53,6 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.index.qual.NonNegative;
 import org.checkerframework.checker.index.qual.Positive;
 
-import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.IRootManagedBranchSnapshot;
@@ -73,8 +73,8 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
   private static final String CELL_TEXT_FRAGMENTS_SPACING = "   ";
   private static final String HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW = "\u2794";
 
-  private static final IGraphCellPainterFactory graphCellPainterFactoryInstance = RuntimeBinding
-      .instantiateSoleImplementingClass(IGraphCellPainterFactory.class);
+  private static final IGraphCellPainterFactory graphCellPainterFactoryInstance = ApplicationManager.getApplication()
+      .getService(IGraphCellPainterFactory.class);
 
   private final JTable graphTable;
   private final BufferedImage graphImage;

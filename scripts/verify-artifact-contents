@@ -34,7 +34,7 @@ done
 # Since Gradle Kotlin plugin 1.4.0, kotlin-stdlib is automatically packaged into the plugin zip
 # (https://kotlinlang.org/docs/whatsnew14.html#dependency-on-the-standard-library-added-by-default),
 # but kotlin-reflect needs to be added by us explicitly since it's required in the runtime.
-expected_libraries=(org.eclipse.jgit reflections slf4j-lambda-core vavr vavr-match)
+expected_libraries=(org.eclipse.jgit slf4j-lambda-core vavr vavr-match)
 for lib in "${expected_libraries[@]}"; do
   grep -qEx "${lib//./\\.}-[0-9.]+.*\.jar" <<< "$jars_in_plugin_zip" || fail "$lib jar is expected but missing from $plugin_zip"
 done

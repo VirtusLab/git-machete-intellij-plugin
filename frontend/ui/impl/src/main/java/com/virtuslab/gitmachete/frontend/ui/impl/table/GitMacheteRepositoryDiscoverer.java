@@ -7,6 +7,7 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -18,7 +19,6 @@ import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
@@ -62,8 +62,7 @@ public class GitMacheteRepositoryDiscoverer {
         IGitMacheteRepository repository;
 
         try {
-          repository = RuntimeBinding
-              .instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
+          repository = ApplicationManager.getApplication().getService(IGitMacheteRepositoryCache.class)
               .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath);
         } catch (GitMacheteException e) {
           LOG.debug("Instantiation failed");
@@ -96,7 +95,7 @@ public class GitMacheteRepositoryDiscoverer {
           return;
         }
 
-        val branchLayoutWriter = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutWriter.class);
+        val branchLayoutWriter = ApplicationManager.getApplication().getService(IBranchLayoutWriter.class);
         val branchLayout = repositorySnapshot.getBranchLayout();
 
         runWriteActionOnUIThread(() -> {

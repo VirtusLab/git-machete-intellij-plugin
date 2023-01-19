@@ -14,6 +14,7 @@ import com.intellij.lang.ASTNode;
 import com.intellij.lang.annotation.AnnotationHolder;
 import com.intellij.lang.annotation.Annotator;
 import com.intellij.lang.annotation.HighlightSeverity;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -28,7 +29,6 @@ import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.BranchLayoutEntry;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
@@ -92,7 +92,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
      * isBranchNameRepeated(branchLayoutReader, file, processedBranchName) is invoked, saveDocument(file) is already completed.
      * UI thread might be busy with other operations, and it might take while for the execution of saveDocument(file) to start.
      */
-    val branchLayoutReader = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutReader.class);
+    val branchLayoutReader = ApplicationManager.getApplication().getService(IBranchLayoutReader.class);
     try {
       if (isBranchNameRepeated(branchLayoutReader, file, processedBranchName)) {
         holder.newAnnotation(HighlightSeverity.ERROR,

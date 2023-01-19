@@ -2,13 +2,13 @@ package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
 import javax.swing.ListSelectionModel;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.ui.ScrollingUtil;
 import com.intellij.util.ui.JBUI;
 import lombok.Getter;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.NullGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphCache;
@@ -33,7 +33,7 @@ public final class SimpleGraphTable extends BaseGraphTable implements IGitMachet
   @UIEffect
   private static GraphTableModel deriveGraphTableModel(IGitMacheteRepositorySnapshot macheteRepositorySnapshot,
       boolean isListingCommitsEnabled) {
-    val repositoryGraphCache = RuntimeBinding.instantiateSoleImplementingClass(IRepositoryGraphCache.class);
+    val repositoryGraphCache = ApplicationManager.getApplication().getService(IRepositoryGraphCache.class);
     val repositoryGraph = repositoryGraphCache.getRepositoryGraph(macheteRepositorySnapshot, isListingCommitsEnabled);
     return new GraphTableModel(repositoryGraph);
   }

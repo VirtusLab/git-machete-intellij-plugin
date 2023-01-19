@@ -160,12 +160,6 @@ fun Project.powerMock() {
   }
 }
 
-fun Project.reflections() {
-  dependencies {
-    "implementation"(lib("reflections"))
-  }
-}
-
 fun Project.slf4jLambdaApi() {
   dependencies {
     // It's so useful for us because we are using invocations of methods that potentially consume some time
@@ -179,7 +173,7 @@ fun Project.slf4jLambdaApi() {
 fun Project.slf4jTestImpl() {
   // We only need to provide an SLF4J implementation in the contexts which depend on the plugin
   // but don't depend on IntelliJ.
-  // In our case, that's solely the tests of backend modules.
+  // In our case, that's solely the tests of certain backend modules.
   // In other contexts that require an SLF4J implementation (buildPlugin, runIde, UI tests),
   // an SLF4J implementation is provided by IntelliJ.
   // Note that we don't need to agree the SLF4J implementation version here with slf4j-api version

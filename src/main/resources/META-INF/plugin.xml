@@ -30,9 +30,42 @@
         <langCodeStyleSettingsProvider implementation="com.virtuslab.gitmachete.frontend.file.codestyle.MacheteLanguageCodeStyleSettingsProvider"/>
 
         <!-- Plugin-specific services -->
+        <!--
+          The reasons for using such dependency injection
+          instead of simply adding more compile-time dependencies between modules:
+
+          * keep code dependent on API only and not on implementations
+          * keep the graph of dependencies sparse to ease thinking about project structure
+          * keep the critical path in Gradle module DAG as short as possible, to decrease compilation times
+        -->
+        <applicationService
+                serviceInterface="com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader"
+                serviceImplementation="com.virtuslab.branchlayout.impl.readwrite.BranchLayoutReader"/>
+        <applicationService
+                serviceInterface="com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter"
+                serviceImplementation="com.virtuslab.branchlayout.impl.readwrite.BranchLayoutWriter"/>
+        <applicationService
+                serviceInterface="com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache"
+                serviceImplementation="com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryCache"/>
+        <applicationService
+                serviceInterface="com.virtuslab.gitcore.api.IGitCoreRepositoryFactory"
+                serviceImplementation="com.virtuslab.gitcore.impl.jgit.GitCoreRepositoryFactory"/>
+        <applicationService
+                serviceInterface="com.virtuslab.gitmachete.frontend.graph.api.paint.IGraphCellPainterFactory"
+                serviceImplementation="com.virtuslab.gitmachete.frontend.graph.impl.paint.GraphCellPainterFactory"/>
+        <applicationService
+                serviceInterface="com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphCache"
+                serviceImplementation="com.virtuslab.gitmachete.frontend.graph.impl.repository.RepositoryGraphCache"/>
+        <applicationService
+                serviceInterface="com.virtuslab.gitmachete.frontend.ui.api.table.IBaseEnhancedGraphTableFactory"
+                serviceImplementation="com.virtuslab.gitmachete.frontend.ui.impl.table.EnhancedGraphTableFactory"/>
+        <applicationService
+                serviceInterface="com.virtuslab.gitmachete.frontend.ui.api.table.ISimpleGraphTableProvider"
+                serviceImplementation="com.virtuslab.gitmachete.frontend.ui.impl.table.SimpleGraphTableProvider"/>
+
         <projectService
-            serviceInterface="com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider"
-            serviceImplementation="com.virtuslab.gitmachete.frontend.ui.impl.gitrepositoryselection.GitRepositoryComboBox"/>
+                serviceInterface="com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider"
+                serviceImplementation="com.virtuslab.gitmachete.frontend.ui.impl.gitrepositoryselection.GitRepositoryComboBox"/>
     </extensions>
 
     <resource-bundle>GitMacheteBundle</resource-bundle>

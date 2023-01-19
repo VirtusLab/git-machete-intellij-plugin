@@ -1,7 +1,6 @@
 import com.virtuslab.gitmachete.buildsrc.*
 
 dependencies {
-  implementation(project(":binding"))
   implementation(project(":branchLayout:api"))
   implementation(project(":backend:api"))
   implementation(project(":frontend:base"))

@@ -124,12 +124,9 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
     val classesReferencedFromPluginXmlAttributes = extractAllClassesReferencedFromPluginXmlAttributes().toArray(Class[]::new);
     classes()
         .that().doNotHaveModifier(SYNTHETIC)
-        .and().resideOutsideOfPackages(
-            // Classes in *.impl.* packages may be instantiated via RuntimeBinding
-            "..impl..",
-            // For some reason, ArchUnit (com.tngtech.archunit.core.domain.JavaClass.getAccessesFromSelf)
-            // doesn't see accesses to static fields
-            "com.virtuslab.gitmachete.frontend.defs")
+        // For some reason, ArchUnit (com.tngtech.archunit.core.domain.JavaClass.getAccessesFromSelf)
+        // doesn't see accesses to static fields
+        .and().resideOutsideOfPackages("com.virtuslab.gitmachete.frontend.defs")
         .and().doNotBelongToAnyOf(classesReferencedFromPluginXmlAttributes)
         // SubtypingBottom is processed by CheckerFramework based on its annotations
         .and().doNotHaveFullyQualifiedName(com.virtuslab.qual.internal.SubtypingBottom.class.getName())

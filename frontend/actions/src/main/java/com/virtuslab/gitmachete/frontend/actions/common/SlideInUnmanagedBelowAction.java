@@ -1,13 +1,13 @@
 package com.virtuslab.gitmachete.frontend.actions.common;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.ApplicationManager;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayoutEntry;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideInNonRootBackgroundable;
@@ -40,7 +40,7 @@ public class SlideInUnmanagedBelowAction extends BaseGitMacheteRepositoryReadyAc
     val parentName = getSelectedBranchName(anActionEvent);
     val unmanagedBranch = getNameOfUnmanagedBranch(anActionEvent);
     val branchLayout = getBranchLayout(anActionEvent);
-    val branchLayoutWriter = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutWriter.class);
+    val branchLayoutWriter = ApplicationManager.getApplication().getService(IBranchLayoutWriter.class);
 
     if (gitRepository == null || branchLayout == null || unmanagedBranch == null) {
       return;

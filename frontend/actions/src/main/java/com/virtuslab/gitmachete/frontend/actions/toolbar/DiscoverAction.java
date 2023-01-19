@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 
 import com.intellij.ide.actions.OpenFileAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -25,7 +26,6 @@ import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
@@ -70,13 +70,13 @@ public class DiscoverAction extends BaseProjectDependentAction {
     val worktreeGitDirPath = gitRepository.getWorktreeGitDirectoryPath().toAbsolutePath();
 
     val graphTable = getGraphTable(anActionEvent);
-    val branchLayoutWriter = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutWriter.class);
+    val branchLayoutWriter = ApplicationManager.getApplication().getService(IBranchLayoutWriter.class);
 
     try {
       // Note that we're essentially doing a heavy-ish operation of discoverLayoutAndCreateSnapshot on UI thread here.
       // This is still acceptable since it simplifies the flow (no background task needed)
       // and this action is not going to be invoked frequently (probably just once for a given project).
-      val repoSnapshot = RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
+      val repoSnapshot = ApplicationManager.getApplication().getService(IGitMacheteRepositoryCache.class)
           .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath)
           .discoverLayoutAndCreateSnapshot();
 

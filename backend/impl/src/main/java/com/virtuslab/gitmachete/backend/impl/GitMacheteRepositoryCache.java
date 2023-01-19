@@ -3,13 +3,13 @@ package com.virtuslab.gitmachete.backend.impl;
 import java.lang.ref.SoftReference;
 import java.nio.file.Path;
 
+import com.intellij.openapi.application.ApplicationManager;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
 import lombok.val;
 
-import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitcore.api.IGitCoreRepositoryFactory;
@@ -26,7 +26,7 @@ public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
   private static Map<Tuple2<Path, Path>, SoftReference<GitMacheteRepository>> gitMacheteRepositoryCache = HashMap.empty();
 
   public GitMacheteRepositoryCache() {
-    gitCoreRepositoryFactory = RuntimeBinding.instantiateSoleImplementingClass(IGitCoreRepositoryFactory.class);
+    gitCoreRepositoryFactory = ApplicationManager.getApplication().getService(IGitCoreRepositoryFactory.class);
   }
 
   @Override

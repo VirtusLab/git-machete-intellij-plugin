@@ -6,6 +6,7 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -21,7 +22,6 @@ import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
@@ -60,7 +60,7 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
     this.doOnUIThreadWhenDone = doOnUIThreadWhenDone;
     this.gitMacheteRepositoryConsumer = gitMacheteRepositoryConsumer;
 
-    this.gitMacheteRepositoryCache = RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class);
+    this.gitMacheteRepositoryCache = ApplicationManager.getApplication().getService(IGitMacheteRepositoryCache.class);
   }
 
   @UIThreadUnsafe

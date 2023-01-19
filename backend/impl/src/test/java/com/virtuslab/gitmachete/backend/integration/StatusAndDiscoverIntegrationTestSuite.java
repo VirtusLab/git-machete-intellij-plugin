@@ -17,6 +17,8 @@ import static org.junit.runners.Parameterized.Parameters;
 import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
 
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
 import io.vavr.collection.List;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -28,20 +30,28 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.junit4.PowerMockRunnerDelegate;
 
-import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
+import com.virtuslab.branchlayout.impl.readwrite.BranchLayoutReader;
+import com.virtuslab.gitcore.api.IGitCoreRepositoryFactory;
+import com.virtuslab.gitcore.impl.jgit.GitCoreRepositoryFactory;
 import com.virtuslab.gitmachete.backend.api.*;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.testcommon.BaseGitRepositoryBackedIntegrationTestSuite;
 
-@RunWith(Parameterized.class)
+@RunWith(PowerMockRunner.class)
+@PowerMockRunnerDelegate(Parameterized.class)
+@PrepareForTest(ApplicationManager.class)
 public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBackedIntegrationTestSuite {
 
-  private final IBranchLayoutReader branchLayoutReader = RuntimeBinding
-      .instantiateSoleImplementingClass(IBranchLayoutReader.class);
-  private final GitMacheteRepositoryCache gitMacheteRepositoryCache = new GitMacheteRepositoryCache();
+  private static final IGitCoreRepositoryFactory gitCoreRepositoryFactory = new GitCoreRepositoryFactory();
+
+  private final IBranchLayoutReader branchLayoutReader = new BranchLayoutReader();
   private final IGitMacheteRepository gitMacheteRepository;
   private IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot;
 
@@ -53,6 +63,13 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseGitRepositoryBack
   @SneakyThrows
   public StatusAndDiscoverIntegrationTestSuite(String scriptName) {
     super(scriptName);
+
+    // This setup needs to happen BEFORE GitMacheteRepositoryCache is created
+    val application = PowerMockito.mock(Application.class);
+    PowerMockito.when(application.getService(IGitCoreRepositoryFactory.class)).thenReturn(gitCoreRepositoryFactory);
+    PowerMockito.stub(PowerMockito.method(ApplicationManager.class, "getApplication")).toReturn(application);
+
+    GitMacheteRepositoryCache gitMacheteRepositoryCache = new GitMacheteRepositoryCache();
     gitMacheteRepository = gitMacheteRepositoryCache.getInstance(rootDirectoryPath, mainGitDirectoryPath,
         worktreeGitDirectoryPath);
   }

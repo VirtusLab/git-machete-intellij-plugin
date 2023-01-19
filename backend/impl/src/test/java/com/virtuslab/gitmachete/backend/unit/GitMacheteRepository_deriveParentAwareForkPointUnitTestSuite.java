@@ -91,7 +91,7 @@ public class GitMacheteRepository_deriveParentAwareForkPointUnitTestSuite extend
     IGitCoreCommit result = invokeDeriveParentAwareForkPoint(childBranch, parentBranch);
 
     // then
-    Assert.assertTrue(result != null);
+    Assert.assertNotNull(result);
     Assert.assertEquals(parentCommit, result);
   }
 }

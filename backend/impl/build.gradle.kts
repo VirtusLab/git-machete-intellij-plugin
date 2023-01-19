@@ -1,24 +1,23 @@
 import com.virtuslab.gitmachete.buildsrc.*
 
 dependencies {
-  implementation(project(":binding"))
   implementation(project(":gitCore:api"))
 
   api(project(":backend:api"))
   api(project(":branchLayout:api"))
 
   testImplementation(testFixtures(project(":testCommon")))
-  testRuntimeOnly(project(":branchLayout:impl"))
-  testRuntimeOnly(project(":gitCore:jGit"))
+  testImplementation(project(":branchLayout:impl"))
+  testImplementation(project(":gitCore:jGit"))
 }
 
+addIntellijToCompileClasspath(withGit4Idea = false)
 commonsIO()
 jcabiAspects()
 junit()
 lombok()
 powerMock()
 slf4jLambdaApi()
-slf4jTestImpl()
 vavr()
 
 applySubtypingChecker()

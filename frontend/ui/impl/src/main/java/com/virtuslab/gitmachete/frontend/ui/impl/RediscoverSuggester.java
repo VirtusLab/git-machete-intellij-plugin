@@ -5,6 +5,7 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 
 import java.nio.file.Path;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -19,7 +20,6 @@ import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
-import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
@@ -38,8 +38,8 @@ public class RediscoverSuggester {
 
   private final Runnable queueDiscoverOperation;
 
-  private final IBranchLayoutReader branchLayoutReader = RuntimeBinding
-      .instantiateSoleImplementingClass(IBranchLayoutReader.class);
+  private final IBranchLayoutReader branchLayoutReader = ApplicationManager.getApplication()
+      .getService(IBranchLayoutReader.class);
 
   // TODO (#270): a candidate for custom settings tab
   private final int DAYS_AFTER_WHICH_TO_SUGGEST_DISCOVER = 14;
@@ -135,7 +135,7 @@ public class RediscoverSuggester {
     Path worktreeGitDirPath = gitRepository.getWorktreeGitDirectoryPath().toAbsolutePath();
 
     try {
-      val discoverRunResult = RuntimeBinding.instantiateSoleImplementingClass(IGitMacheteRepositoryCache.class)
+      val discoverRunResult = ApplicationManager.getApplication().getService(IGitMacheteRepositoryCache.class)
           .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath).discoverLayoutAndCreateSnapshot();
 
       val currentBranchLayout = ReadAction

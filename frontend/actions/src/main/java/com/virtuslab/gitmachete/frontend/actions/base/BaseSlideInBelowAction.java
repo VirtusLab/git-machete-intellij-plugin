@@ -11,6 +11,7 @@ import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
 import java.util.Collections;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitRemoteBranch;
 import git4idea.branch.GitNewBranchDialog;
@@ -26,7 +27,6 @@ import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayoutEntry;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
@@ -80,7 +80,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
     val gitRepository = getSelectedGitRepository(anActionEvent);
     val parentName = getNameOfBranchUnderAction(anActionEvent);
     val branchLayout = getBranchLayout(anActionEvent);
-    val branchLayoutWriter = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutWriter.class);
+    val branchLayoutWriter = ApplicationManager.getApplication().getService(IBranchLayoutWriter.class);
 
     if (gitRepository == null || parentName == null || branchLayout == null) {
       return;

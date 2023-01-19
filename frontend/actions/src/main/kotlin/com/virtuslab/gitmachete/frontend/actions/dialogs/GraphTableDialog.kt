@@ -1,11 +1,11 @@
 package com.virtuslab.gitmachete.frontend.actions.dialogs
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.ScrollPaneFactory
 import com.intellij.ui.table.JBTable
 import com.intellij.util.ui.JBDimension
 import com.intellij.util.ui.JBUI
-import com.virtuslab.binding.RuntimeBinding
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
 import com.virtuslab.gitmachete.frontend.ui.api.table.ISimpleGraphTableProvider
@@ -50,7 +50,7 @@ private constructor(
       cancelButtonVisible: Boolean,
       shouldDisplayActionToolTips: Boolean
     ) =
-      RuntimeBinding.instantiateSoleImplementingClass(ISimpleGraphTableProvider::class.java)
+      ApplicationManager.getApplication().getService(ISimpleGraphTableProvider::class.java)
         .deriveInstance(
           gitMacheteRepositorySnapshot,
           /* isListingCommitsEnabled */ false,
@@ -71,7 +71,7 @@ private constructor(
         }
 
     fun ofDemoRepository() =
-      RuntimeBinding.instantiateSoleImplementingClass(ISimpleGraphTableProvider::class.java)
+      ApplicationManager.getApplication().getService(ISimpleGraphTableProvider::class.java)
         .deriveDemoInstance()
         .let {
           GraphTableDialog(

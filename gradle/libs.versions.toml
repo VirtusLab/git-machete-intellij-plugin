@@ -24,7 +24,6 @@ junit = "junit:junit:4.13.2"
 lombok = "org.projectlombok:lombok:1.18.24"
 powerMock-apiMockito2 = { module = "org.powermock:powermock-api-mockito2", version.ref = "powerMock" }
 powerMock-moduleJunit4 = { module = "org.powermock:powermock-module-junit4", version.ref = "powerMock" }
-reflections = "org.reflections:reflections:0.10.2"
 scala-library = "org.scala-lang:scala-library:2.13.8"
 slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
 # @pin because slf4j-simple 2.0.0 isn't compatible with slf4j-api v1.x.y, which is still pulled in by our dependencies.
