@@ -7,10 +7,8 @@ import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionChangeObserver;
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionComponentProvider;
-import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionComponentProviderFactory;
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
 
 @Service
@@ -19,9 +17,7 @@ public final class SelectedGitRepositoryService implements IGitRepositorySelecti
   private final IGitRepositorySelectionComponentProvider selectionComponent;
 
   public SelectedGitRepositoryService(Project project) {
-    this.selectionComponent = RuntimeBinding
-        .instantiateSoleImplementingClass(IGitRepositorySelectionComponentProviderFactory.class)
-        .create(project);
+    this.selectionComponent = project.getService(IGitRepositorySelectionComponentProvider.class);
   }
 
   @Override

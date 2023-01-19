@@ -28,6 +28,11 @@
         <lang.parserDefinition language="Git Machete" implementationClass="com.virtuslab.gitmachete.frontend.file.grammar.MacheteParserDefinition"/>
         <lang.syntaxHighlighterFactory language="Git Machete" implementationClass="com.virtuslab.gitmachete.frontend.file.highlighting.MacheteSyntaxHighlighterFactory"/>
         <langCodeStyleSettingsProvider implementation="com.virtuslab.gitmachete.frontend.file.codestyle.MacheteLanguageCodeStyleSettingsProvider"/>
+
+        <!-- Plugin-specific services -->
+        <projectService
+            serviceInterface="com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionComponentProvider"
+            serviceImplementation="com.virtuslab.gitmachete.frontend.ui.impl.gitrepositoryselection.GitRepositoryComboBox"/>
     </extensions>
 
     <resource-bundle>GitMacheteBundle</resource-bundle>
