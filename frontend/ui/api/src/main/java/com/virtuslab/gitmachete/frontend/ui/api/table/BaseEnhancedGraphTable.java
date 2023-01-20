@@ -4,23 +4,20 @@ import java.nio.file.Path;
 
 import javax.swing.table.AbstractTableModel;
 
+import com.intellij.openapi.project.Project;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
-import org.checkerframework.checker.nullness.qual.Nullable;
-
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 
 /**
- *  This class compared to SimpleGraphTable has graph table refreshing
+ *  This class compared to {@code SimpleGraphTable} has graph table refreshing.
+ *  Also, while there may be multiple {@code SimpleGraphTable}s per {@link Project},
+ *  there can only be a single {@code BaseEnhancedGraphTable}.
  */
-
 public abstract class BaseEnhancedGraphTable extends BaseGraphTable {
   @UIEffect
   protected BaseEnhancedGraphTable(AbstractTableModel model) {
     super(model);
   }
-
-  public abstract @Nullable IGitMacheteRepositorySnapshot getGitMacheteRepositorySnapshot();
 
   @UIEffect
   public abstract void setListingCommits(boolean isListingCommits);

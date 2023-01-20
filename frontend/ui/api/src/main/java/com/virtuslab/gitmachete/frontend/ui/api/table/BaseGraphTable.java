@@ -9,6 +9,9 @@ import javax.swing.table.TableModel;
 import com.intellij.ui.table.JBTable;
 import io.vavr.collection.List;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
+import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 
 public abstract class BaseGraphTable extends JBTable {
   private static int GRAPH_COLUMN_RIGHT_PADDING = 25;
@@ -25,6 +28,8 @@ public abstract class BaseGraphTable extends JBTable {
     // to be displayed on the whole Git Machete panel width instead of just over the text.
     setAutoResizeMode(JBTable.AUTO_RESIZE_OFF);
   }
+
+  public abstract @Nullable IGitMacheteRepositorySnapshot getGitMacheteRepositorySnapshot();
 
   /**
    * This method that overrides {@link JBTable#prepareRenderer} is responsible for setting column size that fits the content

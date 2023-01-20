@@ -66,7 +66,7 @@ import com.virtuslab.gitmachete.frontend.graph.api.paint.IGraphCellPainterFactor
 import com.virtuslab.gitmachete.frontend.graph.api.paint.PaintParameters;
 import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IRenderPart;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
-import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
+import com.virtuslab.gitmachete.frontend.ui.api.table.BaseGraphTable;
 
 @ExtensionMethod({GitMacheteBundle.class, StringEscapeUtils.class})
 public final class BranchOrCommitCellRendererComponent extends SimpleColoredRenderer {
@@ -93,11 +93,10 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
 
     this.graphTable = table;
 
-    assert table instanceof BaseEnhancedGraphTable
-        : "Table variable is not instance of ${BaseEnhancedGraphTable.class.getSimpleName()}";
-    val gitMacheteRepositorySnapshot = ((BaseEnhancedGraphTable) graphTable).getGitMacheteRepositorySnapshot();
+    assert table instanceof BaseGraphTable : "`table` is not an instance of " + BaseGraphTable.class.getSimpleName();
+    val gitMacheteRepositorySnapshot = ((BaseGraphTable) graphTable).getGitMacheteRepositorySnapshot();
 
-    assert value instanceof BranchOrCommitCell : "value is not an instance of " + BranchOrCommitCell.class.getSimpleName();
+    assert value instanceof BranchOrCommitCell : "`value` is not an instance of " + BranchOrCommitCell.class.getSimpleName();
     val cell = (BranchOrCommitCell) value;
 
     IGraphItem graphItem = cell.getGraphItem();
@@ -236,7 +235,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
   }
 
   private static @NonNegative int getMaxGraphNodePositionInRow(IGraphItem graphItem) {
-    // If item is a child (non root) branch, then the text must be shifted right to make place
+    // If item is a child (non-root) branch, then the text must be shifted right to make place
     // for the corresponding the right edge to the left.
     // If item is a commit, then the text must be shifted right to keep it horizontally aligned
     // with the corresponding branch item.
