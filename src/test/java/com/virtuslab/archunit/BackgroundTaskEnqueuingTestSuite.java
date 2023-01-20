@@ -4,7 +4,11 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 
 import java.util.Arrays;
 
+import com.intellij.dvcs.push.ui.VcsPushDialog;
 import com.intellij.openapi.progress.Task;
+import com.intellij.vcs.log.VcsLog;
+import com.intellij.openapi.progress.Task;
+import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.AccessTarget;
 import com.tngtech.archunit.core.domain.JavaClass;
@@ -13,6 +17,7 @@ import com.tngtech.archunit.core.domain.JavaMethodCall;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
+import git4idea.branch.GitBrancher;
 import io.vavr.collection.List;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
@@ -143,11 +148,10 @@ public class BackgroundTaskEnqueuingTestSuite extends BaseArchUnitTestSuite {
               val callTarget = call.getTarget();
               String callTargetName = callTarget.getName();
               JavaClass callTargetOwner = callTarget.getOwner();
-              if (callTargetName.equals("queue")
-                  && callTargetOwner.isAssignableTo(com.intellij.openapi.progress.Task.Backgroundable.class) ||
-                  callTargetName.equals("checkout") && callTargetOwner.isAssignableTo(git4idea.branch.GitBrancher.class) ||
-                  callTargetName.equals("show")
-                      && callTargetOwner.isAssignableTo(com.intellij.dvcs.push.ui.VcsPushDialog.class)) {
+              if (callTargetOwner.isAssignableTo(Task.Backgroundable.class) && callTargetName.equals("queue") ||
+                  callTargetOwner.isAssignableTo(GitBrancher.class) && callTargetName.equals("checkout") ||
+                  callTargetOwner.isAssignableTo(VcsPushDialog.class) && callTargetName.equals("show") ||
+                  callTargetOwner.isAssignableTo(VcsLog.class) && callTargetName.equals("jumpToReference")) {
                 String message = "a non-${ContinuesInBackgroundName} method ${method.getFullName()} " +
                     "enqueues a background task via method ${callTarget.getFullName()}; " +
                     "mark this method as ${ContinuesInBackgroundName} if you're aware of the race conditions " +

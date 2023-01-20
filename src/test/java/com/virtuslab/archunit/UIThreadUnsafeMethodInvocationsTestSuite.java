@@ -4,6 +4,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 
 import java.util.Arrays;
 
+import com.intellij.openapi.progress.Task;
 import com.tngtech.archunit.core.domain.AccessTarget;
 import com.tngtech.archunit.core.domain.JavaCall;
 import com.tngtech.archunit.core.domain.JavaClass;
@@ -24,6 +25,21 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSuite {
 
   private static final String UIThreadUnsafeName = "@" + UIThreadUnsafe.class.getSimpleName();
+
+  @Test
+  public void task_backgroundable_run_methods_must_be_ui_thread_unsafe() {
+    methods()
+        .that()
+        .haveName("run")
+        .and()
+        .areDeclaredInClassesThat()
+        .areAssignableTo(Task.Backgroundable.class)
+        .should()
+        .beAnnotatedWith(UIThreadUnsafe.class)
+        .because("it probably doesn't make sense to extract a backgroundable task " +
+            "for actions that can as well be executed on UI thread")
+        .check(importedClasses);
+  }
 
   @Test
   public void ui_thread_unsafe_methods_should_not_be_uieffect() {
@@ -178,13 +194,36 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
   };
 
   @Test
+  public void only_ui_thread_unsafe_method_should_call_blocking_intellij_methods() {
+    methods()
+        .that()
+        .areNotAnnotatedWith(UIThreadUnsafe.class)
+        .and()
+        .areNotAnnotatedWith(IgnoreUIThreadUnsafeCalls.class)
+        .should(new ArchCondition<JavaMethod>("never call any blocking IntelliJ methods") {
+          @Override
+          public void check(JavaMethod method, ConditionEvents events) {
+            method.getCallsFromSelf().forEach(call -> {
+              val calledMethodFullName = call.getTarget().getFullName();
+              if (calledMethodFullName.equals("com.intellij.dvcs.push.PushController.push(boolean)")) {
+                String message = "a non-${UIThreadUnsafeName} method ${method.getFullName()} " +
+                    "calls blocking method ${calledMethodFullName}";
+                events.add(SimpleConditionEvent.violated(method, message));
+              }
+            });
+          }
+        })
+        .check(importedClasses);
+  }
+
+  @Test
   public void only_ui_thread_unsafe_method_should_call_git4idea_or_io_methods() {
     methods()
         .that()
         .areNotAnnotatedWith(UIThreadUnsafe.class)
         .and()
         .areNotAnnotatedWith(IgnoreUIThreadUnsafeCalls.class)
-        .should(new ArchCondition<JavaMethod>("never call any heavyweight git4idea or IO methods") {
+        .should(new ArchCondition<JavaMethod>("never call any blocking git4idea or IO methods") {
           private void checkCallAgainstPackagePrefix(JavaMethod method, JavaCall<?> call, String packagePrefix,
               String[] whitelistedMethodsOfPackage, ConditionEvents events) {
             AccessTarget.CodeUnitCallTarget callTarget = call.getTarget();

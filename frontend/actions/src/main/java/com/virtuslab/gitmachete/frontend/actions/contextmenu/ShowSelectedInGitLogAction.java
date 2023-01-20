@@ -1,14 +1,8 @@
 package com.virtuslab.gitmachete.frontend.actions.contextmenu;
 
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
-
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.vcs.log.Hash;
 import com.intellij.vcs.log.impl.VcsLogContentUtil;
@@ -89,25 +83,12 @@ public class ShowSelectedInGitLogAction extends BaseGitMacheteRepositoryReadyAct
 
   @ContinuesInBackground
   private void jumpToRevisionUnderProgress(Project project, Hash hash) {
-    new Task.Backgroundable(project, getString("action.GitMachete.ShowSelectedInGitLogAction.task-title")) {
-      @Override
-      public void run(ProgressIndicator indicator) {
-        try {
-          val logUi = VcsProjectLog.getInstance(project).getMainLogUi();
-          if (logUi == null) {
-            LOG.error("Main log ui is null");
-            return;
-          }
-          logUi.getVcsLog().jumpToReference(hash.asString()).get();
-        } catch (CancellationException | InterruptedException ignored) {} catch (ExecutionException e) {
-          String msg = "Error while showing branch in Git log";
-          if (e.getMessage() != null) {
-            msg = e.getMessage();
-          }
-          LOG.error(msg);
-        }
-      }
-    }.queue();
+    val logUi = VcsProjectLog.getInstance(project).getMainLogUi();
+    if (logUi == null) {
+      LOG.error("Main VCS Log UI is null");
+      return;
+    }
+    logUi.getVcsLog().jumpToReference(hash.asString());
   }
 
 }

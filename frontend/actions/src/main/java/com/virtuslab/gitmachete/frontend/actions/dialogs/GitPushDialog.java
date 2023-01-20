@@ -19,6 +19,8 @@ import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
+
 import com.virtuslab.qual.async.BackgroundableQueuedElsewhere;
 
 public final class GitPushDialog extends VcsPushDialog {
@@ -96,6 +98,7 @@ public final class GitPushDialog extends VcsPushDialog {
     String title = getString("string.GitMachete.GitPushDialog.task-title");
     executeAfterRunningPrePushHandlers(new Task.Backgroundable(myProject, title, /* canBeCancelled */ true) {
       @Override
+      @UIThreadUnsafe
       public void run(ProgressIndicator indicator) {
         myController.push(forcePush);
       }
