@@ -1,9 +1,12 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQuotedStringOrCurrent;
+import static com.virtuslab.gitmachete.frontend.actions.common.BranchCreationUtils.waitForCreationOfLocalBranch;
+import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.runWriteActionOnUIThread;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
+import java.nio.file.Path;
 import java.util.Collections;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -15,10 +18,12 @@ import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
+import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayout;
+import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
-import com.virtuslab.gitmachete.frontend.actions.backgroundables.RenameBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
+import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
@@ -94,13 +99,30 @@ public abstract class BaseRenameAction extends BaseGitMacheteRepositoryReadyActi
       Runnable renameRunnable = () -> gitBrancher.renameBranch(branch.getName(), options.getName(),
           Collections.singletonList(gitRepository));
 
-      new RenameBackgroundable(gitRepository,
-          graphTable,
-          branchLayout,
-          renameRunnable,
-          branch.getName(),
-          options.getName())
-              .queue();
+      Path macheteFilePath = gitRepository.getMacheteFilePath();
+
+      val newBranchLayout = branchLayout.rename(branch.getName(), options.getName());
+      val branchLayoutWriter = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutWriter.class);
+
+      graphTable.disableEnqueuingUpdates();
+      renameRunnable.run();
+
+      runWriteActionOnUIThread(() -> {
+        MacheteFileWriter.writeBranchLayout(
+            macheteFilePath,
+            branchLayoutWriter,
+            newBranchLayout,
+            /* backupOldLayout */ true,
+            /* requestor */ this);
+
+      });
+
+      // `renameRunnable` may perform some sneakily-asynchronous operations (e.g. renameBranch).
+      // The high-level method used within the runnable does not allow us to schedule the tasks after them.
+      // (Stepping deeper is not an option since we would lose some important logic or become very dependent on the internals of git4idea).
+      // Hence, we wait for the creation of the branch (with exponential backoff).
+      waitForCreationOfLocalBranch(gitRepository, options.getName());
+      graphTable.enableEnqueuingUpdates();
     }
   }
 }
