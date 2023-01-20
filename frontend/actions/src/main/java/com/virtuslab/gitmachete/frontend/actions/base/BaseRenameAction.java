@@ -16,9 +16,12 @@ import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.branchlayout.api.BranchLayout;
+import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.RenameBackgroundable;
+import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideOutBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
+import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.async.ContinuesInBackground;
 
@@ -57,26 +60,28 @@ public abstract class BaseRenameAction extends BaseGitMacheteRepositoryReadyActi
   @ContinuesInBackground
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-    val project = getProject(anActionEvent);
     val gitRepository = getSelectedGitRepository(anActionEvent);
-    val currentBranchName = getNameOfBranchUnderAction(anActionEvent);
+    val branchName = getNameOfBranchUnderAction(anActionEvent);
+    val branch = branchName != null ? getManagedBranchByName(anActionEvent, branchName) : null;
     val branchLayout = getBranchLayout(anActionEvent);
+    val graphTable = getGraphTable(anActionEvent);
 
-    if (gitRepository == null || currentBranchName == null || branchLayout == null) {
+    if (gitRepository == null || branchName == null || branchLayout == null || branch == null || graphTable == null) {
       return;
     }
 
-    rename(gitRepository, currentBranchName, branchLayout);
+    rename(gitRepository, graphTable, branch, branchLayout);
   }
 
   @ContinuesInBackground
   @UIEffect
-  private void rename(GitRepository gitRepository, String currentBranchName, BranchLayout branchLayout) {
+  private void rename(GitRepository gitRepository, BaseEnhancedGraphTable graphTable, IManagedBranchSnapshot branch,
+      BranchLayout branchLayout) {
     val project = gitRepository.getProject();
 
     val gitNewBranchDialog = new GitNewBranchDialog(project, Collections.singletonList(gitRepository),
-        getString("action.GitMachete.BaseRenameAction.description").fmt(currentBranchName),
-        currentBranchName,
+        getString("action.GitMachete.BaseRenameAction.description").fmt(branch.getName()),
+        branch.getName(),
         /* showCheckOutOption */ false,
         /* showResetOption */ false,
         /* showSetTrackingOption */ false,
@@ -87,14 +92,21 @@ public abstract class BaseRenameAction extends BaseGitMacheteRepositoryReadyActi
 
     if (options != null) {
       val gitBrancher = GitBrancher.getInstance(project);
-      Runnable renameRunnable = () -> gitBrancher.renameBranch(currentBranchName, options.getName(),
+      Runnable renameRunnable = () -> gitBrancher.renameBranch(branch.getName(), options.getName(),
           Collections.singletonList(gitRepository));
 
-      new RenameBackgroundable(gitRepository,
+      Runnable doInUIThreadWhenReady = new RenameBackgroundable(gitRepository,
           branchLayout,
           renameRunnable,
-          currentBranchName,
-          options.getName()).queue();
+          branch.getName(),
+          options.getName())::queue;
+
+      // Passing same branch as a currentBranchNameIfManaged.
+      // It is a hack to prevent SlideOutBackgroundable from the branch deletion.
+      new SlideOutBackgroundable(branch,
+          gitRepository, /* currentBranchNameIfManaged */ branch, branchLayout,
+          graphTable, doInUIThreadWhenReady).queue();
+
     }
   }
 }

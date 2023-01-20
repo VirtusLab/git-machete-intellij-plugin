@@ -2,7 +2,6 @@ package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQuotedStringOrCurrent;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import lombok.experimental.ExtensionMethod;
@@ -74,7 +73,7 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
     } else if (selectedGitRepository == null) {
       log().debug("selectedGitRepository is null");
     } else {
-      new SlideOutBackgroundable(getString("action.GitMachete.BaseSlideOutAction.task.title"), branchToSlideOut,
+      new SlideOutBackgroundable(branchToSlideOut,
           selectedGitRepository, getCurrentMacheteBranchIfManaged(anActionEvent), branchLayout,
           getGraphTable(anActionEvent), /* doInUIThreadWhenReady */ () -> {}).queue();
     }
