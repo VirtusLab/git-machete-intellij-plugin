@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
+import static com.virtuslab.gitmachete.frontend.actions.common.BranchCreationUtils.waitForCreationOfLocalBranch;
 import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.runWriteActionOnUIThread;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
@@ -9,7 +10,6 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
-import git4idea.GitLocalBranch;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import lombok.experimental.ExtensionMethod;
@@ -60,7 +60,7 @@ public abstract class BaseSlideInBackgroundable extends Task.Backgroundable {
     // The high-level method used within the runnable does not allow us to schedule the tasks after them.
     // (Stepping deeper is not an option since we would lose some important logic or become very dependent on the internals of git4idea).
     // Hence, we wait for the creation of the branch (with exponential backoff).
-    waitForCreationOfLocalBranch();
+    waitForCreationOfLocalBranch(gitRepository, slideInOptions.getName());
 
     Path macheteFilePath = gitRepository.getMacheteFilePath();
 
@@ -108,35 +108,6 @@ public abstract class BaseSlideInBackgroundable extends Task.Backgroundable {
   }
 
   abstract @Nullable BranchLayout deriveNewBranchLayout(BranchLayout targetBranchLayout, BranchLayoutEntry entryToSlideIn);
-
-  @UIThreadUnsafe
-  private @Nullable GitLocalBranch findLocalBranch() {
-    return gitRepository.getBranches().findLocalBranch(slideInOptions.getName());
-  }
-
-  @UIThreadUnsafe
-  private void waitForCreationOfLocalBranch() {
-    try {
-      // Usually just 3 attempts are enough
-      val MAX_SLEEP_DURATION = 8192;
-      var sleepDuration = 64;
-      while (findLocalBranch() == null && sleepDuration <= MAX_SLEEP_DURATION) {
-        Thread.sleep(sleepDuration);
-        sleepDuration *= 2;
-      }
-    } catch (InterruptedException e) {
-      VcsNotifier.getInstance(project).notifyWeakError(/* displayId */ null,
-          /* title */ "",
-          getString("action.GitMachete.BaseSlideInBackgroundable.notification.message.wait-interrupted")
-              .fmt(slideInOptions.getName()));
-    }
-
-    if (findLocalBranch() == null) {
-      VcsNotifier.getInstance(project).notifyWeakError(/* displayId */ null,
-          /* title */ "",
-          getString("action.GitMachete.BaseSlideInBackgroundable.notification.message.timeout").fmt(slideInOptions.getName()));
-    }
-  }
 
   protected static String getMessageOrEmpty(Throwable t) {
     return t.getMessage() != null ? t.getMessage() : "";
