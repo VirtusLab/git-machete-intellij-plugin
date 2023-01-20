@@ -22,6 +22,10 @@ public abstract class BaseEnhancedGraphTable extends BaseGraphTable {
   @UIEffect
   public abstract void setListingCommits(boolean isListingCommits);
 
+  public abstract void enableEnqueuingUpdates();
+
+  public abstract void disableEnqueuingUpdates();
+
   /**
    * Refresh the model synchronously (i.e. in a blocking manner).
    * Must be called from the UI thread (hence {@link UIEffect}).

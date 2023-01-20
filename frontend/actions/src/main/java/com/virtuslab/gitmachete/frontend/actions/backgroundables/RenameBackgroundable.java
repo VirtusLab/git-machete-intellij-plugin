@@ -19,6 +19,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
+import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
@@ -26,21 +27,23 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 public class RenameBackgroundable extends Task.Backgroundable {
 
   protected final Project project;
-  protected final GitRepository gitRepository;
-  protected final BranchLayout branchLayout;
-  protected final Runnable renameRunnable;
-  protected final String currentBranchName;
-  protected final String newBranchName;
+  private final GitRepository gitRepository;
+  private final BaseEnhancedGraphTable graphTable;
+  private final BranchLayout branchLayout;
+  private final Runnable renameRunnable;
+  private final String currentBranchName;
+  private final String newBranchName;
 
   public RenameBackgroundable(
       GitRepository gitRepository,
-      BranchLayout branchLayout,
+      BaseEnhancedGraphTable graphTable, BranchLayout branchLayout,
       Runnable renameRunnable,
       String currentBranchName,
       String newBranchName) {
     super(gitRepository.getProject(), getString("action.GitMachete.RenameBackgroundable.task-title"));
     this.project = gitRepository.getProject();
     this.gitRepository = gitRepository;
+    this.graphTable = graphTable;
     this.branchLayout = branchLayout;
     this.renameRunnable = renameRunnable;
     this.currentBranchName = currentBranchName;
@@ -55,12 +58,8 @@ public class RenameBackgroundable extends Task.Backgroundable {
     val newBranchLayout = branchLayout.rename(currentBranchName, newBranchName);
     val branchLayoutWriter = ApplicationManager.getApplication().getService(IBranchLayoutWriter.class);
 
+    graphTable.disableEnqueuingUpdates();
     renameRunnable.run();
-    // `renameRunnable` may perform some sneakily-asynchronous operations (e.g. renameBranch).
-    // The high-level method used within the runnable does not allow us to schedule the tasks after them.
-    // (Stepping deeper is not an option since we would lose some important logic or become very dependent on the internals of git4idea).
-    // Hence, we wait for the creation of the branch (with exponential backoff).
-    waitForCreationOfLocalBranch(gitRepository, newBranchName);
 
     runWriteActionOnUIThread(() -> {
       MacheteFileWriter.writeBranchLayout(
@@ -71,6 +70,13 @@ public class RenameBackgroundable extends Task.Backgroundable {
           /* requestor */ this);
 
     });
+
+    // `renameRunnable` may perform some sneakily-asynchronous operations (e.g. renameBranch).
+    // The high-level method used within the runnable does not allow us to schedule the tasks after them.
+    // (Stepping deeper is not an option since we would lose some important logic or become very dependent on the internals of git4idea).
+    // Hence, we wait for the creation of the branch (with exponential backoff).
+    waitForCreationOfLocalBranch(gitRepository, newBranchName);
+    graphTable.enableEnqueuingUpdates();
   }
 
   @Override
