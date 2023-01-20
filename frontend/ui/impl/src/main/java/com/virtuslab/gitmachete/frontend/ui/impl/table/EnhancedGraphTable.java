@@ -11,6 +11,7 @@ import static io.vavr.API.Match;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -95,6 +96,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     implements
       DataProvider,
       Disposable {
+
+  private static final AtomicBoolean enqueuingUpdatesDisabled = new AtomicBoolean(false);
 
   @Getter(AccessLevel.PACKAGE)
   private final Project project;
@@ -513,6 +516,10 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   @Override
   public void queueRepositoryUpdateAndModelRefresh(@UI Runnable doOnUIThreadWhenReady) {
     LOG.debug("Entering");
+    if (enqueuingUpdatesDisabled.get()) {
+      LOG.debug("Enqueuing updates disabled");
+      return;
+    }
 
     if (!project.isDisposed()) {
       ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> {
@@ -569,6 +576,15 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         balloon.hide();
       }
     }
+  }
+
+  @Override
+  public void enableEnqueuingUpdates() {
+    enqueuingUpdatesDisabled.set(false);
+  }
+  @Override
+  public void disableEnqueuingUpdates() {
+    enqueuingUpdatesDisabled.set(true);
   }
 
   @Override

@@ -18,7 +18,6 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.RenameBackgroundable;
-import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideOutBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
@@ -95,18 +94,13 @@ public abstract class BaseRenameAction extends BaseGitMacheteRepositoryReadyActi
       Runnable renameRunnable = () -> gitBrancher.renameBranch(branch.getName(), options.getName(),
           Collections.singletonList(gitRepository));
 
-      Runnable doInUIThreadWhenReady = new RenameBackgroundable(gitRepository,
+      new RenameBackgroundable(gitRepository,
+          graphTable,
           branchLayout,
           renameRunnable,
           branch.getName(),
-          options.getName())::queue;
-
-      // Passing same branch as a currentBranchNameIfManaged.
-      // It is a hack to prevent SlideOutBackgroundable from the branch deletion.
-      new SlideOutBackgroundable(branch,
-          gitRepository, /* currentBranchNameIfManaged */ branch, branchLayout,
-          graphTable, doInUIThreadWhenReady).queue();
-
+          options.getName())
+              .queue();
     }
   }
 }
