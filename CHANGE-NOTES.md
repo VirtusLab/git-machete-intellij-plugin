@@ -1,6 +1,6 @@
 # Changelog
 
-## v3.3.2
+## v3.4.0
 - Added Branch Rename action.
 
 - Fixed poor performance of action updates, as reported by @ekitrak.

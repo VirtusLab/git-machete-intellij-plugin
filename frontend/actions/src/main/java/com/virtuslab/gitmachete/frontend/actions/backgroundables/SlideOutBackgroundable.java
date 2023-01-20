@@ -51,13 +51,13 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
 
   public static final String DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY = "machete.slideOut.deleteLocalBranch";
 
-  public SlideOutBackgroundable(String title, IManagedBranchSnapshot branchToSlideOut,
+  public SlideOutBackgroundable(IManagedBranchSnapshot branchToSlideOut,
       GitRepository gitRepository,
       @Nullable IManagedBranchSnapshot currentBranchNameIfManaged,
       BranchLayout branchLayout,
       BaseEnhancedGraphTable graphTable,
       @UI Runnable doInUIThreadWhenReady) {
-    super(gitRepository.getProject(), title);
+    super(gitRepository.getProject(), getString("action.GitMachete.BaseSlideOutAction.task.title"));
     this.project = gitRepository.getProject();
     this.branchToSlideOutName = branchToSlideOut.getName();
     this.currentBranchNameIfManaged = currentBranchNameIfManaged != null ? currentBranchNameIfManaged.getName() : null;
