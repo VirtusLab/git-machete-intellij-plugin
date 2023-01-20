@@ -20,7 +20,8 @@ jcabi-aspects = "com.jcabi:jcabi-aspects:0.24.1"
 jetbrains-annotations = "org.jetbrains:annotations:24.0.0"
 jgit = "org.eclipse.jgit:org.eclipse.jgit:6.4.0.202211300538-r"
 jsoup = "org.jsoup:jsoup:1.15.3"
-junit = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiter" }
+junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiter" }
+junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiter" }
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junitJupiter" }
 lombok = "org.projectlombok:lombok:1.18.24"
 mockito-junitJupiter = "org.mockito:mockito-junit-jupiter:5.0.0"

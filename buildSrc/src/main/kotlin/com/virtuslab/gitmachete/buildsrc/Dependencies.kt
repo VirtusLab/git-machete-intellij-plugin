@@ -140,7 +140,8 @@ fun Project.jgit() {
 
 fun Project.junit() {
   dependencies {
-    "testImplementation"(lib("junit"))
+    "testImplementation"(lib("junit-api"))
+    "testRuntimeOnly"(lib("junit-engine"))
   }
 }
 

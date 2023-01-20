@@ -165,6 +165,8 @@ allprojects {
   }
 
   tasks.withType<Test> {
+    useJUnitPlatform()
+
     // Required for PowerMock to work under Java 17
     jvmArgs(
       getFlagsForAddOpens(
