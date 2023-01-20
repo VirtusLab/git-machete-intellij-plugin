@@ -22,7 +22,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.RebaseOnParentBackgroundable;
-import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideOutBackgroundable;
+import com.virtuslab.gitmachete.frontend.actions.common.SlideOut;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
@@ -125,8 +125,7 @@ public class TraverseSyncToParent {
         // For a branch merged to its parent, we're not syncing to remote.
         // Let's just go straight to the next branch.
         Runnable doInUIThreadWhenReady = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
-        new SlideOutBackgroundable(
-            managedBranch, gitRepository, currentBranchIfManaged, branchLayout, graphTable, doInUIThreadWhenReady).queue();
+        new SlideOut(managedBranch, gitRepository, currentBranchIfManaged, branchLayout, graphTable).run(doInUIThreadWhenReady);
         break;
 
       case NO :

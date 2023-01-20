@@ -7,8 +7,6 @@ import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCate
 import java.util.Collections;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
 import git4idea.GitReference;
 import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
@@ -23,7 +21,6 @@ import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.qual.async.ContinuesInBackground;
-import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteRepositoryReadyAction
     implements
@@ -104,17 +101,8 @@ public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteReposi
     log().debug(() -> "Entering: project = ${project}, gitRepository = ${gitRepository}," +
         " stayingBranch = ${stayingBranch}");
 
-    new Task.Backgroundable(project, getString("action.GitMachete.BaseSyncToParentByMergeAction.task-title.current")) {
-      @Override
-      @UIThreadUnsafe
-      public void run(ProgressIndicator indicator) {
-        log().info("Merging ${stayingBranch} into current branch");
-
-        GitBrancher.getInstance(project)
-            .merge(stayingBranch, GitBrancher.DeleteOnMergeOption.NOTHING, Collections.singletonList(gitRepository));
-      }
-    }.queue();
-
+    GitBrancher.getInstance(project)
+        .merge(stayingBranch, GitBrancher.DeleteOnMergeOption.NOTHING, Collections.singletonList(gitRepository));
   }
 
   @ContinuesInBackground

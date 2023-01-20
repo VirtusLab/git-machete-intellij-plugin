@@ -1,12 +1,12 @@
-package com.virtuslab.gitmachete.frontend.actions.backgroundables;
+package com.virtuslab.gitmachete.frontend.actions.common;
 
 import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.blockingRunWriteActionOnUIThread;
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.fmt;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.function.Consumer;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
@@ -21,6 +21,7 @@ import git4idea.branch.GitBrancher;
 import git4idea.config.GitConfigUtil;
 import git4idea.repo.GitRepository;
 import lombok.CustomLog;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -31,125 +32,110 @@ import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.DeleteBranchOnSlideOutSuggestionDialog;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
+import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
-// For some reason, using `@ExtensionMethod({GitMacheteBundle.class})` on this class
-// leads to weird Checker Framework errors :/
-public class SlideOutBackgroundable extends Task.Backgroundable {
+@ExtensionMethod({GitMacheteBundle.class})
+public class SlideOut {
 
   private final Project project;
   private final String branchToSlideOutName;
-  @Nullable
-  private final String currentBranchNameIfManaged;
+  private final @Nullable String currentBranchNameIfManaged;
   private final BranchLayout branchLayout;
   private final GitRepository gitRepository;
   private final BaseEnhancedGraphTable graphTable;
-  private final @UI Runnable doInUIThreadWhenReady;
 
   public static final String DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY = "machete.slideOut.deleteLocalBranch";
 
-  public SlideOutBackgroundable(IManagedBranchSnapshot branchToSlideOut,
+  public SlideOut(IManagedBranchSnapshot branchToSlideOut,
       GitRepository gitRepository,
       @Nullable IManagedBranchSnapshot currentBranchNameIfManaged,
       BranchLayout branchLayout,
-      BaseEnhancedGraphTable graphTable,
-      @UI Runnable doInUIThreadWhenReady) {
-    super(gitRepository.getProject(), getString("action.GitMachete.BaseSlideOutAction.task.title"));
+      BaseEnhancedGraphTable graphTable) {
     this.project = gitRepository.getProject();
     this.branchToSlideOutName = branchToSlideOut.getName();
     this.currentBranchNameIfManaged = currentBranchNameIfManaged != null ? currentBranchNameIfManaged.getName() : null;
     this.branchLayout = branchLayout;
     this.gitRepository = gitRepository;
     this.graphTable = graphTable;
-    this.doInUIThreadWhenReady = doInUIThreadWhenReady;
 
     LOG.debug(() -> "Entering: branchToSlideOut = ${branchToSlideOutName}");
     LOG.debug("Refreshing repository state");
   }
 
-  @Override
   @ContinuesInBackground
-  @UIThreadUnsafe
-  public void run(ProgressIndicator indicator) {
+  public void run() {
+    run(() -> {});
+  }
+
+  @ContinuesInBackground
+  public void run(@UI Runnable doInUIThreadWhenReady) {
     val slideOutBranchIsCurrent = branchToSlideOutName.equals(currentBranchNameIfManaged);
     if (slideOutBranchIsCurrent) {
       LOG.debug("Skipping (optional) local branch deletion because it is equal to current branch");
       slideOutBranch(branchToSlideOutName);
-      graphTable.queueRepositoryUpdateAndModelRefresh(doInUIThreadWhenReady);
       VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
           /* title */ "",
-          fmt(getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.of-current.HTML"),
+          getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.of-current.HTML").fmt(
               branchToSlideOutName));
 
     } else {
       val root = gitRepository.getRoot();
-      val shouldDelete = getDeleteLocalBranchOnSlideOutGitConfigValue(root);
-      if (shouldDelete == null) {
-        ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL,
-            () -> suggestBranchDeletion(branchToSlideOutName, doInUIThreadWhenReady));
-      } else {
-        handleBranchDeletionDecision(branchToSlideOutName, shouldDelete);
-        ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, doInUIThreadWhenReady);
-      }
+      getDeleteLocalBranchOnSlideOutGitConfigValueAndExecute(root, (@Nullable Boolean shouldDelete) -> {
+        if (shouldDelete == null) {
+          ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL,
+              () -> suggestBranchDeletion(branchToSlideOutName, doInUIThreadWhenReady));
+        } else {
+          handleBranchDeletionDecision(branchToSlideOutName, shouldDelete, doInUIThreadWhenReady);
+        }
+      });
     }
   }
-
-  /** Do not override {@code onSuccess}. Instead, pass {@code doInUIThreadWhenReady} callback to the constructor. */
-  @Override
-  public final void onSuccess() {}
 
   @ContinuesInBackground
   @UIEffect
   private void suggestBranchDeletion(String branchName, @UI Runnable doInUIThreadWhenBranchDeletionReady) {
     val slideOutOptions = new DeleteBranchOnSlideOutSuggestionDialog(project, branchName).showAndGetSlideOutOptions();
 
-    new Task.Backgroundable(project, getString("action.GitMachete.BaseSlideOutAction.task.title")) {
-      @Override
-      @UIThreadUnsafe
-      public void run(ProgressIndicator indicator) {
-        if (slideOutOptions != null) {
-          handleBranchDeletionDecision(branchName, slideOutOptions.shouldDelete());
+    if (slideOutOptions != null) {
+      handleBranchDeletionDecision(branchName, slideOutOptions.shouldDelete(), doInUIThreadWhenBranchDeletionReady);
 
-          if (slideOutOptions.shouldRemember()) {
-            val value = String.valueOf(slideOutOptions.shouldDelete());
-            setDeleteLocalBranchOnSlideOutGitConfigValue(gitRepository.getRoot(), value);
-          }
-        } else {
-          val title = getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-info.canceled");
-          val message = fmt(getString(
-              "action.GitMachete.BaseSlideOutAction.notification.message.slide-out-info.canceled.HTML"), branchName);
-          VcsNotifier.getInstance(project).notifyInfo(/* displayId */ null, title, message);
-        }
+      if (slideOutOptions.shouldRemember()) {
+        val value = String.valueOf(slideOutOptions.shouldDelete());
+        setDeleteLocalBranchOnSlideOutGitConfigValue(gitRepository.getRoot(), value);
       }
-
-      @Override
-      @UIEffect
-      public void onSuccess() {
-        doInUIThreadWhenBranchDeletionReady.run();
-      }
-    }.queue();
+    } else {
+      val title = getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-info.canceled");
+      val message = getString(
+          "action.GitMachete.BaseSlideOutAction.notification.message.slide-out-info.canceled.HTML").fmt(branchName);
+      VcsNotifier.getInstance(project).notifyInfo(/* displayId */ null, title, message);
+      doInUIThreadWhenBranchDeletionReady.run();
+    }
   }
 
-  @UIThreadUnsafe
-  private void handleBranchDeletionDecision(String branchName, boolean shouldDelete) {
+  @ContinuesInBackground
+  private void handleBranchDeletionDecision(String branchName, boolean shouldDelete, @UI Runnable doInUIThreadWhenReady) {
     slideOutBranch(branchName);
     if (shouldDelete) {
-      GitBrancher.getInstance(project).deleteBranch(branchName, Collections.singletonList(gitRepository));
-      VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
-          /* title */ "",
-          fmt(getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.with-delete.HTML"),
-              branchName));
-      return;
+      graphTable.queueRepositoryUpdateAndModelRefresh(
+          () -> GitBrancher.getInstance(project).deleteBranches(Collections.singletonMap(branchName,
+              Collections.singletonList(gitRepository)), () -> {
+                VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
+                    /* title */ "",
+                    getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.with-delete.HTML").fmt(
+                        branchName));
+                doInUIThreadWhenReady.run();
+              }));
     } else {
       VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
           /* title */ "",
-          fmt(getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.without-delete.HTML"),
+          getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.without-delete.HTML").fmt(
               branchName));
+      ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, doInUIThreadWhenReady);
     }
-    graphTable.queueRepositoryUpdateAndModelRefresh();
   }
 
   private void slideOutBranch(String branchName) {
@@ -173,35 +159,49 @@ public class SlideOutBackgroundable extends Task.Backgroundable {
             (exceptionMessage == null ? "" : ": " + exceptionMessage);
         LOG.error(errorMessage);
         VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-            fmt(getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-fail.HTML"), branchName),
+            getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-fail.HTML").fmt(branchName),
             exceptionMessage == null ? "" : exceptionMessage);
       }
     });
   }
 
-  @UIThreadUnsafe
-  private @Nullable Boolean getDeleteLocalBranchOnSlideOutGitConfigValue(VirtualFile root) {
-    try {
-      val value = GitConfigUtil.getValue(project, root, DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY);
-      if (value != null) {
-        Boolean booleanValue = GitConfigUtil.getBooleanValue(value);
-        return booleanValue != null && booleanValue;
-      }
-    } catch (VcsException e) {
-      LOG.info(
-          "Attempt to get '${DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY}' git config value failed: key may not exist");
-    }
+  @ContinuesInBackground
+  private void getDeleteLocalBranchOnSlideOutGitConfigValueAndExecute(VirtualFile root,
+      Consumer<@Nullable Boolean> doForConfigValue) {
+    new Task.Backgroundable(project, getString("action.GitMachete.get-git-config.task-title")) {
 
-    return null;
+      @Override
+      @UIThreadUnsafe
+      public void run(ProgressIndicator indicator) {
+        Boolean result = null;
+        try {
+          val value = GitConfigUtil.getValue(project, root, DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY);
+          if (value != null) {
+            Boolean booleanValue = GitConfigUtil.getBooleanValue(value);
+            result = booleanValue != null && booleanValue;
+          }
+        } catch (VcsException e) {
+          LOG.warn("Attempt to get '${DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY}' git config value failed", e);
+        }
+        doForConfigValue.accept(result);
+      }
+    }.queue();
   }
 
-  @UIThreadUnsafe
+  @ContinuesInBackground
   private void setDeleteLocalBranchOnSlideOutGitConfigValue(VirtualFile root, String value) {
-    try {
-      val additionalParameters = "--local";
-      GitConfigUtil.setValue(project, root, DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY, value, additionalParameters);
-    } catch (VcsException e) {
-      LOG.error("Attempt to set '${DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY}' git config value failed");
-    }
+    new Task.Backgroundable(project, getString("action.GitMachete.set-git-config.task-title")) {
+
+      @Override
+      @UIThreadUnsafe
+      public void run(ProgressIndicator indicator) {
+        try {
+          val additionalParameters = "--local";
+          GitConfigUtil.setValue(project, root, DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY, value, additionalParameters);
+        } catch (VcsException e) {
+          LOG.error("Attempt to set '${DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY}' git config value failed", e);
+        }
+      }
+    }.queue();
   }
 }

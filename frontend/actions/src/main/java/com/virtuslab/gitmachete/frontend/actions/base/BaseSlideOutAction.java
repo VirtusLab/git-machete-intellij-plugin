@@ -9,7 +9,7 @@ import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
-import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideOutBackgroundable;
+import com.virtuslab.gitmachete.frontend.actions.common.SlideOut;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
@@ -73,9 +73,9 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
     } else if (selectedGitRepository == null) {
       log().debug("selectedGitRepository is null");
     } else {
-      new SlideOutBackgroundable(branchToSlideOut,
-          selectedGitRepository, getCurrentMacheteBranchIfManaged(anActionEvent), branchLayout,
-          getGraphTable(anActionEvent), /* doInUIThreadWhenReady */ () -> {}).queue();
+      val currentMacheteBranchIfManaged = getCurrentMacheteBranchIfManaged(anActionEvent);
+      val graphTable = getGraphTable(anActionEvent);
+      new SlideOut(branchToSlideOut, selectedGitRepository, currentMacheteBranchIfManaged, branchLayout, graphTable).run();
     }
   }
 

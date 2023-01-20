@@ -1,11 +1,9 @@
 build/
 *.class
-/.codetale.conf
+*.crt
 **/.gradle/
 /gradlew.bat
 /*.hprof
 /*.hprof.*/
 /.idea/
-/.semanticgraphs/
 *.pem
-*.crt

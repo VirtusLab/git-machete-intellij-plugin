@@ -1,5 +1,7 @@
+
 import org.checkerframework.checker.guieffect.qual.PolyUIEffect;
 import org.checkerframework.checker.guieffect.qual.PolyUIType;
+import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.tainting.qual.Tainted;
 import org.checkerframework.checker.tainting.qual.Untainted;
@@ -11,18 +13,25 @@ class GitVcs {
   void showErrors(List list, @Tainted String action);
 }
 
+
 package git4idea.branch;
+
+interface GitBrancher {
+  void deleteBranches(Map<String, List<? extends GitRepository>> branchesToContainingRepositories, @UI Runnable callInAwtAfterExecution);
+}
 
 class GitNewBranchDialog {
   GitNewBranchDialog(Project project, Collection repositories, @Untainted String dialogTitle, String initialName,
                      boolean showCheckOutOption, boolean showResetOption, boolean showSetTrackingOption);
 }
 
+
 package git4idea.fetch;
 
 interface GitFetchResult {
   boolean showNotificationIfFailed(@Untainted String title);
 }
+
 
 package git4idea.repo;
 
@@ -31,6 +40,7 @@ interface GitRepositoryChangeListener {
   @PolyUIEffect
   void repositoryChanged(GitRepository repository);
 }
+
 
 package git4idea.util;
 

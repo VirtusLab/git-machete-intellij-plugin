@@ -3,7 +3,8 @@
 ## v3.4.0
 - Added Branch Rename action.
 - Fixed poor performance of action updates, as reported by @ekitrak.
-- Fixed slide out action not executing during traverse.
+- Fixed Slide Out action not executing during Traverse.
+- Fixed race conditions happening when a branch is deleted in Slide Out action.
 
 ## v3.3.1
 - Fixed a race condition in the Slide-out action.

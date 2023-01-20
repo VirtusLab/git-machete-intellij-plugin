@@ -17,6 +17,7 @@ import lombok.experimental.ExtensionMethod;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
+import com.virtuslab.qual.async.ContinuesInBackground;
 
 @RequiredArgsConstructor
 @ExtensionMethod({GitMacheteBundle.class})
@@ -44,6 +45,7 @@ public class CreateBranchQuickFix implements IntentionAction {
   }
 
   @Override
+  @ContinuesInBackground
   public void invoke(Project project, Editor editor, PsiFile file) {
     createNewBranchFromParent(project);
   }
@@ -53,6 +55,7 @@ public class CreateBranchQuickFix implements IntentionAction {
     return false;
   }
 
+  @ContinuesInBackground
   private void createNewBranchFromParent(Project project) {
     if (gitRepository != null) {
       GitBrancher.getInstance(project).createBranch(branch, Collections.singletonMap(gitRepository, parentBranch));
