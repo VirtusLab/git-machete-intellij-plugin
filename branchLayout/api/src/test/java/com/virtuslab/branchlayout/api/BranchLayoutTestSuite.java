@@ -214,7 +214,7 @@ public class BranchLayoutTestSuite {
   }
 
   @Test
-  public void withBranchRename_givenBranchLayout_renameOfNonexistingDoesNothing() {
+  public void withBranchRename_givenBranchLayout_renameOfNonexistentDoesNothing() {
     // given
     String rootName = "root";
     String child = "child";
