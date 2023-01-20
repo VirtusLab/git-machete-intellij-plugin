@@ -1,6 +1,7 @@
 # Changelog
 
 ## v3.3.2
+- Added Branch Rename action.
 
 - Fixed poor performance of action updates, as reported by @ekitrak.
 - Fixed slide out action not executing during traverse.
