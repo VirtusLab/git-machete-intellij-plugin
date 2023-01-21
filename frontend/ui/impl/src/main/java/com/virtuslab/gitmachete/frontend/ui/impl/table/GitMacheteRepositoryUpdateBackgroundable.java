@@ -1,9 +1,11 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
+import static com.virtuslab.gitmachete.frontend.file.MacheteFileUtils.macheteFileIsOpenedAndFocused;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import com.intellij.openapi.application.ApplicationManager;
@@ -14,7 +16,6 @@ import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.ModalityUiUtil;
 import git4idea.repo.GitRepository;
-import io.vavr.control.Try;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
@@ -25,6 +26,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
+import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
@@ -33,7 +35,7 @@ import com.virtuslab.gitmachete.frontend.file.MacheteFileReader;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
-@ExtensionMethod(GitVfsUtils.class)
+@ExtensionMethod({GitVfsUtils.class, Objects.class})
 @CustomLog
 public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgroundable {
 
@@ -81,8 +83,6 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
   /**
    * Updates the repository snapshot which is the base of graph table model. The change will be seen after
    * {@link EnhancedGraphTable#refreshModel()} completes.
-   *
-   * This method is heavyweight and must never be invoked on the UI thread.
    */
   @UIThreadUnsafe
   private @Nullable IGitMacheteRepositorySnapshot updateRepositorySnapshot() {
@@ -100,13 +100,23 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
     if (isMacheteFilePresent) {
       LOG.debug("Machete file is present. Trying to create a repository snapshot");
 
-      return Try.of(() -> {
+      try {
         BranchLayout branchLayout = readBranchLayout(macheteFilePath);
         IGitMacheteRepository gitMacheteRepository = gitMacheteRepositoryCache.getInstance(rootDirectoryPath,
             mainGitDirectoryPath, worktreeGitDirectoryPath);
         gitMacheteRepositoryConsumer.accept(gitMacheteRepository);
         return gitMacheteRepository.createSnapshotForLayout(branchLayout);
-      }).onFailure(this::handleUpdateRepositoryException).getOrNull();
+      } catch (MacheteFileReaderException e) {
+        LOG.warn("Unable to create Git Machete repository", e);
+        if (!macheteFileIsOpenedAndFocused(getProject(), macheteFilePath)) {
+          notifyUpdateRepositoryException(e);
+        }
+        return null;
+      } catch (GitMacheteException e) {
+        LOG.warn("Unable to create Git Machete repository", e);
+        notifyUpdateRepositoryException(e);
+        return null;
+      }
     } else {
       LOG.debug("Machete file is absent");
       return null;
@@ -123,19 +133,20 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
     }
   }
 
-  private void handleUpdateRepositoryException(Throwable t) {
-    LOG.warn("Unable to create Git Machete repository", t);
+  private void notifyUpdateRepositoryException(Throwable t) {
+    String exceptionMessage = getInnermostCause(t).getMessage().requireNonNullElse("");
 
-    // Getting the innermost exception since it's usually the primary cause that gives most valuable message
+    VcsNotifier.getInstance(getProject()).notifyError(/* displayId */ null,
+        getString("action.GitMachete.GitMacheteRepositoryUpdateBackgroundable.notification.title.failed"),
+        exceptionMessage);
+  }
+
+  private static Throwable getInnermostCause(Throwable t) {
     Throwable cause = t;
     while (cause.getCause() != null) {
       cause = cause.getCause();
     }
-    String exceptionMessage = cause.getMessage();
-
-    VcsNotifier.getInstance(getProject()).notifyError(/* displayId */ null,
-        getString("action.GitMachete.GitMacheteRepositoryUpdateBackgroundable.notification.title.failed"),
-        exceptionMessage != null ? exceptionMessage : "");
+    return cause;
   }
 
 }

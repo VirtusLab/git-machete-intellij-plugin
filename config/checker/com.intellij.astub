@@ -230,6 +230,18 @@ class WriteAction<T> {
 @UIPackage package com.intellij.openapi.fileChooser;
 @UIPackage package com.intellij.openapi.fileEditor;
 
+class FileEditorManager {
+
+  @SafeEffect
+  FileEditor[] getAllEditors(VirtualFile file);
+
+  @SafeEffect
+  static FileEditorManager getInstance(Project project);
+
+  @SafeEffect
+  VirtualFile[] getSelectedFiles();
+}
+
 
 package com.intellij.openapi.fileTypes.ex;
 

@@ -1,8 +1,11 @@
 package com.virtuslab.gitmachete.frontend.file;
 
+import java.nio.file.Path;
 import java.util.Objects;
 
 import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
@@ -60,5 +63,16 @@ public final class MacheteFileUtils {
   public static void saveDocument(PsiFile file) {
     val fileDocManager = FileDocumentManager.getInstance();
     fileDocManager.saveDocument(Objects.requireNonNull(fileDocManager.getDocument(file.getVirtualFile())));
+  }
+
+  public static boolean macheteFileIsOpenedAndFocused(Project project, Path macheteFilePath) {
+    val fileEditorManager = FileEditorManager.getInstance(project);
+    val macheteVirtualFile = List.of(fileEditorManager.getSelectedFiles())
+        .find(virtualFile -> virtualFile.getPath().equals(macheteFilePath.toString()));
+    if (macheteVirtualFile.isEmpty()) {
+      return false;
+    } else {
+      return fileEditorManager.getAllEditors(macheteVirtualFile.get()).length > 0;
+    }
   }
 }

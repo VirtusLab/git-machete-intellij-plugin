@@ -4,6 +4,7 @@ import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.runWriteActionOnUIThread;
 import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
 import static com.virtuslab.gitmachete.frontend.defs.ActionIds.OPEN_MACHETE_FILE;
+import static com.virtuslab.gitmachete.frontend.file.MacheteFileUtils.macheteFileIsOpenedAndFocused;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -28,7 +29,6 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vcs.VcsNotifier;
@@ -44,7 +44,6 @@ import com.intellij.util.messages.Topic;
 import com.intellij.util.ui.JBUI;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
-import io.vavr.collection.List;
 import io.vavr.collection.Set;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
@@ -363,7 +362,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
     setModel(new GraphTableModel(repositoryGraph));
 
-    if (!macheteFileIsOpenedAndFocused(macheteFilePath)) {
+    if (!macheteFileIsOpenedAndFocused(project, macheteFilePath)) {
       // notify if a branch listed in the machete file does not exist
       Set<String> skippedBranchNames = repositorySnapshot.getSkippedBranchNames();
       if (skippedBranchNames.nonEmpty()) {
@@ -384,18 +383,6 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     repaint();
     revalidate();
     doOnUIThreadWhenReady.run();
-  }
-
-  @UIEffect
-  private boolean macheteFileIsOpenedAndFocused(Path macheteFilePath) {
-    val fileEditorManager = FileEditorManager.getInstance(project);
-    val macheteVirtualFile = List.of(fileEditorManager.getSelectedFiles())
-        .find(virtualFile -> virtualFile.getPath().equals(macheteFilePath.toString()));
-    if (macheteVirtualFile.isEmpty()) {
-      return false;
-    } else {
-      return fileEditorManager.getAllEditors(macheteVirtualFile.get()).length > 0;
-    }
   }
 
   private Notification getSkippedBranchesNotification(IGitMacheteRepositorySnapshot repositorySnapshot,

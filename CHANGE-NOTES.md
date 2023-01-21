@@ -5,6 +5,7 @@
 - Fixed poor performance of action updates, as reported by @ekitrak.
 - Fixed Slide Out action not executing during Traverse.
 - Fixed race conditions happening when a branch is deleted in Slide Out action.
+- Improved Machete file editor UX: notifications on parser errors no longer show up when Machete file is opened & focused.
 
 ## v3.3.1
 - Fixed a race condition in the Slide-out action.
