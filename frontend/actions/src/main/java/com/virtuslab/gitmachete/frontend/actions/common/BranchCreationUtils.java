@@ -22,8 +22,11 @@ public final class BranchCreationUtils {
     return gitRepository.getBranches().findLocalBranch(branchName);
   }
 
+  /**
+   * @return true, when the branch has been created in the allowed time, otherwise false
+   */
   @UIThreadUnsafe
-  public static void waitForCreationOfLocalBranch(GitRepository gitRepository, String branchName) {
+  public static boolean waitForCreationOfLocalBranch(GitRepository gitRepository, String branchName) {
     try {
       // Usually just 3 attempts are enough
       val MAX_SLEEP_DURATION = 8192;
@@ -43,6 +46,8 @@ public final class BranchCreationUtils {
       VcsNotifier.getInstance(gitRepository.getProject()).notifyWeakError(/* displayId */ null,
           /* title */ "",
           getString("action.GitMachete.BaseSlideInBackgroundable.notification.message.timeout").fmt(branchName));
+      return false;
     }
+    return true;
   }
 }
