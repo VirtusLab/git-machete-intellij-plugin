@@ -97,7 +97,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       DataProvider,
       Disposable {
 
-  private static final AtomicBoolean ENQUEUING_UPDATES_DISABLED = new AtomicBoolean(false);
+  private static final AtomicBoolean ENQUEUING_UPDATES_ENABLED = new AtomicBoolean(true);
 
   @Getter(AccessLevel.PACKAGE)
   private final Project project;
@@ -516,7 +516,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   @Override
   public void queueRepositoryUpdateAndModelRefresh(@UI Runnable doOnUIThreadWhenReady) {
     LOG.debug("Entering");
-    if (ENQUEUING_UPDATES_DISABLED.get()) {
+    if (!ENQUEUING_UPDATES_ENABLED.get()) {
       LOG.debug("Enqueuing updates disabled");
       return;
     }
@@ -580,11 +580,12 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
   @Override
   public void enableEnqueuingUpdates() {
-    ENQUEUING_UPDATES_DISABLED.set(false);
+    ENQUEUING_UPDATES_ENABLED.set(true);
+    queueRepositoryUpdateAndModelRefresh();
   }
   @Override
   public void disableEnqueuingUpdates() {
-    ENQUEUING_UPDATES_DISABLED.set(true);
+    ENQUEUING_UPDATES_ENABLED.set(false);
   }
 
   @Override
