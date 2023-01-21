@@ -10,6 +10,7 @@ import com.intellij.vcs.log.VcsLog;
 import com.intellij.openapi.progress.Task;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.base.DescribedPredicate;
+import com.intellij.vcs.log.VcsLog;
 import com.tngtech.archunit.core.domain.AccessTarget;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaMethod;
@@ -151,7 +152,7 @@ public class BackgroundTaskEnqueuingTestSuite extends BaseArchUnitTestSuite {
               if (callTargetOwner.isAssignableTo(Task.Backgroundable.class) && callTargetName.equals("queue") ||
                   callTargetOwner.isAssignableTo(GitBrancher.class) && callTargetName.equals("checkout") ||
                   callTargetOwner.isAssignableTo(VcsPushDialog.class) && callTargetName.equals("show") ||
-                  callTargetOwner.isAssignableTo(VcsLog.class) && callTargetName.equals("jumpToReference")) {
+                  callTarget.getRawReturnType().isEquivalentTo(java.util.concurrent.Future.class)) {
                 String message = "a non-${ContinuesInBackgroundName} method ${method.getFullName()} " +
                     "enqueues a background task via method ${callTarget.getFullName()}; " +
                     "mark this method as ${ContinuesInBackgroundName} if you're aware of the race conditions " +
