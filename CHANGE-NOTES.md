@@ -3,6 +3,7 @@
 ## v3.3.2
 
 - Fixed poor performance of action updates, as reported by @ekitrak.
+- Fixed slide out action not executing during traverse.
 
 ## v3.3.1
 - Fixed a race condition in the Slide-out action.

@@ -4,9 +4,12 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 
 import java.util.Arrays;
 
+import com.intellij.openapi.progress.Task;
+import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.AccessTarget;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaMethod;
+import com.tngtech.archunit.core.domain.JavaMethodCall;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
@@ -15,6 +18,7 @@ import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.junit.Test;
 
+import com.virtuslab.qual.async.BackgroundableQueuedElsewhere;
 import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.async.DoesNotContinueInBackground;
 import com.virtuslab.qual.guieffect.IgnoreUIThreadUnsafeCalls;
@@ -23,6 +27,37 @@ import com.virtuslab.qual.guieffect.IgnoreUIThreadUnsafeCalls;
 public class BackgroundTaskEnqueuingTestSuite extends BaseArchUnitTestSuite {
 
   private static final String ContinuesInBackgroundName = "@" + ContinuesInBackground.class.getSimpleName();
+
+  @Test
+  public void methods_that_create_backgroundable_should_also_call_queue() {
+    methods()
+        .that()
+        .areNotAnnotatedWith(BackgroundableQueuedElsewhere.class)
+        .and(new DescribedPredicate<JavaMethod>("create an instance of Task.Backgroundable or its subclass") {
+          @Override
+          public boolean test(JavaMethod method) {
+            return method.getConstructorCallsFromSelf().stream()
+                .anyMatch(constructorCall -> constructorCall.getTargetOwner().isAssignableTo(Task.Backgroundable.class));
+          }
+        })
+        .should(new ArchCondition<JavaMethod>("call Task.Backgroundable#queue()") {
+          @Override
+          public void check(JavaMethod method, ConditionEvents events) {
+            if (method.getMethodCallsFromSelf().stream().noneMatch(this::isTaskBackgroundableQueue)) {
+              events.add(SimpleConditionEvent.violated(method, "${method} doesn't call Task.Backgroundable#queue()"));
+            }
+          }
+
+          private boolean isTaskBackgroundableQueue(JavaMethodCall call) {
+            val callTarget = call.getTarget();
+            return callTarget.getOwner().isAssignableTo(Task.Backgroundable.class)
+                && callTarget.getName().equals("queue");
+          }
+        })
+        .because("otherwise it's likely that you forgot about actually scheduling the task; " +
+            "mark the method with ${BackgroundableQueuedElsewhere.class.getSimpleName()} if this is expected")
+        .check(importedClasses);
+  }
 
   private static List<String> extractWhitelistedMethodsFromAnnotation(JavaMethod method) {
     if (method.isAnnotatedWith(IgnoreUIThreadUnsafeCalls.class)) {

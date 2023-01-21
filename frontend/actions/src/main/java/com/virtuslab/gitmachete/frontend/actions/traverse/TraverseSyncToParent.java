@@ -126,7 +126,7 @@ public class TraverseSyncToParent {
         // Let's just go straight to the next branch.
         Runnable doInUIThreadWhenReady = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
         new SlideOutBackgroundable(getString("action.GitMachete.BaseSlideOutAction.task.title"),
-            managedBranch, gitRepository, currentBranchIfManaged, branchLayout, graphTable, doInUIThreadWhenReady);
+            managedBranch, gitRepository, currentBranchIfManaged, branchLayout, graphTable, doInUIThreadWhenReady).queue();
         break;
 
       case NO :

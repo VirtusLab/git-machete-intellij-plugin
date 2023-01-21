@@ -19,6 +19,8 @@ import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import com.virtuslab.qual.async.BackgroundableQueuedElsewhere;
+
 public final class GitPushDialog extends VcsPushDialog {
   private final boolean isForcePushRequired;
   private final @UI Runnable doInUIThreadWhenReady;
@@ -87,6 +89,7 @@ public final class GitPushDialog extends VcsPushDialog {
    * which doesn't implement {@code onSuccess} callback.
    */
   @Override
+  @BackgroundableQueuedElsewhere // passed on to `executeAfterRunningPrePushHandlers`
   @UIEffect
   public void push(boolean forcePush) {
 
