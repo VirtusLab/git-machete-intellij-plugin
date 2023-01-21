@@ -163,6 +163,7 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
       "git4idea.ui.ComboBoxWithAutoCompletion.setPlaceholder(java.lang.String)",
       "git4idea.ui.ComboBoxWithAutoCompletion.setPrototypeDisplayValue(java.lang.Object)",
       "git4idea.ui.ComboBoxWithAutoCompletion.setUI(javax.swing.plaf.ComboBoxUI)",
+      "git4idea.ui.branch.GitBranchCheckoutOperation.<init>(com.intellij.openapi.project.Project, java.util.List)",
       "git4idea.validators.GitBranchValidatorKt.checkRefName(java.lang.String)"
   };
 
