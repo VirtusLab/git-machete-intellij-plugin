@@ -4,14 +4,13 @@ import static com.virtuslab.gitmachete.backend.unit.UnitTestUtils.createGitCoreC
 import static com.virtuslab.gitmachete.backend.unit.UnitTestUtils.createGitCoreLocalBranch;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 import io.vavr.collection.List;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.jupiter.api.Test;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.reflect.Whitebox;
 
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.BranchLayoutEntry;
@@ -26,8 +25,8 @@ public class GitMacheteRepository_deriveCreatedAndDuplicatedAndSkippedBranchesUn
   @SneakyThrows
   private IGitMacheteRepositorySnapshot invokeCreateSnapshot(
       BranchLayout branchLayout, IGitCoreLocalBranchSnapshot... localBranchSnapshots) {
-    PowerMockito.doReturn(List.empty()).when(gitCoreRepository).deriveAllRemoteNames();
-    return Whitebox.invokeMethod(aux(localBranchSnapshots), "createSnapshot", branchLayout);
+    when(gitCoreRepository.deriveAllRemoteNames()).thenReturn(List.empty());
+    return aux(localBranchSnapshots).createSnapshot(branchLayout);
   }
 
   @Test
@@ -105,7 +104,7 @@ public class GitMacheteRepository_deriveCreatedAndDuplicatedAndSkippedBranchesUn
     val entry = createEntry(name, childEntries);
     val commit = createGitCoreCommit();
     val branch = createGitCoreLocalBranch(commit);
-    PowerMockito.doReturn(name).when(branch).getName();
+    when(branch.getName()).thenReturn(name);
     return new BranchAndEntry(branch, entry);
   }
 

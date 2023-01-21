@@ -167,17 +167,6 @@ allprojects {
   tasks.withType<Test> {
     useJUnitPlatform()
 
-    // Required for PowerMock to work under Java 17
-    jvmArgs(
-      getFlagsForAddOpens(
-        "java.io",
-        "java.lang",
-        "java.nio.file",
-        "java.util.stream",
-        module = "java.base"
-      )
-    )
-
     if (project.properties["forceRunTests"] != null) {
       outputs.upToDateWhen { false }
     }

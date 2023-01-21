@@ -1,6 +1,8 @@
 package com.virtuslab.gitmachete.backend.unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -9,8 +11,6 @@ import io.vavr.collection.List;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.jupiter.api.Test;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.reflect.Whitebox;
 
 import com.virtuslab.gitcore.api.GitCoreRelativeCommitCount;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
@@ -23,21 +23,21 @@ public class GitMacheteRepository_deriveRelationToRemoteUnitTestSuite extends Ba
 
   private static final String ORIGIN = "origin";
 
-  private final IGitCoreLocalBranchSnapshot coreLocalBranch = PowerMockito.mock(IGitCoreLocalBranchSnapshot.class);
-  private final IGitCoreRemoteBranchSnapshot coreRemoteBranch = PowerMockito.mock(IGitCoreRemoteBranchSnapshot.class);
-  private final IGitCoreCommit coreLocalBranchCommit = PowerMockito.mock(IGitCoreCommit.class);
-  private final IGitCoreCommit coreRemoteBranchCommit = PowerMockito.mock(IGitCoreCommit.class);
+  private final IGitCoreLocalBranchSnapshot coreLocalBranch = mock(IGitCoreLocalBranchSnapshot.class);
+  private final IGitCoreRemoteBranchSnapshot coreRemoteBranch = mock(IGitCoreRemoteBranchSnapshot.class);
+  private final IGitCoreCommit coreLocalBranchCommit = mock(IGitCoreCommit.class);
+  private final IGitCoreCommit coreRemoteBranchCommit = mock(IGitCoreCommit.class);
 
   @SneakyThrows
   private RelationToRemote invokeDeriveRelationToRemote(IGitCoreLocalBranchSnapshot coreLocalBranch) {
-    return Whitebox.invokeMethod(aux(), "deriveRelationToRemote", coreLocalBranch);
+    return aux().deriveRelationToRemote(coreLocalBranch);
   }
 
   @Test
   @SneakyThrows
   public void deriveRelationToRemote_NoRemotes() {
     // given
-    PowerMockito.doReturn(List.empty()).when(gitCoreRepository).deriveAllRemoteNames();
+    when(gitCoreRepository.deriveAllRemoteNames()).thenReturn(List.empty());
 
     // when
     RelationToRemote relationToRemote = invokeDeriveRelationToRemote(coreLocalBranch);
@@ -50,9 +50,9 @@ public class GitMacheteRepository_deriveRelationToRemoteUnitTestSuite extends Ba
   @SneakyThrows
   public void deriveRelationToRemote_Untracked() {
     // given
-    PowerMockito.doReturn(List.of(ORIGIN)).when(gitCoreRepository).deriveAllRemoteNames();
+    when(gitCoreRepository.deriveAllRemoteNames()).thenReturn(List.of(ORIGIN));
 
-    PowerMockito.doReturn(null).when(coreLocalBranch).getRemoteTrackingBranch();
+    when(coreLocalBranch.getRemoteTrackingBranch()).thenReturn(null);
 
     // when
     RelationToRemote relationToRemote = invokeDeriveRelationToRemote(coreLocalBranch);
@@ -65,20 +65,20 @@ public class GitMacheteRepository_deriveRelationToRemoteUnitTestSuite extends Ba
   @SneakyThrows
   public void deriveRelationToRemote_DivergedAndNewerThan() {
     // given
-    PowerMockito.doReturn(List.of(ORIGIN)).when(gitCoreRepository).deriveAllRemoteNames();
+    when(gitCoreRepository.deriveAllRemoteNames()).thenReturn(List.of(ORIGIN));
 
-    PowerMockito.doReturn(coreRemoteBranch).when(coreLocalBranch).getRemoteTrackingBranch();
+    when(coreLocalBranch.getRemoteTrackingBranch()).thenReturn(coreRemoteBranch);
 
-    PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).getPointedCommit();
-    PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).getPointedCommit();
+    when(coreLocalBranch.getPointedCommit()).thenReturn(coreLocalBranchCommit);
+    when(coreRemoteBranch.getPointedCommit()).thenReturn(coreRemoteBranchCommit);
     val relativeCommitCount = GitCoreRelativeCommitCount.of(1, 1);
-    PowerMockito.doReturn(relativeCommitCount).when(gitCoreRepository)
-        .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit);
+    when(gitCoreRepository
+        .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit)).thenReturn(relativeCommitCount);
 
     Instant newerInstant = Instant.parse("2000-05-01T10:00:00Z");
     Instant olderInstant = newerInstant.minus(10, ChronoUnit.MINUTES);
-    PowerMockito.doReturn(newerInstant).when(coreLocalBranchCommit).getCommitTime();
-    PowerMockito.doReturn(olderInstant).when(coreRemoteBranchCommit).getCommitTime();
+    when(coreLocalBranchCommit.getCommitTime()).thenReturn(newerInstant);
+    when(coreRemoteBranchCommit.getCommitTime()).thenReturn(olderInstant);
 
     // when
     RelationToRemote relationToRemote = invokeDeriveRelationToRemote(coreLocalBranch);
@@ -91,20 +91,20 @@ public class GitMacheteRepository_deriveRelationToRemoteUnitTestSuite extends Ba
   @SneakyThrows
   public void deriveRelationToRemote_DivergedAndOlderThan() {
     // given
-    PowerMockito.doReturn(List.of(ORIGIN)).when(gitCoreRepository).deriveAllRemoteNames();
+    when(gitCoreRepository.deriveAllRemoteNames()).thenReturn(List.of(ORIGIN));
 
-    PowerMockito.doReturn(coreRemoteBranch).when(coreLocalBranch).getRemoteTrackingBranch();
+    when(coreLocalBranch.getRemoteTrackingBranch()).thenReturn(coreRemoteBranch);
 
-    PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).getPointedCommit();
-    PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).getPointedCommit();
+    when(coreLocalBranch.getPointedCommit()).thenReturn(coreLocalBranchCommit);
+    when(coreRemoteBranch.getPointedCommit()).thenReturn(coreRemoteBranchCommit);
     val relativeCommitCount = GitCoreRelativeCommitCount.of(1, 2);
-    PowerMockito.doReturn(relativeCommitCount).when(gitCoreRepository)
-        .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit);
+    when(gitCoreRepository
+        .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit)).thenReturn(relativeCommitCount);
 
     Instant olderInstant = Instant.parse("2000-05-01T10:00:00Z");
     Instant newerInstant = olderInstant.plus(10, ChronoUnit.MINUTES);
-    PowerMockito.doReturn(olderInstant).when(coreLocalBranchCommit).getCommitTime();
-    PowerMockito.doReturn(newerInstant).when(coreRemoteBranchCommit).getCommitTime();
+    when(coreLocalBranchCommit.getCommitTime()).thenReturn(olderInstant);
+    when(coreRemoteBranchCommit.getCommitTime()).thenReturn(newerInstant);
 
     // when
     RelationToRemote relationToRemote = invokeDeriveRelationToRemote(coreLocalBranch);
@@ -117,19 +117,19 @@ public class GitMacheteRepository_deriveRelationToRemoteUnitTestSuite extends Ba
   @SneakyThrows
   public void deriveRelationToRemote_DivergedAndNewerThan_theSameDates() {
     // given
-    PowerMockito.doReturn(List.of(ORIGIN)).when(gitCoreRepository).deriveAllRemoteNames();
+    when(gitCoreRepository.deriveAllRemoteNames()).thenReturn(List.of(ORIGIN));
 
-    PowerMockito.doReturn(coreRemoteBranch).when(coreLocalBranch).getRemoteTrackingBranch();
+    when(coreLocalBranch.getRemoteTrackingBranch()).thenReturn(coreRemoteBranch);
 
-    PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).getPointedCommit();
-    PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).getPointedCommit();
+    when(coreLocalBranch.getPointedCommit()).thenReturn(coreLocalBranchCommit);
+    when(coreRemoteBranch.getPointedCommit()).thenReturn(coreRemoteBranchCommit);
     val relativeCommitCount = GitCoreRelativeCommitCount.of(2, 1);
-    PowerMockito.doReturn(relativeCommitCount).when(gitCoreRepository)
-        .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit);
+    when(gitCoreRepository
+        .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit)).thenReturn(relativeCommitCount);
 
     Instant instant = Instant.parse("2000-05-01T10:00:00Z");
-    PowerMockito.doReturn(instant).when(coreLocalBranchCommit).getCommitTime();
-    PowerMockito.doReturn(instant).when(coreRemoteBranchCommit).getCommitTime();
+    when(coreLocalBranchCommit.getCommitTime()).thenReturn(instant);
+    when(coreRemoteBranchCommit.getCommitTime()).thenReturn(instant);
 
     // when
     RelationToRemote relationToRemote = invokeDeriveRelationToRemote(coreLocalBranch);
@@ -142,15 +142,15 @@ public class GitMacheteRepository_deriveRelationToRemoteUnitTestSuite extends Ba
   @SneakyThrows
   public void deriveRelationToRemote_Ahead() {
     // given
-    PowerMockito.doReturn(List.of(ORIGIN)).when(gitCoreRepository).deriveAllRemoteNames();
+    when(gitCoreRepository.deriveAllRemoteNames()).thenReturn(List.of(ORIGIN));
 
-    PowerMockito.doReturn(coreRemoteBranch).when(coreLocalBranch).getRemoteTrackingBranch();
+    when(coreLocalBranch.getRemoteTrackingBranch()).thenReturn(coreRemoteBranch);
 
-    PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).getPointedCommit();
-    PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).getPointedCommit();
+    when(coreLocalBranch.getPointedCommit()).thenReturn(coreLocalBranchCommit);
+    when(coreRemoteBranch.getPointedCommit()).thenReturn(coreRemoteBranchCommit);
     val relativeCommitCount = GitCoreRelativeCommitCount.of(3, 0);
-    PowerMockito.doReturn(relativeCommitCount).when(gitCoreRepository)
-        .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit);
+    when(gitCoreRepository
+        .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit)).thenReturn(relativeCommitCount);
 
     // when
     RelationToRemote relationToRemote = invokeDeriveRelationToRemote(coreLocalBranch);
@@ -163,15 +163,15 @@ public class GitMacheteRepository_deriveRelationToRemoteUnitTestSuite extends Ba
   @SneakyThrows
   public void deriveRelationToRemote_Behind() {
     // given
-    PowerMockito.doReturn(List.of(ORIGIN)).when(gitCoreRepository).deriveAllRemoteNames();
+    when(gitCoreRepository.deriveAllRemoteNames()).thenReturn(List.of(ORIGIN));
 
-    PowerMockito.doReturn(coreRemoteBranch).when(coreLocalBranch).getRemoteTrackingBranch();
+    when(coreLocalBranch.getRemoteTrackingBranch()).thenReturn(coreRemoteBranch);
 
-    PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).getPointedCommit();
-    PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).getPointedCommit();
+    when(coreLocalBranch.getPointedCommit()).thenReturn(coreLocalBranchCommit);
+    when(coreRemoteBranch.getPointedCommit()).thenReturn(coreRemoteBranchCommit);
     val relativeCommitCount = GitCoreRelativeCommitCount.of(0, 3);
-    PowerMockito.doReturn(relativeCommitCount).when(gitCoreRepository)
-        .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit);
+    when(gitCoreRepository
+        .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit)).thenReturn(relativeCommitCount);
 
     // when
     RelationToRemote relationToRemote = invokeDeriveRelationToRemote(coreLocalBranch);
@@ -184,15 +184,15 @@ public class GitMacheteRepository_deriveRelationToRemoteUnitTestSuite extends Ba
   @SneakyThrows
   public void deriveRelationToRemote_InSync() {
     // given
-    PowerMockito.doReturn(List.of(ORIGIN)).when(gitCoreRepository).deriveAllRemoteNames();
+    when(gitCoreRepository.deriveAllRemoteNames()).thenReturn(List.of(ORIGIN));
 
-    PowerMockito.doReturn(coreRemoteBranch).when(coreLocalBranch).getRemoteTrackingBranch();
+    when(coreLocalBranch.getRemoteTrackingBranch()).thenReturn(coreRemoteBranch);
 
-    PowerMockito.doReturn(coreLocalBranchCommit).when(coreLocalBranch).getPointedCommit();
-    PowerMockito.doReturn(coreRemoteBranchCommit).when(coreRemoteBranch).getPointedCommit();
+    when(coreLocalBranch.getPointedCommit()).thenReturn(coreLocalBranchCommit);
+    when(coreRemoteBranch.getPointedCommit()).thenReturn(coreRemoteBranchCommit);
     val relativeCommitCount = GitCoreRelativeCommitCount.of(0, 0);
-    PowerMockito.doReturn(relativeCommitCount).when(gitCoreRepository)
-        .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit);
+    when(gitCoreRepository
+        .deriveRelativeCommitCount(coreLocalBranchCommit, coreRemoteBranchCommit)).thenReturn(relativeCommitCount);
 
     // when
     RelationToRemote relationToRemote = invokeDeriveRelationToRemote(coreLocalBranch);

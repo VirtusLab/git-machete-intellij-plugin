@@ -17,7 +17,7 @@ jcabiAspects()
 junit()
 junitParams()
 lombok()
-powerMock()
+mockito()
 slf4jLambdaApi()
 vavr()
 

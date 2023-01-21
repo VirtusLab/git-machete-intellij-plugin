@@ -261,7 +261,7 @@ public class CreateGitMacheteRepositoryAux extends Aux {
   }
 
   @UIThreadUnsafe
-  private @Nullable ForkPointCommitOfManagedBranch deriveParentAwareForkPoint(
+  public @Nullable ForkPointCommitOfManagedBranch deriveParentAwareForkPoint(
       IGitCoreLocalBranchSnapshot coreLocalBranch,
       IGitCoreLocalBranchSnapshot parentCoreLocalBranch) throws GitCoreException {
     LOG.debug(() -> "Entering: coreLocalBranch = '${coreLocalBranch.getName()}', " +
@@ -418,7 +418,7 @@ public class CreateGitMacheteRepositoryAux extends Aux {
   }
 
   @UIThreadUnsafe
-  private RelationToRemote deriveRelationToRemote(IGitCoreLocalBranchSnapshot coreLocalBranch) throws GitCoreException {
+  public RelationToRemote deriveRelationToRemote(IGitCoreLocalBranchSnapshot coreLocalBranch) throws GitCoreException {
     String localBranchName = coreLocalBranch.getName();
     LOG.debug(() -> "Entering: coreLocalBranch = '${localBranchName}'");
 
@@ -483,7 +483,7 @@ public class CreateGitMacheteRepositoryAux extends Aux {
   }
 
   @UIThreadUnsafe
-  protected SyncToParentStatus deriveSyncToParentStatus(
+  public SyncToParentStatus deriveSyncToParentStatus(
       IGitCoreLocalBranchSnapshot coreLocalBranch,
       IGitCoreLocalBranchSnapshot parentCoreLocalBranch,
       @Nullable ForkPointCommitOfManagedBranch forkPoint) throws GitCoreException {

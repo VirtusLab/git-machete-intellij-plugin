@@ -25,7 +25,6 @@ junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref 
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junitJupiter" }
 lombok = "org.projectlombok:lombok:1.18.24"
 mockito-junitJupiter = "org.mockito:mockito-junit-jupiter:5.0.0"
-powerMock-apiMockito2 = "org.powermock:powermock-api-mockito2:2.0.9"
 scala-library = "org.scala-lang:scala-library:2.13.8"
 slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
 # @pin because slf4j-simple 2.0.0 isn't compatible with slf4j-api v1.x.y, which is still pulled in by our dependencies.
@@ -61,7 +60,6 @@ ideProbe = [
     "ideProbe-junitDriver",
     "ideProbe-robotDriver",
 ]
-powerMock = [
-    "powerMock-apiMockito2",
+mockito = [
     "mockito-junitJupiter"
 ]

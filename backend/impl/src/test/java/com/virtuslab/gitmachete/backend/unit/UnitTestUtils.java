@@ -1,5 +1,8 @@
 package com.virtuslab.gitmachete.backend.unit;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
@@ -8,7 +11,6 @@ import io.vavr.NotImplementedError;
 import io.vavr.collection.List;
 import lombok.SneakyThrows;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.powermock.api.mockito.PowerMockito;
 
 import com.virtuslab.gitcore.api.IGitCoreCheckoutEntry;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
@@ -29,11 +31,11 @@ class UnitTestUtils {
   @SneakyThrows
   static IGitCoreLocalBranchSnapshot createGitCoreLocalBranch(IGitCoreCommit pointedCommit,
       IGitCoreReflogEntry... reflogEntries) {
-    IGitCoreLocalBranchSnapshot mock = PowerMockito.mock(IGitCoreLocalBranchSnapshot.class);
-    PowerMockito.doReturn(String.valueOf(counter.incrementAndGet())).when(mock).getFullName();
-    PowerMockito.doReturn(pointedCommit).when(mock).getPointedCommit();
-    PowerMockito.doReturn(List.ofAll(Stream.of(reflogEntries))).when(mock).getReflogFromMostRecent();
-    PowerMockito.doReturn(null).when(mock).getRemoteTrackingBranch();
+    IGitCoreLocalBranchSnapshot mock = mock(IGitCoreLocalBranchSnapshot.class);
+    when(mock.getFullName()).thenReturn(String.valueOf(counter.incrementAndGet()));
+    when(mock.getPointedCommit()).thenReturn(pointedCommit);
+    when(mock.getReflogFromMostRecent()).thenReturn(List.ofAll(Stream.of(reflogEntries)));
+    when(mock.getRemoteTrackingBranch()).thenReturn(null);
     return mock;
   }
 

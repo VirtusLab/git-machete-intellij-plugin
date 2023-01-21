@@ -4,12 +4,11 @@ import static com.virtuslab.gitmachete.backend.unit.UnitTestUtils.TestGitCoreRef
 import static com.virtuslab.gitmachete.backend.unit.UnitTestUtils.createGitCoreCommit;
 import static com.virtuslab.gitmachete.backend.unit.UnitTestUtils.createGitCoreLocalBranch;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 import io.vavr.collection.List;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.reflect.Whitebox;
 
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
@@ -25,7 +24,7 @@ public class GitMacheteRepository_deriveSyncToParentStatusUnitTestSuite extends 
       IGitCoreLocalBranchSnapshot childBranch,
       IGitCoreLocalBranchSnapshot parentBranch,
       IGitCoreCommit forkPointCommit) {
-    return Whitebox.invokeMethod(aux(), "deriveSyncToParentStatus",
+    return aux().deriveSyncToParentStatus(
         childBranch, parentBranch,
         ForkPointCommitOfManagedBranch.inferred(forkPointCommit, /* containingBranches */ List.empty()));
   }
@@ -66,7 +65,7 @@ public class GitMacheteRepository_deriveSyncToParentStatusUnitTestSuite extends 
     IGitCoreCommit childCommit = createGitCoreCommit();
     IGitCoreLocalBranchSnapshot parentBranch = createGitCoreLocalBranch(parentCommit);
     IGitCoreLocalBranchSnapshot childBranch = createGitCoreLocalBranch(childCommit);
-    PowerMockito.doReturn(true).when(gitCoreRepository).isAncestorOrEqual(parentCommit, childCommit);
+    when(gitCoreRepository.isAncestorOrEqual(parentCommit, childCommit)).thenReturn(true);
 
     // when
     SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(childBranch, parentBranch, parentCommit);
@@ -84,7 +83,7 @@ public class GitMacheteRepository_deriveSyncToParentStatusUnitTestSuite extends 
     IGitCoreCommit childCommit = createGitCoreCommit();
     IGitCoreLocalBranchSnapshot parentBranch = createGitCoreLocalBranch(parentCommit);
     IGitCoreLocalBranchSnapshot childBranch = createGitCoreLocalBranch(childCommit);
-    PowerMockito.doReturn(true).when(gitCoreRepository).isAncestorOrEqual(parentCommit, childCommit);
+    when(gitCoreRepository.isAncestorOrEqual(parentCommit, childCommit)).thenReturn(true);
 
     // when
     SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(childBranch, parentBranch, forkPointCommit);
@@ -101,8 +100,8 @@ public class GitMacheteRepository_deriveSyncToParentStatusUnitTestSuite extends 
     IGitCoreCommit parentCommit = createGitCoreCommit();
     IGitCoreLocalBranchSnapshot childBranch = createGitCoreLocalBranch(childCommit);
     IGitCoreLocalBranchSnapshot parentBranch = createGitCoreLocalBranch(parentCommit);
-    PowerMockito.doReturn(false).when(gitCoreRepository).isAncestorOrEqual(parentCommit, childCommit);
-    PowerMockito.doReturn(true).when(gitCoreRepository).isAncestorOrEqual(childCommit, parentCommit);
+    when(gitCoreRepository.isAncestorOrEqual(parentCommit, childCommit)).thenReturn(false);
+    when(gitCoreRepository.isAncestorOrEqual(childCommit, parentCommit)).thenReturn(true);
 
     // when
     SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(childBranch, parentBranch, MISSING_FORK_POINT);
@@ -119,9 +118,9 @@ public class GitMacheteRepository_deriveSyncToParentStatusUnitTestSuite extends 
     IGitCoreCommit childCommit = createGitCoreCommit();
     IGitCoreLocalBranchSnapshot parentBranch = createGitCoreLocalBranch(parentCommit);
     IGitCoreLocalBranchSnapshot childBranch = createGitCoreLocalBranch(childCommit);
-    PowerMockito.doReturn(false).when(gitCoreRepository).isAncestorOrEqual(parentCommit, childCommit);
-    PowerMockito.doReturn(false).when(gitCoreRepository).isAncestorOrEqual(childCommit, parentCommit);
-    PowerMockito.doReturn(List.empty()).when(gitCoreRepository).deriveCommitRange(parentCommit, childCommit);
+    when(gitCoreRepository.isAncestorOrEqual(parentCommit, childCommit)).thenReturn(false);
+    when(gitCoreRepository.isAncestorOrEqual(childCommit, parentCommit)).thenReturn(false);
+    when(gitCoreRepository.deriveCommitRange(parentCommit, childCommit)).thenReturn(List.empty());
 
     // when
     SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(childBranch, parentBranch, MISSING_FORK_POINT);

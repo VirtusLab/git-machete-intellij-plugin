@@ -6,13 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import io.vavr.collection.Stream;
 import lombok.SneakyThrows;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.jupiter.api.Test;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.reflect.Whitebox;
 
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
@@ -25,12 +24,12 @@ public class GitMacheteRepository_deriveParentAwareForkPointUnitTestSuite extend
       IGitCoreLocalBranchSnapshot childBranch,
       IGitCoreLocalBranchSnapshot parentBranch) {
 
-    PowerMockito.doReturn(null).when(gitCoreRepository).deriveConfigValue(any(), any(), any());
+    when(gitCoreRepository.deriveConfigValue(any(), any(), any())).thenReturn(null);
 
-    ForkPointCommitOfManagedBranch forkPoint = Whitebox.invokeMethod(
-        aux(childBranch, parentBranch), "deriveParentAwareForkPoint", childBranch, parentBranch);
+    ForkPointCommitOfManagedBranch forkPoint = aux(childBranch, parentBranch).deriveParentAwareForkPoint(childBranch,
+        parentBranch);
     if (forkPoint != null) {
-      return Whitebox.invokeMethod(forkPoint, "getCoreCommit");
+      return forkPoint.getCoreCommit();
     } else {
       return null;
     }
@@ -45,8 +44,8 @@ public class GitMacheteRepository_deriveParentAwareForkPointUnitTestSuite extend
     IGitCoreLocalBranchSnapshot childBranch = createGitCoreLocalBranch(childCommit);
     IGitCoreLocalBranchSnapshot parentBranch = createGitCoreLocalBranch(parentCommit);
 
-    PowerMockito.doReturn(Stream.empty()).when(gitCoreRepository).ancestorsOf(childCommit);
-    PowerMockito.doReturn(false).when(gitCoreRepository).isAncestorOrEqual(parentCommit, childCommit);
+    when(gitCoreRepository.ancestorsOf(childCommit)).thenReturn(Stream.empty());
+    when(gitCoreRepository.isAncestorOrEqual(parentCommit, childCommit)).thenReturn(false);
 
     // when
     IGitCoreCommit result = invokeDeriveParentAwareForkPoint(childBranch, parentBranch);
@@ -64,8 +63,8 @@ public class GitMacheteRepository_deriveParentAwareForkPointUnitTestSuite extend
     IGitCoreLocalBranchSnapshot parentBranch = createGitCoreLocalBranch(parentCommit);
     IGitCoreLocalBranchSnapshot childBranch = createGitCoreLocalBranch(childCommit);
 
-    PowerMockito.doReturn(Stream.empty()).when(gitCoreRepository).ancestorsOf(childCommit);
-    PowerMockito.doReturn(true).when(gitCoreRepository).isAncestorOrEqual(parentCommit, childCommit);
+    when(gitCoreRepository.ancestorsOf(childCommit)).thenReturn(Stream.empty());
+    when(gitCoreRepository.isAncestorOrEqual(parentCommit, childCommit)).thenReturn(true);
 
     // when
     IGitCoreCommit result = invokeDeriveParentAwareForkPoint(childBranch, parentBranch);
@@ -85,9 +84,9 @@ public class GitMacheteRepository_deriveParentAwareForkPointUnitTestSuite extend
     IGitCoreLocalBranchSnapshot parentBranch = createGitCoreLocalBranch(parentCommit);
     IGitCoreLocalBranchSnapshot childBranch = createGitCoreLocalBranch(childCommit);
 
-    PowerMockito.doReturn(Stream.of(forkPointCommit)).when(gitCoreRepository).ancestorsOf(childCommit);
-    PowerMockito.doReturn(false).when(gitCoreRepository).isAncestorOrEqual(parentCommit, forkPointCommit);
-    PowerMockito.doReturn(true).when(gitCoreRepository).isAncestorOrEqual(parentCommit, childCommit);
+    when(gitCoreRepository.ancestorsOf(childCommit)).thenReturn(Stream.of(forkPointCommit));
+    when(gitCoreRepository.isAncestorOrEqual(parentCommit, forkPointCommit)).thenReturn(false);
+    when(gitCoreRepository.isAncestorOrEqual(parentCommit, childCommit)).thenReturn(true);
 
     // when
     IGitCoreCommit result = invokeDeriveParentAwareForkPoint(childBranch, parentBranch);

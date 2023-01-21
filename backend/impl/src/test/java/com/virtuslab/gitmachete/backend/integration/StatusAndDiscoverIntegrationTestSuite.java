@@ -13,6 +13,9 @@ import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
@@ -28,20 +31,18 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
-import com.virtuslab.branchlayout.impl.readwrite.BranchLayoutReader;
 import com.virtuslab.gitcore.api.IGitCoreRepositoryFactory;
 import com.virtuslab.gitcore.impl.jgit.GitCoreRepositoryFactory;
 import com.virtuslab.gitmachete.backend.api.*;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.testcommon.GitRepositoryBackedIntegrationTestSuiteInitializer;
-import org.powermock.api.mockito.PowerMockito;
 
 public class StatusAndDiscoverIntegrationTestSuite {
 
   private static final IGitCoreRepositoryFactory gitCoreRepositoryFactory = new GitCoreRepositoryFactory();
 
-  private final IBranchLayoutReader branchLayoutReader = RuntimeBinding
-      .instantiateSoleImplementingClass(IBranchLayoutReader.class);
+  private final IBranchLayoutReader branchLayoutReader = ApplicationManager.getApplication()
+      .getService(IBranchLayoutReader.class);
   private final GitMacheteRepositoryCache gitMacheteRepositoryCache = new GitMacheteRepositoryCache();
 
   public static String[] getScriptNames() {
@@ -55,10 +56,9 @@ public class StatusAndDiscoverIntegrationTestSuite {
     val it = new GitRepositoryBackedIntegrationTestSuiteInitializer(scriptName);
     // This setup needs to happen BEFORE GitMacheteRepositoryCache is created
     val application = mock(Application.class);
-    when(application.getService(any<IGitCoreRepositoryFactory>())).thenReturn(gitCoreRepositoryFactory);
-    when(ApplicationManager.getApplication()).toReturn(application);
+    when(application.getService(any())).thenReturn(gitCoreRepositoryFactory);
+    when(ApplicationManager.getApplication()).thenReturn(application);
 
-    val gitMacheteRepositoryCache = new GitMacheteRepositoryCache();
     val gitMacheteRepository = gitMacheteRepositoryCache.getInstance(it.rootDirectoryPath, it.mainGitDirectoryPath,
         it.worktreeGitDirectoryPath);
 
@@ -87,10 +87,9 @@ public class StatusAndDiscoverIntegrationTestSuite {
     val it = new GitRepositoryBackedIntegrationTestSuiteInitializer(scriptName);
     // This setup needs to happen BEFORE GitMacheteRepositoryCache is created
     val application = mock(Application.class);
-    when(application.getService(any<IGitCoreRepositoryFactory>())).thenReturn(gitCoreRepositoryFactory);
-    when(ApplicationManager.getApplication()).toReturn(application);
+    when(application.getService(any())).thenReturn(gitCoreRepositoryFactory);
+    when(ApplicationManager.getApplication()).thenReturn(application);
 
-    val gitMacheteRepositoryCache = new GitMacheteRepositoryCache();
     val gitMacheteRepository = gitMacheteRepositoryCache.getInstance(it.rootDirectoryPath, it.mainGitDirectoryPath,
         it.worktreeGitDirectoryPath);
 

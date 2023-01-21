@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.frontend.ui.impl;
 import static com.virtuslab.gitmachete.frontend.ui.impl.GitMacheteErrorReportSubmitter.MAX_GITHUB_URI_LENGTH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -22,16 +23,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.reflect.Whitebox;
 
 @ExtendWith(MockitoExtension.class)
-@PrepareForTest({ApplicationInfo.class, PluginManagerCore.class, SystemUtils.class})
 public class GitMacheteErrorReportSubmitterTest {
 
   private GitMacheteErrorReportSubmitter reportSubmitter;
-  private static final LambdaLogger errorReportSubmitterLogger = PowerMockito.mock(LambdaLogger.class);
+  private static final LambdaLogger errorReportSubmitterLogger = mock(LambdaLogger.class);
 
   @BeforeAll
   public static void setUpStatic() {

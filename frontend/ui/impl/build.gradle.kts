@@ -14,7 +14,7 @@ addIntellijToCompileClasspath(withGit4Idea = true)
 apacheCommonsText()
 junit()
 lombok()
-powerMock()
+mockito()
 slf4jLambdaApi()
 vavr()
 

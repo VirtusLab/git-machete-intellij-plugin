@@ -161,9 +161,9 @@ fun Project.lombok() {
   }
 }
 
-fun Project.powerMock() {
+fun Project.mockito() {
   dependencies {
-    "testImplementation"(bundle("powerMock"))
+    "testImplementation"(bundle("mockito"))
   }
 }
 
