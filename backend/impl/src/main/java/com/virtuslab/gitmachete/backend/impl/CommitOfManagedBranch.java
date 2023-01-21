@@ -2,7 +2,6 @@ package com.virtuslab.gitmachete.backend.impl;
 
 import java.time.Instant;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -12,11 +11,11 @@ import org.checkerframework.common.value.qual.ArrayLen;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
 
-@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
+@RequiredArgsConstructor
 @ToString(onlyExplicitlyIncluded = true)
 public class CommitOfManagedBranch implements ICommitOfManagedBranch {
 
-  @Getter(AccessLevel.PACKAGE)
+  @Getter
   private final IGitCoreCommit coreCommit;
 
   @Override

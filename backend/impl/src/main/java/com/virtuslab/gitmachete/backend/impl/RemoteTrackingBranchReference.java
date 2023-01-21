@@ -24,7 +24,7 @@ public final class RemoteTrackingBranchReference extends BaseBranchReference imp
     this.trackedLocalBranch = trackedLocalBranch;
   }
 
-  static RemoteTrackingBranchReference of(IGitCoreRemoteBranchSnapshot coreRemoteBranch,
+  public static RemoteTrackingBranchReference of(IGitCoreRemoteBranchSnapshot coreRemoteBranch,
       IGitCoreLocalBranchSnapshot coreTrackedLocalBranch) {
     return new RemoteTrackingBranchReference(
         coreRemoteBranch.getName(),
