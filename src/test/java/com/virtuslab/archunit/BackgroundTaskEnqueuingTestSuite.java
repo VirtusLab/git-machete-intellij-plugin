@@ -6,11 +6,7 @@ import java.util.Arrays;
 
 import com.intellij.dvcs.push.ui.VcsPushDialog;
 import com.intellij.openapi.progress.Task;
-import com.intellij.vcs.log.VcsLog;
-import com.intellij.openapi.progress.Task;
 import com.tngtech.archunit.base.DescribedPredicate;
-import com.tngtech.archunit.base.DescribedPredicate;
-import com.intellij.vcs.log.VcsLog;
 import com.tngtech.archunit.core.domain.AccessTarget;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaMethod;

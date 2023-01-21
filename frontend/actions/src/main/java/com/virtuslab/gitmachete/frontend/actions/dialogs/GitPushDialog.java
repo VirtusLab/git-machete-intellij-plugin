@@ -19,9 +19,8 @@ import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.qual.guieffect.UIThreadUnsafe;
-
 import com.virtuslab.qual.async.BackgroundableQueuedElsewhere;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 public final class GitPushDialog extends VcsPushDialog {
   private final boolean isForcePushRequired;
