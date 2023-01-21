@@ -15,7 +15,6 @@ fun Project.configureIntellijPlugin() {
   apply<IntelliJPlugin>()
   apply<ChangelogPlugin>()
 
-  val isCI: Boolean by rootProject.extra
   val jetbrainsMarketplaceToken: String? by rootProject.extra
   val pluginSignPrivateKey: String? by rootProject.extra
   val pluginSignCertificateChain: String? by rootProject.extra
@@ -30,12 +29,11 @@ fun Project.configureIntellijPlugin() {
     plugins.set(listOf("Git4Idea")) // Needed solely for ArchUnit
   }
 
-  if (!isCI) {
-    // The output of this task is for some reason very poorly cached,
-    // and the task takes a significant amount of time,
-    // while the index of searchable options is of little use for local development.
-    tasks.withType<BuildSearchableOptionsTask> { enabled = false }
-  }
+  // TODO (#1470): restore building searchable options in CI if there is any benefit to the users
+  // The output of this task is for some reason very poorly cached,
+  // and the task takes a significant amount of time,
+  // while the index of searchable options is of little use for local development.
+  tasks.withType<BuildSearchableOptionsTask> { enabled = false }
 
   // This task should not be used - we don't use the "Unreleased" section anymore
   project.gradle.startParameter.excludedTaskNames.add("patchChangeLog")
