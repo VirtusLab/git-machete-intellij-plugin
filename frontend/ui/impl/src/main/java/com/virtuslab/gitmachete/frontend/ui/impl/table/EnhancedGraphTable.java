@@ -583,6 +583,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     ENQUEUING_UPDATES_ENABLED.set(true);
     queueRepositoryUpdateAndModelRefresh();
   }
+
   @Override
   public void disableEnqueuingUpdates() {
     ENQUEUING_UPDATES_ENABLED.set(false);
