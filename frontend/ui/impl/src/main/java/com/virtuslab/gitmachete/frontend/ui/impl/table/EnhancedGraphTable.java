@@ -97,7 +97,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       DataProvider,
       Disposable {
 
-  private static final AtomicBoolean ENQUEUING_UPDATES_ENABLED = new AtomicBoolean(true);
+  private final AtomicBoolean ENQUEUING_UPDATES_ENABLED = new AtomicBoolean(true);
 
   @Getter(AccessLevel.PACKAGE)
   private final Project project;
