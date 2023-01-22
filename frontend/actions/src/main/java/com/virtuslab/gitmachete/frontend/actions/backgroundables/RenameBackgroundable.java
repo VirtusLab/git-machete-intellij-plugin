@@ -74,8 +74,7 @@ public class RenameBackgroundable extends Task.Backgroundable {
 
     });
 
-    // `renameBranch` may perform some sneakily-asynchronous operations (e.g. renameBranch).
-    // The high-level method used within the runnable does not allow us to schedule the tasks after them.
+    // `gitBrancher.renameBranch` continues asynchronously and doesn't allow for passing a callback to execute once complete.
     // (Stepping deeper is not an option since we would lose some important logic or become very dependent on the internals of git4idea).
     // Hence, we wait for the creation of the branch (with exponential backoff).
     waitForCreationOfLocalBranch(gitRepository, newBranchName);

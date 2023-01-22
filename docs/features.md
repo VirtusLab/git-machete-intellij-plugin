@@ -120,6 +120,12 @@ As you can see, the edge between `develop` and `call-ws` changed to grey &mdash;
 ![](fast_forward.gif)
 
 
+## Rename branch
+
+You can easily rename a branch directly from Git Machete.
+Open a context menu for a branch and choose `Rename...` action.
+
+
 ## Slide out branch
 
 When a branch was merged (and sometimes in other cases as well), you probably want to remove this branch from the branch layout.
