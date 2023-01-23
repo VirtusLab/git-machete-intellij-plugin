@@ -2,6 +2,7 @@
 
 ## v3.5.0
 - Dropped explicit refresh action in favor of automatic updates.
+- Changed traverse action in the toolbar, so the traverses starts from the first branch instead of the current.
 
 ## v3.4.0
 - Added Branch Rename action.
