@@ -10,7 +10,6 @@ import lombok.CustomLog;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UI;
 
-import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.qual.async.ContinuesInBackground;
 
 @CustomLog
@@ -18,7 +17,7 @@ final class CheckoutAndExecute {
   private CheckoutAndExecute() {}
 
   @ContinuesInBackground
-  static void checkoutAndExecuteOnUIThread(GitRepository gitRepository, BaseEnhancedGraphTable graphTable, String branchName,
+  static void checkoutAndExecuteOnUIThread(GitRepository gitRepository, String branchName,
       @UI Runnable doOnUIThreadAfterCheckout) {
     val currentBranch = gitRepository.getCurrentBranch();
     if (currentBranch != null && currentBranch.getName().equals(branchName)) {
@@ -26,11 +25,10 @@ final class CheckoutAndExecute {
     } else {
       LOG.debug(() -> "Queuing '${branchName}' branch checkout background task");
 
-      Runnable repositoryRefreshRunnable = () -> graphTable.queueRepositoryUpdateAndModelRefresh(doOnUIThreadAfterCheckout);
       val gitBrancher = GitBrancher.getInstance(gitRepository.getProject());
       val repositories = Collections.singletonList(gitRepository);
 
-      gitBrancher.checkout(/* reference */ branchName, /* detach */ false, repositories, repositoryRefreshRunnable);
+      gitBrancher.checkout(/* reference */ branchName, /* detach */ false, repositories, doOnUIThreadAfterCheckout);
     }
   }
 

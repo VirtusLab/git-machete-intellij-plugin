@@ -85,7 +85,7 @@ public class TraverseSyncToParent {
             syncToRemoteRunnable);
         // Note that checking out the branch to be slid out has the unfortunate side effect
         // that we won't suggest deleting the branch after the slide out.
-        checkoutAndExecuteOnUIThread(gitRepository, graphTable, branch.getName(), slideOut);
+        checkoutAndExecuteOnUIThread(gitRepository, branch.getName(), slideOut);
         break;
 
       case InSyncButForkPointOff :
@@ -95,7 +95,7 @@ public class TraverseSyncToParent {
         } else {
           @UI Runnable rebase = () -> handleOutOfSyncOrInSyncButForkPointOff(repositorySnapshot, gitMacheteBranch.asNonRoot(),
               syncToRemoteRunnable);
-          checkoutAndExecuteOnUIThread(gitRepository, graphTable, branch.getName(), rebase);
+          checkoutAndExecuteOnUIThread(gitRepository, branch.getName(), rebase);
         }
         break;
 
