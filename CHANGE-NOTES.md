@@ -2,6 +2,7 @@
 
 ## v3.4.0
 - Added Branch Rename action.
+- Added preliminary support for IntelliJ 2023.1.
 - Fixed poor performance of action updates, as reported by @ekitrak.
 - Fixed Slide Out action not executing during Traverse.
 - Fixed race conditions happening when a branch is deleted in Slide Out action.
