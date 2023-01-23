@@ -40,6 +40,7 @@ import com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperationType;
 import com.virtuslab.gitmachete.backend.api.RelationToRemote;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.impl.CommitOfManagedBranch;
+import com.virtuslab.gitmachete.backend.impl.CreatedAndDuplicatedAndSkippedBranches;
 import com.virtuslab.gitmachete.backend.impl.ForkPointCommitOfManagedBranch;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.impl.NonRootManagedBranchSnapshot;
@@ -47,7 +48,6 @@ import com.virtuslab.gitmachete.backend.impl.RemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.impl.RootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.impl.hooks.PreRebaseHookExecutor;
 import com.virtuslab.gitmachete.backend.impl.hooks.StatusBranchHookExecutor;
-import com.virtuslab.gitmachete.backend.impl.repository.CreatedAndDuplicatedAndSkippedBranches;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog

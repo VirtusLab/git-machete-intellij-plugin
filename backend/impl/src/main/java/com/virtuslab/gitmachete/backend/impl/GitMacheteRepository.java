@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.backend.impl.repository;
+package com.virtuslab.gitmachete.backend.impl;
 
 import com.jcabi.aspects.Loggable;
 import io.vavr.collection.Set;

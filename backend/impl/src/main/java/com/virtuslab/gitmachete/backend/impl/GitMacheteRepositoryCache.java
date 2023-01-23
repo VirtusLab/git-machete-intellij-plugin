@@ -18,7 +18,6 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.impl.hooks.PreRebaseHookExecutor;
 import com.virtuslab.gitmachete.backend.impl.hooks.StatusBranchHookExecutor;
-import com.virtuslab.gitmachete.backend.impl.repository.GitMacheteRepository;
 
 public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
 
