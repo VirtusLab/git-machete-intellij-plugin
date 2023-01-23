@@ -303,6 +303,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         mostRecentlyCheckedOutBranch = repositoryCurrentBranchName;
       }
     }
+    // required to indicate the currently checked out branch after a checkout
     queueRepositoryUpdateAndModelRefresh();
   }
 
@@ -450,7 +451,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       @UI Runnable doOnUIThreadWhenReady) {
     return (IGitMacheteRepositorySnapshot repositorySnapshot) -> ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> {
       gitMacheteRepositorySnapshot = repositorySnapshot;
-      queueRepositoryUpdateAndModelRefresh(doOnUIThreadWhenReady);
+      doOnUIThreadWhenReady.run();
 
       val notifier = VcsNotifier.getInstance(project);
       val notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(

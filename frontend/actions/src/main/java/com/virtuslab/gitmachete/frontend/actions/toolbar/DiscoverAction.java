@@ -151,7 +151,6 @@ public class DiscoverAction extends BaseProjectDependentAction {
       @Override
       @UIEffect
       public void onSuccess() {
-        baseEnhancedGraphTable.queueRepositoryUpdateAndModelRefresh();
         VfsUtil.markDirtyAndRefresh(/* async */ false, /* recursive */ true, /* reloadChildren */ false,
             ProjectRootManager.getInstance(project).getContentRoots());
         postWriteRunnable.run();
