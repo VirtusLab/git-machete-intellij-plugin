@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.backend.impl.repository;
+package com.virtuslab.gitmachete.backend.impl;
 
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
@@ -6,8 +6,6 @@ import io.vavr.collection.TreeSet;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
-import com.virtuslab.gitmachete.backend.impl.BaseManagedBranchSnapshot;
 
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
