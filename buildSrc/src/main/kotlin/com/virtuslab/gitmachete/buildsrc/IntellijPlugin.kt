@@ -31,6 +31,7 @@ fun Project.configureIntellijPlugin() {
 
   // It only affects searchability of plugin-specific settings (which we don't provide so far).
   // Actions remain searchable anyway.
+  // TODO (#270): to be re-enabled (at least in CI) once we provide custom settings
   tasks.withType<BuildSearchableOptionsTask> { enabled = false }
 
   // This task should not be used - we don't use the "Unreleased" section anymore
