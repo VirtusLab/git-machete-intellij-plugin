@@ -33,7 +33,6 @@ import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.DeleteBranchOnSlideOutSuggestionDialog;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
-import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
@@ -46,21 +45,18 @@ public class SlideOut {
   private final @Nullable String currentBranchNameIfManaged;
   private final BranchLayout branchLayout;
   private final GitRepository gitRepository;
-  private final BaseEnhancedGraphTable graphTable;
 
   public static final String DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY = "machete.slideOut.deleteLocalBranch";
 
   public SlideOut(IManagedBranchSnapshot branchToSlideOut,
       GitRepository gitRepository,
       @Nullable IManagedBranchSnapshot currentBranchNameIfManaged,
-      BranchLayout branchLayout,
-      BaseEnhancedGraphTable graphTable) {
+      BranchLayout branchLayout) {
     this.project = gitRepository.getProject();
     this.branchToSlideOutName = branchToSlideOut.getName();
     this.currentBranchNameIfManaged = currentBranchNameIfManaged != null ? currentBranchNameIfManaged.getName() : null;
     this.branchLayout = branchLayout;
     this.gitRepository = gitRepository;
-    this.graphTable = graphTable;
 
     LOG.debug(() -> "Entering: branchToSlideOut = ${branchToSlideOutName}");
     LOG.debug("Refreshing repository state");

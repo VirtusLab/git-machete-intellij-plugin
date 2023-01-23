@@ -125,7 +125,7 @@ public class TraverseSyncToParent {
         // For a branch merged to its parent, we're not syncing to remote.
         // Let's just go straight to the next branch.
         Runnable doInUIThreadWhenReady = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
-        new SlideOut(managedBranch, gitRepository, currentBranchIfManaged, branchLayout, graphTable).run(doInUIThreadWhenReady);
+        new SlideOut(managedBranch, gitRepository, currentBranchIfManaged, branchLayout).run(doInUIThreadWhenReady);
         break;
 
       case NO :
