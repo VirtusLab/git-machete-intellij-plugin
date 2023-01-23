@@ -166,13 +166,6 @@
                 <override-text place="GitMacheteToolbar"/>
             </action>
 
-            <action id="GitMachete.RefreshStatusAction"
-                    class="com.virtuslab.gitmachete.frontend.actions.toolbar.RefreshStatusAction"
-                    icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.REFRESH_STATUS"
-                    use-shortcut-of="Refresh">
-                <override-text place="GitMacheteToolbar"/>
-            </action>
-
             <action id="GitMachete.ToggleListingCommitsAction"
                     class="com.virtuslab.gitmachete.frontend.actions.toolbar.ToggleListingCommitsAction"
                     icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.TOGGLE_LISTING_COMMITS">

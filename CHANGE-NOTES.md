@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.5.0
+- Dropped explicit refresh action in favor of automatic updates.
+
 ## v3.4.0
 - Added Branch Rename action.
 - Added preliminary support for IntelliJ 2023.1.
