@@ -252,7 +252,6 @@ For more information about the `machete` file, look at the [reference blog post]
 ## Other actions
 
 On the left side bar you can find other actions (from top to bottom):
-- ![](left_bar_actions/refresh.png) **Refresh Status** &mdash; refresh the graph displayed in main plugin window
 - ![](left_bar_actions/toggleListingCommits.png) **Toggle Listing Commits** &mdash; show or hide commits belonging to branches (for more details see `Toggle listing commits` section)
 - ![](left_bar_actions/edit.png) **Open Machete File** &mdash; open the `machete` file in IntelliJ editor (to see what this editor can do see `Edit machete file` section)
 - ![](left_bar_actions/fetch.png) **Fetch All Remotes** &mdash; equivalent to `git fetch --all` command
