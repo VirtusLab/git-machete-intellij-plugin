@@ -29,10 +29,8 @@ fun Project.configureIntellijPlugin() {
     plugins.set(listOf("Git4Idea")) // Needed solely for ArchUnit
   }
 
-  // TODO (#1470): restore building searchable options in CI if there is any benefit to the users
-  // The output of this task is for some reason very poorly cached,
-  // and the task takes a significant amount of time,
-  // while the index of searchable options is of little use for local development.
+  // It only affects searchability of plugin-specific settings (which we don't provide so far).
+  // Actions remain searchable anyway.
   tasks.withType<BuildSearchableOptionsTask> { enabled = false }
 
   // This task should not be used - we don't use the "Unreleased" section anymore
