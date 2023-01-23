@@ -56,8 +56,6 @@ public class OpenMacheteFileAction extends BaseProjectDependentAction {
             /* message */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.cannot-open"))))
         .getOrNull();
 
-    getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
-
     if (macheteFile == null) {
       VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
           /* title */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.machete-file-not-found"),

@@ -4,6 +4,7 @@
 - Dropped explicit refresh action in favor of automatic updates.
 - Changed traverse action in the toolbar, so that the traverses start from the first branch instead of the current branch.
 - Improved stability in the scope of automatic refreshes.
+- Fixed an issue with open machete file action called when the file does not exist.
 
 ## v3.4.0
 - Added Branch Rename action.
