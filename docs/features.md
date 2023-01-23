@@ -262,11 +262,12 @@ On the left side bar you can find other actions (from top to bottom):
     - ![](left_bar_actions/merge.png) **Sync Current Branch to Parent by Merge**
     - ![](left_bar_actions/overrideForkPoint.png) **Override Fork Point of Current Branch...**
     - ![](left_bar_actions/squash.png) **Squash...**
+    - ![](left_bar_actions/traverse.png) **Traverse from Here...**
     - ![](left_bar_actions/push.png) **Push...**
     - ![](left_bar_actions/pull.png) **Pull**
     - ![](left_bar_actions/reset.png) **Reset to Remote**
     - ![](left_bar_actions/ffmerge.png) **Fast-forward Merge into Parent**
-    - ![](left_bar_actions/slideIn.png) **Slide In**
+    - ![](left_bar_actions/slideIn.png) **Slide In Branch Below...**
     - ![](left_bar_actions/slideOut.png) **Slide Out**
     - **Show in Git log**
 - ![](left_bar_actions/discover.png) **Discover Branch Layout...**
