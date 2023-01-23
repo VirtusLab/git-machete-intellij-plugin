@@ -252,20 +252,24 @@ For more information about the `machete` file, look at the [reference blog post]
 ## Other actions
 
 On the left side bar you can find other actions (from top to bottom):
+- ![](left_bar_actions/traverse.png) **Traverse** &mdash; starts the interactive walk over branches from the first branch
 - ![](left_bar_actions/toggleListingCommits.png) **Toggle Listing Commits** &mdash; show or hide commits belonging to branches (for more details see `Toggle listing commits` section)
 - ![](left_bar_actions/edit.png) **Open Machete File** &mdash; open the `machete` file in IntelliJ editor (to see what this editor can do see `Edit machete file` section)
 - ![](left_bar_actions/fetch.png) **Fetch All Remotes** &mdash; equivalent to `git fetch --all` command
 - The most suitable actions (each is equivalent to one of the context menu actions) for a current branch that include one or more of:
+    - **Checkout** - however a double click is more handy
     - ![](left_bar_actions/rebase.png) **Sync Current Branch to Parent by Rebase...**
     - ![](left_bar_actions/merge.png) **Sync Current Branch to Parent by Merge**
-    - ![](left_bar_actions/push.png) **Push Current Branch**
-    - ![](left_bar_actions/pull.png) **Pull Current Branch**
-    - ![](left_bar_actions/reset.png) **Reset Current Branch to Remote**
-    - ![](left_bar_actions/slideOut.png) **Slide Out Current Branch**
     - ![](left_bar_actions/overrideForkPoint.png) **Override Fork Point of Current Branch...**
-
-  Available action is selected based on a relation between a current branch and its parent and remote branch.
-- ![](left_bar_actions/slideIn.png) **Slide In Branch Below Current Branch...** &mdash; shortcut of [slide in](#slide-in-branch) action for current branch
+    - ![](left_bar_actions/squash.png) **Squash...**
+    - ![](left_bar_actions/push.png) **Push...**
+    - ![](left_bar_actions/pull.png) **Pull**
+    - ![](left_bar_actions/reset.png) **Reset to Remote**
+    - ![](left_bar_actions/ffmerge.png) **Fast-forward Merge into Parent**
+    - ![](left_bar_actions/slideIn.png) **Slide In**
+    - ![](left_bar_actions/slideOut.png) **Slide Out**
+    - **Show in Git log**
+- ![](left_bar_actions/discover.png) **Discover Branch Layout...**
 - ![](left_bar_actions/help.png) **Show Help Window** &mdash; show window with a sample branch layout and explanation what parts of this graph mean
 
 
