@@ -1,13 +1,13 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
+import static com.virtuslab.gitmachete.frontend.actions.toolbar.OpenMacheteFileAction.openMacheteFile;
 import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.blockingRunWriteActionOnUIThread;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
-import com.intellij.ide.actions.OpenFileAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -107,21 +107,6 @@ public class DiscoverAction extends BaseProjectDependentAction {
     return repositorySnapshot -> saveDiscoveredLayout(repositorySnapshot,
         gitRepository.getMacheteFilePath(), gitRepository.getProject(),
         branchLayoutWriter, () -> openMacheteFile(gitRepository));
-  }
-
-  @UIEffect
-  private static void openMacheteFile(GitRepository gitRepository) {
-    val project = gitRepository.getProject();
-    val file = gitRepository.getMacheteFile();
-    if (file != null) {
-      OpenFileAction.openFile(file, project);
-    } else {
-      VcsNotifier.getInstance(project).notifyError(
-          /* displayId */ null,
-          /* title */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.machete-file-not-found"),
-          /* message */ getString("action.GitMachete.OpenMacheteFileAction.notification.message.machete-file-not-found")
-              .fmt(gitRepository.getRoot().getPath()));
-    }
   }
 
   @ContinuesInBackground
