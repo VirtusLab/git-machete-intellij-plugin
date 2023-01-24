@@ -66,6 +66,10 @@ public class OpenMacheteFileAction extends BaseProjectDependentAction {
           /* message */ getString("action.GitMachete.OpenMacheteFileAction.notification.message.machete-file-not-found")
               .fmt(gitDir.getPath()),
           NotificationType.ERROR);
+      // Note there is no `.expire()` call, so the action remains available as long as the notification.
+      // It is troublesome to track the notification and cover all cases when it shall be expired.
+      // However, the discover action does not any changes directly; a dialog appears with options to accept or cancel.
+      // Hence, there is no much harm in leaving this notification without the expiration.
       errorWithDiscover.addAction(NotificationAction
           .createSimple(getString("action.GitMachete.DiscoverAction.GitMacheteToolbar.text"),
               () -> ActionManager.getInstance().getAction(DiscoverAction.class.getSimpleName())
