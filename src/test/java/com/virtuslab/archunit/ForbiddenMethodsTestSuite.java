@@ -23,7 +23,7 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
             com.intellij.openapi.actionSystem.DataKey.class)
         .because("getRequiredData can fail in the runtime if the requested DataKey is missing; " +
             "use AnActionEvent#getData instead")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   @Test
@@ -31,7 +31,7 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
     noClasses()
         .should().callMethod(java.util.Collections.class, "nCopies", int.class, Object.class)
         .because("it is confusing as it does not copy the objects but just copies the reference N times")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   @Test
@@ -40,7 +40,7 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
         .should().callMethod(java.io.File.class, "exists")
         .andShould().callMethod(com.intellij.openapi.vfs.VirtualFile.class, "exists")
         .because("in most cases, the check you want to do is `isFile` rather than `exists` (what if this is a directory?)")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   @Test
@@ -51,7 +51,7 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
                 .and(target(name("reparseFiles"))))
         .because("com.intellij.util.FileContentUtil#reparseFiles can cause bad performance issues when called with " +
             "includeOpenFiles parameter equal true. Use com.intellij.util.FileContentUtilCore#reparseFiles instead")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   @Test
@@ -62,7 +62,7 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
                 .and(target(name("reparseOpenedFiles"))))
         .because("com.intellij.util.FileContentUtil#reparseOpenedFiles can cause bad performance issues." +
             "Use com.intellij.util.FileContentUtilCore#reparseFiles instead")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   @Test
@@ -73,7 +73,7 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
         .because("getBranchTrackInfo(s) does not take into account inferred remote " +
             "(when only branch names match but tracking data is unset); " +
             " use tracking data from " + GitMacheteRepositorySnapshot.class.getName() + " instead")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   @Test
@@ -84,7 +84,7 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
             target(owner(assignableTo(git4idea.util.GitUIUtil.class)))
                 .and(target(name("notifyError"))))
         .because("due to the bug IDEA-258711, a valid invocation of notifyError can lead to an NPE (see issue #676)")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   @Test
@@ -92,7 +92,7 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
     noClasses()
         .should().callMethod(javax.swing.JComponent.class, "updateUI")
         .because("repaint() and revalidate() should be used instead, see docs for javax.swing.JComponent for the reasons")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   @Test
@@ -102,7 +102,7 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
             target(owner(assignableTo(com.intellij.util.ui.JBUI.CurrentTheme.Link.class)))
                 .and(target(name("link.*Color"))))
         .because("links should be avoided since they are unreliable as of IDEA 2020.2")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   @Test
@@ -111,7 +111,7 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
         .that().areNotAssignableTo(com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.class)
         .should().callMethod(java.text.MessageFormat.class, "format", String.class, Object[].class)
         .because("more restrictive " + GitMacheteBundle.class.getSimpleName() + ".format should be used instead")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   @Test
@@ -121,7 +121,7 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
         .because("Option#toString is sometimes mistakenly interpolated inside strings (also the user-facing ones), " +
             "whereas in 90% of cases the programmer`s intention " +
             "is to interpolate the contained value aka the result of `.get()` and not the Option itself")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   @Test
@@ -130,7 +130,7 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
         .should().callMethod(PropertiesComponent.class, "getInstance")
         .because(
             "getInstance without `project` argument gives application-level persistence while we prefer project-level persistence")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   @Test
@@ -138,7 +138,7 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
     noClasses()
         .should().callMethod(String.class, "format", String.class, Object[].class)
         .because("string interpolation should be used instead (as provided by com.antkorwin:better-strings)")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   @Test
@@ -147,7 +147,7 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
         .should().callMethod(javax.swing.SwingUtilities.class, "invokeLater", Runnable.class)
         .because("ModalityUiUtil.invokeLaterIfNeeded(...) should be used instead. " +
             "See docs for " + com.intellij.openapi.application.ModalityState.class.getName() + " for the reasons")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   @Test
@@ -161,7 +161,7 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
             "is being performed (like `collect`-ing a List into another List etc.). " +
             "Use dedicated methods like `.toList()`, `.toJavaList()`, `.toSet()` etc. " +
             "You might consider suppressing this error, however, if the Value in question is a Vavr Stream.")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   @Test
@@ -176,14 +176,14 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
             "To avoid possible bugs, invocation of `peek` on Vavr classes is forbidden. " +
             "Usage of `java.util.stream.Stream#peek` is discouraged but not forbidden " +
             "(since it is pretty useful and alternatives are cumbersome).")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   @Test
   public void no_classes_should_call_println() {
     noClasses()
         .should().callMethodWhere(name("println"))
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   // Note that https://checkstyle.sourceforge.io/config_coding.html#CovariantEquals doesn't cover methods defined in interfaces.
@@ -197,6 +197,6 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
         .andShould()
         .haveRawReturnType(Boolean.TYPE)
         .because("of the reasons outlined in https://www.artima.com/pins1ed/object-equality.html -> pitfall #1")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 }

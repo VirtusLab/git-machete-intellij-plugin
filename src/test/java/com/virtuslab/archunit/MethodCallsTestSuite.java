@@ -31,7 +31,7 @@ public class MethodCallsTestSuite extends BaseArchUnitTestSuite {
             return call.getTarget().getOwner().equals(methodOwner) && call.getTarget().getName().equals(methodName);
           }
         })
-        .check(importedClasses);
+        .check(productionClasses);
 
   }
 
@@ -63,6 +63,6 @@ public class MethodCallsTestSuite extends BaseArchUnitTestSuite {
             .filter(call -> call.getTarget().getFullName().equals(targetMethodFullName)).findFirst()
             .orElse(null);
       }
-    }).check(importedClasses);
+    }).check(productionClasses);
   }
 }

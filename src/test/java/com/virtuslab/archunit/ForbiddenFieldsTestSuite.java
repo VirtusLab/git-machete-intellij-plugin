@@ -15,7 +15,7 @@ public class ForbiddenFieldsTestSuite extends BaseArchUnitTestSuite {
         .accessField(org.eclipse.jgit.revwalk.RevSort.class, "TOPO_KEEP_BRANCH_TOGETHER")
         .because("as of JGit 6.4.0, these flags lead to performance problems on large repos (100,000s of commits); " +
             "use RevSort#COMMIT_TIME_DESC instead")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
 }

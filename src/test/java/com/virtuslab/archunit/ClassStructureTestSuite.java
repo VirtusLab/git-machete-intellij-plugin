@@ -44,7 +44,7 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
           }
         })
         .because("the SLF4J logger name should reflect the name of the concrete class, not an abstract base")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   @Test
@@ -55,7 +55,7 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
         .should().beAssignableTo(com.intellij.openapi.project.DumbAwareAction.class)
         .because("`extends DumbAwareAction` should be used instead of " +
             "extending `AnAction` and implementing `DumbAware` separately")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   static class BeReferencedFromOutsideItself extends ArchCondition<JavaClass> {
@@ -131,7 +131,7 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
         // SubtypingBottom is processed by CheckerFramework based on its annotations
         .and().doNotHaveFullyQualifiedName(com.virtuslab.qual.internal.SubtypingBottom.class.getName())
         .should(new BeReferencedFromOutsideItself())
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   @Test
@@ -161,7 +161,7 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
             "See https://github.com/typetools/checker-framework/issues/3407 for details. " +
             "Consider using a static nested class " +
             "and passing a reference to the enclosing object (or to the fields thereof) explicitly")
-        .check(importedClasses);
+        .check(productionClasses);
   }
   @Test
   public void no_classes_declaring_LOG_field_should_call_log_method() {
@@ -180,6 +180,6 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
           }
         })
         .because("LOG field should be used explicitly instead")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 }

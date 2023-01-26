@@ -1,9 +1,11 @@
 build/
 *.class
 *.crt
+.DS_Store
 **/.gradle/
 /gradlew.bat
 /*.hprof
 /*.hprof.*/
 /.idea/
 *.pem
+.sdkmanrc

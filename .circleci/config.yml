@@ -227,7 +227,7 @@ jobs:
                   git tag "$tag"
                   git push origin "$tag"
             - run:
-                name: Create GitHub release
+                name: Create GitHub release & close milestone
                 # Implicit usage of ${GITHUB_TOKEN} by gh
                 # language=sh
                 command: |
@@ -240,7 +240,7 @@ jobs:
                     "$(./gradlew -q printSignedPluginZipPath)" \
                     --title "$tag" \
                     --notes "$change_notes"
-                  scripts/close-milestone "$milestone_title"
+                  scripts/close-github-milestone "$milestone_title"
 
   checkForUpdates:
     executor: docker_executor

@@ -12,7 +12,7 @@ public class NamingTestSuite extends BaseArchUnitTestSuite {
     classes()
         .that().areAssignableTo(Exception.class)
         .should().haveSimpleNameEndingWith("Exception")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   @Test
@@ -23,7 +23,7 @@ public class NamingTestSuite extends BaseArchUnitTestSuite {
         .and().resideOutsideOfPackage("com.virtuslab.gitmachete.frontend.file.grammar")
         .and().areNotAnnotatedWith(java.lang.annotation.Target.class)
         .should().haveSimpleNameStartingWith("I")
-        .check(importedClasses);
+        .check(productionClasses);
   }
   @Test
   public void class_names_should_not_end_with_Manager() {
@@ -31,7 +31,7 @@ public class NamingTestSuite extends BaseArchUnitTestSuite {
         .should().haveSimpleNameEndingWith("Manager")
         .because("classes called `...Manager` are an indicator of poor design; " +
             "likely a redesign (and not just a rename) is needed")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   @Test
@@ -39,6 +39,6 @@ public class NamingTestSuite extends BaseArchUnitTestSuite {
     noClasses()
         .should().haveSimpleNameEndingWith("Util")
         .because("we use `...Utils` (not `...Util`) naming convention")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 }

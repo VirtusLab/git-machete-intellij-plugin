@@ -38,7 +38,7 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
         .beAnnotatedWith(UIThreadUnsafe.class)
         .because("it probably doesn't make sense to extract a backgroundable task " +
             "for actions that can as well be executed on UI thread")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   @Test
@@ -48,7 +48,7 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
         .areAnnotatedWith(UIThreadUnsafe.class)
         .should()
         .notBeAnnotatedWith(UIEffect.class)
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   private static List<String> extractWhitelistedMethodsFromAnnotation(JavaMethod method) {
@@ -116,7 +116,7 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
             });
           }
         })
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   private static final String[] whitelistedMethodFullNames_git4idea = {
@@ -219,7 +219,7 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
             });
           }
         })
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   @Test
@@ -259,6 +259,6 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
             });
           }
         })
-        .check(importedClasses);
+        .check(productionClasses);
   }
 }

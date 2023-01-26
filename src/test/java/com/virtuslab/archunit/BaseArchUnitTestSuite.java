@@ -5,7 +5,7 @@ import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.core.importer.ImportOption;
 
 public class BaseArchUnitTestSuite {
-  protected static final JavaClasses importedClasses = new ClassFileImporter()
+  protected static final JavaClasses productionClasses = new ClassFileImporter()
       .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
       // UI Tests aren't covered by the predefined ArchUnit pattern for Gradle test class locations.
       // Note that :test Gradle configuration should NOT see classes from :uiTest...

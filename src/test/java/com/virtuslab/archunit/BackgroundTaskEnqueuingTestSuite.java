@@ -58,7 +58,7 @@ public class BackgroundTaskEnqueuingTestSuite extends BaseArchUnitTestSuite {
         })
         .because("otherwise it's likely that you forgot about actually scheduling the task; " +
             "mark the method with ${BackgroundableQueuedElsewhere.class.getSimpleName()} if this is expected")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   private static List<String> extractWhitelistedMethodsFromAnnotation(JavaMethod method) {
@@ -128,7 +128,7 @@ public class BackgroundTaskEnqueuingTestSuite extends BaseArchUnitTestSuite {
             });
           }
         })
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   @Test
@@ -158,6 +158,6 @@ public class BackgroundTaskEnqueuingTestSuite extends BaseArchUnitTestSuite {
             });
           }
         })
-        .check(importedClasses);
+        .check(productionClasses);
   }
 }

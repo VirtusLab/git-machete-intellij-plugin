@@ -16,7 +16,7 @@ public class ForbiddenClassesTestSuite extends BaseArchUnitTestSuite {
         .should()
         .dependOnClassesThat().haveNameMatching("java\\.util\\.(Deque|HashMap|List|Map|Queue|Set|Stack|TreeMap|Vector)")
         .because("immutable Vavr counterparts should be used instead of mutable Java collections")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   @Test
@@ -25,7 +25,7 @@ public class ForbiddenClassesTestSuite extends BaseArchUnitTestSuite {
         .should()
         .dependOnClassesThat().areAssignableTo(org.apache.commons.lang.NotImplementedException.class)
         .because("NotImplementedException is forbidden. Use io.vavr.NotImplementedError instead.")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   @Test
@@ -36,7 +36,7 @@ public class ForbiddenClassesTestSuite extends BaseArchUnitTestSuite {
         .should()
         .dependOnClassesThat().areAssignableTo(java.util.Date.class)
         .because("Date is unsafe and deprecated; ZonedDateTime or Instant should be used instead")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 
   @Test
@@ -47,6 +47,6 @@ public class ForbiddenClassesTestSuite extends BaseArchUnitTestSuite {
         .because("local date-times are inherently unsafe " +
             "since they give an impression of referring to a specific instant " +
             "while in fact, they do not. Use ZonedDateTime or Instant instead")
-        .check(importedClasses);
+        .check(productionClasses);
   }
 }
