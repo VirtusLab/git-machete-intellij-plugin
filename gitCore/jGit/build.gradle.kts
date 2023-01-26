@@ -8,7 +8,6 @@ dependencies {
 
 jgit()
 junit()
-mockito()
 lombok()
 slf4jLambdaApi()
 slf4jTestImpl()

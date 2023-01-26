@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.ui.impl;
+package com.virtuslab.gitmachete.frontend.ui.impl.errorreport;
 
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
@@ -7,17 +7,14 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.intellij.ide.BrowserUtil;
-import com.intellij.ide.plugins.IdeaPluginDescriptor;
-import com.intellij.ide.plugins.PluginManagerCore;
-import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.diagnostic.ErrorReportSubmitter;
 import com.intellij.openapi.diagnostic.IdeaLoggingEvent;
 import com.intellij.openapi.diagnostic.SubmittedReportInfo;
-import com.intellij.openapi.extensions.PluginId;
 import com.intellij.util.Consumer;
 import com.intellij.util.ModalityUiUtil;
 import io.vavr.collection.List;
@@ -26,15 +23,24 @@ import lombok.SneakyThrows;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.SystemUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 @CustomLog
-@ExtensionMethod(Arrays.class)
+@ExtensionMethod({Arrays.class, Objects.class})
 public class GitMacheteErrorReportSubmitter extends ErrorReportSubmitter {
 
   public static final int MAX_GITHUB_URI_LENGTH = 8192;
+
+  private final PlatformInfoProvider platformInfoProvider;
+
+  public GitMacheteErrorReportSubmitter() {
+    this(new PlatformInfoProvider());
+  }
+
+  GitMacheteErrorReportSubmitter(PlatformInfoProvider platformInfoProvider) {
+    this.platformInfoProvider = platformInfoProvider;
+  }
 
   @Override
   public String getReportActionText() {
@@ -105,22 +111,17 @@ public class GitMacheteErrorReportSubmitter extends ErrorReportSubmitter {
       @Nullable String additionalInfo) {
     val templateVariables = new java.util.HashMap<String, String>();
 
-    // IDE version, ie. Intellij Community 2021.3.1
-    templateVariables.put("ide", ApplicationInfo.getInstance().getFullApplicationName());
+    templateVariables.put("ide", platformInfoProvider.getIdeApplicationName());
 
-    // Plugin version, ie. 1.1.1-10-SNAPSHOT+git.c9a0e89-dirty
-    IdeaPluginDescriptor pluginDescriptor = PluginManagerCore.getPlugin(PluginId.getId("com.virtuslab.git-machete"));
-    templateVariables.put("macheteVersion", pluginDescriptor != null ? pluginDescriptor.getVersion() : "<unknown>");
+    val pluginVersion = platformInfoProvider.getPluginVersion().requireNonNullElse("<unknown>");
+    templateVariables.put("macheteVersion", pluginVersion);
 
-    // OS name and version
-    val osName = SystemUtils.OS_NAME != null ? SystemUtils.OS_NAME : "";
-    val osVersion = SystemUtils.OS_VERSION != null ? SystemUtils.OS_VERSION : "";
+    val osName = platformInfoProvider.getOSName().requireNonNullElse("");
+    val osVersion = platformInfoProvider.getOSVersion().requireNonNullElse("");
     templateVariables.put("os", osName + " " + osVersion);
 
-    // Additional info about error
-    templateVariables.put("additionalInfo", additionalInfo != null ? additionalInfo : "N/A");
+    templateVariables.put("additionalInfo", additionalInfo.requireNonNullElse("N/A"));
 
-    // Messages and stacktraces for events
     val nl = System.lineSeparator();
     String stacktraces = events.stream()
         .map(event -> {

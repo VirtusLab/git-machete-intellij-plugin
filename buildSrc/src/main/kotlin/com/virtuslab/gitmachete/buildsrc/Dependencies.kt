@@ -142,6 +142,7 @@ fun Project.junit() {
   dependencies {
     "testImplementation"(lib("junit-api"))
     "testRuntimeOnly"(lib("junit-engine"))
+    "testRuntimeOnly"(lib("junit-platform-launcher"))
   }
 }
 

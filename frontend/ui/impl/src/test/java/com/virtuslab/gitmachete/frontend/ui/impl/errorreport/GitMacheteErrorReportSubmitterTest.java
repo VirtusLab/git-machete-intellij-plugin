@@ -1,58 +1,27 @@
-package com.virtuslab.gitmachete.frontend.ui.impl;
+package com.virtuslab.gitmachete.frontend.ui.impl.errorreport;
 
-import static com.virtuslab.gitmachete.frontend.ui.impl.GitMacheteErrorReportSubmitter.MAX_GITHUB_URI_LENGTH;
+import static com.virtuslab.gitmachete.frontend.ui.impl.errorreport.GitMacheteErrorReportSubmitter.MAX_GITHUB_URI_LENGTH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-import com.intellij.ide.plugins.IdeaPluginDescriptor;
-import com.intellij.ide.plugins.PluginManagerCore;
-import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.diagnostic.IdeaLoggingEvent;
-import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.SystemUtils;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
 public class GitMacheteErrorReportSubmitterTest {
 
   private GitMacheteErrorReportSubmitter reportSubmitter;
-  private static final LambdaLogger errorReportSubmitterLogger = mock(LambdaLogger.class);
-
-  @BeforeAll
-  public static void setUpStatic() {
-    Whitebox.setInternalState(GitMacheteErrorReportSubmitter.class, errorReportSubmitterLogger);
-    Whitebox.setInternalState(SystemUtils.class, "OS_NAME", "Mock OS X");
-    Whitebox.setInternalState(SystemUtils.class, "OS_VERSION", "Hehe");
-
-    PowerMockito.mockStatic(ApplicationInfo.class);
-    PowerMockito.mockStatic(PluginManagerCore.class);
-  }
 
   @BeforeEach
   public void setUp() {
-    reportSubmitter = new GitMacheteErrorReportSubmitter();
-
-    val applicationInfo = PowerMockito.mock(ApplicationInfo.class);
-    PowerMockito.when(applicationInfo.getFullApplicationName()).thenReturn("mocked IntelliJ idea");
-    PowerMockito.stub(PowerMockito.method(ApplicationInfo.class, "getInstance"))
-        .toReturn(applicationInfo);
-
-    val ideaPluginDescriptor = PowerMockito.mock(IdeaPluginDescriptor.class);
-    PowerMockito.when(ideaPluginDescriptor.getVersion()).thenReturn("mock plugin version");
-    PowerMockito.stub(PowerMockito.method(PluginManagerCore.class, "getPlugin"))
-        .toReturn(ideaPluginDescriptor);
+    reportSubmitter = new GitMacheteErrorReportSubmitter(new DummyPlatformInfoProvider());
   }
 
   private StackTraceElement[] getMockStackTrace(int stackLength) {

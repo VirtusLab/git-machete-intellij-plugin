@@ -5,13 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import lombok.val;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.virtuslab.gitcore.impl.jgit.GitCoreRepository;
 import com.virtuslab.gitmachete.testcommon.GitRepositoryBackedIntegrationTestSuiteInitializer;
 
-@ExtendWith(MockitoExtension.class)
 public class GitCoreRepositoryTest {
 
   // See https://github.com/VirtusLab/git-machete-intellij-plugin/issues/1029 for the origin of this test
