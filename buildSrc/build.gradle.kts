@@ -60,6 +60,10 @@ dependencies {
   testImplementation(libs.junit.api)
 }
 
+tasks.withType<Test> {
+  useJUnitPlatform()
+}
+
 apply<GradleVersionsFilterPlugin>()
 apply<VersionCatalogUpdatePlugin>()
 apply<KotlinPluginWrapper>()
