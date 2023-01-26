@@ -21,12 +21,16 @@ import com.virtuslab.gitmachete.backend.impl.hooks.StatusBranchHookExecutor;
 
 public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
 
-  private final IGitCoreRepositoryFactory gitCoreRepositoryFactory;
+  private final IDependencyResolver dependencyResolver;
 
   private static Map<Tuple2<Path, Path>, SoftReference<GitMacheteRepository>> gitMacheteRepositoryCache = HashMap.empty();
 
   public GitMacheteRepositoryCache() {
-    gitCoreRepositoryFactory = ApplicationManager.getApplication().getService(IGitCoreRepositoryFactory.class);
+    this(() -> ApplicationManager.getApplication().getService(IGitCoreRepositoryFactory.class));
+  }
+
+  public GitMacheteRepositoryCache(IDependencyResolver dependencyResolver) {
+    this.dependencyResolver = dependencyResolver;
   }
 
   @Override
@@ -55,6 +59,7 @@ public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
   private IGitCoreRepository createGitCoreRepository(Path rootDirectoryPath, Path mainGitDirectoryPath,
       Path worktreeGitDirectoryPath) throws GitMacheteException {
     try {
+      val gitCoreRepositoryFactory = dependencyResolver.getGitCoreRepositoryFactory();
       return gitCoreRepositoryFactory.create(rootDirectoryPath, mainGitDirectoryPath, worktreeGitDirectoryPath);
     } catch (GitCoreException e) {
       throw new GitMacheteException("Can't create an ${IGitCoreRepository.class.getSimpleName()} instance " +

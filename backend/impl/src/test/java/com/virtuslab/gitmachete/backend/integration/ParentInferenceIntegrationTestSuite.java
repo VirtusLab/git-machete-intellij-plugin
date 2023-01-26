@@ -6,26 +6,15 @@ import static com.virtuslab.gitmachete.testcommon.SetupScripts.SETUP_WITH_SINGLE
 import static com.virtuslab.gitmachete.testcommon.TestFileUtils.cleanUpDir;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import java.io.FileInputStream;
-
-import com.intellij.openapi.application.Application;
-import com.intellij.openapi.application.ApplicationManager;
 import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
-import com.virtuslab.gitcore.impl.jgit.GitCoreRepositoryFactory;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
-import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryCache;
-import com.virtuslab.gitmachete.testcommon.GitRepositoryBackedIntegrationTestSuiteInitializer;
 
-public class ParentInferenceIntegrationTestSuite {
+public class ParentInferenceIntegrationTestSuite extends BaseIntegrationTestSuite {
 
   public static String[][] getTestData() {
     return new String[][]{
@@ -37,23 +26,12 @@ public class ParentInferenceIntegrationTestSuite {
     };
   }
 
-  @SneakyThrows
   @ParameterizedTest
   @MethodSource("getTestData")
+  @SneakyThrows
   public void parentIsCorrectlyInferred(String scriptName, String forBranch, String expectedParent) {
-    val it = new GitRepositoryBackedIntegrationTestSuiteInitializer(scriptName);
+    setUp(scriptName);
 
-    // This setup needs to happen BEFORE GitMacheteRepositoryCache is created
-    val application = mock(Application.class);
-    val gitCoreRepositoryFactory = new GitCoreRepositoryFactory();
-    when(application.getService(any())).thenReturn(gitCoreRepositoryFactory);
-    when(ApplicationManager.getApplication()).thenReturn(application);
-
-    val gitMacheteRepositoryCache = new GitMacheteRepositoryCache();
-    val gitMacheteRepository = gitMacheteRepositoryCache.getInstance(it.rootDirectoryPath, it.mainGitDirectoryPath,
-        it.worktreeGitDirectoryPath);
-    val branchLayoutReader = ApplicationManager.getApplication().getService(IBranchLayoutReader.class);
-    val branchLayout = branchLayoutReader.read(new FileInputStream(it.mainGitDirectoryPath.resolve("machete").toFile()));
     val gitMacheteRepositorySnapshot = gitMacheteRepository.createSnapshotForLayout(branchLayout);
 
     val managedBranchNames = gitMacheteRepositorySnapshot.getManagedBranches().map(IManagedBranchSnapshot::getName).toSet();
@@ -61,6 +39,7 @@ public class ParentInferenceIntegrationTestSuite {
     assertNotNull(result);
     assertEquals(expectedParent, result.getName());
 
+    // Deliberately done in the test and in not an @After method, so that the directory is retained in case of test failure.
     cleanUpDir(it.parentDirectoryPath);
   }
 

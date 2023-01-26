@@ -13,15 +13,9 @@ import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
 
-import com.intellij.openapi.application.Application;
-import com.intellij.openapi.application.ApplicationManager;
 import io.vavr.collection.List;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -29,43 +23,22 @@ import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import com.virtuslab.branchlayout.api.BranchLayout;
-import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
-import com.virtuslab.gitcore.api.IGitCoreRepositoryFactory;
-import com.virtuslab.gitcore.impl.jgit.GitCoreRepositoryFactory;
 import com.virtuslab.gitmachete.backend.api.*;
-import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryCache;
-import com.virtuslab.gitmachete.testcommon.GitRepositoryBackedIntegrationTestSuiteInitializer;
 
-public class StatusAndDiscoverIntegrationTestSuite {
-
-  private static final IGitCoreRepositoryFactory gitCoreRepositoryFactory = new GitCoreRepositoryFactory();
-
-  private final IBranchLayoutReader branchLayoutReader = ApplicationManager.getApplication()
-      .getService(IBranchLayoutReader.class);
-  private final GitMacheteRepositoryCache gitMacheteRepositoryCache = new GitMacheteRepositoryCache();
+public class StatusAndDiscoverIntegrationTestSuite extends BaseIntegrationTestSuite {
 
   public static String[] getScriptNames() {
     return ALL_SETUP_SCRIPTS;
   }
 
-  @SneakyThrows
   @ParameterizedTest
   @MethodSource("getScriptNames")
+  @SneakyThrows
   public void yieldsSameStatusAsCli(String scriptName) {
-    val it = new GitRepositoryBackedIntegrationTestSuiteInitializer(scriptName);
-    // This setup needs to happen BEFORE GitMacheteRepositoryCache is created
-    val application = mock(Application.class);
-    when(application.getService(any())).thenReturn(gitCoreRepositoryFactory);
-    when(ApplicationManager.getApplication()).thenReturn(application);
-
-    val gitMacheteRepository = gitMacheteRepositoryCache.getInstance(it.rootDirectoryPath, it.mainGitDirectoryPath,
-        it.worktreeGitDirectoryPath);
+    setUp(scriptName);
 
     String gitMacheteCliStatus = gitMacheteCliStatusOutput(scriptName);
 
-    BranchLayout branchLayout = branchLayoutReader
-        .read(new FileInputStream(it.mainGitDirectoryPath.resolve("machete").toFile()));
     val gitMacheteRepositorySnapshot = gitMacheteRepository.createSnapshotForLayout(branchLayout);
     String ourStatus = ourGitMacheteRepositorySnapshotAsString(gitMacheteRepositorySnapshot);
 
@@ -77,21 +50,15 @@ public class StatusAndDiscoverIntegrationTestSuite {
 
     assertEquals(gitMacheteCliStatus.trim(), ourStatus.trim());
 
+    // Deliberately done in the test and in not an @After method, so that the directory is retained in case of test failure.
     cleanUpDir(it.parentDirectoryPath);
   }
 
-  @SneakyThrows
   @ParameterizedTest
   @MethodSource("getScriptNames")
+  @SneakyThrows
   public void discoversSameLayoutAsCli(String scriptName) {
-    val it = new GitRepositoryBackedIntegrationTestSuiteInitializer(scriptName);
-    // This setup needs to happen BEFORE GitMacheteRepositoryCache is created
-    val application = mock(Application.class);
-    when(application.getService(any())).thenReturn(gitCoreRepositoryFactory);
-    when(ApplicationManager.getApplication()).thenReturn(application);
-
-    val gitMacheteRepository = gitMacheteRepositoryCache.getInstance(it.rootDirectoryPath, it.mainGitDirectoryPath,
-        it.worktreeGitDirectoryPath);
+    setUp(scriptName);
 
     String gitMacheteCliDiscoverOutput = gitMacheteCliDiscoverOutput(scriptName);
 
@@ -106,6 +73,7 @@ public class StatusAndDiscoverIntegrationTestSuite {
 
     assertEquals(gitMacheteCliDiscoverOutput, ourDiscoverOutput);
 
+    // Deliberately done in the test and in not an @After method, so that the directory is retained in case of test failure.
     cleanUpDir(it.parentDirectoryPath);
   }
 
