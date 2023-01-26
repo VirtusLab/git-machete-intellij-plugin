@@ -163,7 +163,7 @@ fun Project.lombok() {
 
 fun Project.mockito() {
   dependencies {
-    "testImplementation"(bundle("mockito"))
+    "testImplementation"(lib("mockito"))
   }
 }
 
