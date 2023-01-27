@@ -1,4 +1,5 @@
-import org.junit.Test
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import kotlin.reflect.KCallable
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.KProperty0
@@ -26,15 +27,18 @@ class PublicClass {
 // see https://github.com/VirtusLab/git-machete-intellij-plugin/issues/1131#issuecomment-1250355090.
 // This particular failure is no longer possible once we've migrated to Kotlin UI DSL v2,
 // as the problem was coming from `com.intellij.ui.layout.CellKt.createPropertyBinding`.
-// We now use `com.intellij.ui.dsl.builder.ButtonKt.bindSelected` which calls `com.intellij.ui.dsl.builder.MutablePropertyKt.toMutableProperty` under the hood,
+// We now use `com.intellij.ui.dsl.builder.ButtonKt.bindSelected`
+// which calls `com.intellij.ui.dsl.builder.MutablePropertyKt.toMutableProperty` under the hood,
 // which doesn't lead to a fatal `.call()` on the property.
-// We no longer ban the use private properties and/or private classes in Kotlin,
+// We no longer ban the use of private properties and/or private classes in Kotlin,
 // however we need to be aware that the risk of some of IntelliJ Kotlin libs using `.call()` still exists.
 class KPropertyTestSuite {
-  @Test(expected = IllegalCallableAccessException::class)
+  @Test
   fun calling_public_val_of_private_class_should_fail() {
     val prop: KCallable<Int> = PrivateClass()::publicVal
-    prop.call()
+    assertThrows<IllegalCallableAccessException> {
+      prop.call()
+    }
   }
 
   @Test
@@ -49,10 +53,12 @@ class KPropertyTestSuite {
     prop.invoke()
   }
 
-  @Test(expected = IllegalCallableAccessException::class)
+  @Test
   fun calling_public_var_of_private_class_should_fail() {
     val prop: KCallable<Int> = PrivateClass()::publicVar
-    prop.call()
+    assertThrows<IllegalCallableAccessException> {
+      prop.call()
+    }
   }
 
   @Test
@@ -73,10 +79,12 @@ class KPropertyTestSuite {
     func.invoke()
   }
 
-  @Test(expected = IllegalCallableAccessException::class)
+  @Test
   fun calling_private_val_of_public_class_should_fail() {
     val prop: KCallable<Int> = PublicClass().privateValKProperty()
-    prop.call()
+    assertThrows<IllegalCallableAccessException> {
+      prop.call()
+    }
   }
 
   @Test
@@ -91,10 +99,12 @@ class KPropertyTestSuite {
     prop.invoke()
   }
 
-  @Test(expected = IllegalCallableAccessException::class)
+  @Test
   fun calling_private_var_of_public_class_should_fail() {
     val prop: KCallable<Int> = PublicClass().privateVarKProperty()
-    prop.call()
+    assertThrows<IllegalCallableAccessException> {
+      prop.call()
+    }
   }
 
   @Test
