@@ -12,7 +12,7 @@ import com.virtuslab.gitcore.impl.jgit.GitCoreRepositoryFactory;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryCache;
-import com.virtuslab.gitmachete.testcommon.GitRepositoryBackedIntegrationTestSuiteInitializer;
+import com.virtuslab.gitmachete.testcommon.TestGitRepository;
 
 class BaseIntegrationTestSuite {
   protected static final IGitCoreRepositoryFactory gitCoreRepositoryFactory = new GitCoreRepositoryFactory();
@@ -20,15 +20,15 @@ class BaseIntegrationTestSuite {
       () -> gitCoreRepositoryFactory);
   protected static final IBranchLayoutReader branchLayoutReader = new BranchLayoutReader();
 
+  protected TestGitRepository repo;
   protected IGitMacheteRepository gitMacheteRepository;
   protected BranchLayout branchLayout;
-  protected GitRepositoryBackedIntegrationTestSuiteInitializer it;
 
   @SneakyThrows
   public void setUp(String scriptName) {
-    it = new GitRepositoryBackedIntegrationTestSuiteInitializer(scriptName);
-    gitMacheteRepository = gitMacheteRepositoryCache.getInstance(it.rootDirectoryPath, it.mainGitDirectoryPath,
-        it.worktreeGitDirectoryPath);
-    branchLayout = branchLayoutReader.read(new FileInputStream(it.mainGitDirectoryPath.resolve("machete").toFile()));
+    repo = new TestGitRepository(scriptName);
+    gitMacheteRepository = gitMacheteRepositoryCache.getInstance(repo.rootDirectoryPath, repo.mainGitDirectoryPath,
+        repo.worktreeGitDirectoryPath);
+    branchLayout = branchLayoutReader.read(new FileInputStream(repo.mainGitDirectoryPath.resolve("machete").toFile()));
   }
 }

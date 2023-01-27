@@ -40,7 +40,7 @@ public class ParentInferenceIntegrationTestSuite extends BaseIntegrationTestSuit
     assertEquals(expectedParent, result.getName());
 
     // Deliberately done in the test and in not an @After method, so that the directory is retained in case of test failure.
-    cleanUpDir(it.parentDirectoryPath);
+    cleanUpDir(repo.parentDirectoryPath);
   }
 
 }

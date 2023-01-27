@@ -51,7 +51,7 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseIntegrationTestSu
     assertEquals(gitMacheteCliStatus.trim(), ourStatus.trim());
 
     // Deliberately done in the test and in not an @After method, so that the directory is retained in case of test failure.
-    cleanUpDir(it.parentDirectoryPath);
+    cleanUpDir(repo.parentDirectoryPath);
   }
 
   @ParameterizedTest
@@ -74,7 +74,7 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseIntegrationTestSu
     assertEquals(gitMacheteCliDiscoverOutput, ourDiscoverOutput);
 
     // Deliberately done in the test and in not an @After method, so that the directory is retained in case of test failure.
-    cleanUpDir(it.parentDirectoryPath);
+    cleanUpDir(repo.parentDirectoryPath);
   }
 
   @SneakyThrows
