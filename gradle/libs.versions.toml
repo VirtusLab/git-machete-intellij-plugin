@@ -36,7 +36,7 @@ slf4j-simple = "org.slf4j:slf4j-simple:1.7.36"
 vavr = "io.vavr:vavr:0.10.4"
 # Plugins
 pluginPackages-aspectj-postCompileWeaving = "io.freefair.gradle:aspectj-plugin:6.6.1"
-pluginPackages-checkerFramework = "org.checkerframework:checkerframework-gradle-plugin:0.6.21.1"
+pluginPackages-checkerFramework = "org.checkerframework:checkerframework-gradle-plugin:0.6.22"
 pluginPackages-grgit = "org.ajoberstar.grgit:grgit-gradle:5.0.0"
 pluginPackages-jetbrains-changelog = "org.jetbrains.intellij.plugins:gradle-changelog-plugin:2.0.0"
 # @pin TODO (#859): gradle-grammarkit-plugin 2022.3 requires `targetCompatibility` to be Java 17, not Java 11.
