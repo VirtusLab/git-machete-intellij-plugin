@@ -28,9 +28,6 @@ fun Project.configureUiTests() {
 
   uiTestTargets.onEach { version ->
     tasks.register<Test>("uiTest_$version") {
-      // TODO (#1464): migrate UI tests to JUnit 5
-      useJUnit()
-
       description = "Runs UI tests."
       group = "verification"
 

@@ -2,10 +2,9 @@ package com.virtuslab.gitmachete.uitest
 
 import com.virtuslab.gitmachete.testcommon.SetupScripts.SETUP_WITH_SINGLE_REMOTE
 import com.virtuslab.gitmachete.testcommon.TestGitRepository
-import org.junit._
-import org.junit.rules.TestWatcher
-import org.junit.runner.{Description, RunWith}
-import org.junit.runners.JUnit4
+import org.junit.jupiter.api.Assertions.{assertEquals, fail}
+import org.junit.jupiter.api.extension.{ExtendWith, ExtensionContext, TestWatcher}
+import org.junit.jupiter.api.{AfterEach, BeforeEach, Test}
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.ProbeDriver
 
@@ -15,19 +14,38 @@ import java.nio.file.attribute.FileTime
 import scala.language.postfixOps
 import scala.sys.process._
 
-object UITestSuite extends UISuite {}
+class ScreenshotAndThreadDumpExtension extends TestWatcher {
+  override def testFailed(context: ExtensionContext, cause: Throwable): Unit = {
+    val suite = context.getTestInstance.get().asInstanceOf[UITestSuite]
 
-@RunWith(classOf[JUnit4])
+    val pid = suite.probe.pid()
+    suite.probe.screenshot("exception")
+    val threadStackTrace: String = Process("jstack " + pid) !!
+    val homeDirectory = System.getProperty("user.home")
+    val artifactDirectory = s"${homeDirectory}/.ideprobe-uitests/artifacts/uiTest${suite.intelliJVersion}/thread-dumps"
+    Files.createDirectories(Paths.get(artifactDirectory))
+    val file: File = new File(artifactDirectory + "/thread_dump_" + pid + ".txt")
+    val pw = new PrintWriter(file)
+    pw.write(threadStackTrace)
+    pw.close()
+  }
+}
+
+object UITestSuite extends UISuite {
+  // We need to declare a companion object so that JUnit sees @BeforeAll/@AfterAll static methods.
+}
+
+@ExtendWith(Array(classOf[ScreenshotAndThreadDumpExtension]))
 class UITestSuite extends TestGitRepository(SETUP_WITH_SINGLE_REMOTE) {
 
   import UITestSuite._
 
-  private val project = intelliJ.project
-  private val intelliJVersion = intelliJ.config.apply[String]("probe.intellij.version.build")
+  val project = intelliJ.project
+  val intelliJVersion = intelliJ.config.apply[String]("probe.intellij.version.build")
 
-  private val probe: ProbeDriver = intelliJ.probe
+  val probe: ProbeDriver = intelliJ.probe
 
-  @Before
+  @BeforeEach
   def beforeEach(): Unit = {
     println("IntelliJ build number is " + intelliJVersion)
     intelliJ.doAndAwait {
@@ -36,28 +54,10 @@ class UITestSuite extends TestGitRepository(SETUP_WITH_SINGLE_REMOTE) {
     }
   }
 
-  @After
+  @AfterEach
   def afterEach(): Unit = {
     waitAndCloseProject()
   }
-
-  val _saveThreadDumpWhenTestFailed: TestWatcher = new TestWatcher() {
-    override protected def failed(e: Throwable, description: Description): Unit = {
-      val pid = probe.pid()
-      probe.screenshot("exception")
-      val threadStackTrace: String = Process("jstack " + pid) !!
-      val homeDirectory = System.getProperty("user.home")
-      val artifactDirectory = s"${homeDirectory}/.ideprobe-uitests/artifacts/uiTest${intelliJVersion}/thread-dumps"
-      Files.createDirectories(Paths.get(artifactDirectory))
-      val file: File = new File(artifactDirectory + "/thread_dump_" + pid + ".txt")
-      val pw = new PrintWriter(file)
-      pw.write(threadStackTrace)
-      pw.close()
-    }
-  }
-
-  @Rule
-  def saveThreadDumpWhenTestFailed: TestWatcher = _saveThreadDumpWhenTestFailed
 
   @Test def skipNonExistentBranches_toggleListingCommits_slideOutRoot(): Unit = {
     overwriteMacheteFile(
@@ -75,7 +75,7 @@ class UITestSuite extends TestGitRepository(SETUP_WITH_SINGLE_REMOTE) {
     project.openGitMacheteTab()
     val managedBranches = project.refreshModelAndGetManagedBranches()
     // Non-existent branches should be skipped while causing no error (only a low-severity notification).
-    Assert.assertEquals(
+    assertEquals(
       Seq(
         "develop",
         "allow-ownership-link",
@@ -90,17 +90,17 @@ class UITestSuite extends TestGitRepository(SETUP_WITH_SINGLE_REMOTE) {
     project.toggleListingCommits()
     var branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
     // 7 branch rows + 11 commit rows
-    Assert.assertEquals(18, branchAndCommitRowsCount)
+    assertEquals(18, branchAndCommitRowsCount)
 
     project.checkoutBranch("allow-ownership-link")
     project.checkoutFirstChildBranch()
-    Assert.assertEquals(project.getCurrentBranchName(), "build-chain")
+    assertEquals("build-chain", project.getCurrentBranchName())
     project.checkoutNextBranch()
-    Assert.assertEquals(project.getCurrentBranchName(), "update-icons")
+    assertEquals("update-icons", project.getCurrentBranchName())
     project.checkoutPreviousBranch()
-    Assert.assertEquals(project.getCurrentBranchName(), "build-chain")
+    assertEquals("build-chain", project.getCurrentBranchName())
     project.checkoutParentBranch()
-    Assert.assertEquals(project.getCurrentBranchName(), "allow-ownership-link")
+    assertEquals("allow-ownership-link", project.getCurrentBranchName())
 
     // Let's slide out a root branch now
     project.slideOutSelected("develop")
@@ -108,14 +108,14 @@ class UITestSuite extends TestGitRepository(SETUP_WITH_SINGLE_REMOTE) {
     branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
     // 6 branch rows (`develop` is no longer there) + 7 commit rows
     // (1 commit of `allow-ownership-link` and 3 commits of `call-ws` are all gone)
-    Assert.assertEquals(13, branchAndCommitRowsCount)
+    assertEquals(13, branchAndCommitRowsCount)
 
     project.checkoutBranch("master")
     project.slideOutSelected("call-ws")
     project.rejectBranchDeletionOnSlideOut()
     val managedBranchesAfterSlideOut = project.refreshModelAndGetManagedBranches()
     // Non-existent branches should be skipped while causing no error (only a low-severity notification).
-    Assert.assertEquals(
+    assertEquals(
       Seq(
         "allow-ownership-link",
         "build-chain",
@@ -127,7 +127,7 @@ class UITestSuite extends TestGitRepository(SETUP_WITH_SINGLE_REMOTE) {
     )
     branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
     // 5 branch rows (`call-ws` is also no longer there) + 7 commit rows
-    Assert.assertEquals(12, branchAndCommitRowsCount)
+    assertEquals(12, branchAndCommitRowsCount)
   }
 
   @Test def discoverBranchLayout(): Unit = {
@@ -137,21 +137,21 @@ class UITestSuite extends TestGitRepository(SETUP_WITH_SINGLE_REMOTE) {
     project.acceptSuggestedBranchLayout()
     probe.await()
     var branchRowsCount = project.refreshModelAndGetRowCount()
-    Assert.assertEquals(8, branchRowsCount)
+    assertEquals(8, branchRowsCount)
     deleteMacheteFile()
     // When model is refreshed and machete file is empty, then autodiscover should occur
     branchRowsCount = project.refreshModelAndGetRowCount()
-    Assert.assertEquals(8, branchRowsCount)
+    assertEquals(8, branchRowsCount)
     // This time, wipe out `machete` file (instead of removing it completely)
     overwriteMacheteFile("")
     // Now let's test an explicit discover instead
     project.discoverBranchLayout()
     branchRowsCount = project.refreshModelAndGetRowCount()
-    Assert.assertEquals(8, branchRowsCount)
+    assertEquals(8, branchRowsCount)
     // In this case a non-existent branch is defined by `machete` file and it should persist (no autodiscover)
     overwriteMacheteFile("non-existent")
     branchRowsCount = project.refreshModelAndGetRowCount()
-    Assert.assertEquals(0, branchRowsCount)
+    assertEquals(0, branchRowsCount)
   }
 
   @Test def fastForwardParentOfBranch(): Unit = {
@@ -219,7 +219,7 @@ class UITestSuite extends TestGitRepository(SETUP_WITH_SINGLE_REMOTE) {
     project.assertLocalAndRemoteBranchesAreEqual("hotfix/add-trigger")
     project.assertNoUncommittedChanges()
     val currentBranchName = project.getCurrentBranchName()
-    Assert.assertEquals("hotfix/add-trigger", currentBranchName)
+    assertEquals("hotfix/add-trigger", currentBranchName)
 
     // resetNonCurrentBranchToRemote
     project.openGitMacheteTab()
@@ -234,14 +234,14 @@ class UITestSuite extends TestGitRepository(SETUP_WITH_SINGLE_REMOTE) {
     project.openGitMacheteTab()
     project.toggleListingCommits()
     val branchRowsCount = project.refreshModelAndGetRowCount()
-    Assert.assertEquals(18, branchRowsCount)
+    assertEquals(18, branchRowsCount)
     project.checkoutBranch("call-ws")
     project.squashCurrent()
     project.acceptSquash()
 
     // call-ws had 3 commits before the squash
     var managedBranches = project.refreshModelAndGetManagedBranchesAndCommits()
-    Assert.assertEquals(
+    assertEquals(
       Seq(
         "develop",
         "Allow ownership links",
@@ -263,14 +263,14 @@ class UITestSuite extends TestGitRepository(SETUP_WITH_SINGLE_REMOTE) {
       managedBranches.toSeq
     )
 
-    Assert.assertEquals(16, managedBranches.length)
+    assertEquals(16, managedBranches.length)
 
     // squashNonCurrentBranch
     project.squashSelected("hotfix/add-trigger")
     project.acceptSquash()
     // call-ws had 3 commits before the squash
     managedBranches = project.refreshModelAndGetManagedBranchesAndCommits()
-    Assert.assertEquals(
+    assertEquals(
       Seq(
         "develop",
         "Allow ownership links",
@@ -291,7 +291,7 @@ class UITestSuite extends TestGitRepository(SETUP_WITH_SINGLE_REMOTE) {
       managedBranches.toSeq
     )
 
-    Assert.assertEquals(15, managedBranches.length)
+    assertEquals(15, managedBranches.length)
   }
 
   private def macheteFilePath: Path = mainGitDirectoryPath.resolve("machete")

@@ -2,14 +2,12 @@ package com.virtuslab.gitmachete.uitest
 
 import com.virtuslab.gitmachete.testcommon.SetupScripts.SETUP_README_SCENARIOS
 import com.virtuslab.gitmachete.testcommon.TestGitRepository
-import org.junit._
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.junit.jupiter.api.{AfterEach, BeforeEach, Disabled, Test}
 import org.virtuslab.ideprobe.ProbeDriver
 
 object UIScenarioSuite extends UISuite {}
 
-@RunWith(classOf[JUnit4])
+@Disabled
 class UIScenarioSuite extends TestGitRepository(SETUP_README_SCENARIOS) {
   import UIScenarioSuite._
 
@@ -17,7 +15,7 @@ class UIScenarioSuite extends TestGitRepository(SETUP_README_SCENARIOS) {
 
   private val probe: ProbeDriver = intelliJ.probe
 
-  @Before
+  @BeforeEach
   def beforeEach(): Unit = {
     probe.openProject(rootDirectoryPath)
     project.configure()
@@ -28,13 +26,13 @@ class UIScenarioSuite extends TestGitRepository(SETUP_README_SCENARIOS) {
     intelliJ.ide.findAndResizeIdeFrame()
   }
 
-  @After
+  @AfterEach
   def afterEach(): Unit = {
     waitAndCloseProject()
   }
 
-  @Ignore
-  @Test def scenarios(): Unit = {
+  @Test
+  def scenarios(): Unit = {
     // scenario 1
     project.switchRepo(0)
     project.moveMouseToTheMiddleAndWait(15)

@@ -114,7 +114,7 @@ fun Project.ideProbe() {
 
   dependencies {
     "uiTestImplementation"(testFixtures(project(":testCommon")))
-    "uiTestImplementation"(bundle("ideProbe"))
+    "uiTestImplementation"(lib("ideProbe.robotDriver"))
   }
 }
 

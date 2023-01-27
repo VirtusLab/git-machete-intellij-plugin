@@ -3,7 +3,6 @@
 # see https://docs.gradle.org/current/samples/sample_convention_plugins.html#things_to_note
 [versions]
 checker = "3.29.0"
-ideProbe = "0.51.0"
 junitJupiter = "5.9.2"
 
 [libraries]
@@ -14,8 +13,7 @@ betterStrings = "com.antkorwin:better-strings:0.5"
 checker = { module = "org.checkerframework:checker", version.ref = "checker" }
 checker-qual = { module = "org.checkerframework:checker-qual", version.ref = "checker" }
 commonsIO = "commons-io:commons-io:2.11.0"
-ideProbe-junitDriver = { module = "org.virtuslab.ideprobe:junit-driver_2.13", version.ref = "ideProbe" }
-ideProbe-robotDriver = { module = "org.virtuslab.ideprobe:robot-driver_2.13", version.ref = "ideProbe" }
+ideProbe-robotDriver = "org.virtuslab.ideprobe:robot-driver_2.13:0.51.0"
 jcabi-aspects = "com.jcabi:jcabi-aspects:0.24.1"
 jetbrains-annotations = "org.jetbrains:annotations:24.0.0"
 jgit = "org.eclipse.jgit:org.eclipse.jgit:6.4.0.202211300538-r"
@@ -54,9 +52,3 @@ pluginPackages-spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.12.0"
 pluginPackages-taskTree = "com.dorongold.plugins:task-tree:2.1.1"
 pluginPackages-versionCatalogUpdate = "nl.littlerobots.version-catalog-update:nl.littlerobots.version-catalog-update.gradle.plugin:0.5.3"
 pluginPackages-versionsFilter = "se.ascp.gradle:gradle-versions-filter:0.1.16"
-
-[bundles]
-ideProbe = [
-    "ideProbe-junitDriver",
-    "ideProbe-robotDriver",
-]

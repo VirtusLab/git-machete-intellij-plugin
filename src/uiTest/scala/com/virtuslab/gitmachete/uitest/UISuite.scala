@@ -1,13 +1,19 @@
 package com.virtuslab.gitmachete.uitest
 
-import org.virtuslab.ideprobe.junit4.RunningIntelliJPerSuite
-import org.virtuslab.ideprobe.{IdeProbeFixture, IntelliJFixture}
+import org.junit.jupiter.api.{AfterAll, BeforeAll}
+import org.virtuslab.ideprobe.{IdeProbeFixture, IntelliJFixture, RunningIntelliJPerSuiteBase}
 
-trait UISuite extends RunningIntelliJPerSuite with IdeProbeFixture with RunningIntelliJFixtureExtension {
+trait UISuite extends RunningIntelliJPerSuiteBase with IdeProbeFixture with RunningIntelliJFixtureExtension {
 
   registerFixtureTransformer(_.withAfterIntelliJStartup((_, intelliJ) => intelliJ.ide.configure()))
 
   override protected def baseFixture: IntelliJFixture = fixtureFromConfig("ideprobe.conf")
+
+  // Don't call it `beforeAll()`, such method already exists in `RunningIntelliJPerSuiteBase`
+  @BeforeAll override final def setup(): Unit = super.setup()
+
+  // Don't call it `afterAll()`, such method already exists in `RunningIntelliJPerSuiteBase`
+  @AfterAll override final def teardown(): Unit = super.teardown()
 
   def waitAndCloseProject(): Unit = {
     intelliJ.probe.await()

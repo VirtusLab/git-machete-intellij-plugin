@@ -3,7 +3,7 @@ package com.virtuslab.gitmachete.uitest
 import java.nio.file.Paths
 import java.util
 import org.intellij.lang.annotations.Language
-import org.junit.Assert
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.virtuslab.ideprobe.{IdeProbeFixture, ProbeDriver, RunningIntelliJFixture}
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.robot.RobotPluginExtension
@@ -111,12 +111,12 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
       def assertBranchesAreEqual(branchA: String, branchB: String): Unit = {
         val hashA = getHashOfCommitPointedByBranch(branchA)
         val hashB = getHashOfCommitPointedByBranch(branchB)
-        Assert.assertEquals(hashB, hashA)
+        assertEquals(hashA, hashB)
       }
 
       def assertSyncToParentStatus(branch: String, status: String): Unit = {
         val actual = getSyncToParentStatus(branch)
-        Assert.assertEquals(actual, status)
+        assertEquals(status, actual)
       }
 
       def assertLocalAndRemoteBranchesAreEqual(branch: String): Unit = {
@@ -124,7 +124,7 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
       }
 
       def assertNoUncommittedChanges(): Unit = {
-        Assert.assertEquals(Seq.empty, getDiffOfWorkingTreeToHead())
+        assertEquals(Seq.empty, getDiffOfWorkingTreeToHead())
       }
 
       def checkoutBranch(branch: String): Unit = doAndAwait {
