@@ -21,12 +21,12 @@ import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import lombok.SneakyThrows;
 import lombok.val;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
 
   @Test
-  public void abstract_classes_should_not_declare_LOG_field() throws Exception {
+  public void abstract_classes_should_not_declare_LOG_field() {
     classes()
         .that()
         .haveModifier(ABSTRACT)
@@ -45,7 +45,6 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
         })
         .because("the SLF4J logger name should reflect the name of the concrete class, not an abstract base")
         .check(productionClasses);
-    throw new Exception();
   }
 
   @Test

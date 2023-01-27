@@ -8,7 +8,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 import com.intellij.ide.util.PropertiesComponent;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;

@@ -16,7 +16,7 @@ import io.vavr.collection.List;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.virtuslab.qual.guieffect.IgnoreUIThreadUnsafeCalls;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;

@@ -3,7 +3,7 @@ package com.virtuslab.archunit;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class NamingTestSuite extends BaseArchUnitTestSuite {
 
