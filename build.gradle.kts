@@ -245,6 +245,7 @@ configureUiTests()
 applyKotlinConfig()
 ideProbe()
 junit()
+junitPlatformLauncher()
 lombok()
 dependencies {
   testImplementation(rootProject.libs.archunit)

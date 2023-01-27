@@ -142,13 +142,20 @@ fun Project.junit() {
   dependencies {
     "testImplementation"(lib("junit-api"))
     "testRuntimeOnly"(lib("junit-engine"))
-    "testRuntimeOnly"(lib("junit-platform-launcher"))
   }
 }
 
 fun Project.junitParams() {
   dependencies {
     "testImplementation"(lib("junit-params"))
+  }
+}
+
+// This is apparently only required for subprojects that have IntelliJ on classpath.
+// This might be related to the fact that IntelliJ itself pulls in JUnit 4 (rather than JUnit 5).
+fun Project.junitPlatformLauncher() {
+  dependencies {
+    "testRuntimeOnly"(lib("junit-platform-launcher"))
   }
 }
 
