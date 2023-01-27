@@ -4,6 +4,7 @@ import java.lang.ref.SoftReference;
 import java.nio.file.Path;
 
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.serviceContainer.NonInjectable;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
@@ -29,6 +30,7 @@ public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
     this(() -> ApplicationManager.getApplication().getService(IGitCoreRepositoryFactory.class));
   }
 
+  @NonInjectable // so that the parameter-less constructor is used for IntelliJ Service instantiation instead
   public GitMacheteRepositoryCache(IDependencyResolver dependencyResolver) {
     this.dependencyResolver = dependencyResolver;
   }
