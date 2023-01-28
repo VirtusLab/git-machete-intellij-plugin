@@ -25,6 +25,6 @@ class PlatformInfoProvider {
   @Nullable
   String getPluginVersion() {
     IdeaPluginDescriptor pluginDescriptor = PluginManagerCore.getPlugin(PluginId.getId("com.virtuslab.git-machete"));
-    return pluginDescriptor != null ? pluginDescriptor.getVersion() : "<unknown>";
+    return pluginDescriptor != null ? pluginDescriptor.getVersion() : null;
   }
 }
