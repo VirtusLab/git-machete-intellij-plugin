@@ -4,6 +4,7 @@ import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQu
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
+import java.util.ArrayList;
 import java.util.Collections;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -81,13 +82,14 @@ public abstract class BaseRenameAction extends BaseGitMacheteRepositoryReadyActi
   private void rename(GitRepository gitRepository, BaseEnhancedGraphTable graphTable, IManagedBranchSnapshot branch,
       BranchLayout branchLayout) {
     val project = gitRepository.getProject();
+    val remotes = new ArrayList<>(gitRepository.getRemotes());
 
     val gitNewBranchDialog = new GitNewBranchDialog(project, Collections.singletonList(gitRepository),
         getString("action.GitMachete.BaseRenameAction.description").fmt(branch.getName()),
         branch.getName(),
         /* showCheckOutOption */ false,
         /* showResetOption */ false,
-        /* showSetTrackingOption */ false,
+        /* showSetTrackingOption */ branch.getRemoteTrackingBranch() != null,
         /* localConflictsAllowed */ false,
         GitBranchOperationType.RENAME);
 
@@ -97,8 +99,8 @@ public abstract class BaseRenameAction extends BaseGitMacheteRepositoryReadyActi
       new RenameBackgroundable(gitRepository,
           graphTable,
           branchLayout,
-          branch.getName(),
-          options.getName())
+          branch,
+          options)
               .queue();
 
     }

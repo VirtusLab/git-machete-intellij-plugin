@@ -17,6 +17,7 @@
 - Added a field to provide/edit a custom annotation in the Slide In dialog.
 - Added Compare With Parent action to the context menu.
 - Fixed an issue with Slide In Unmanaged Branch Notification for a branch from a git repository that is not selected.
+- Added an option to the branch rename dialog allowing to set the remote branch name.
 
 ## v3.5.1
 - Improve stability of traverse and slide-out/slide-in actions.
