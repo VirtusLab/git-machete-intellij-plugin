@@ -106,7 +106,7 @@ fun Project.configureIntellijPlugin() {
 
     val item = changelog.getOrNull(changelog.version.get())
     if (item != null) {
-      changeNotes.set("<h3>v${rootProject.version}</h3>\n\n" + changelog.renderItem(item, Changelog.OutputType.HTML))
+      changeNotes.set(changelog.renderItem(item, Changelog.OutputType.HTML))
     }
   }
 
