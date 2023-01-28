@@ -3,7 +3,6 @@ package com.virtuslab.gitmachete.backend.unit;
 import static com.virtuslab.gitmachete.backend.unit.UnitTestUtils.createGitCoreCommit;
 import static com.virtuslab.gitmachete.backend.unit.UnitTestUtils.createGitCoreLocalBranch;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -70,7 +69,6 @@ public class GitMacheteRepository_deriveParentAwareForkPointUnitTestSuite extend
     IGitCoreCommit result = invokeDeriveParentAwareForkPoint(childBranch, parentBranch);
 
     // then
-    assertNotNull(result);
     assertEquals(parentCommit, result);
   }
 
@@ -92,7 +90,6 @@ public class GitMacheteRepository_deriveParentAwareForkPointUnitTestSuite extend
     IGitCoreCommit result = invokeDeriveParentAwareForkPoint(childBranch, parentBranch);
 
     // then
-    assertNotNull(result);
     assertEquals(parentCommit, result);
   }
 }

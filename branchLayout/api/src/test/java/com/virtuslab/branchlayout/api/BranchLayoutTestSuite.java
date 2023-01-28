@@ -150,11 +150,11 @@ public class BranchLayoutTestSuite {
     BranchLayout result = branchLayout.rename(branchToRename, newBranchName);
 
     // then
-    assertEquals(result.getRootEntries().size(), 1);
-    assertEquals(result.getRootEntries().get(0).getName(), rootName);
+    assertEquals(1, result.getRootEntries().size());
+    assertEquals(rootName, result.getRootEntries().get(0).getName());
     val children = result.getRootEntries().get(0).getChildren();
-    assertEquals(children.size(), 1);
-    assertEquals(children.get(0).getName(), newBranchName);
+    assertEquals(1, children.size());
+    assertEquals(newBranchName, children.get(0).getName());
   }
 
   @Test
@@ -180,11 +180,11 @@ public class BranchLayoutTestSuite {
     BranchLayout result = branchLayout.rename(rootName, newRootName);
 
     // then
-    assertEquals(result.getRootEntries().size(), 1);
-    assertEquals(result.getRootEntries().get(0).getName(), newRootName);
-    assertEquals(result.getRootEntries().get(0).getCustomAnnotation(), rootAnnotation);
+    assertEquals(1, result.getRootEntries().size());
+    assertEquals(newRootName, result.getRootEntries().get(0).getName());
+    assertEquals(rootAnnotation, result.getRootEntries().get(0).getCustomAnnotation());
     val children = result.getRootEntries().get(0).getChildren();
-    assertEquals(children.size(), 1);
+    assertEquals(1, children.size());
   }
 
   @Test
@@ -208,10 +208,10 @@ public class BranchLayoutTestSuite {
     BranchLayout result = branchLayout.rename(rootName, rootName);
 
     // then
-    assertEquals(result.getRootEntries().size(), 1);
-    assertEquals(result.getRootEntries().get(0).getName(), rootName);
+    assertEquals(1, result.getRootEntries().size());
+    assertEquals(rootName, result.getRootEntries().get(0).getName());
     val children = result.getRootEntries().get(0).getChildren();
-    assertEquals(children.size(), 1);
+    assertEquals(1, children.size());
   }
 
   @Test
@@ -237,10 +237,10 @@ public class BranchLayoutTestSuite {
     BranchLayout result = branchLayout.rename(nonExisting, newNonExistingName);
 
     // then
-    assertEquals(result.getRootEntries().size(), 1);
-    assertEquals(result.getRootEntries().get(0).getName(), rootName);
+    assertEquals(1, result.getRootEntries().size());
+    assertEquals(rootName, result.getRootEntries().get(0).getName());
     val children = result.getRootEntries().get(0).getChildren();
-    assertEquals(children.size(), 1);
+    assertEquals(1, children.size());
   }
 
   @Test
