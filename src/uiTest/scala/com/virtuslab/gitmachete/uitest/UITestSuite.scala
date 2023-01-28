@@ -2,7 +2,7 @@ package com.virtuslab.gitmachete.uitest
 
 import com.virtuslab.gitmachete.testcommon.SetupScripts.SETUP_WITH_SINGLE_REMOTE
 import com.virtuslab.gitmachete.testcommon.TestGitRepository
-import org.junit.jupiter.api.Assertions.{assertEquals, fail}
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.extension.{ExtendWith, ExtensionContext, TestWatcher}
 import org.junit.jupiter.api.{AfterEach, BeforeEach, Test}
 import org.virtuslab.ideprobe.Extensions._
