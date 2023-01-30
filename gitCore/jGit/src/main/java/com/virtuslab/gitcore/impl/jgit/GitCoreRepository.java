@@ -141,7 +141,8 @@ public final class GitCoreRepository implements IGitCoreRepository {
     }
   }
 
-  private boolean isBranchPresent(String branchFullName) {
+  // Public only for the sake of tests, not a part of the interface
+  public boolean isBranchPresent(String branchFullName) {
     // If '/' characters exist in the branch name, then loop-based testing is needed in order to avoid
     // possible IDE errors, which could appear in scenarios similar to the one explained below.
     // - If a branch 'foo' exists locally (which means that .git/refs/heads/foo file exists in the repository)
@@ -179,7 +180,6 @@ public final class GitCoreRepository implements IGitCoreRepository {
     }
 
     try {
-      // test below is executed for the actual branch name
       return jgitRepoForMainGitDir.resolve(branchFullName) != null;
     } catch (IOException e) {
       return false;

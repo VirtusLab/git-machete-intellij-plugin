@@ -10,7 +10,7 @@ jgit()
 junit()
 lombok()
 slf4jLambdaApi()
-slf4jTestImpl()
+slf4jMock()
 vavr()
 
 applyAliasingChecker()

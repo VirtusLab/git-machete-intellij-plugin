@@ -185,7 +185,13 @@ fun Project.slf4jLambdaApi() {
   }
 }
 
-fun Project.slf4jTestImpl() {
+fun Project.slf4jMock() {
+  dependencies {
+    "testImplementation"(lib("slf4j-mock"))
+  }
+}
+
+fun Project.slf4jSimpleTest() {
   // We only need to provide an SLF4J implementation in the contexts which depend on the plugin
   // but don't depend on IntelliJ.
   // In our case, that's solely the tests of certain backend modules.
