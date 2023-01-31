@@ -5,6 +5,7 @@ import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.runWrite
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.nio.file.Path;
+import java.util.Objects;
 
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
@@ -23,23 +24,26 @@ import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.actions.common.SlideInOptions;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
+import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
-@ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class})
+@ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class, Objects.class})
 public abstract class BaseSlideInBackgroundable extends Task.Backgroundable {
 
   protected final Project project;
-  protected final GitRepository gitRepository;
-  protected final BranchLayout branchLayout;
-  protected final IBranchLayoutWriter branchLayoutWriter;
-  protected final Runnable preSlideInRunnable;
+  private final GitRepository gitRepository;
+  private final BranchLayout branchLayout;
+  private final IBranchLayoutWriter branchLayoutWriter;
+  private final BaseEnhancedGraphTable graphTable;
+  private final Runnable preSlideInRunnable;
   protected final SlideInOptions slideInOptions;
 
   public BaseSlideInBackgroundable(
       GitRepository gitRepository,
       BranchLayout branchLayout,
       IBranchLayoutWriter branchLayoutWriter,
+      BaseEnhancedGraphTable graphTable,
       Runnable preSlideInRunnable,
       SlideInOptions slideInOptions) {
     super(gitRepository.getProject(), getString("action.GitMachete.BaseSlideInBackgroundable.task-title"));
@@ -47,13 +51,16 @@ public abstract class BaseSlideInBackgroundable extends Task.Backgroundable {
     this.gitRepository = gitRepository;
     this.branchLayout = branchLayout;
     this.branchLayoutWriter = branchLayoutWriter;
+    this.graphTable = graphTable;
     this.preSlideInRunnable = preSlideInRunnable;
     this.slideInOptions = slideInOptions;
   }
 
   @Override
   @UIThreadUnsafe
-  public void run(ProgressIndicator indicator) {
+  public final void run(ProgressIndicator indicator) {
+    graphTable.disableEnqueuingUpdates();
+
     preSlideInRunnable.run();
 
     // `preSlideInRunnable` may perform some sneakily-asynchronous operations (e.g. checkoutRemoteBranch).
@@ -99,17 +106,18 @@ public abstract class BaseSlideInBackgroundable extends Task.Backgroundable {
 
   @Override
   @UIEffect
-  public void onThrowable(Throwable e) {
+  public final void onThrowable(Throwable e) {
     val exceptionMessage = e.getMessage();
     VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
         /* title */ getString(
             "action.GitMachete.BaseSlideInBelowAction.notification.title.branch-layout-write-fail"),
-        exceptionMessage == null ? "" : exceptionMessage);
+        exceptionMessage.requireNonNullElse(""));
+  }
+
+  @Override
+  public final void onFinished() {
+    graphTable.enableEnqueuingUpdates();
   }
 
   abstract @Nullable BranchLayout deriveNewBranchLayout(BranchLayout targetBranchLayout, BranchLayoutEntry entryToSlideIn);
-
-  protected static String getMessageOrEmpty(Throwable t) {
-    return t.getMessage() != null ? t.getMessage() : "";
-  }
 }

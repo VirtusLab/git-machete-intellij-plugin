@@ -2,6 +2,8 @@ package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
+import java.util.Objects;
+
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.repo.GitRepository;
 import lombok.experimental.ExtensionMethod;
@@ -14,9 +16,10 @@ import com.virtuslab.branchlayout.api.EntryIsDescendantOfException;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.actions.common.SlideInOptions;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
+import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 
-@ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class})
+@ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class, Objects.class})
 public class SlideInNonRootBackgroundable extends BaseSlideInBackgroundable {
 
   private final String parentName;
@@ -25,10 +28,11 @@ public class SlideInNonRootBackgroundable extends BaseSlideInBackgroundable {
       GitRepository gitRepository,
       BranchLayout branchLayout,
       IBranchLayoutWriter branchLayoutWriter,
+      BaseEnhancedGraphTable graphTable,
       Runnable preSlideInRunnable,
       SlideInOptions slideInOptions,
       String parentName) {
-    super(gitRepository, branchLayout, branchLayoutWriter, preSlideInRunnable, slideInOptions);
+    super(gitRepository, branchLayout, branchLayoutWriter, graphTable, preSlideInRunnable, slideInOptions);
     this.parentName = parentName;
   }
 
@@ -56,7 +60,6 @@ public class SlideInNonRootBackgroundable extends BaseSlideInBackgroundable {
     VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
         /* title */ getString("action.GitMachete.SlideInNonRootBackgroundable.notification.title.slide-in-fail.HTML")
             .fmt(slideInOptions.getName()),
-        message != null ? message : getMessageOrEmpty(throwable));
+        message != null ? message : throwable.getMessage().requireNonNullElse(""));
   }
-
 }

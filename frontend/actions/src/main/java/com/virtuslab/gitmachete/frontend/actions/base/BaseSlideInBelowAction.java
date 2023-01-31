@@ -139,14 +139,10 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
         gitRepository,
         branchLayout,
         branchLayoutWriter,
+        getGraphTable(anActionEvent),
         preSlideInRunnable,
         slideInOptions,
-        parentName) {
-      @Override
-      public void onFinished() {
-        getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
-      }
-    }.queue();
+        parentName).queue();
   }
 
   @ContinuesInBackground
