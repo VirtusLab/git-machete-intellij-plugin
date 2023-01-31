@@ -51,6 +51,15 @@ public class GitCoreRepositoryTest {
 
     assertFalse(gitCoreRepository.isBranchPresent("refs/heads/develop/something-else"));
 
+    // In test setup, a call to `LOG.error(String, Throwable)` doesn't crash the test
+    // (and we aren't able to simply catch an exception to detect whether such a call took place).
+    // In fact, with slf4j-simple (rather than slf4j-mock) on classpath, we'll just see stack trace printed out
+    // (unless stderr is suppressed, which is the default when running tests under Gradle).
+    // In IntelliJ, however, the situation is different, as IntelliJ provides an SLF4J implementation
+    // which opens an error notification for each `LOG.error(String, Throwable)` (but not `LOG.error(String)`) call.
+    // In this particular case, we want to avoid an `LOG.error(String, Throwable)` call in FileSnapshot c'tor
+    // ending up in an user-visible, confusing error notification.
+    // See the issue and PR #1304 for more details.
     verify(logger, never()).error(anyString(), any(Throwable.class));
   }
 }
