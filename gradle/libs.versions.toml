@@ -23,7 +23,7 @@ junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref 
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junitJupiter" }
 junit-platform-launcher = "org.junit.platform:junit-platform-launcher:1.9.2"
 lombok = "org.projectlombok:lombok:1.18.24"
-mockito = "org.mockito:mockito-junit-jupiter:5.1.0"
+mockito = "org.mockito:mockito-junit-jupiter:5.1.1"
 slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
 # @pin because slf4j-simple 2.0.0 isn't compatible with slf4j-api v1.x.y, which is still pulled in by our dependencies.
 #      See https://www.slf4j.org/faq.html#changesInVersion200.
