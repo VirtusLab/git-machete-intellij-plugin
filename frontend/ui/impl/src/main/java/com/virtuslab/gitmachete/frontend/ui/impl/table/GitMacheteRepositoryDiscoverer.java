@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
-import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.runWriteActionOnUIThread;
+import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.blockingRunWriteActionOnUIThread;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.nio.file.Path;
@@ -98,7 +98,7 @@ public class GitMacheteRepositoryDiscoverer {
         val branchLayoutWriter = ApplicationManager.getApplication().getService(IBranchLayoutWriter.class);
         val branchLayout = repositorySnapshot.getBranchLayout();
 
-        runWriteActionOnUIThread(() -> {
+        blockingRunWriteActionOnUIThread(() -> {
           LOG.debug("Writing branch layout & executing on-success consumer");
           MacheteFileWriter.writeBranchLayout(
               macheteFilePath,

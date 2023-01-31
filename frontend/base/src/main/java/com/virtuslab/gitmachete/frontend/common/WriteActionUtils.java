@@ -10,10 +10,7 @@ public final class WriteActionUtils {
 
   private WriteActionUtils() {}
 
-  public static <E extends Throwable> void runWriteActionOnUIThread(@UI ThrowableRunnable<E> action) {
-    ApplicationManager.getApplication().invokeLater(getWriteActionRunnable(action));
-  }
-
+  // We don't provide asynchronous (non-blocking) variant since it turned out prone to race conditions.
   public static <E extends Throwable> void blockingRunWriteActionOnUIThread(@UI ThrowableRunnable<E> action) {
     ApplicationManager.getApplication().invokeAndWait(getWriteActionRunnable(action));
   }

@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.BranchCreationUtils.waitForCreationOfLocalBranch;
-import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.runWriteActionOnUIThread;
+import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.blockingRunWriteActionOnUIThread;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.nio.file.Path;
@@ -87,7 +87,7 @@ public abstract class BaseSlideInBackgroundable extends Task.Backgroundable {
       return;
     }
 
-    runWriteActionOnUIThread(() -> {
+    blockingRunWriteActionOnUIThread(() -> {
       MacheteFileWriter.writeBranchLayout(
           macheteFilePath,
           branchLayoutWriter,

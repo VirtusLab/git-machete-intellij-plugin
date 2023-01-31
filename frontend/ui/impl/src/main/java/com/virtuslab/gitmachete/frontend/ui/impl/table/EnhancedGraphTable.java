@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
-import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.runWriteActionOnUIThread;
+import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.blockingRunWriteActionOnUIThread;
 import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
 import static com.virtuslab.gitmachete.frontend.defs.ActionIds.OPEN_MACHETE_FILE;
 import static com.virtuslab.gitmachete.frontend.file.MacheteFileUtils.macheteFileIsOpenedAndFocused;
@@ -413,7 +413,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     }
 
     val finalNewBranchLayout = newBranchLayout;
-    runWriteActionOnUIThread(() -> {
+    blockingRunWriteActionOnUIThread(() -> {
       try {
         Path macheteFilePath = gitRepository.getMacheteFilePath();
         LOG.info("Writing new branch layout into ${macheteFilePath}");
@@ -509,43 +509,43 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       return;
     }
 
-    if (!project.isDisposed()) {
-      ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> {
-        val gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
-        val gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository();
-        if (gitRepository == null) {
-          LOG.warn("Selected repository is null");
-          return;
-        }
-
-        @UI Consumer<@Nullable IGitMacheteRepositorySnapshot> doRefreshModel = newGitMacheteRepositorySnapshot -> {
-          this.gitMacheteRepositorySnapshot = newGitMacheteRepositorySnapshot;
-          if (newGitMacheteRepositorySnapshot != null) {
-            validateUnmanagedBranchNotification(newGitMacheteRepositorySnapshot, unmanagedBranchNotification);
-            refreshModel(gitRepository, newGitMacheteRepositorySnapshot, doOnUIThreadWhenReady);
-
-          } else {
-            refreshModel(gitRepository, NullGitMacheteRepositorySnapshot.getInstance(), doOnUIThreadWhenReady);
-          }
-        };
-
-        setTextForEmptyTable(getString("string.GitMachete.EnhancedGraphTable.empty-table-text.loading"));
-
-        LOG.debug("Queuing repository update onto a non-UI thread");
-        new GitMacheteRepositoryUpdateBackgroundable(
-            gitRepository,
-            branchLayoutReader,
-            doRefreshModel,
-            /* gitMacheteRepositoryConsumer */ gitMacheteRepositoryRef::set).queue();
-
-        val macheteFile = gitRepository.getMacheteFile();
-
-        if (macheteFile != null) {
-          VfsUtil.markDirtyAndRefresh(/* async */ true, /* recursive */ false, /* reloadChildren */ false, macheteFile);
-        }
-      });
-    } else {
+    if (project.isDisposed()) {
       LOG.debug("Project is disposed");
+      return;
+    }
+
+    ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> {
+      setTextForEmptyTable(getString("string.GitMachete.EnhancedGraphTable.empty-table-text.loading"));
+    });
+
+    val gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
+    val gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository();
+    if (gitRepository == null) {
+      LOG.warn("Selected repository is null");
+      return;
+    }
+
+    @UI Consumer<@Nullable IGitMacheteRepositorySnapshot> doRefreshModel = newGitMacheteRepositorySnapshot -> {
+      this.gitMacheteRepositorySnapshot = newGitMacheteRepositorySnapshot;
+      if (newGitMacheteRepositorySnapshot != null) {
+        validateUnmanagedBranchNotification(newGitMacheteRepositorySnapshot, unmanagedBranchNotification);
+        refreshModel(gitRepository, newGitMacheteRepositorySnapshot, doOnUIThreadWhenReady);
+
+      } else {
+        refreshModel(gitRepository, NullGitMacheteRepositorySnapshot.getInstance(), doOnUIThreadWhenReady);
+      }
+    };
+
+    LOG.debug("Queuing repository update onto a non-UI thread");
+    new GitMacheteRepositoryUpdateBackgroundable(
+        gitRepository,
+        branchLayoutReader,
+        doRefreshModel,
+        /* gitMacheteRepositoryConsumer */ gitMacheteRepositoryRef::set).queue();
+
+    val macheteFile = gitRepository.getMacheteFile();
+    if (macheteFile != null) {
+      VfsUtil.markDirtyAndRefresh(/* async */ true, /* recursive */ false, /* reloadChildren */ false, macheteFile);
     }
   }
 
