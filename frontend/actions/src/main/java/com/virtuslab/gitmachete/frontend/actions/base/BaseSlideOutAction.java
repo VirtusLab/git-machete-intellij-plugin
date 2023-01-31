@@ -74,7 +74,8 @@ public abstract class BaseSlideOutAction extends BaseGitMacheteRepositoryReadyAc
       log().debug("selectedGitRepository is null");
     } else {
       val currentMacheteBranchIfManaged = getCurrentMacheteBranchIfManaged(anActionEvent);
-      new SlideOut(branchToSlideOut, selectedGitRepository, currentMacheteBranchIfManaged, branchLayout).run();
+      val graphTable = getGraphTable(anActionEvent);
+      new SlideOut(branchToSlideOut, selectedGitRepository, currentMacheteBranchIfManaged, branchLayout, graphTable).run();
     }
   }
 
