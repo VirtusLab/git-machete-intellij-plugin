@@ -98,27 +98,27 @@ public class TraverseSyncToRemote {
 
       case Untracked :
         @UI Runnable pushUntracked = () -> handleUntracked(gitMacheteBranch, localBranch);
-        checkoutAndExecuteOnUIThread(gitRepository, gitMacheteBranch.getName(), pushUntracked);
+        checkoutAndExecuteOnUIThread(gitRepository, graphTable, gitMacheteBranch.getName(), pushUntracked);
         break;
 
       case AheadOfRemote :
         @UI Runnable pushAheadOfRemote = () -> handleAheadOfRemote(gitMacheteBranch, localBranch);
-        checkoutAndExecuteOnUIThread(gitRepository, gitMacheteBranch.getName(), pushAheadOfRemote);
+        checkoutAndExecuteOnUIThread(gitRepository, graphTable, gitMacheteBranch.getName(), pushAheadOfRemote);
         break;
 
       case DivergedFromAndNewerThanRemote :
         @UI Runnable pushForceDiverged = () -> handleDivergedFromAndNewerThanRemote(gitMacheteBranch, localBranch);
-        checkoutAndExecuteOnUIThread(gitRepository, gitMacheteBranch.getName(), pushForceDiverged);
+        checkoutAndExecuteOnUIThread(gitRepository, graphTable, gitMacheteBranch.getName(), pushForceDiverged);
         break;
 
       case DivergedFromAndOlderThanRemote :
         @UI Runnable resetToRemote = () -> handleDivergedFromAndOlderThanRemote(gitMacheteBranch);
-        checkoutAndExecuteOnUIThread(gitRepository, gitMacheteBranch.getName(), resetToRemote);
+        checkoutAndExecuteOnUIThread(gitRepository, graphTable, gitMacheteBranch.getName(), resetToRemote);
         break;
 
       case BehindRemote :
         @UI Runnable pullBehindRemote = () -> handleBehindRemote(gitMacheteBranch);
-        checkoutAndExecuteOnUIThread(gitRepository, gitMacheteBranch.getName(), pullBehindRemote);
+        checkoutAndExecuteOnUIThread(gitRepository, graphTable, gitMacheteBranch.getName(), pullBehindRemote);
         break;
 
       default :
