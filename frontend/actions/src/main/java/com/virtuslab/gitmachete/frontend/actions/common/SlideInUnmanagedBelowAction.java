@@ -66,32 +66,25 @@ public class SlideInUnmanagedBelowAction extends BaseGitMacheteRepositoryReadyAc
       return;
     }
 
+    val graphTable = getGraphTable(anActionEvent);
     if (parentName != null) {
       new SlideInNonRootBackgroundable(
           gitRepository,
           branchLayout,
           branchLayoutWriter,
+          graphTable,
           preSlideInRunnable,
           slideInOptions,
-          parentName) {
-        @Override
-        public void onFinished() {
-          getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
-        }
-      }.queue();
+          parentName).queue();
     } else {
 
       new SlideInRootBackgroundable(
           gitRepository,
           branchLayout,
           branchLayoutWriter,
+          graphTable,
           preSlideInRunnable,
-          slideInOptions) {
-        @Override
-        public void onFinished() {
-          getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
-        }
-      }.queue();
+          slideInOptions).queue();
     }
   }
 }

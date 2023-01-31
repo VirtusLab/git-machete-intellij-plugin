@@ -230,6 +230,11 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   @IgnoreUIThreadUnsafeCalls("com.virtuslab.gitmachete.backend.api.IGitMacheteRepository.inferParentForLocalBranch"
       + "(io.vavr.collection.Set, java.lang.String)")
   private void inferParentForUnmanagedBranchNotificationAndNotify(String branchName) {
+    if (!enqueuingUpdatesEnabled.get()) {
+      LOG.debug("Enqueuing updates disabled");
+      return;
+    }
+
     val gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
     val gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository();
     if (gitRepository == null) {

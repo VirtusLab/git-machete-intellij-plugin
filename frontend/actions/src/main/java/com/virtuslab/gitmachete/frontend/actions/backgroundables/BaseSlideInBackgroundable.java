@@ -23,6 +23,7 @@ import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.actions.common.SlideInOptions;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
+import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
@@ -30,16 +31,18 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 public abstract class BaseSlideInBackgroundable extends SideEffectingBackgroundable {
 
   protected final Project project;
-  protected final GitRepository gitRepository;
-  protected final BranchLayout branchLayout;
-  protected final IBranchLayoutWriter branchLayoutWriter;
-  protected final Runnable preSlideInRunnable;
+  private final GitRepository gitRepository;
+  private final BranchLayout branchLayout;
+  private final IBranchLayoutWriter branchLayoutWriter;
+  private final BaseEnhancedGraphTable graphTable;
+  private final Runnable preSlideInRunnable;
   protected final SlideInOptions slideInOptions;
 
   public BaseSlideInBackgroundable(
       GitRepository gitRepository,
       BranchLayout branchLayout,
       IBranchLayoutWriter branchLayoutWriter,
+      BaseEnhancedGraphTable graphTable,
       Runnable preSlideInRunnable,
       SlideInOptions slideInOptions) {
     super(gitRepository.getProject(), getString("action.GitMachete.BaseSlideInBackgroundable.task-title"), "slide-in");
@@ -47,13 +50,15 @@ public abstract class BaseSlideInBackgroundable extends SideEffectingBackgrounda
     this.gitRepository = gitRepository;
     this.branchLayout = branchLayout;
     this.branchLayoutWriter = branchLayoutWriter;
+    this.graphTable = graphTable;
     this.preSlideInRunnable = preSlideInRunnable;
     this.slideInOptions = slideInOptions;
   }
 
   @Override
   @UIThreadUnsafe
-  public void doRun(ProgressIndicator indicator) {
+  public final void doRun(ProgressIndicator indicator) {
+    graphTable.disableEnqueuingUpdates();
     preSlideInRunnable.run();
 
     // `preSlideInRunnable` may perform some sneakily-asynchronous operations (e.g. checkoutRemoteBranch).
@@ -99,7 +104,7 @@ public abstract class BaseSlideInBackgroundable extends SideEffectingBackgrounda
 
   @Override
   @UIEffect
-  public void onThrowable(Throwable e) {
+  public final void onThrowable(Throwable e) {
     val exceptionMessage = e.getMessage();
     VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
         /* title */ getString(
@@ -107,6 +112,10 @@ public abstract class BaseSlideInBackgroundable extends SideEffectingBackgrounda
         exceptionMessage.requireNonNullElse(""));
   }
 
-  abstract @Nullable BranchLayout deriveNewBranchLayout(BranchLayout targetBranchLayout, BranchLayoutEntry entryToSlideIn);
+  @Override
+  public final void onFinished() {
+    graphTable.enableEnqueuingUpdates();
+  }
 
+  abstract @Nullable BranchLayout deriveNewBranchLayout(BranchLayout targetBranchLayout, BranchLayoutEntry entryToSlideIn);
 }
