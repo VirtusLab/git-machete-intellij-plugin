@@ -17,6 +17,8 @@ class GitVcs {
 package git4idea.branch;
 
 interface GitBrancher {
+  void checkout(String reference, boolean detach, List<? extends GitRepository> repositories, @UI Runnable callInAwtLater);
+
   void deleteBranches(Map<String, List<? extends GitRepository>> branchesToContainingRepositories, @UI Runnable callInAwtAfterExecution);
 }
 

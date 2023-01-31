@@ -303,6 +303,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         mostRecentlyCheckedOutBranch = repositoryCurrentBranchName;
       }
     }
+    // required to indicate the currently checked out branch after a checkout
     queueRepositoryUpdateAndModelRefresh();
   }
 
