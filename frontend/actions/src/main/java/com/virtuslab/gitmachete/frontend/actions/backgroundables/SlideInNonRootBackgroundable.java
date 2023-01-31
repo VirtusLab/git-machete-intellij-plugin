@@ -16,6 +16,7 @@ import com.virtuslab.branchlayout.api.EntryIsDescendantOfException;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.actions.common.SlideInOptions;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
+import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 
 @ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class, Objects.class})
@@ -27,10 +28,11 @@ public class SlideInNonRootBackgroundable extends BaseSlideInBackgroundable {
       GitRepository gitRepository,
       BranchLayout branchLayout,
       IBranchLayoutWriter branchLayoutWriter,
+      BaseEnhancedGraphTable graphTable,
       Runnable preSlideInRunnable,
       SlideInOptions slideInOptions,
       String parentName) {
-    super(gitRepository, branchLayout, branchLayoutWriter, preSlideInRunnable, slideInOptions);
+    super(gitRepository, branchLayout, branchLayoutWriter, graphTable, preSlideInRunnable, slideInOptions);
     this.parentName = parentName;
   }
 
@@ -60,5 +62,4 @@ public class SlideInNonRootBackgroundable extends BaseSlideInBackgroundable {
             .fmt(slideInOptions.getName()),
         message.requireNonNullElse(throwable.getMessage().requireNonNullElse("")));
   }
-
 }

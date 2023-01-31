@@ -29,7 +29,7 @@ public final class BranchCreationUtils {
   public static boolean waitForCreationOfLocalBranch(GitRepository gitRepository, String branchName) {
     try {
       // Usually just 3 attempts are enough
-      val MAX_SLEEP_DURATION = 8192;
+      val MAX_SLEEP_DURATION = 16384;
       var sleepDuration = 64;
       while (findLocalBranch(gitRepository, branchName) == null && sleepDuration <= MAX_SLEEP_DURATION) {
         Thread.sleep(sleepDuration);
