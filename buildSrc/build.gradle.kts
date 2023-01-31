@@ -102,23 +102,19 @@ configure<VersionCatalogUpdateExtension> {
 
 apply<SpotlessPlugin>()
 configure<SpotlessExtension> {
+  val ktlintEditorConfig = mapOf(
+    "ktlint_standard_no-wildcard-imports" to "disabled",
+    "ktlint_standard_filename" to "disabled",
+    "indent_size" to 2,
+  )
+
   kotlin {
-    ktlint().editorConfigOverride(
-      mapOf(
-        "ktlint_disabled_rules" to "no-wildcard-imports,filename",
-        "indent_size" to 2
-      )
-    )
+    ktlint().editorConfigOverride(ktlintEditorConfig)
     target("**/*.kt")
   }
 
   kotlinGradle {
-    ktlint().editorConfigOverride(
-      mapOf(
-        "ktlint_disabled_rules" to "no-wildcard-imports",
-        "indent_size" to 2
-      )
-    )
+    ktlint().editorConfigOverride(ktlintEditorConfig)
     target("**/*.gradle.kts")
   }
 }

@@ -55,7 +55,7 @@ fun <T : JComponent> Cell<T>.commentCompat(comment: String): Cell<T> {
     Int::class.javaPrimitiveType,
     HyperlinkEventAction::class.java,
     Int::class.javaPrimitiveType, // bookkeeping arguments
-    Any::class.java
+    Any::class.java,
   )
   val result = method.invoke(
     NULL_RECEIVER_FOR_STATIC_METHOD,
@@ -64,7 +64,7 @@ fun <T : JComponent> Cell<T>.commentCompat(comment: String): Cell<T> {
     /* maxLineLength */ 0,
     /* action */ null,
     USE_DEFAULT_PARAMS_WHEREVER_AVAILABLE,
-    FINAL_OBJECT_PARAM
+    FINAL_OBJECT_PARAM,
   )
   @Suppress("UNCHECKED_CAST")
   return result as Cell<T>
@@ -78,7 +78,7 @@ fun Panel.buttonsGroupCompat(init: Panel.() -> Unit): ButtonsGroup {
     Boolean::class.javaPrimitiveType,
     Function1::class.java,
     Int::class.javaPrimitiveType, // bookkeeping arguments
-    Any::class.java
+    Any::class.java,
   )
   val result = method.invoke(
     NULL_RECEIVER_FOR_STATIC_METHOD,
@@ -87,7 +87,7 @@ fun Panel.buttonsGroupCompat(init: Panel.() -> Unit): ButtonsGroup {
     /* indent */ false,
     init,
     USE_DEFAULT_PARAMS_WHEREVER_AVAILABLE,
-    FINAL_OBJECT_PARAM
+    FINAL_OBJECT_PARAM,
   )
   return result as ButtonsGroup
 }
@@ -99,7 +99,7 @@ fun Panel.rowCompat(init: Row.() -> Unit): Row {
     JLabel::class.java, // actual arguments
     kotlin.jvm.functions.Function1::class.java,
     Int::class.javaPrimitiveType, // bookkeeping arguments
-    Any::class.java
+    Any::class.java,
   )
   val result = method.invoke(
     NULL_RECEIVER_FOR_STATIC_METHOD,
@@ -107,7 +107,7 @@ fun Panel.rowCompat(init: Row.() -> Unit): Row {
     /* label */ null,
     init,
     USE_DEFAULT_PARAMS_WHEREVER_AVAILABLE,
-    FINAL_OBJECT_PARAM
+    FINAL_OBJECT_PARAM,
   )
   return result as Row
 }

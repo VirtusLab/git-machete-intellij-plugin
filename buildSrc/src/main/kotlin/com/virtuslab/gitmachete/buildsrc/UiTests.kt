@@ -51,7 +51,7 @@ fun Project.configureUiTests() {
         environment("IDEPROBE_DISPLAY", "xvfb")
         environment(
           "IDEPROBE_PATHS_SCREENSHOTS",
-          "$uiTestsDir/artifacts/uiTest$version/screenshots"
+          "$uiTestsDir/artifacts/uiTest$version/screenshots",
         )
         if (isCI) {
           environment("IDEPROBE_PATHS_BASE", uiTestsDir)

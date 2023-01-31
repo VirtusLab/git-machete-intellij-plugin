@@ -16,7 +16,7 @@ import javax.swing.JComponent
 
 data class SlideOutOptions(
   @get:JvmName("shouldRemember") val remember: Boolean = false,
-  @get:JvmName("shouldDelete") val delete: Boolean = false
+  @get:JvmName("shouldDelete") val delete: Boolean = false,
 )
 class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branchName: @Untainted String) :
   DialogWrapper(project, /* canBeParent */ true) {
@@ -43,19 +43,19 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branc
           label(
             fmt(
               getString(
-                "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.note-1"
+                "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.note-1",
               ),
-              branchName
-            )
+              branchName,
+            ),
           )
         } else {
           label(
             fmt(
               getString(
-                "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.note-1.HTML"
+                "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.note-1.HTML",
               ),
-              branchName
-            )
+              branchName,
+            ),
           )
         }
       }
@@ -63,17 +63,17 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branc
         label(
           fmt(
             getString(
-              "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.note-2"
-            )
-          )
+              "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.note-2",
+            ),
+          ),
         )
       }
     }
     rowCompat {
       button(
         getString(
-          "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.delete-text"
-        )
+          "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.delete-text",
+        ),
       ) {
         delete = true
         doOKAction()
@@ -81,8 +81,8 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branc
         .applyToComponent { mnemonic = KeyEvent.VK_D }
       button(
         getString(
-          "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.keep-text"
-        )
+          "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.keep-text",
+        ),
       ) {
         delete = false
         doOKAction()
@@ -90,8 +90,8 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branc
         .applyToComponent { mnemonic = KeyEvent.VK_K }
       button(
         getString(
-          "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.cancel-text"
-        )
+          "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.cancel-text",
+        ),
       ) {
         delete = true
         close(CANCEL_EXIT_CODE)
@@ -102,10 +102,10 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branc
       checkBox(
         fmt(
           getString(
-            "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.remember-choice.HTML"
+            "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.remember-choice.HTML",
           ),
-          DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY
-        )
+          DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY,
+        ),
       )
         .bindSelected(::remember)
         .applyToComponent {

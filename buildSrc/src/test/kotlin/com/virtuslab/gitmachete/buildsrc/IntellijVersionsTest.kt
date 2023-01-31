@@ -12,7 +12,7 @@ class IntellijVersionsTest {
       earliestSupportedMajor = "2020.3",
       latestStable = "2022.2.2",
       buildTarget = "2022.2.2",
-      latestSupportedMajor = "2022.2"
+      latestSupportedMajor = "2022.2",
     )
 
     assertEquals(listOf("2020.3.4", "2021.1.3", "2021.2.4", "2021.3.3", "2022.1.4"), iv.resolveIntelliJVersions("latestMinorsOfOldSupportedMajors"))

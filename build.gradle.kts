@@ -33,8 +33,8 @@ val jetbrainsMarketplaceToken: String? by extra(System.getenv("JETBRAINS_MARKETP
 val intellijVersions by extra(
   IntellijVersions.from(
     intellijVersionsProperties = PropertiesHelper.getProperties(rootDir.resolve("intellij-versions.properties")),
-    overrideBuildTarget = project.properties["overrideBuildTarget"] as String?
-  )
+    overrideBuildTarget = project.properties["overrideBuildTarget"] as String?,
+  ),
 )
 
 fun String.fromBase64(): String {
@@ -114,14 +114,14 @@ allprojects {
         // Treat each compiler warning (esp. the ones coming from Checker Framework) as an error.
         "-Werror",
         // Warn of type-unsafe operations on generics.
-        "-Xlint:unchecked"
-      )
+        "-Xlint:unchecked",
+      ),
     )
 
     options.isFork = true
     options.forkOptions.jvmArgs?.addAll(
       compileJavaJvmArgs
-        ?: (if (isCI) listOf() else listOf("-Xmx6G", "-XX:+HeapDumpOnOutOfMemoryError"))
+        ?: (if (isCI) listOf() else listOf("-Xmx6G", "-XX:+HeapDumpOnOutOfMemoryError")),
     )
     // Required for better-strings to work under Java 17: https://github.com/antkorwin/better-strings/issues/21
     options.forkOptions.jvmArgs?.addAll(
@@ -131,8 +131,8 @@ allprojects {
         "com.sun.tools.javac.processing",
         "com.sun.tools.javac.tree",
         "com.sun.tools.javac.util",
-        module = "jdk.compiler"
-      )
+        module = "jdk.compiler",
+      ),
     )
 
     // `sourceCompatibility` and `targetCompatibility` say nothing about the Java APIs available to the compiled code.
@@ -206,7 +206,7 @@ allprojects {
     javaLauncher.set(
       javaToolchains.launcherFor {
         languageVersion.set(JavaLanguageVersion.of(requiredJdkVersion.toString()))
-      }
+      },
     )
   }
 }

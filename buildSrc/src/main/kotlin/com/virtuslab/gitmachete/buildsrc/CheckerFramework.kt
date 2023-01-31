@@ -12,7 +12,7 @@ fun Project.configureCheckerFramework() {
     excludeTests = true
     checkers =
       mutableListOf(
-        "org.checkerframework.checker.nullness.NullnessChecker"
+        "org.checkerframework.checker.nullness.NullnessChecker",
       )
 
     val shouldRunAllCheckers: Boolean by rootProject.extra
@@ -24,8 +24,8 @@ fun Project.configureCheckerFramework() {
         listOf(
           "org.checkerframework.checker.index.IndexChecker",
           "org.checkerframework.checker.interning.InterningChecker",
-          "org.checkerframework.checker.optional.OptionalChecker"
-        )
+          "org.checkerframework.checker.optional.OptionalChecker",
+        ),
       )
     }
     extraJavacArgs =
@@ -44,7 +44,7 @@ fun Project.configureCheckerFramework() {
         // since for simplicity, we're providing the same set of stubs to Checker in each subproject
         // (`$rootDir/config/checker/`, which includes e.g. Vavr).
         "-AstubWarnIfNotFoundIgnoresClasses",
-        "-AsuppressWarnings=allcheckers:annotation,allcheckers:type.anno.before.decl.anno,allcheckers:type.anno.before.modifier,allcheckers:type.checking.not.run"
+        "-AsuppressWarnings=allcheckers:annotation,allcheckers:type.anno.before.decl.anno,allcheckers:type.anno.before.modifier,allcheckers:type.checking.not.run",
       )
 
     dependencies {
@@ -71,8 +71,8 @@ fun Project.applyI18nFormatterAndTaintingCheckers() {
     checkers.addAll(
       listOf(
         "org.checkerframework.checker.i18nformatter.I18nFormatterChecker",
-        "org.checkerframework.checker.tainting.TaintingChecker"
-      )
+        "org.checkerframework.checker.tainting.TaintingChecker",
+      ),
     )
     extraJavacArgs.add("-Abundlenames=GitMacheteBundle")
   }

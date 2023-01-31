@@ -12,7 +12,7 @@ data class IntellijVersions(
   val latestStable: String,
   val eapOfLatestSupportedMajor: String?,
   val latestSupportedMajor: String,
-  val buildTarget: String
+  val buildTarget: String,
 ) {
   companion object {
     fun from(intellijVersionsProperties: Properties, overrideBuildTarget: String?): IntellijVersions {
@@ -57,7 +57,7 @@ data class IntellijVersions(
         latestStable = latestStable,
         eapOfLatestSupportedMajor = eapOfLatestSupportedMajor,
         latestSupportedMajor = latestSupportedMajor,
-        buildTarget = buildTarget
+        buildTarget = buildTarget,
       )
     }
   }

@@ -44,7 +44,7 @@ open class UpdateIntellijVersions : DefaultTask() {
     return findFirstMatchingVersionNewerThan(
       intellijReleasesContents,
       Regex("""(?<=ideaIC-)(\d+\.)+\d+(?=.pom)"""),
-      version
+      version,
     )
   }
 
@@ -54,7 +54,7 @@ open class UpdateIntellijVersions : DefaultTask() {
     return findFirstMatchingVersionNewerThan(
       intellijReleasesContents,
       Regex("""(?<=ideaIC-)$major(\.\d+)?(?=.pom)"""),
-      major
+      major,
     ) ?: versionNumber
   }
 
@@ -62,7 +62,7 @@ open class UpdateIntellijVersions : DefaultTask() {
     return findFirstMatchingVersionNewerThan(
       intellijSnapshotsContents,
       Regex("""(?<=ideaIC-)\d+\.\d+\.\d+(?=-EAP-SNAPSHOT\.pom)"""),
-      buildNumber
+      buildNumber,
     )
   }
 
@@ -88,7 +88,7 @@ open class UpdateIntellijVersions : DefaultTask() {
       if (versionToMajorVersion(latestStable) != versionToMajorVersion(newerStable)) {
         updatedVersions = updatedVersions.copy(
           latestMinorsOfOldSupportedMajors = latestMinorsOfOldSupportedMajors.plus(findLatestMinorOfVersion(latestStable)),
-          eapOfLatestSupportedMajor = null
+          eapOfLatestSupportedMajor = null,
         )
       }
     }

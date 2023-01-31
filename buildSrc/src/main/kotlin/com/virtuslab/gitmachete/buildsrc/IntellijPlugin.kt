@@ -54,7 +54,7 @@ fun Project.configureIntellijPlugin() {
       if (prospectiveVersionSection != latestVersionSection.version) {
         throw Exception(
           "$prospectiveVersionSection is not the latest in CHANGE-NOTES.md, " +
-            "update the file or change the prospective version in version.gradle.kts"
+            "update the file or change the prospective version in version.gradle.kts",
         )
       }
     }
@@ -74,7 +74,7 @@ fun Project.configureIntellijPlugin() {
         if (line.isNotBlank() && !line.startsWith("- ") && !line.startsWith("  ")) {
           throw Exception(
             "Update formatting in CHANGE-NOTES.md ${prospectiveVersionSection.version} section:" +
-              "${System.lineSeparator()}$line"
+              "${System.lineSeparator()}$line",
           )
         }
       }
@@ -92,12 +92,12 @@ fun Project.configureIntellijPlugin() {
   tasks.withType<PatchPluginXmlTask> {
     // `sinceBuild` is exclusive when we are using `*` in version but inclusive when without `*`
     sinceBuild.set(
-      IntellijVersionHelper.versionToBuildNumber(intellijVersions.earliestSupportedMajor)
+      IntellijVersionHelper.versionToBuildNumber(intellijVersions.earliestSupportedMajor),
     )
 
     // In `untilBuild` situation is inverted: it's inclusive when using `*` but exclusive when without `*`
     untilBuild.set(
-      IntellijVersionHelper.versionToBuildNumber(intellijVersions.latestSupportedMajor) + ".*"
+      IntellijVersionHelper.versionToBuildNumber(intellijVersions.latestSupportedMajor) + ".*",
     )
 
     // Note that the first line of the description should be self-contained since it is placed into embeddable card:
@@ -114,13 +114,13 @@ fun Project.configureIntellijPlugin() {
 
   tasks.withType<RunPluginVerifierTask> {
     val maybeEap = listOfNotNull(
-      intellijVersions.eapOfLatestSupportedMajor?.replace("-EAP-(CANDIDATE-)?SNAPSHOT".toRegex(), "")
+      intellijVersions.eapOfLatestSupportedMajor?.replace("-EAP-(CANDIDATE-)?SNAPSHOT".toRegex(), ""),
     )
 
     ideVersions.set(
       intellijVersions.latestMinorsOfOldSupportedMajors +
         intellijVersions.latestStable +
-        maybeEap
+        maybeEap,
     )
 
     val skippedFailureLevels =
@@ -128,7 +128,7 @@ fun Project.configureIntellijPlugin() {
         RunPluginVerifierTask.FailureLevel.DEPRECATED_API_USAGES,
         RunPluginVerifierTask.FailureLevel.EXPERIMENTAL_API_USAGES,
         RunPluginVerifierTask.FailureLevel.NOT_DYNAMIC,
-        RunPluginVerifierTask.FailureLevel.SCHEDULED_FOR_REMOVAL_API_USAGES
+        RunPluginVerifierTask.FailureLevel.SCHEDULED_FOR_REMOVAL_API_USAGES,
       )
     failureLevel.set(EnumSet.complementOf(skippedFailureLevels))
   }

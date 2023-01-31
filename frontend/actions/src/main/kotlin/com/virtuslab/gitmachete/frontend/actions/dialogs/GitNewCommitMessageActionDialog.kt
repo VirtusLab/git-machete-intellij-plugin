@@ -16,7 +16,7 @@ internal class GitNewCommitMessageActionDialog(
   private val project: Project,
   private val originMessage: String,
   title: String,
-  private val dialogLabel: String
+  private val dialogLabel: String,
 ) : DialogWrapper(project, true) {
   private val commitEditor = createCommitEditor()
   private var onOk: (String) -> Unit = {}

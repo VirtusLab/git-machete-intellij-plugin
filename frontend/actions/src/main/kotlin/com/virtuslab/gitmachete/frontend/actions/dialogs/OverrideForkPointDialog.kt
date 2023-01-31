@@ -19,12 +19,12 @@ import javax.swing.JList
 enum class OverrideOption {
   PARENT,
   INFERRED,
-  CUSTOM
+  CUSTOM,
 }
 
 class OverrideForkPointDialog(
   project: Project,
-  private val branch: INonRootManagedBranchSnapshot
+  private val branch: INonRootManagedBranchSnapshot,
 ) : DialogWrapper(project, /* canBeParent */ true) {
 
   private var myOverrideOption = OverrideOption.PARENT
@@ -58,19 +58,19 @@ class OverrideForkPointDialog(
         label(
           fmt(
             getString(
-              "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.label"
+              "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.label",
             ),
-            branch.name
-          )
+            branch.name,
+          ),
         )
       } else {
         label(
           fmt(
             getString(
-              "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.label.HTML"
+              "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.label.HTML",
             ),
-            branch.name
-          )
+            branch.name,
+          ),
         )
       }
     }
@@ -80,11 +80,11 @@ class OverrideForkPointDialog(
         radioButton(
           fmt(
             getString(
-              "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.parent"
+              "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.parent",
             ),
-            parent.name
+            parent.name,
           ),
-          OverrideOption.PARENT
+          OverrideOption.PARENT,
         )
           .commentCompat(escapeHtml4(parent.pointedCommit.shortMessage))
       }
@@ -95,11 +95,11 @@ class OverrideForkPointDialog(
           radioButton(
             fmt(
               getString(
-                "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.inferred"
+                "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.inferred",
               ),
-              forkPoint.shortHash
+              forkPoint.shortHash,
             ),
-            OverrideOption.INFERRED
+            OverrideOption.INFERRED,
           )
             .commentCompat(escapeHtml4(forkPoint.shortMessage))
         }
@@ -111,9 +111,9 @@ class OverrideForkPointDialog(
         rowCompat {
           val customCommitRadioButton: Cell<JBRadioButton> = radioButton(
             getString(
-              "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.custom"
+              "action.GitMachete.BaseOverrideForkPointAction.dialog.override-fork-point.radio-button.custom",
             ),
-            OverrideOption.CUSTOM
+            OverrideOption.CUSTOM,
           )
 
           val customCommitComboBox = comboBox(
@@ -124,7 +124,7 @@ class OverrideForkPointDialog(
                 value: Any?,
                 index: Int,
                 isSelected: Boolean,
-                cellHasFocus: Boolean
+                cellHasFocus: Boolean,
               ): Component {
                 val commit = value as? ICommitOfManagedBranch
                 if (commit != null) {
@@ -132,11 +132,11 @@ class OverrideForkPointDialog(
                 }
                 return this
               }
-            }
+            },
           )
 
           customCommitComboBox.enabledIf(customCommitRadioButton.selected).bindItem(
-            MutableProperty(::customCommit) { customCommit = it }
+            MutableProperty(::customCommit) { customCommit = it },
           )
         }
       }
@@ -144,7 +144,7 @@ class OverrideForkPointDialog(
 
     radioButtonsGroup.bind(
       MutableProperty(::myOverrideOption) { myOverrideOption = it },
-      OverrideOption::class.java
+      OverrideOption::class.java,
     )
   }
 }

@@ -37,7 +37,7 @@ class SlideInDialog(
   private val project: Project,
   private val branchLayout: BranchLayout,
   private val parentName: String,
-  private val gitRepository: GitRepository
+  private val gitRepository: GitRepository,
 ) : DialogWrapper(project, /* canBeParent */ true) {
 
   private val rootNames = branchLayout.rootEntries.map { it.name }
@@ -45,8 +45,8 @@ class SlideInDialog(
   private val reattachCheckbox =
     JCheckBox(
       getString(
-        "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.checkbox.reattach"
-      )
+        "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.checkbox.reattach",
+      ),
     )
 
   private val branchField = createBranchField()
@@ -56,7 +56,7 @@ class SlideInDialog(
   init {
     title = getString("action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.title")
     setOKButtonText(
-      getString("action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.ok-button")
+      getString("action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.ok-button"),
     )
     updateBranchesField()
     setOKButtonMnemonic('S'.code)
@@ -82,9 +82,9 @@ class SlideInDialog(
     if (insertedText.isNullOrEmpty()) {
       return ValidationInfo(
         getString(
-          "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.no-branch-selected"
+          "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.no-branch-selected",
         ),
-        branchField
+        branchField,
       )
     }
 
@@ -94,18 +94,18 @@ class SlideInDialog(
     } else if (insertedText == parentName) {
       return ValidationInfo(
         getString(
-          "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.error.slide-in-under-itself"
+          "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.error.slide-in-under-itself",
         ),
-        branchField
+        branchField,
       )
     } else {
       val entryByName = branchLayout.getEntryByName(insertedText)
       if (entryByName != null && isDescendantOf(presumedDescendantName = parentName)(entryByName)) {
         return ValidationInfo(
           getString(
-            "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.error.slide-in-under-its-descendant"
+            "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.error.slide-in-under-its-descendant",
           ),
-          branchField
+          branchField,
         )
       } else {
         if (insertedText in rootNames) { // the provided branch name refers to the root entry
@@ -144,30 +144,30 @@ class SlideInDialog(
       layout =
         MigLayout(
           LayoutConstraint().fillX().insets("0").gridGap("0", "0").noVisualPadding(),
-          AxisConstraint().grow(100f, 1)
+          AxisConstraint().grow(100f, 1),
         )
 
       add(
         JLabel(
           getString(
-            "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.label.parent"
-          )
+            "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.label.parent",
+          ),
         ),
-        ComponentConstraint().gapAfter("0").minWidth("${JBUI.scale(100)}px")
+        ComponentConstraint().gapAfter("0").minWidth("${JBUI.scale(100)}px"),
       )
 
       add(
         JLabel("<html><b>${escapeHtml4(parentName)}</b></html>"),
-        ComponentConstraint().minWidth("${JBUI.scale(300)}px").growX().wrap()
+        ComponentConstraint().minWidth("${JBUI.scale(300)}px").growX().wrap(),
       )
 
       add(
         JLabel(
           getString(
-            "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.label.branch-name"
-          )
+            "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.label.branch-name",
+          ),
         ),
-        ComponentConstraint().gapAfter("0").minWidth("${JBUI.scale(100)}px")
+        ComponentConstraint().gapAfter("0").minWidth("${JBUI.scale(100)}px"),
       )
 
       add(branchField, ComponentConstraint().minWidth("${JBUI.scale(300)}px").growX().wrap())
@@ -182,8 +182,8 @@ class SlideInDialog(
         prototypeDisplayValue = "origin/long-enough-branch-name"
         setPlaceholder(
           getString(
-            "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.placeholder"
-          )
+            "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.placeholder",
+          ),
         )
         setUI(DarculaComboBoxUI(/* arc */ 0f, Insets(1, 0, 1, 0), /* paintArrowButton */false))
         addDocumentListener(
@@ -191,7 +191,7 @@ class SlideInDialog(
             override fun documentChanged(event: DocumentEvent) {
               startTrackingValidation()
             }
-          }
+          },
         )
       }
 

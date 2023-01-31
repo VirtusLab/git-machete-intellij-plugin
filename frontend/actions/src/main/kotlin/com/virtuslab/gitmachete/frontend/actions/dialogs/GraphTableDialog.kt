@@ -24,7 +24,7 @@ private constructor(
   private val saveAndEditAction: Consumer<IGitMacheteRepositorySnapshot>?,
   private val cancelButtonVisible: Boolean,
   windowTitle: String,
-  okButtonText: String
+  okButtonText: String,
 ) : DialogWrapper(/* canBeParent */ false) {
 
   init {
@@ -48,13 +48,13 @@ private constructor(
       saveAndEditAction: Consumer<IGitMacheteRepositorySnapshot>?,
       okButtonText: String,
       cancelButtonVisible: Boolean,
-      shouldDisplayActionToolTips: Boolean
+      shouldDisplayActionToolTips: Boolean,
     ) =
       ApplicationManager.getApplication().getService(ISimpleGraphTableProvider::class.java)
         .deriveInstance(
           gitMacheteRepositorySnapshot,
           /* isListingCommitsEnabled */ false,
-          shouldDisplayActionToolTips
+          shouldDisplayActionToolTips,
         )
         .apply { setTextForEmptyTable(emptyTableText ?: "") }
         .let {
@@ -66,7 +66,7 @@ private constructor(
             saveAndEditAction,
             cancelButtonVisible,
             windowTitle,
-            okButtonText
+            okButtonText,
           )
         }
 
@@ -82,7 +82,7 @@ private constructor(
             saveAndEditAction = null,
             cancelButtonVisible = false,
             windowTitle = "Git Machete Help",
-            okButtonText = "Close"
+            okButtonText = "Close",
           )
         }
   }
@@ -101,8 +101,8 @@ private constructor(
       object :
         AbstractAction(
           getString(
-            "action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.save-and-edit-button-text"
-          )
+            "action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.save-and-edit-button-text",
+          ),
         ) {
         override fun actionPerformed(e: ActionEvent?) {
           repositorySnapshot?.let { saveAndEditAction.accept(it) }
