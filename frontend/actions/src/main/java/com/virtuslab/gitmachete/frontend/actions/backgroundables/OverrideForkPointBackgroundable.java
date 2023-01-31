@@ -55,7 +55,6 @@ public class OverrideForkPointBackgroundable extends Task.Backgroundable {
       setOverrideForkPointConfigValues(myProject, root, branch.getName(), forkPoint, branch.getPointedCommit());
     }
 
-    // required since the change of .git/config is not considered as a change to VCS (and detected by the listener)
     graphTable.queueRepositoryUpdateAndModelRefresh();
   }
 

@@ -68,7 +68,12 @@ public class SlideInUnmanagedBelowAction extends BaseGitMacheteRepositoryReadyAc
           branchLayoutWriter,
           preSlideInRunnable,
           slideInOptions,
-          parentName).queue();
+          parentName) {
+        @Override
+        public void onFinished() {
+          getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
+        }
+      }.queue();
     } else {
 
       new SlideInRootBackgroundable(
@@ -76,7 +81,12 @@ public class SlideInUnmanagedBelowAction extends BaseGitMacheteRepositoryReadyAc
           branchLayout,
           branchLayoutWriter,
           preSlideInRunnable,
-          slideInOptions).queue();
+          slideInOptions) {
+        @Override
+        public void onFinished() {
+          getGraphTable(anActionEvent).queueRepositoryUpdateAndModelRefresh();
+        }
+      }.queue();
     }
   }
 }

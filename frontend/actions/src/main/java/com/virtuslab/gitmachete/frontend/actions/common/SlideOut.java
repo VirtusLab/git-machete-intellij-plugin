@@ -120,14 +120,15 @@ public class SlideOut {
   private void handleBranchDeletionDecision(String branchName, boolean shouldDelete, @UI Runnable doInUIThreadWhenReady) {
     slideOutBranch(branchName);
     if (shouldDelete) {
-      GitBrancher.getInstance(project).deleteBranches(Collections.singletonMap(branchName,
-          Collections.singletonList(gitRepository)), () -> {
-            VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
-                /* title */ "",
-                getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.with-delete.HTML").fmt(
-                    branchName));
-            doInUIThreadWhenReady.run();
-          });
+      graphTable.queueRepositoryUpdateAndModelRefresh(
+          () -> GitBrancher.getInstance(project).deleteBranches(Collections.singletonMap(branchName,
+              Collections.singletonList(gitRepository)), () -> {
+                VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
+                    /* title */ "",
+                    getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.with-delete.HTML").fmt(
+                        branchName));
+                doInUIThreadWhenReady.run();
+              }));
     } else {
       VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
           /* title */ "",
