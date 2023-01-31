@@ -1,5 +1,7 @@
 # Changelog
 
+## v3.5.1
+
 ## v3.5.0
 - Dropped explicit refresh action in favor of automatic updates.
 - Changed traverse action in the toolbar, so that the traverses start from the first branch instead of the current branch.
