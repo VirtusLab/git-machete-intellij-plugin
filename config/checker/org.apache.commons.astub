@@ -1,9 +1,15 @@
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.nullness.qual.PolyNull;
+
+package org.apache.commons.lang.exception;
+
+class ExceptionUtils {
+  static @Nullable String getRootCauseMessage(Throwable th);
+}
+
 
 package org.apache.commons.text;
 
 class StringEscapeUtils {
-
   static @PolyNull String escapeHtml4(@PolyNull String input);
-
 }

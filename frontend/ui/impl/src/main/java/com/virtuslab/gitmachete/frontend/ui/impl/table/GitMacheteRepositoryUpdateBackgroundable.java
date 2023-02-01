@@ -19,6 +19,7 @@ import git4idea.repo.GitRepository;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -134,19 +135,10 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
   }
 
   private void notifyUpdateRepositoryException(Throwable t) {
-    String exceptionMessage = getInnermostCause(t).getMessage().requireNonNullElse("");
+    String exceptionMessage = ExceptionUtils.getRootCauseMessage(t).requireNonNullElse("");
 
     VcsNotifier.getInstance(getProject()).notifyError(/* displayId */ null,
         getString("action.GitMachete.GitMacheteRepositoryUpdateBackgroundable.notification.title.failed"),
         exceptionMessage);
   }
-
-  private static Throwable getInnermostCause(Throwable t) {
-    Throwable cause = t;
-    while (cause.getCause() != null) {
-      cause = cause.getCause();
-    }
-    return cause;
-  }
-
 }
