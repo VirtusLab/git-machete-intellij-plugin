@@ -6,6 +6,7 @@ import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.blocking
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -35,13 +36,12 @@ import com.virtuslab.gitmachete.frontend.actions.dialogs.GraphTableDialog;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
-import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.guieffect.IgnoreUIThreadUnsafeCalls;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
-@ExtensionMethod({GitMacheteBundle.class, GitVfsUtils.class})
+@ExtensionMethod({GitMacheteBundle.class, GitVfsUtils.class, Objects.class})
 @CustomLog
 public class DiscoverAction extends BaseProjectDependentAction {
 
@@ -68,8 +68,6 @@ public class DiscoverAction extends BaseProjectDependentAction {
     val rootDirPath = gitRepository.getRootDirectoryPath().toAbsolutePath();
     val mainGitDirPath = gitRepository.getMainGitDirectoryPath().toAbsolutePath();
     val worktreeGitDirPath = gitRepository.getWorktreeGitDirectoryPath().toAbsolutePath();
-
-    val graphTable = getGraphTable(anActionEvent);
     val branchLayoutWriter = ApplicationManager.getApplication().getService(IBranchLayoutWriter.class);
 
     try {
@@ -84,8 +82,8 @@ public class DiscoverAction extends BaseProjectDependentAction {
           repoSnapshot,
           /* windowTitle */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.title"),
           /* emptyTableText */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.empty-table-text"),
-          /* saveAction */ saveAndDoNotOpenMacheteFileSnapshotConsumer(gitRepository, graphTable, branchLayoutWriter),
-          /* saveAndEditAction */ saveAndOpenMacheteFileSnapshotConsumer(gitRepository, graphTable, branchLayoutWriter),
+          /* saveAction */ saveAndDoNotOpenMacheteFileSnapshotConsumer(gitRepository, branchLayoutWriter),
+          /* saveAndEditAction */ saveAndOpenMacheteFileSnapshotConsumer(gitRepository, branchLayoutWriter),
           /* okButtonText */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.save-button-text"),
           /* cancelButtonVisible */ true,
           /* shouldDisplayActionToolTips */ false).show());
@@ -93,22 +91,22 @@ public class DiscoverAction extends BaseProjectDependentAction {
       ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> VcsNotifier.getInstance(project).notifyError(
           /* displayId */ null,
           /* title */ getString("action.GitMachete.DiscoverAction.notification.title.repository-discover-error"),
-          /* message */ e.getMessage() != null ? e.getMessage() : ""));
+          /* message */ e.getMessage().requireNonNullElse("")));
     }
   }
 
   @ContinuesInBackground
   private Consumer<IGitMacheteRepositorySnapshot> saveAndDoNotOpenMacheteFileSnapshotConsumer(GitRepository gitRepository,
-      BaseEnhancedGraphTable graphTable, IBranchLayoutWriter branchLayoutWriter) {
+      IBranchLayoutWriter branchLayoutWriter) {
     return repositorySnapshot -> saveDiscoveredLayout(repositorySnapshot,
-        gitRepository.getMacheteFilePath(), gitRepository.getProject(), graphTable, branchLayoutWriter, () -> {});
+        gitRepository.getMacheteFilePath(), gitRepository.getProject(), branchLayoutWriter, () -> {});
   }
 
   @ContinuesInBackground
   private Consumer<IGitMacheteRepositorySnapshot> saveAndOpenMacheteFileSnapshotConsumer(GitRepository gitRepository,
-      BaseEnhancedGraphTable graphTable, IBranchLayoutWriter branchLayoutWriter) {
+      IBranchLayoutWriter branchLayoutWriter) {
     return repositorySnapshot -> saveDiscoveredLayout(repositorySnapshot,
-        gitRepository.getMacheteFilePath(), gitRepository.getProject(), graphTable,
+        gitRepository.getMacheteFilePath(), gitRepository.getProject(),
         branchLayoutWriter, () -> openMacheteFile(gitRepository));
   }
 
@@ -116,7 +114,6 @@ public class DiscoverAction extends BaseProjectDependentAction {
   private void saveDiscoveredLayout(IGitMacheteRepositorySnapshot repositorySnapshot,
       Path macheteFilePath,
       Project project,
-      BaseEnhancedGraphTable baseEnhancedGraphTable,
       IBranchLayoutWriter branchLayoutWriter,
       @UI Runnable postWriteRunnable) {
     val branchLayout = repositorySnapshot.getBranchLayout();
@@ -136,7 +133,6 @@ public class DiscoverAction extends BaseProjectDependentAction {
       @Override
       @UIEffect
       public void onSuccess() {
-        baseEnhancedGraphTable.queueRepositoryUpdateAndModelRefresh();
         VfsUtil.markDirtyAndRefresh(/* async */ false, /* recursive */ true, /* reloadChildren */ false,
             ProjectRootManager.getInstance(project).getContentRoots());
         postWriteRunnable.run();
@@ -148,7 +144,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
         VcsNotifier.getInstance(project).notifyError(
             /* displayId */ null,
             /* title */ getString("action.GitMachete.DiscoverAction.notification.title.write-file-error"),
-            /* message */ e.getMessage() != null ? e.getMessage() : "");
+            /* message */ e.getMessage().requireNonNullElse(""));
       }
 
     }.queue();

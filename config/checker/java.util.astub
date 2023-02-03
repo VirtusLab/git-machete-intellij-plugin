@@ -10,6 +10,9 @@ package java.util;
 
 class Objects {
   static <T> @NonNull T requireNonNull(@Nullable T obj);
+
+  // If both `obj` is null and `defaultObj` is null, then a NullPointerException is thrown
+  static <T> @NonNull T requireNonNullElse(@Nullable T obj, @NonNull T defaultObj);
 }
 
 class Optional<T> {
