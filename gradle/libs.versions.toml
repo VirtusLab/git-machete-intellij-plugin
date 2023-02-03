@@ -11,7 +11,7 @@ apacheCommonsText = "org.apache.commons:commons-text:1.10.0"
 archunit = "com.tngtech.archunit:archunit:1.0.1"
 betterStrings = "com.antkorwin:better-strings:0.5"
 checker = { module = "org.checkerframework:checker", version.ref = "checker" }
-checker-qual = "org.checkerframework:checker-qual:3.29.0"
+checker-qual = { module = "org.checkerframework:checker-qual", version.ref = "checker" }
 commonsIO = "commons-io:commons-io:2.11.0"
 ideProbe-robotDriver = "org.virtuslab.ideprobe:robot-driver_2.13:0.51.0"
 jcabi-aspects = "com.jcabi:jcabi-aspects:0.24.1"
@@ -22,7 +22,7 @@ junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "jun
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiter" }
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junitJupiter" }
 junit-platform-launcher = "org.junit.platform:junit-platform-launcher:1.9.2"
-lombok = "org.projectlombok:lombok:1.18.24"
+lombok = "org.projectlombok:lombok:1.18.26"
 mockito = "org.mockito:mockito-junit-jupiter:5.1.1"
 slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
 slf4j-mock = "org.simplify4u:slf4j-mock:2.3.0"
