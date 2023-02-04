@@ -1,5 +1,7 @@
 # Changelog
 
+## v3.6.0
+
 ## v3.5.1
 - Improve stability of traverse and slide-out/slide-in actions.
 
