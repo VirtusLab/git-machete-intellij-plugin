@@ -3,6 +3,7 @@
 ## v3.6.0
 - Improved the repository selection combobox so that modules are now searchable.
 - Added a field to provide/edit a custom annotation in the Slide In dialog.
+- Added Compare With Parent action to the context menu.
 
 ## v3.5.1
 - Improve stability of traverse and slide-out/slide-in actions.

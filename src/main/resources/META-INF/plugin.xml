@@ -153,6 +153,11 @@
                 <override-text place="GitMacheteContextMenu"/>
             </action>
 
+            <action id="GitMachete.CompareSelectedWithParentAction"
+                    class="com.virtuslab.gitmachete.frontend.actions.contextmenu.CompareSelectedWithParentAction">
+                <override-text place="GitMacheteContextMenu"/>
+            </action>
+
             <action class="com.virtuslab.gitmachete.frontend.actions.contextmenu.ShowSelectedInGitLogAction"
                     id="GitMachete.ShowSelectedInGitLogAction">
                 <override-text place="GitMacheteContextMenu"/>

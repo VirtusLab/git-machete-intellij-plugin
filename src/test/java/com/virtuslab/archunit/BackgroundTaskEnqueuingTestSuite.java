@@ -62,7 +62,9 @@ public class BackgroundTaskEnqueuingTestSuite extends BaseArchUnitTestSuite {
           String calledMethodName = calledMethod.getName();
           JavaClass calledMethodOwner = calledMethod.getOwner();
           return calledMethodOwner.isAssignableTo(Task.Backgroundable.class) && calledMethodName.equals("queue") ||
-              calledMethodOwner.isAssignableTo(GitBrancher.class) && !calledMethodName.equals("getInstance") ||
+              calledMethodOwner.isAssignableTo(GitBrancher.class)
+                  && !(calledMethodName.equals("getInstance") || calledMethodName.equals("compare"))
+              ||
               calledMethodOwner.isAssignableTo(VcsPushDialog.class) && calledMethodName.equals("show") ||
               calledMethod.getRawReturnType().isEquivalentTo(java.util.concurrent.Future.class);
         }))

@@ -123,6 +123,7 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
       "git4idea.GitUtil.getRepositoryManager(com.intellij.openapi.project.Project)",
       "git4idea.branch.GitBranchUtil.sortBranchNames(java.util.Collection)",
       "git4idea.branch.GitBrancher.checkout(java.lang.String, boolean, java.util.List, java.lang.Runnable)",
+      "git4idea.branch.GitBrancher.compare(java.lang.String, java.util.List)",
       "git4idea.branch.GitBrancher.createBranch(java.lang.String, java.util.Map)",
       "git4idea.branch.GitBrancher.deleteBranch(java.lang.String, java.util.List)",
       "git4idea.branch.GitBrancher.deleteBranches(java.util.Map, java.lang.Runnable)",
