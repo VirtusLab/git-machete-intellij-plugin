@@ -25,6 +25,7 @@ public final class BranchLayoutEntry {
   private final String name;
 
   @Getter
+  @With
   private final @Nullable String customAnnotation;
 
   @Getter

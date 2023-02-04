@@ -69,15 +69,15 @@ public abstract class BaseSlideInBackgroundable extends Task.Backgroundable {
     BranchLayout targetBranchLayout;
     if (childEntryByName != null) {
       if (slideInOptions.shouldReattach()) {
-        entryToSlideIn = childEntryByName;
+        entryToSlideIn = childEntryByName.withCustomAnnotation(slideInOptions.getCustomAnnotation());
         targetBranchLayout = branchLayout;
       } else {
-        entryToSlideIn = childEntryByName.withChildren(List.empty());
+        entryToSlideIn = childEntryByName.withChildren(List.empty()).withCustomAnnotation(slideInOptions.getCustomAnnotation());
         targetBranchLayout = branchLayout.slideOut(slideInOptions.getName());
       }
 
     } else {
-      entryToSlideIn = new BranchLayoutEntry(slideInOptions.getName(), /* customAnnotation */ null,
+      entryToSlideIn = new BranchLayoutEntry(slideInOptions.getName(), slideInOptions.getCustomAnnotation(),
           /* children */ List.empty());
       targetBranchLayout = branchLayout;
     }

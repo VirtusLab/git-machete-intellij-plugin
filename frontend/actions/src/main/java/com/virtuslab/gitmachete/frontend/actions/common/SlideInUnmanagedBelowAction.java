@@ -46,7 +46,7 @@ public class SlideInUnmanagedBelowAction extends BaseGitMacheteRepositoryReadyAc
       return;
     }
 
-    val slideInOptions = new SlideInOptions(unmanagedBranch, /* shouldReattach */ false);
+    val slideInOptions = new SlideInOptions(unmanagedBranch, /* shouldReattach */ false, /* customAnnotation */ "");
 
     Runnable preSlideInRunnable = () -> {};
 

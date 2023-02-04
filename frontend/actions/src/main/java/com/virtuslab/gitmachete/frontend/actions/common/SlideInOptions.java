@@ -5,13 +5,14 @@ import lombok.experimental.Accessors;
 
 @Getter
 public class SlideInOptions {
-
-  private String name;
+  private final String name;
   @Accessors(fluent = true)
-  private Boolean shouldReattach;
+  private final Boolean shouldReattach;
+  private final String customAnnotation;
 
-  public SlideInOptions(String name, boolean shouldReattach) {
+  public SlideInOptions(String name, boolean shouldReattach, String customAnnotation) {
     this.name = name;
     this.shouldReattach = shouldReattach;
+    this.customAnnotation = customAnnotation;
   }
 }

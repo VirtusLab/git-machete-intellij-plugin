@@ -23,6 +23,7 @@ import java.awt.Insets
 import javax.swing.JCheckBox
 import javax.swing.JLabel
 import javax.swing.JPanel
+import javax.swing.JTextField
 import kotlin.apply
 import net.miginfocom.layout.AC as AxisConstraint
 import net.miginfocom.layout.CC as ComponentConstraint
@@ -50,6 +51,7 @@ class SlideInDialog(
     )
 
   private val branchField = createBranchField()
+  private val customAnnotationField = JTextField()
   private val innerPanel = createInnerPanel()
   private val panel = createPanel()
 
@@ -73,7 +75,8 @@ class SlideInDialog(
 
   fun getSlideInOptions(): SlideInOptions {
     val branchName = branchField.getText().orEmpty().trim()
-    return SlideInOptions(branchName, reattachCheckbox.isSelected)
+    val customAnnotation = customAnnotationField.text.orEmpty().trim()
+    return SlideInOptions(branchName, reattachCheckbox.isSelected, customAnnotation)
   }
 
   private fun validateBranchName(): ValidationInfo? {
@@ -172,12 +175,32 @@ class SlideInDialog(
 
       add(branchField, ComponentConstraint().minWidth("${JBUI.scale(300)}px").growX().wrap())
 
+      add(
+        JLabel(
+          getString(
+            "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.label.custom-annotation",
+          ),
+        ),
+        ComponentConstraint().gapAfter("0").minWidth("${JBUI.scale(100)}px"),
+      )
+
+      add(customAnnotationField, ComponentConstraint().minWidth("${JBUI.scale(300)}px").growX().wrap())
+
       add(reattachCheckbox)
     }
   }
 
-  private fun createBranchField() =
-    ComboBoxWithAutoCompletion(MutableCollectionComboBoxModel(mutableListOf<String>()), project)
+  private fun createBranchField(): ComboBoxWithAutoCompletion<String> {
+    val model = object : MutableCollectionComboBoxModel<String>(mutableListOf<String>()) {
+      override fun setSelectedItem(item: Any?) {
+        super.setSelectedItem(item)
+        (item as? String)?.also {
+          customAnnotationField.text = branchLayout.getEntryByName(item)?.customAnnotation.orEmpty()
+        }
+      }
+    }
+
+    return ComboBoxWithAutoCompletion(model, project)
       .apply {
         prototypeDisplayValue = "origin/long-enough-branch-name"
         setPlaceholder(
@@ -194,6 +217,7 @@ class SlideInDialog(
           },
         )
       }
+  }
 
   private fun isDescendantOf(presumedDescendantName: String): (BranchLayoutEntry) -> Boolean {
     return fun(presumedAncestorEntry: BranchLayoutEntry): Boolean {
