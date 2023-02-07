@@ -31,7 +31,7 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
 public final class StatusBranchHookExecutor extends BaseHookExecutor {
-  private static final int EXECUTION_TIMEOUT_SECONDS = 2;
+  private static final int EXECUTION_TIMEOUT_SECONDS = 5;
 
   // We're cheating a bit here: we're assuming that the hook's output is fixed for a given (branch-name, commit-hash) pair.
   // machete-status-branch hook spec doesn't impose any requirements like that, but:

@@ -1,20 +1,17 @@
-import com.dorongold.gradle.tasktree.TaskTreePlugin
+
 import com.virtuslab.gitmachete.buildsrc.*
 import nl.littlerobots.vcu.plugin.VersionCatalogUpdateExtension
-import nl.littlerobots.vcu.plugin.VersionCatalogUpdatePlugin
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import se.ascp.gradle.GradleVersionsFilterPlugin
 import java.util.Base64
 
 plugins {
   checkstyle
   `java-library`
   scala
+  alias(libs.plugins.taskTree)
+  alias(libs.plugins.versionCatalogUpdate)
+  alias(libs.plugins.versionsFilter)
 }
-
-apply<GradleVersionsFilterPlugin>()
-apply<VersionCatalogUpdatePlugin>()
-apply<TaskTreePlugin>()
 
 fun getFlagsForAddOpens(vararg packages: String, module: String): List<String> {
   return packages.toList().map { "--add-opens=$module/$it=ALL-UNNAMED" }
@@ -68,13 +65,8 @@ tasks.register("printSignedPluginZipPath") {
 val configCheckerDirectory: String by extra(rootProject.file("config/checker").path)
 
 configure<VersionCatalogUpdateExtension> {
-  sortByKey.set(false)
-
-  // TODO (ben-manes/gradle-versions-plugin#284): `versionCatalogUpdate` should work on both the project and project's buildSrc
-  //  The `keep` settings are needed so that a `versionCatalogUpdate` on the project doesn't remove the dependencies of buildSrc
   keep {
-    keepUnusedVersions.set(true)
-    keepUnusedLibraries.set(true)
+    // For some reason, version-catalog-update plugin keeps removing certain plugins from the catalog
     keepUnusedPlugins.set(true)
   }
 }

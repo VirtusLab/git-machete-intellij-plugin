@@ -14,7 +14,6 @@ ideProbe-robotDriver = "org.virtuslab.ideprobe:robot-driver_2.13:0.51.0"
 jcabi-aspects = "com.jcabi:jcabi-aspects:0.24.1"
 jetbrains-annotations = "org.jetbrains:annotations:24.0.0"
 jgit = "org.eclipse.jgit:org.eclipse.jgit:6.4.0.202211300538-r"
-jsoup = "org.jsoup:jsoup:1.15.3"
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiter" }
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiter" }
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junitJupiter" }
@@ -31,25 +30,13 @@ slf4j-mock = "org.simplify4u:slf4j-mock:2.3.0"
 #      (1.*.*, rather than a specific version like 1.7.36).
 slf4j-simple = "org.slf4j:slf4j-simple:1.7.36"
 vavr = "io.vavr:vavr:0.10.4"
-# Plugin packages
-# This way of applying the plugins was needed for the build-related code in buildSrc/src/main/,
-# see https://docs.gradle.org/current/samples/sample_convention_plugins.html#things_to_note
-pluginPackages-checkerFramework = "org.checkerframework:checkerframework-gradle-plugin:0.6.23"
-pluginPackages-grgit = "org.ajoberstar.grgit:grgit-gradle:5.0.0"
-pluginPackages-jetbrains-changelog = "org.jetbrains.intellij.plugins:gradle-changelog-plugin:2.0.0"
-# @pin TODO (#859): gradle-grammarkit-plugin 2022.3 requires `targetCompatibility` to be Java 17, not Java 11.
-#       As long as we support IntelliJ 2022.1, we need to compile to Java 11 classfiles,
-#       hence we need to stick to an older gradle-grammarkit-plugin.
-pluginPackages-jetbrains-grammarkit = "org.jetbrains.intellij.plugins:gradle-grammarkit-plugin:2021.2.2"
-pluginPackages-jetbrains-intellij = "org.jetbrains.intellij.plugins:gradle-intellij-plugin:1.12.0"
-# @pin because as per https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#kotlin-standard-library:
-#      "If a plugin supports multiple platform versions, it must (...) target the lowest bundled stdlib version"
-#      which is different in our case (as this is the Kotlin version bundled into IntelliJ 2022.1).
-pluginPackages-jetbrains-kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.20"
-pluginPackages-spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.14.1"
-pluginPackages-taskTree = "com.dorongold.plugins:task-tree:2.1.1"
-pluginPackages-versionCatalogUpdate = "nl.littlerobots.version-catalog-update:nl.littlerobots.version-catalog-update.gradle.plugin:0.5.3"
-pluginPackages-versionsFilter = "se.ascp.gradle:gradle-versions-filter:0.1.16"
 
 [plugins]
 aspectj-postCompileWeaving = "io.freefair.aspectj.post-compile-weaving:6.6.1"
+# @pin TODO (#859): gradle-grammarkit-plugin 2022.3 requires `targetCompatibility` to be Java 17, not Java 11.
+#       As long as we support IntelliJ 2022.1, we need to compile to Java 11 classfiles,
+#       hence we need to stick to an older gradle-grammarkit-plugin.
+jetbrains-grammarkit = "org.jetbrains.grammarkit:2021.2.2"
+taskTree = "com.dorongold.task-tree:2.1.1"
+versionCatalogUpdate = "nl.littlerobots.version-catalog-update:0.7.0"
+versionsFilter = "se.ascp.gradle.gradle-versions-filter:0.1.16"
