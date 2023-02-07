@@ -10,11 +10,11 @@ include(
   "backend:api",
   "backend:impl",
   "frontend:base",
-  "frontend:actions",
-  "frontend:file",
   "frontend:resourcebundles",
+  "frontend:file",
   "frontend:graph:api",
   "frontend:graph:impl",
   "frontend:ui:api",
   "frontend:ui:impl",
+  "frontend:actions",
 )
