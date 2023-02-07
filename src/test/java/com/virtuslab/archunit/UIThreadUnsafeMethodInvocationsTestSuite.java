@@ -1,6 +1,7 @@
 package com.virtuslab.archunit;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noMethods;
 
 import java.util.Arrays;
 
@@ -13,6 +14,7 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import io.vavr.collection.List;
+import io.vavr.control.Option;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -119,7 +121,7 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
         .check(productionClasses);
   }
 
-  private static final String[] whitelistedMethodFullNames_git4idea = {
+  private static final String[] uiThreadSafeMethodsIn_git4idea = {
       "git4idea.GitLocalBranch.getName()",
       "git4idea.GitRemoteBranch.getName()",
       "git4idea.GitUtil.findGitDir(com.intellij.openapi.vfs.VirtualFile)",
@@ -174,7 +176,7 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
 
   // Some of these methods might actually access the filesystem;
   // still, they're lightweight enough so that we can give them a free pass.
-  private static final String[] whitelistedMethodFullNames_java_io = {
+  private static final String[] uiThreadSafeMethodsIn_java_io = {
       "java.io.BufferedOutputStream.<init>(java.io.OutputStream)",
       "java.io.File.canExecute()",
       "java.io.File.getAbsolutePath()",
@@ -183,7 +185,7 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
       "java.io.IOException.getMessage()"
   };
 
-  private static final String[] whitelistedMethodFullNames_java_nio = {
+  private static final String[] uiThreadSafeMethodsIn_java_nio = {
       "java.nio.file.Files.isRegularFile(java.nio.file.Path, [Ljava.nio.file.LinkOption;)",
       "java.nio.file.Files.readAttributes(java.nio.file.Path, java.lang.Class, [Ljava.nio.file.LinkOption;)",
       "java.nio.file.Files.setLastModifiedTime(java.nio.file.Path, java.nio.file.attribute.FileTime)",
@@ -253,10 +255,48 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
             }
 
             method.getCallsFromSelf().forEach(call -> {
-              checkCallAgainstPackagePrefix(method, call, "git4idea", whitelistedMethodFullNames_git4idea, events);
-              checkCallAgainstPackagePrefix(method, call, "java.io", whitelistedMethodFullNames_java_io, events);
-              checkCallAgainstPackagePrefix(method, call, "java.nio", whitelistedMethodFullNames_java_nio, events);
+              checkCallAgainstPackagePrefix(method, call, "git4idea", uiThreadSafeMethodsIn_git4idea, events);
+              checkCallAgainstPackagePrefix(method, call, "java.io", uiThreadSafeMethodsIn_java_io, events);
+              checkCallAgainstPackagePrefix(method, call, "java.nio", uiThreadSafeMethodsIn_java_nio, events);
             });
+          }
+        })
+        .check(productionClasses);
+  }
+
+  @Test
+  public void ui_thread_unsafe_methods_should_not_override_ui_thread_safe_methods() {
+    noMethods()
+        .that()
+        .areAnnotatedWith(UIThreadUnsafe.class)
+        .should(new ArchCondition<JavaMethod>("override a method that's NOT ${UIThreadUnsafeName} itself") {
+          @Override
+          public void check(JavaMethod method, ConditionEvents events) {
+            JavaClass owner = method.getOwner();
+            val superTypes = List.ofAll(owner.getAllRawInterfaces()).appendAll(owner.getAllRawSuperclasses());
+            val paramTypeNames = method.getParameters().stream().map(p -> p.getRawType().getFullName()).toArray(String[]::new);
+            val overriddenMethods = superTypes
+                .flatMap(s -> Option.ofOptional(s.tryGetMethod(method.getName(), paramTypeNames)));
+
+            for (val overriddenMethod : overriddenMethods) {
+              val overriddenMethodFullName = overriddenMethod.getFullName();
+
+              //noinspection MismatchedReadAndWriteOfArray
+              String[] knownMethodsOverridableAsUIThreadUnsafe = {
+                  // These two methods have been experimentally verified to run outside of UI thread.
+                  "com.intellij.codeInsight.completion.CompletionContributor.fillCompletionVariants(com.intellij.codeInsight.completion.CompletionParameters, com.intellij.codeInsight.completion.CompletionResultSet)",
+                  "com.intellij.lang.annotation.Annotator.annotate(com.intellij.psi.PsiElement, com.intellij.lang.annotation.AnnotationHolder)",
+                  // This method (overridden in Backgroundables) is meant to run outside of UI thread by design.
+                  "com.intellij.openapi.progress.Progressive.run(com.intellij.openapi.progress.ProgressIndicator)",
+              };
+              if (overriddenMethod.isAnnotatedWith(UIThreadUnsafe.class)
+                  || knownMethodsOverridableAsUIThreadUnsafe.asList().contains(overriddenMethodFullName)) {
+                return;
+              }
+              String message = "a ${UIThreadUnsafeName} method ${method.getFullName()} " +
+                  "overrides a non-${UIThreadUnsafeName} method ${overriddenMethodFullName}";
+              events.add(SimpleConditionEvent.satisfied(method, message));
+            }
           }
         })
         .check(productionClasses);

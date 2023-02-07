@@ -247,9 +247,10 @@ ideProbe()
 junit()
 junitPlatformLauncher()
 lombok()
+vavr()
 dependencies {
   testImplementation(rootProject.libs.archunit)
-  // Checker is needed for root project runtime (not just compile-time) classpath for ArchUnit tests
+  // Checker is needed in root project runtime (not just compile-time) classpath for ArchUnit tests
   testImplementation(rootProject.libs.checker.qual)
   testImplementation(rootProject.libs.jgit)
 }
