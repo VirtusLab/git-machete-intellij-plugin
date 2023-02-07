@@ -47,7 +47,6 @@ dependencies {
   // doesn't see jetbrains-annotations as an exceeded dependency and doesn't try to downgrade.
   // See https://github.com/littlerobots/version-catalog-update-plugin#exceeded-dependencies
   implementation(libs.jetbrains.annotations)
-  implementation(libs.pluginPackages.aspectj.postCompileWeaving)
   implementation(libs.pluginPackages.checkerFramework)
   implementation(libs.pluginPackages.grgit)
   implementation(libs.pluginPackages.jetbrains.changelog)

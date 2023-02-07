@@ -1,5 +1,14 @@
 import com.virtuslab.gitmachete.buildsrc.*
 
+plugins {
+  alias(libs.plugins.aspectj.postCompileWeaving)
+}
+
+tasks.withType<JavaCompile> {
+  // TODO (freefair/gradle-plugins#707): suppress adviceDidNotMatch warnings
+  // ajc.options.compilerArgs.add("-Xlint:adviceDidNotMatch")
+}
+
 dependencies {
   implementation(project(":gitCore:api"))
 

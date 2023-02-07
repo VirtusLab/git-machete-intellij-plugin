@@ -1,6 +1,5 @@
 package com.virtuslab.gitmachete.buildsrc
 
-import io.freefair.gradle.plugins.aspectj.AspectJPlugin
 import org.checkerframework.gradle.plugin.CheckerFrameworkExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
@@ -119,9 +118,9 @@ fun Project.ideProbe() {
 }
 
 fun Project.jcabiAspects() {
-  apply<AspectJPlugin>()
-
-  dependencies { "aspect"(lib("jcabi.aspects")) }
+  dependencies {
+    "aspect"(lib("jcabi.aspects"))
+  }
 }
 
 fun Project.jetbrainsAnnotations() {
