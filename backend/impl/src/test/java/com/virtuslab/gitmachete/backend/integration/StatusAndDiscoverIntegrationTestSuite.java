@@ -48,7 +48,7 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseIntegrationTestSu
     System.out.println("OUR OUTPUT:");
     System.out.println(ourStatus);
 
-    assertEquals(gitMacheteCliStatus.trim(), ourStatus.trim());
+    assertEquals(gitMacheteCliStatus, ourStatus, "in " + repo.rootDirectoryPath + ", set up using " + scriptName);
 
     // Deliberately done in the test and in not an @After method, so that the directory is retained in case of test failure.
     cleanUpDir(repo.parentDirectoryPath);
@@ -71,7 +71,8 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseIntegrationTestSu
     System.out.println("OUR OUTPUT:");
     System.out.println(ourDiscoverOutput);
 
-    assertEquals(gitMacheteCliDiscoverOutput, ourDiscoverOutput);
+    assertEquals(gitMacheteCliDiscoverOutput, ourDiscoverOutput,
+        "in " + repo.rootDirectoryPath + ", set up using " + scriptName);
 
     // Deliberately done in the test and in not an @After method, so that the directory is retained in case of test failure.
     cleanUpDir(repo.parentDirectoryPath);

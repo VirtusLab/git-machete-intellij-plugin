@@ -1,7 +1,8 @@
 # Changelog
 
 ## v3.6.1
-- Fixed: notification about unmanaged current branch wasn't showing up
+- Fixed: notification about unmanaged current branch wasn't showing up.
+- Fixed: in case of red edge from a branch to its parent, the unique history of a branch can no longer include any commits reachable from its parent.
 
 ## v3.6.0
 - Improved the repository selection combobox so that modules are now searchable.

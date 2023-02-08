@@ -534,6 +534,19 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
   @Override
   @UIThreadUnsafe
+  public @Nullable IGitCoreCommit deriveAnyMergeBase(IGitCoreCommit commit1, IGitCoreCommit commit2) throws GitCoreException {
+    if (commit1.equals(commit2)) {
+      return commit1;
+    }
+    val mergeBaseHash = deriveMergeBaseIfNeeded(commit1, commit2);
+    if (mergeBaseHash == null) {
+      return null;
+    }
+    return convertObjectIdToGitCoreCommit(mergeBaseHash.getObjectId());
+  }
+
+  @Override
+  @UIThreadUnsafe
   public boolean isAncestorOrEqual(IGitCoreCommit presumedAncestor, IGitCoreCommit presumedDescendant) throws GitCoreException {
     LOG.debug(() -> "Entering: presumedAncestor = ${presumedAncestor.getHash().getHashString()}, " +
         "presumedDescendant = ${presumedDescendant.getHash().getHashString()}");

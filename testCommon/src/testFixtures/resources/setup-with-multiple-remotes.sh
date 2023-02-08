@@ -58,4 +58,9 @@ cd machete-sandbox
       hotfix/add-trigger
   '
   sed 's/^  //' <<< "$machete_file" > .git/machete
+
+  # Let's remove all reflogs, so that a fork point for *NO* branch
+  # can be determined based purely on reflogs of other branches;
+  # common ancestor of each branch and its parent needs to be used as the fork point.
+  rm -rf .git/logs/
 cd -

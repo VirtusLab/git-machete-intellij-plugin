@@ -56,6 +56,14 @@ public interface IGitCoreRepository {
   @UIThreadUnsafe
   boolean isAncestorOrEqual(IGitCoreCommit presumedAncestor, IGitCoreCommit presumedDescendant) throws GitCoreException;
 
+  /** <i>Any</i> merge base, as in, in the rare case of criss-cross histories there might be <b>multiple merge bases</b>.
+   * Still, Git Machete isn't well suited to handling such cases, as it generally endorses and deals with linear histories,
+   * which use merge commits rarely, and hence are very unlikely to introduce criss-cross histories.
+   */
+  @UIThreadUnsafe
+  @Nullable
+  IGitCoreCommit deriveAnyMergeBase(IGitCoreCommit commit1, IGitCoreCommit commit2) throws GitCoreException;
+
   @UIThreadUnsafe
   Stream<IGitCoreCommit> ancestorsOf(IGitCoreCommit commitInclusive) throws GitCoreException;
 

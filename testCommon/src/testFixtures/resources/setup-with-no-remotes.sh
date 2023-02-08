@@ -51,4 +51,9 @@ cd machete-sandbox
           drop-constraint
   '
   sed 's/^  //' <<< "$machete_file" > .git/machete
+
+  # Let's remove the reflog for allow-ownership-link, so that fork point for build-chain
+  # can't be determined based purely on its reflog;
+  # common ancestor of allow-ownership-link and build-chain needs to be used as the fork point.
+  rm -f .git/logs/refs/heads/allow-ownership-link
 cd -

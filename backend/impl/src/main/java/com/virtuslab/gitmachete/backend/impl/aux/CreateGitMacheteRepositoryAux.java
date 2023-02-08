@@ -312,6 +312,21 @@ public class CreateGitMacheteRepositoryAux extends Aux {
             "so we assume that parent-aware fork point = parent branch commit");
         return ForkPointCommitOfManagedBranch.fallbackToParent(parentPointedCommit);
       }
+    } else { // parent is NOT an ancestor of the child
+      // Let's avoid including any commits reachable from the parent into unique range of commits for the given branch.
+      if (parentAgnosticForkPoint != null) {
+        val isForkPointAncestorOfParent = gitCoreRepository.isAncestorOrEqual(parentAgnosticForkPoint.getCoreCommit(),
+            parentPointedCommit);
+        if (isForkPointAncestorOfParent) {
+          val commonAncestor = gitCoreRepository.deriveAnyMergeBase(parentPointedCommit, pointedCommit);
+          return commonAncestor != null
+              ? ForkPointCommitOfManagedBranch.fallbackToParent(commonAncestor)
+              : parentAgnosticForkPoint;
+        }
+      } else {
+        val commonAncestor = gitCoreRepository.deriveAnyMergeBase(parentPointedCommit, pointedCommit);
+        return commonAncestor != null ? ForkPointCommitOfManagedBranch.fallbackToParent(commonAncestor) : null;
+      }
     }
 
     LOG.debug(() -> "Parent-aware fork point for branch ${coreLocalBranch.getName()} is ${parentAgnosticForkPointString}");

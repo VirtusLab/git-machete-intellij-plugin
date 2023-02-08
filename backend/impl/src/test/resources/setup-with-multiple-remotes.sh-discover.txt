@@ -1,21 +1,13 @@
   master  <2 files>
-  |
-  | HOTFIX Add the trigger (amended)
-  o-hotfix/add-trigger * (diverged from remote2)  <3 files>
 
   develop  <3 files>
-  |
-  | Allow ownership links
-  | 1st round of fixes
-  x-allow-ownership-link (ahead of remote1)  <4 files>
-  | |
-  | | Build arbitrarily long chains
-  | x-build-chain (untracked)  <4 files>
-  |
-  | Call web service
-  | 1st round of fixes
-  | 2nd round of fixes
-  o-call-ws (ahead of remote1)  <6 files>
-    |
-    | Drop unneeded SQL constraints
-    x-drop-constraint (untracked)  <6 files>
+
+  allow-ownership-link (ahead of remote1)  <4 files>
+
+  build-chain (untracked)  <4 files>
+
+  call-ws (ahead of remote1)  <6 files>
+
+  drop-constraint (untracked)  <6 files>
+
+  hotfix/add-trigger * (diverged from remote2)  <3 files>
