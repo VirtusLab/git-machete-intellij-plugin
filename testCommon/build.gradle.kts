@@ -6,9 +6,8 @@ plugins {
 }
 
 dependencies {
-  testFixturesAnnotationProcessor(rootProject.libs.lombok)
-  testFixturesAnnotationProcessor(rootProject.libs.betterStrings)
-  testFixturesCompileOnly(rootProject.libs.lombok)
-  testFixturesImplementation(rootProject.libs.junit.api)
-  testFixturesImplementation(rootProject.libs.commonsIO)
+  betterStrings("testFixtures")
+  commonsIO("testFixtures")
+  junitApi("testFixtures")
+  lombok("testFixtures")
 }

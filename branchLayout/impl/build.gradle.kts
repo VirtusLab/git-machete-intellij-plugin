@@ -8,5 +8,5 @@ dependencies {
 junit()
 lombok()
 slf4jLambdaApi()
-slf4jSimpleTest()
+slf4jSimple("test")
 vavr()

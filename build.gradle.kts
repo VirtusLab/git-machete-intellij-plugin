@@ -93,10 +93,7 @@ allprojects {
   // if this annotation processor isn't run in any subproject (the strings will be just interpreted
   // verbatim, without interpolation applied).
   // We'd only capture that in CI's post-compile checks by analyzing constants in class files.
-  dependencies {
-    annotationProcessor(rootProject.libs.betterStrings)
-    testAnnotationProcessor(rootProject.libs.betterStrings)
-  }
+  betterStrings()
 
   tasks.withType<JavaCompile> {
     options.compilerArgs.addAll(
@@ -230,19 +227,21 @@ configureIntellijPlugin()
 
 val uiTest = sourceSets.create("uiTest")
 val uiTestImplementation: Configuration by configurations.getting { extendsFrom(configurations.testImplementation.get()) }
+// This configuration apparently needs to be defined explicitly (despite not being used explicitly anywhere)
+// so that UI test runtime classpath inherits `testRuntimeOnly` dependencies of the root project.
 val uiTestRuntimeOnly: Configuration by configurations.getting { extendsFrom(configurations.testRuntimeOnly.get()) }
-
 configureUiTests()
+dependencies {
+  uiTestImplementation(testFixtures(project(":testCommon")))
+}
 
 applyKotlinConfig()
+archunit()
+// Checker is needed in root project runtime (not just compile-time) classpath for ArchUnit tests
+checkerQual("test")
 ideProbe()
+jgit("test")
 junit()
 junitPlatformLauncher()
-lombok()
-vavr()
-dependencies {
-  testImplementation(rootProject.libs.archunit)
-  // Checker is needed in root project runtime (not just compile-time) classpath for ArchUnit tests
-  testImplementation(rootProject.libs.checker.qual)
-  testImplementation(rootProject.libs.jgit)
-}
+lombok("test")
+vavr("test")

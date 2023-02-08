@@ -83,12 +83,20 @@ private fun Project.versionCatalog(): VersionCatalog {
   return this.rootProject.extensions.getByType<VersionCatalogsExtension>().named("libs")
 }
 
-fun Project.bundle(id: String): Provider<ExternalModuleDependencyBundle> {
+private fun Project.bundle(id: String): Provider<ExternalModuleDependencyBundle> {
   return this.versionCatalog().findBundle(id).get()
 }
 
-fun Project.lib(id: String): Provider<MinimalExternalModuleDependency> {
+private fun Project.lib(id: String): Provider<MinimalExternalModuleDependency> {
   return this.versionCatalog().findLibrary(id).get()
+}
+
+private infix fun String.camelConcat(other: String): String {
+  if (this != "") {
+    return this + other.replaceFirstChar { it.uppercase() }
+  } else {
+    return other
+  }
 }
 
 fun Project.apacheCommonsText() {
@@ -97,9 +105,40 @@ fun Project.apacheCommonsText() {
   }
 }
 
-fun Project.commonsIO() {
+fun Project.archunit() {
   dependencies {
-    "implementation"(lib("commonsIO"))
+    "testImplementation"(lib("archunit"))
+  }
+}
+
+fun Project.betterStrings(scopePrefixes: List<String> = listOf("", "test")) {
+  dependencies {
+    for (scopePrefix in scopePrefixes) {
+      (scopePrefix camelConcat "annotationProcessor")(lib("betterStrings"))
+    }
+  }
+}
+
+fun Project.betterStrings(scopePrefix: String) {
+  betterStrings(listOf(scopePrefix))
+}
+
+fun Project.checker() {
+  checkerQual()
+  dependencies {
+    "checkerFramework"(lib("checker"))
+  }
+}
+
+fun Project.checkerQual(scopePrefix: String = "") {
+  dependencies {
+    (scopePrefix camelConcat "implementation")(lib("checker-qual"))
+  }
+}
+
+fun Project.commonsIO(scopePrefix: String = "") {
+  dependencies {
+    (scopePrefix camelConcat "implementation")(lib("commonsIO"))
   }
 }
 
@@ -112,7 +151,6 @@ fun Project.ideProbe() {
   }
 
   dependencies {
-    "uiTestImplementation"(testFixtures(project(":testCommon")))
     "uiTestImplementation"(lib("ideProbe.robotDriver"))
   }
 }
@@ -131,15 +169,21 @@ fun Project.jetbrainsAnnotations() {
   }
 }
 
-fun Project.jgit() {
+fun Project.jgit(scopePrefix: String = "") {
   dependencies {
-    "implementation"(lib("jgit"))
+    (scopePrefix camelConcat "implementation")(lib("jgit"))
+  }
+}
+
+fun Project.junitApi(scopePrefix: String) {
+  dependencies {
+    (scopePrefix camelConcat "implementation")(lib("junit-api"))
   }
 }
 
 fun Project.junit() {
+  junitApi("test")
   dependencies {
-    "testImplementation"(lib("junit-api"))
     "testRuntimeOnly"(lib("junit-engine"))
   }
 }
@@ -158,14 +202,18 @@ fun Project.junitPlatformLauncher() {
   }
 }
 
-fun Project.lombok() {
+fun Project.lombok(scopePrefixes: List<String> = listOf("", "test")) {
   dependencies {
     val lombok = lib("lombok")
-    "compileOnly"(lombok)
-    "annotationProcessor"(lombok)
-    "testCompileOnly"(lombok)
-    "testAnnotationProcessor"(lombok)
+    for (scopePrefix in scopePrefixes) {
+      (scopePrefix camelConcat "compileOnly")(lombok)
+      (scopePrefix camelConcat "annotationProcessor")(lombok)
+    }
   }
+}
+
+fun Project.lombok(scopePrefix: String) {
+  lombok(listOf(scopePrefix))
 }
 
 fun Project.mockito() {
@@ -190,7 +238,7 @@ fun Project.slf4jMock() {
   }
 }
 
-fun Project.slf4jSimpleTest() {
+fun Project.slf4jSimple(scopePrefix: String) {
   // We only need to provide an SLF4J implementation in the contexts which depend on the plugin
   // but don't depend on IntelliJ.
   // In our case, that's solely the tests of certain backend modules.
@@ -203,15 +251,15 @@ fun Project.slf4jSimpleTest() {
   // Global exclusion on slf4j-api does NOT apply to tests since it's only limited to
   // `runtimeClasspath` configuration.
   dependencies {
-    "testRuntimeOnly"(lib("slf4j-simple"))
+    (scopePrefix camelConcat "runtimeOnly")(lib("slf4j-simple"))
   }
 }
 
-fun Project.vavr() {
+fun Project.vavr(scopePrefix: String = "") {
   dependencies {
     // Unlike any other current dependency, Vavr classes are very likely to end up in binary
     // interface of the depending subproject,
     // hence it's better to just treat Vavr as an `api` and not `implementation` dependency by default.
-    "api"(lib("vavr"))
+    (scopePrefix camelConcat "api")(lib("vavr"))
   }
 }

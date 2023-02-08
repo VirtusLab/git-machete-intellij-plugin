@@ -47,10 +47,7 @@ fun Project.configureCheckerFramework() {
         "-AsuppressWarnings=allcheckers:annotation,allcheckers:type.anno.before.decl.anno,allcheckers:type.anno.before.modifier,allcheckers:type.checking.not.run",
       )
 
-    dependencies {
-      "compileOnly"(lib("checker.qual"))
-      "checkerFramework"(lib("checker"))
-    }
+    checker()
   }
 }
 

@@ -18,7 +18,7 @@ data class IntellijVersions(
     fun from(intellijVersionsProperties: Properties, overrideBuildTarget: String?): IntellijVersions {
       // When this value is updated, remember to update:
       // 1. the minimum required IDEA version in README.md,
-      // 2. version of Gradle Kotlin plugin in gradle/libs.versions.toml
+      // 2. version of Gradle Kotlin plugin in buildSrc/gradle/libs.versions.toml
       // Note that after bumping `earliestSupportedMajor`from A.B to C.D (C.D is later)
       // the released plugin versions supporting A.B remain available in JetBrains Marketplace.
       // Dropping a support for an IntelliJ version is less painful then,
