@@ -24,7 +24,7 @@ public class ForbiddenClassesTestSuite extends BaseArchUnitTestSuite {
     noClasses()
         .should()
         .dependOnClassesThat().areAssignableTo(org.apache.commons.lang.NotImplementedException.class)
-        .because("NotImplementedException is forbidden. Use io.vavr.NotImplementedError instead.")
+        .because("io.vavr.NotImplementedError should be used instead of apache-commons NotImplementedException")
         .check(productionClasses);
   }
 

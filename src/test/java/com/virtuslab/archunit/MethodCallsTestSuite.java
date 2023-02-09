@@ -16,23 +16,12 @@ public class MethodCallsTestSuite extends BaseArchUnitTestSuite {
   public void overridden_onUpdate_methods_should_call_super_onUpdate() {
     methods().that().haveName("onUpdate")
         .and().areNotDeclaredIn(com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction.class)
-        .should(new ArchCondition<>("call onUpdate from the direct superclass") {
-
-          @Override
-          public void check(JavaMethod method, ConditionEvents events) {
-            val superclass = method.getOwner().getSuperclass().orElse(null);
-            if (method.getCallsFromSelf().stream().noneMatch(call -> isACallTo(call, superclass, "onUpdate"))) {
-              String message = "Method ${method.getFullName()} does not call super.onUpdate()";
-              events.add(SimpleConditionEvent.violated(method, message));
-            }
-          }
-
-          private boolean isACallTo(JavaCall<?> call, JavaType methodOwner, String methodName) {
-            return call.getTarget().getOwner().equals(methodOwner) && call.getTarget().getName().equals(methodName);
-          }
-        })
+        .should(callAtLeastOnceAMethodThat("is called onUpdate and is declared in the direct superclass",
+            (method, calledMethod) -> {
+              val superclass = method.getOwner().getSuperclass().orElse(null);
+              return calledMethod.getOwner().equals(superclass) && calledMethod.getName().equals("onUpdate");
+            }))
         .check(productionClasses);
-
   }
 
   @Test

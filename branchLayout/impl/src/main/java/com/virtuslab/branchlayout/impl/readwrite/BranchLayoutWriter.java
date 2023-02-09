@@ -16,7 +16,7 @@ import com.virtuslab.qual.guieffect.IgnoreUIThreadUnsafeCalls;
 
 @CustomLog
 public class BranchLayoutWriter implements IBranchLayoutWriter {
-  @IgnoreUIThreadUnsafeCalls("java.io.OutputStream.write(byte[])")
+  @IgnoreUIThreadUnsafeCalls("java.io.OutputStream.write([B)")
   @Override
   public void write(OutputStream outputStream, BranchLayout branchLayout, IndentSpec indentSpec) throws IOException {
 

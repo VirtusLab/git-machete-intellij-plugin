@@ -7,8 +7,6 @@ import java.util.Arrays;
 
 import com.intellij.openapi.progress.Task;
 import com.tngtech.archunit.base.DescribedPredicate;
-import com.tngtech.archunit.core.domain.AccessTarget;
-import com.tngtech.archunit.core.domain.JavaCall;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.lang.ArchCondition;
@@ -64,7 +62,7 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
 
   @Test
   public void only_ui_thread_unsafe_methods_should_call_other_ui_thread_unsafe_methods() {
-    methods()
+    noMethods()
         .that()
         .areNotAnnotatedWith(UIThreadUnsafe.class)
         .and()
@@ -104,26 +102,19 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
             return originalMethod == null || !originalMethod.isAnnotatedWith(UIThreadUnsafe.class);
           }
         })
-        .should(new ArchCondition<JavaMethod>("never call any ${UIThreadUnsafeName} methods") {
-          @Override
-          public void check(JavaMethod method, ConditionEvents events) {
-            val whitelistedMethodsFromAnnotation = extractWhitelistedMethodsFromAnnotation(method);
-            method.getCallsFromSelf().forEach(call -> {
-              AccessTarget calledMethod = call.getTarget();
-              String calledMethodFullName = calledMethod.getFullName();
-              if (calledMethod.isAnnotatedWith(UIThreadUnsafe.class)
-                  && !whitelistedMethodsFromAnnotation.contains(calledMethodFullName)) {
-                String message = "a non-${UIThreadUnsafeName} method ${method.getFullName()} " +
-                    "calls a ${UIThreadUnsafeName} method ${calledMethodFullName}";
-                events.add(SimpleConditionEvent.violated(method, message));
-              }
-            });
-          }
-        })
+        .should(callAnyMethodsThat("are annotated with ${UIThreadUnsafeName}",
+            (method, calledMethod) -> calledMethod.isAnnotatedWith(UIThreadUnsafe.class)
+                && !extractWhitelistedMethodsFromAnnotation(method).contains(calledMethod.getFullName())))
         .check(productionClasses);
   }
 
-  private static final String[] uiThreadSafeMethodsIn_git4idea = {
+  private static final String[] uiThreadUnsafePackagePrefixes = {
+      "git4idea",
+      "java.io",
+      "java.nio"
+  };
+
+  private static final String[] uiThreadSafeMethodsInUnsafePackages = {
       "git4idea.GitLocalBranch.getName()",
       "git4idea.GitRemoteBranch.getName()",
       "git4idea.GitUtil.findGitDir(com.intellij.openapi.vfs.VirtualFile)",
@@ -173,21 +164,15 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
       "git4idea.ui.ComboBoxWithAutoCompletion.setPrototypeDisplayValue(java.lang.Object)",
       "git4idea.ui.ComboBoxWithAutoCompletion.setUI(javax.swing.plaf.ComboBoxUI)",
       "git4idea.ui.branch.GitBranchCheckoutOperation.<init>(com.intellij.openapi.project.Project, java.util.List)",
-      "git4idea.validators.GitBranchValidatorKt.checkRefName(java.lang.String)"
-  };
-
-  // Some of these methods might actually access the filesystem;
-  // still, they're lightweight enough so that we can give them a free pass.
-  private static final String[] uiThreadSafeMethodsIn_java_io = {
+      "git4idea.validators.GitBranchValidatorKt.checkRefName(java.lang.String)",
+      // Some of these methods might actually access the filesystem;
+      // still, they're lightweight enough so that we can give them a free pass.
       "java.io.BufferedOutputStream.<init>(java.io.OutputStream)",
       "java.io.File.canExecute()",
       "java.io.File.getAbsolutePath()",
       "java.io.File.isFile()",
       "java.io.File.toString()",
-      "java.io.IOException.getMessage()"
-  };
-
-  private static final String[] uiThreadSafeMethodsIn_java_nio = {
+      "java.io.IOException.getMessage()",
       "java.nio.file.Files.isRegularFile(java.nio.file.Path, [Ljava.nio.file.LinkOption;)",
       "java.nio.file.Files.readAttributes(java.nio.file.Path, java.lang.Class, [Ljava.nio.file.LinkOption;)",
       "java.nio.file.Files.setLastModifiedTime(java.nio.file.Path, java.nio.file.attribute.FileTime)",
@@ -205,60 +190,27 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
 
   @Test
   public void only_ui_thread_unsafe_method_should_call_blocking_intellij_methods() {
-    methods()
+    noMethods()
         .that()
         .areNotAnnotatedWith(UIThreadUnsafe.class)
-        .and()
-        .areNotAnnotatedWith(IgnoreUIThreadUnsafeCalls.class)
-        .should(new ArchCondition<JavaMethod>("never call any blocking IntelliJ methods") {
-          @Override
-          public void check(JavaMethod method, ConditionEvents events) {
-            method.getCallsFromSelf().forEach(call -> {
-              val calledMethodFullName = call.getTarget().getFullName();
-              if (calledMethodFullName.equals("com.intellij.dvcs.push.PushController.push(boolean)")) {
-                String message = "a non-${UIThreadUnsafeName} method ${method.getFullName()} " +
-                    "calls blocking method ${calledMethodFullName}";
-                events.add(SimpleConditionEvent.violated(method, message));
-              }
-            });
-          }
-        })
+        .should(callAnyMethodsThat("are known to be blocking IntelliJ APIs",
+            (method, calledMethod) -> calledMethod.getFullName().equals("com.intellij.dvcs.push.PushController.push(boolean)")))
         .check(productionClasses);
   }
 
   @Test
   public void only_ui_thread_unsafe_method_should_call_git4idea_or_io_methods() {
-    methods()
+    noMethods()
         .that()
         .areNotAnnotatedWith(UIThreadUnsafe.class)
-        .and()
-        .areNotAnnotatedWith(IgnoreUIThreadUnsafeCalls.class)
-        .should(new ArchCondition<JavaMethod>("never call any blocking git4idea or IO methods") {
-          private void checkCallAgainstPackagePrefix(JavaMethod method, JavaCall<?> call, String packagePrefix,
-              String[] whitelistedMethodsOfPackage, ConditionEvents events) {
-            AccessTarget.CodeUnitCallTarget callTarget = call.getTarget();
-            String calledMethodPackageName = callTarget.getOwner().getPackageName();
-            String calledMethodFullName = callTarget.getFullName();
+        .should(callAnyMethodsThat("are known to be blocking Git or I/O APIs", (method, calledMethod) -> {
+          String calledMethodPackageName = calledMethod.getOwner().getPackageName();
+          String calledMethodFullName = calledMethod.getFullName();
 
-            val whitelistedMethodsFromAnnotation = extractWhitelistedMethodsFromAnnotation(method);
-            if (calledMethodPackageName.startsWith(packagePrefix) &&
-                !whitelistedMethodsOfPackage.asList().contains(calledMethodFullName) &&
-                !whitelistedMethodsFromAnnotation.contains(calledMethodFullName)) {
-              String message = "a non-${UIThreadUnsafeName} method ${method.getFullName()} " +
-                  "calls method ${calledMethodFullName} from ${packagePrefix}";
-              events.add(SimpleConditionEvent.violated(method, message));
-            }
-          }
-
-          @Override
-          public void check(JavaMethod method, ConditionEvents events) {
-            method.getCallsFromSelf().forEach(call -> {
-              checkCallAgainstPackagePrefix(method, call, "git4idea", uiThreadSafeMethodsIn_git4idea, events);
-              checkCallAgainstPackagePrefix(method, call, "java.io", uiThreadSafeMethodsIn_java_io, events);
-              checkCallAgainstPackagePrefix(method, call, "java.nio", uiThreadSafeMethodsIn_java_nio, events);
-            });
-          }
-        })
+          return uiThreadUnsafePackagePrefixes.stream().anyMatch(prefix -> calledMethodPackageName.startsWith(prefix))
+              && !uiThreadSafeMethodsInUnsafePackages.asList().contains(calledMethodFullName) &&
+              !extractWhitelistedMethodsFromAnnotation(method).contains(calledMethodFullName);
+        }))
         .check(productionClasses);
   }
 
@@ -281,7 +233,7 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
 
               //noinspection MismatchedReadAndWriteOfArray
               String[] knownMethodsOverridableAsUIThreadUnsafe = {
-                  // These two methods have been experimentally verified to run outside of UI thread.
+                  // These two methods have been experimentally verified to be executed by IntelliJ outside of UI thread.
                   "com.intellij.codeInsight.completion.CompletionContributor.fillCompletionVariants(com.intellij.codeInsight.completion.CompletionParameters, com.intellij.codeInsight.completion.CompletionResultSet)",
                   "com.intellij.lang.annotation.Annotator.annotate(com.intellij.psi.PsiElement, com.intellij.lang.annotation.AnnotationHolder)",
                   // This method (overridden in Backgroundables) is meant to run outside of UI thread by design.
