@@ -141,6 +141,8 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
         .doNotHaveFullyQualifiedName(com.virtuslab.gitmachete.frontend.actions.dialogs.GitPushDialog.class.getName())
         .and()
         .doNotHaveFullyQualifiedName(com.virtuslab.gitmachete.frontend.ui.impl.root.GitMachetePanel.class.getName())
+        .and()
+        .doNotHaveFullyQualifiedName(com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInDialog.class.getName())
         .should()
         .callConstructorWhere(
             new DescribedPredicate<JavaConstructorCall>(

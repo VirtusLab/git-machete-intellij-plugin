@@ -43,6 +43,9 @@ class SlideInDialog(
 
   private val rootNames = branchLayout.rootEntries.map { it.name }
 
+  private val branchToAnnotation = branchLayout.rootEntries.flatMap(::collectEntries).map { it.name to it.customAnnotation.orEmpty() }.toMap()
+  private fun collectEntries(entry: BranchLayoutEntry): List<BranchLayoutEntry> = listOf(entry) + entry.children.flatMap(::collectEntries)
+
   private val reattachCheckbox =
     JCheckBox(
       getString(
@@ -121,6 +124,7 @@ class SlideInDialog(
         }
       }
     }
+
     return null
   }
 
@@ -190,17 +194,8 @@ class SlideInDialog(
     }
   }
 
-  private fun createBranchField(): ComboBoxWithAutoCompletion<String> {
-    val model = object : MutableCollectionComboBoxModel<String>(mutableListOf<String>()) {
-      override fun setSelectedItem(item: Any?) {
-        super.setSelectedItem(item)
-        (item as? String)?.also {
-          customAnnotationField.text = branchLayout.getEntryByName(item)?.customAnnotation.orEmpty()
-        }
-      }
-    }
-
-    return ComboBoxWithAutoCompletion(model, project)
+  private fun createBranchField(): ComboBoxWithAutoCompletion<String> =
+    ComboBoxWithAutoCompletion(MutableCollectionComboBoxModel(mutableListOf<String>()), project)
       .apply {
         prototypeDisplayValue = "origin/long-enough-branch-name"
         setPlaceholder(
@@ -213,11 +208,13 @@ class SlideInDialog(
           object : DocumentListener {
             override fun documentChanged(event: DocumentEvent) {
               startTrackingValidation()
+              branchToAnnotation[branchField.getText()]?.also {
+                customAnnotationField.text = it
+              }
             }
           },
         )
       }
-  }
 
   private fun isDescendantOf(presumedDescendantName: String): (BranchLayoutEntry) -> Boolean {
     return fun(presumedAncestorEntry: BranchLayoutEntry): Boolean {
