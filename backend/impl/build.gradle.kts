@@ -5,8 +5,10 @@ plugins {
 }
 
 tasks.withType<JavaCompile> {
-  // TODO (freefair/gradle-plugins#707): suppress adviceDidNotMatch warnings
-  // ajc.options.compilerArgs.add("-Xlint:adviceDidNotMatch")
+  // Suppress adviceDidNotMatch warnings
+  configure<io.freefair.gradle.plugins.aspectj.AjcAction> {
+    options.compilerArgs.add("-Xlint:ignore")
+  }
 }
 
 dependencies {
