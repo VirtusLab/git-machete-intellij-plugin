@@ -9,6 +9,7 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
+import com.intellij.ui.ComboboxSpeedSearch;
 import com.intellij.ui.MutableCollectionComboBoxModel;
 import com.intellij.ui.SimpleListCellRenderer;
 import com.intellij.util.ModalityUiUtil;
@@ -50,6 +51,7 @@ public final class GitRepositoryComboBox extends JComboBox<GitRepository>
           ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, () -> updateRepositories());
         });
     Disposer.register(this, messageBusConnection);
+    ComboboxSpeedSearch.installSpeedSearch(this, DvcsUtil::getShortRepositoryName);
   }
 
   @Override

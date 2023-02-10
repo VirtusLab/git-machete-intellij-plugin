@@ -1,6 +1,7 @@
 # Changelog
 
 ## v3.6.0
+- Improved the repository selection combobox so that modules are now searchable.
 
 ## v3.5.1
 - Improve stability of traverse and slide-out/slide-in actions.
