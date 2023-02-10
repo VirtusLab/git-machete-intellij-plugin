@@ -31,6 +31,9 @@ slf4j-mock = "org.simplify4u:slf4j-mock:2.3.0"
 slf4j-simple = "org.slf4j:slf4j-simple:1.7.36"
 vavr = "io.vavr:vavr:0.10.4"
 
+# Note that certain plugins are also pulled in via buildSrc,
+# where they aren't really `apply`-ed as plugins, but rather added to classpath as plugin packages;
+# see https://docs.gradle.org/current/samples/sample_convention_plugins.html#things_to_note.
 [plugins]
 aspectj-postCompileWeaving = "io.freefair.aspectj.post-compile-weaving:6.6.1"
 # @pin TODO (#859): gradle-grammarkit-plugin 2022.3 requires `targetCompatibility` to be Java 17, not Java 11.
