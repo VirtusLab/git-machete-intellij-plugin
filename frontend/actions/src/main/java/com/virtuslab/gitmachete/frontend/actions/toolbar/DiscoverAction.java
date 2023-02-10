@@ -52,7 +52,11 @@ public class DiscoverAction extends BaseProjectDependentAction {
 
   @Override
   @ContinuesInBackground
-  @IgnoreUIThreadUnsafeCalls("com.virtuslab.gitmachete.backend.api.IGitMacheteRepository.discoverLayoutAndCreateSnapshot()")
+  // TODO (#1472): extract a backgroundable for the heavy lifting
+  @IgnoreUIThreadUnsafeCalls({
+      "com.virtuslab.gitmachete.backend.api.IGitMacheteRepository.discoverLayoutAndCreateSnapshot()",
+      "com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache.getInstance(java.nio.file.Path, java.nio.file.Path, java.nio.file.Path)"
+  })
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     val project = getProject(anActionEvent);

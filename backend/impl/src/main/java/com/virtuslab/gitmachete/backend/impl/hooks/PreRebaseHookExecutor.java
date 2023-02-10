@@ -16,6 +16,7 @@ import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
 public final class PreRebaseHookExecutor extends BaseHookExecutor {
@@ -25,6 +26,7 @@ public final class PreRebaseHookExecutor extends BaseHookExecutor {
     super(rootDirectory, hookFile);
   }
 
+  @UIThreadUnsafe
   public static PreRebaseHookExecutor of(IGitCoreRepository gitCoreRepository) {
     val hooksDir = gitCoreRepository.deriveConfigValue("core", "hooksPath");
     val hooksDirPath = hooksDir != null ? Paths.get(hooksDir) : gitCoreRepository.getMainGitDirectoryPath().resolve("hooks");

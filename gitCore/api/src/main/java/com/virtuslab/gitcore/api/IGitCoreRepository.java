@@ -17,6 +17,8 @@ public interface IGitCoreRepository {
   @UIThreadUnsafe
   @Nullable
   String deriveConfigValue(String section, String subsection, String name);
+
+  @UIThreadUnsafe
   @Nullable
   String deriveConfigValue(String section, String name);
 

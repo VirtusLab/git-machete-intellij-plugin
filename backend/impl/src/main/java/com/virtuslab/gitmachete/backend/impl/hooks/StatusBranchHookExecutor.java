@@ -43,6 +43,7 @@ public final class StatusBranchHookExecutor extends BaseHookExecutor {
     super(rootDirectory, hookFile);
   }
 
+  @UIThreadUnsafe
   public static StatusBranchHookExecutor of(IGitCoreRepository gitCoreRepository) {
     val hooksDir = gitCoreRepository.deriveConfigValue("core", "hooksPath");
     val hooksDirPath = hooksDir != null ? Paths.get(hooksDir) : gitCoreRepository.getMainGitDirectoryPath().resolve("hooks");

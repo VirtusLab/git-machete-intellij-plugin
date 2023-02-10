@@ -164,6 +164,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
       String initialName) {
     val repositories = java.util.Collections.singletonList(gitRepository);
     val project = gitRepository.getProject();
+    //noinspection KotlinInternalInJava
     val gitNewBranchDialog = new GitNewBranchDialog(project,
         repositories,
         /* title */ getNonHtmlString("action.GitMachete.BaseSlideInBelowAction.dialog.create-new-branch.title").fmt(startPoint),
@@ -185,33 +186,29 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
       return Tuple.of(branchName, () -> {});
     }
 
-    Runnable preSlideInRunnable = () -> {};
     val remoteBranch = getGitRemoteBranch(gitRepository, branchName);
 
-    if (options.shouldCheckout() && remoteBranch != null) {
-      preSlideInRunnable = () -> checkoutRemoteBranch(project, repositories, remoteBranch.getName());
+    if (remoteBranch == null) {
+      return Tuple.of(branchName, () -> {
+        //noinspection KotlinInternalInJava
+        val gitBranchCheckoutOperation = new GitBranchCheckoutOperation(project, Collections.singletonList(gitRepository));
+        gitBranchCheckoutOperation.perform(startPoint, options);
+      });
 
-    } else if (!options.shouldCheckout() && remoteBranch != null) {
+    } else if (options.shouldCheckout()) {
+      return Tuple.of(branchName, () -> checkoutRemoteBranch(project, repositories, remoteBranch.getName()));
 
+    } else {
       val refspec = createRefspec("refs/remotes/${remoteBranch.getName()}",
           "refs/heads/${branchName}", /* allowNonFastForward */ false);
-      preSlideInRunnable = () -> new FetchBackgroundable(
+      return Tuple.of(branchName, () -> new FetchBackgroundable(
           gitRepository,
           LOCAL_REPOSITORY_NAME,
           refspec,
           "Fetching Remote Branch",
           getNonHtmlString("action.GitMachete.BasePullAction.notification.title.pull-fail").fmt(branchName),
-          getString("action.GitMachete.BasePullAction.notification.title.pull-success.HTML").fmt(branchName)).queue();
-
-    } else if (remoteBranch == null) {
-
-      preSlideInRunnable = () -> {
-        val gitBranchCheckoutOperation = new GitBranchCheckoutOperation(project, Collections.singletonList(gitRepository));
-        gitBranchCheckoutOperation.perform(startPoint, options);
-      };
+          getString("action.GitMachete.BasePullAction.notification.title.pull-success.HTML").fmt(branchName)).queue());
     }
-
-    return Tuple.of(options.getName(), preSlideInRunnable);
   }
 
   private static @Nullable GitRemoteBranch getGitRemoteBranch(GitRepository gitRepository, String branchName) {
@@ -222,7 +219,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
           GitRemoteBranch remoteBranch = gitRepository.getBranches().findRemoteBranch(remoteBranchName);
           return remoteBranch != null ? Option.some(Tuple.of(r, remoteBranch)) : Option.none();
         })
-        // Note: false < true. Hence the pair with origin will be first (head) if exists.
+        // Note: false < true. Hence, the pair with origin will be first (head) if exists.
         .sortBy(t -> !t._1().getName().equals("origin"));
 
     if (remotesWithBranch.isEmpty()) {

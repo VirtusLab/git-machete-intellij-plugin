@@ -19,6 +19,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.impl.hooks.PreRebaseHookExecutor;
 import com.virtuslab.gitmachete.backend.impl.hooks.StatusBranchHookExecutor;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
 
@@ -36,6 +37,7 @@ public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
   }
 
   @Override
+  @UIThreadUnsafe
   public IGitMacheteRepository getInstance(Path rootDirectoryPath, Path mainGitDirectoryPath,
       Path worktreeGitDirectoryPath)
       throws GitMacheteException {

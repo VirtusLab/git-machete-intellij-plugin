@@ -111,20 +111,24 @@ public final class GitCoreRepository implements IGitCoreRepository {
   }
 
   @Override
+  @UIThreadUnsafe
   public @Nullable String deriveConfigValue(String section, String subsection, String name) {
     return jgitRepoForMainGitDir.getConfig().getString(section, subsection, name);
   }
 
   @Override
+  @UIThreadUnsafe
   public @Nullable String deriveConfigValue(String section, String name) {
     return jgitRepoForMainGitDir.getConfig().getString(section, null, name);
   }
 
   @Override
+  @UIThreadUnsafe
   public @Nullable IGitCoreCommit parseRevision(String revision) throws GitCoreException {
     return convertRevisionToGitCoreCommit(revision);
   }
 
+  @UIThreadUnsafe
   @SuppressWarnings("IllegalCatch")
   private <T> T withRevWalk(CheckedFunction1<RevWalk, T> fun) throws GitCoreException {
     try (RevWalk walk = new RevWalk(jgitRepoForMainGitDir)) {
@@ -134,6 +138,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
     }
   }
 
+  @UIThreadUnsafe
   @SneakyThrows
   private <T> T withRevWalkUnchecked(CheckedFunction1<RevWalk, T> fun) {
     try (RevWalk walk = new RevWalk(jgitRepoForMainGitDir)) {
@@ -142,6 +147,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
   }
 
   // Public only for the sake of tests, not a part of the interface
+  @UIThreadUnsafe
   public boolean isBranchPresent(String branchFullName) {
     // If '/' characters exist in the branch name, then loop-based testing is needed in order to avoid
     // possible IDE errors, which could appear in scenarios similar to the one explained below.
@@ -172,8 +178,8 @@ public final class GitCoreRepository implements IGitCoreRepository {
     for (int numOfSegmentsToUse = 3; numOfSegmentsToUse < segments.size(); numOfSegmentsToUse++) {
       val testedPrefix = segments.take(numOfSegmentsToUse).mkString("/");
       try {
-        val objectID = jgitRepoForMainGitDir.resolve(testedPrefix);
-        if (objectID != null) {
+        val objectId = jgitRepoForMainGitDir.resolve(testedPrefix);
+        if (objectId != null) {
           return false;
         }
       } catch (IOException ignored) {}
@@ -186,14 +192,17 @@ public final class GitCoreRepository implements IGitCoreRepository {
     }
   }
 
+  @UIThreadUnsafe
   private GitCoreCommit convertExistingRevisionToGitCoreCommit(String revision) throws GitCoreException {
     return withRevWalk(walk -> new GitCoreCommit(walk.parseCommit(convertExistingRevisionToObjectId(revision))));
   }
 
+  @UIThreadUnsafe
   private GitCoreCommit convertObjectIdToGitCoreCommit(ObjectId objectId) throws GitCoreException {
     return withRevWalk(walk -> new GitCoreCommit(walk.parseCommit(objectId)));
   }
 
+  @UIThreadUnsafe
   private @Nullable GitCoreCommit convertRevisionToGitCoreCommit(String revision) throws GitCoreException {
     val objectId = convertRevisionToObjectId(revision);
     return objectId != null
@@ -201,6 +210,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
         : null;
   }
 
+  @UIThreadUnsafe
   private ObjectId convertExistingRevisionToObjectId(String revision) throws GitCoreException {
     val objectId = convertRevisionToObjectId(revision);
     if (objectId == null) {
@@ -209,6 +219,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
     return objectId;
   }
 
+  @UIThreadUnsafe
   private @Nullable ObjectId convertRevisionToObjectId(String revision) throws GitCoreException {
     try {
       return jgitRepoForMainGitDir.resolve(revision);
@@ -217,6 +228,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
     }
   }
 
+  @UIThreadUnsafe
   private ObjectId convertGitCoreCommitToObjectId(IGitCoreCommit commit) throws GitCoreException {
     return convertExistingRevisionToObjectId(commit.getHash().getHashString());
   }
@@ -263,6 +275,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
     }
   }
 
+  @UIThreadUnsafe
   private List<IGitCoreReflogEntry> deriveReflogByRefFullName(String refFullName, Repository repository)
       throws GitCoreException {
     try {
@@ -281,6 +294,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
   }
 
   @Override
+  @UIThreadUnsafe
   public @Nullable GitCoreRelativeCommitCount deriveRelativeCommitCount(
       IGitCoreCommit fromPerspectiveOf,
       IGitCoreCommit asComparedTo) throws GitCoreException {
@@ -306,6 +320,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
     }).getOrNull();
   }
 
+  @UIThreadUnsafe
   private @Nullable IGitCoreLocalBranchSnapshot deriveLocalBranchByName(String localBranchName) throws GitCoreException {
     String localBranchFullName = getLocalBranchFullName(localBranchName);
     if (!isBranchPresent(localBranchFullName)) {
@@ -321,6 +336,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
         remoteBranch);
   }
 
+  @UIThreadUnsafe
   private @Nullable GitCoreRemoteBranchSnapshot deriveRemoteBranchByName(
       String remoteName,
       String remoteBranchName) throws GitCoreException {
@@ -338,6 +354,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
   }
 
   @Override
+  @UIThreadUnsafe
   public List<IGitCoreLocalBranchSnapshot> deriveAllLocalBranches() throws GitCoreException {
     LOG.debug(() -> "Entering: this = ${this}");
     LOG.debug("List of local branches:");
@@ -366,12 +383,13 @@ public final class GitCoreRepository implements IGitCoreRepository {
   }
 
   @Override
+  @UIThreadUnsafe
   public List<String> deriveAllRemoteNames() {
     return List.ofAll(jgitRepoForMainGitDir.getRemoteNames());
   }
 
-  @UIThreadUnsafe
   @Override
+  @UIThreadUnsafe
   public @Nullable String deriveRebasedBranch() throws GitCoreException {
     Option<Path> headNamePath = Stream.of("rebase-apply", "rebase-merge")
         .map(dir -> jgitRepoForWorktreeGitDir.getDirectory().toPath().resolve(dir).resolve("head-name"))
@@ -404,6 +422,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
     }
   }
 
+  @UIThreadUnsafe
   private @Nullable GitCoreRemoteBranchSnapshot deriveRemoteBranchForLocalBranch(String localBranchName) {
     val configuredRemoteBranchForLocalBranch = deriveConfiguredRemoteBranchForLocalBranch(localBranchName);
 
@@ -415,6 +434,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
     return null;
   }
 
+  @UIThreadUnsafe
   private @Nullable GitCoreRemoteBranchSnapshot deriveConfiguredRemoteBranchForLocalBranch(String localBranchName) {
     val remoteName = deriveConfiguredRemoteNameForLocalBranch(localBranchName);
     val remoteShortBranchName = remoteName != null ? deriveConfiguredRemoteBranchNameForLocalBranch(localBranchName) : null;
@@ -429,15 +449,18 @@ public final class GitCoreRepository implements IGitCoreRepository {
     return null;
   }
 
+  @UIThreadUnsafe
   private @Nullable String deriveConfiguredRemoteNameForLocalBranch(String localBranchName) {
     return jgitRepoForMainGitDir.getConfig().getString(CONFIG_BRANCH_SECTION, localBranchName, CONFIG_KEY_REMOTE);
   }
 
+  @UIThreadUnsafe
   private @Nullable String deriveConfiguredRemoteBranchNameForLocalBranch(String localBranchName) {
     val branchFullName = jgitRepoForMainGitDir.getConfig().getString(CONFIG_BRANCH_SECTION, localBranchName, CONFIG_KEY_MERGE);
     return branchFullName != null ? branchFullName.replace(Constants.R_HEADS, /* replacement */ "") : null;
   }
 
+  @UIThreadUnsafe
   private @Nullable GitCoreRemoteBranchSnapshot deriveInferredRemoteBranchForLocalBranch(String localBranchName)
       throws GitCoreException {
     val remotes = deriveAllRemoteNames();
@@ -457,6 +480,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
     return null;
   }
 
+  @UIThreadUnsafe
   private @Nullable GitCoreCommitHash deriveMergeBase(IGitCoreCommit c1, IGitCoreCommit c2) throws GitCoreException {
     LOG.debug(() -> "Entering: this = ${this}");
 
@@ -490,6 +514,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
   // will never change thanks to git commit graph immutability.
   private static final java.util.Map<Tuple2<IGitCoreCommit, IGitCoreCommit>, @Nullable GitCoreCommitHash> mergeBaseCache = new java.util.HashMap<>();
 
+  @UIThreadUnsafe
   private @Nullable GitCoreCommitHash deriveMergeBaseIfNeeded(IGitCoreCommit a, IGitCoreCommit b) throws GitCoreException {
     LOG.debug(() -> "Entering: commit1 = ${a.getHash().getHashString()}, commit2 = ${b.getHash().getHashString()}");
     val abKey = Tuple.of(a, b);
@@ -508,6 +533,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
   }
 
   @Override
+  @UIThreadUnsafe
   public boolean isAncestorOrEqual(IGitCoreCommit presumedAncestor, IGitCoreCommit presumedDescendant) throws GitCoreException {
     LOG.debug(() -> "Entering: presumedAncestor = ${presumedAncestor.getHash().getHashString()}, " +
         "presumedDescendant = ${presumedDescendant.getHash().getHashString()}");
@@ -529,6 +555,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
   }
 
   @Override
+  @UIThreadUnsafe
   public List<IGitCoreCommit> deriveCommitRange(IGitCoreCommit fromInclusive, IGitCoreCommit untilExclusive)
       throws GitCoreException {
     LOG.debug(() -> "Entering: fromInclusive = '${fromInclusive}', untilExclusive = '${untilExclusive}'");
@@ -555,6 +582,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
   }
 
   @Override
+  @UIThreadUnsafe
   public GitCoreRepositoryState deriveRepositoryState() {
     return Match(jgitRepoForWorktreeGitDir.getRepositoryState()).of(
     // @formatter:off
@@ -575,6 +603,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
   }
 
   @Override
+  @UIThreadUnsafe
   public Stream<IGitCoreCommit> ancestorsOf(IGitCoreCommit commitInclusive) throws GitCoreException {
     RevWalk walk = new RevWalk(jgitRepoForMainGitDir);
     // Note that `RevSort.COMMIT_TIME_DESC` is both:

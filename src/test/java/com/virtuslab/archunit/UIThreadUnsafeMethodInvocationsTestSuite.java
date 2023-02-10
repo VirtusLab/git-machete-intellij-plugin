@@ -111,7 +111,8 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
   private static final String[] uiThreadUnsafePackagePrefixes = {
       "git4idea",
       "java.io",
-      "java.nio"
+      "java.nio",
+      "org.eclipse.jgit",
   };
 
   private static final String[] uiThreadSafeMethodsInUnsafePackages = {
@@ -165,7 +166,7 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
       "git4idea.ui.ComboBoxWithAutoCompletion.setUI(javax.swing.plaf.ComboBoxUI)",
       "git4idea.ui.branch.GitBranchCheckoutOperation.<init>(com.intellij.openapi.project.Project, java.util.List)",
       "git4idea.validators.GitBranchValidatorKt.checkRefName(java.lang.String)",
-      // Some of these methods might actually access the filesystem;
+      // Some of these java.(n)io methods might actually access the filesystem;
       // still, they're lightweight enough so that we can give them a free pass.
       "java.io.BufferedOutputStream.<init>(java.io.OutputStream)",
       "java.io.File.canExecute()",
@@ -186,6 +187,19 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
       "java.nio.file.attribute.BasicFileAttributes.lastModifiedTime()",
       "java.nio.file.attribute.FileTime.fromMillis(long)",
       "java.nio.file.attribute.FileTime.toMillis()",
+      "org.eclipse.jgit.lib.CheckoutEntry.getFromBranch()",
+      "org.eclipse.jgit.lib.CheckoutEntry.getToBranch()",
+      "org.eclipse.jgit.lib.ObjectId.equals(org.eclipse.jgit.lib.AnyObjectId)",
+      "org.eclipse.jgit.lib.ObjectId.zeroId()",
+      "org.eclipse.jgit.lib.ObjectId.getName()",
+      "org.eclipse.jgit.lib.ReflogEntry.getComment()",
+      "org.eclipse.jgit.lib.ReflogEntry.getNewId()",
+      "org.eclipse.jgit.lib.ReflogEntry.getOldId()",
+      "org.eclipse.jgit.lib.PersonIdent.getWhen()",
+      "org.eclipse.jgit.lib.ReflogEntry.getWho()",
+      "org.eclipse.jgit.lib.ReflogEntry.parseCheckout()",
+      "org.eclipse.jgit.lib.Ref.getName()",
+      "org.eclipse.jgit.lib.Ref.getObjectId()",
   };
 
   @Test
@@ -203,6 +217,8 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
     noMethods()
         .that()
         .areNotAnnotatedWith(UIThreadUnsafe.class)
+        .and()
+        .doNotHaveName("$deserializeLambda$")
         .should(callAnyMethodsThat("are known to be blocking Git or I/O APIs", (method, calledMethod) -> {
           String calledMethodPackageName = calledMethod.getOwner().getPackageName();
           String calledMethodFullName = calledMethod.getFullName();
