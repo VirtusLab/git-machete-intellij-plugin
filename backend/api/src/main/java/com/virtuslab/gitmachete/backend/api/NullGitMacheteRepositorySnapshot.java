@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.backend.api;
 
+import java.nio.file.Path;
+
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
 import io.vavr.collection.TreeSet;
@@ -16,6 +18,11 @@ public final class NullGitMacheteRepositorySnapshot implements IGitMacheteReposi
 
   public static IGitMacheteRepositorySnapshot getInstance() {
     return instance;
+  }
+
+  @Override
+  public Path getMainGitDirectoryPath() {
+    return Path.of("");
   }
 
   @Override

@@ -9,6 +9,7 @@ import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 
+import java.nio.file.Path;
 import java.time.Instant;
 
 import io.vavr.Tuple;
@@ -57,6 +58,7 @@ public class CreateGitMacheteRepositoryAux extends Aux {
   private final PreRebaseHookExecutor preRebaseHookExecutor;
   private final List<String> remoteNames;
   private final java.util.Set<String> createdBranches = new java.util.HashSet<>();
+  private final Path mainGitDirectoryPath;
 
   public CreateGitMacheteRepositoryAux(
       IGitCoreRepository gitCoreRepository,
@@ -67,6 +69,7 @@ public class CreateGitMacheteRepositoryAux extends Aux {
     this.statusHookExecutor = statusHookExecutor;
     this.preRebaseHookExecutor = preRebaseHookExecutor;
     this.remoteNames = gitCoreRepository.deriveAllRemoteNames();
+    this.mainGitDirectoryPath = gitCoreRepository.getMainGitDirectoryPath();
   }
 
   @UIThreadUnsafe
@@ -105,7 +108,8 @@ public class CreateGitMacheteRepositoryAux extends Aux {
 
     val operationsBaseBranchName = deriveOngoingOperationsBaseBranchName(ongoingOperationType);
 
-    return new GitMacheteRepositorySnapshot(List.narrow(rootBranches), branchLayout, currentBranchIfManaged,
+    return new GitMacheteRepositorySnapshot(mainGitDirectoryPath, List.narrow(rootBranches), branchLayout,
+        currentBranchIfManaged,
         managedBranchByName, duplicatedBranchNames, skippedBranchNames, preRebaseHookExecutor,
         new IGitMacheteRepositorySnapshot.OngoingRepositoryOperation(ongoingOperationType, operationsBaseBranchName));
   }

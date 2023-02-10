@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.backend.impl;
 
+import java.nio.file.Path;
+
 import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
@@ -18,6 +20,9 @@ import com.virtuslab.gitmachete.backend.impl.hooks.PreRebaseHookExecutor;
 
 @RequiredArgsConstructor
 public class GitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapshot {
+
+  @Getter
+  private final Path mainGitDirectoryPath;
 
   @Getter
   private final List<IRootManagedBranchSnapshot> rootBranches;

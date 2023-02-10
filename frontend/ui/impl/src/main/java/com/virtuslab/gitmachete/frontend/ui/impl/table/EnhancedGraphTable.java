@@ -294,8 +294,10 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         if (unmanagedBranchNotification != null) {
           unmanagedBranchNotification.expire();
         }
-        if (gitMacheteRepositorySnapshot != null) {
-          val entry = gitMacheteRepositorySnapshot.getBranchLayout().getEntryByName(repositoryCurrentBranchName);
+        val snapshot = gitMacheteRepositorySnapshot;
+        val mainGitDirectory = GitVfsUtils.getMainGitDirectory(repository);
+        if (snapshot != null && snapshot.getMainGitDirectoryPath().equals(mainGitDirectory)) {
+          val entry = snapshot.getBranchLayout().getEntryByName(repositoryCurrentBranchName);
           if (entry == null) {
             inferParentForUnmanagedBranchNotificationAndNotify(repositoryCurrentBranchName);
           }

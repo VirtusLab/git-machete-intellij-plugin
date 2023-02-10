@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
+import java.nio.file.Path;
 import java.time.Instant;
 
 import io.vavr.NotImplementedError;
@@ -89,6 +90,11 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
 
   static RelationToRemote getRelationOfSTRS(SyncToRemoteStatus syncToRemoteStatus) {
     return RelationToRemote.of(syncToRemoteStatus, "origin");
+  }
+
+  @Override
+  public Path getMainGitDirectoryPath() {
+    return Path.of("dummy");
   }
 
   @Override
