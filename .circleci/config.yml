@@ -277,9 +277,9 @@ jobs:
           name: Check for updates of libraries & Gradle plugins
           # language=sh
           command: |
-            ./gradlew versionCatalogUpdate
-            cd buildSrc/
-            ../gradlew versionCatalogUpdate
+            # TODO (littlerobots/version-catalog-update-plugin#100): JSON output format should be the default
+            ./gradlew -p .         versionCatalogUpdate -DoutputFormatter=json
+            ./gradlew -p buildSrc/ versionCatalogUpdate -DoutputFormatter=json
       - create_pull_request_if_files_changed:
           branch_name_prefix: update-deps
           branch_name_command: md5sum gradle/libs.versions.toml | cut -d' ' -f 1
