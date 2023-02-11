@@ -14,7 +14,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitRemoteBranch;
-import git4idea.branch.GitNewBranchDialog;
 import git4idea.branch.GitNewBranchOptions;
 import git4idea.repo.GitRepository;
 import git4idea.ui.branch.GitBranchCheckoutOperation;
@@ -31,6 +30,7 @@ import com.virtuslab.branchlayout.api.BranchLayoutEntry;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideInNonRootBackgroundable;
+import com.virtuslab.gitmachete.frontend.actions.dialogs.MyGitNewBranchDialog;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
@@ -165,8 +165,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
       String initialName) {
     val repositories = java.util.Collections.singletonList(gitRepository);
     val project = gitRepository.getProject();
-    //noinspection KotlinInternalInJava
-    val gitNewBranchDialog = new GitNewBranchDialog(project,
+    val gitNewBranchDialog = new MyGitNewBranchDialog(project,
         repositories,
         /* title */ getNonHtmlString("action.GitMachete.BaseSlideInBelowAction.dialog.create-new-branch.title").fmt(startPoint),
         initialName,

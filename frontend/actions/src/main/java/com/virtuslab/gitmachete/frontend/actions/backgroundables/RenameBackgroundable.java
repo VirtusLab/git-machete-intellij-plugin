@@ -96,33 +96,38 @@ public class RenameBackgroundable extends SideEffectingBackgroundable {
     // setUpstream: git branch --set-upstream-to <upstreamBranchName> <branchName>
     val setUpstream = Git.getInstance().setUpstream(gitRepository, renamedRemoteName, newBranchName);
     var error = setUpstream.getErrorOutputAsJoinedString();
+    val setUpstreamErrorOutput = setUpstream.getErrorOutput();
 
-    if (!setUpstream.success()) {
-      if (setUpstream.getErrorOutput().get(0)
-          .equals("fatal: the requested upstream branch '${renamedRemoteName}' does not exist")) {
-        val unsetUpstream = unsetUpstream(newBranchName);
-        if (unsetUpstream.success()) {
-          // This happens when one renames a branch with a remote branch set up,
-          // and a local branch with the new name is created for the second and next time,
-          // and the remote with the new name does not exist.
-          return;
-        } else if (unsetUpstream.getErrorOutput().get(0)
+    if (setUpstream.success()) {
+      // This happens when one renames a branch with a remote branch set up,
+      // and the remote branch with the new name exist.
+      return;
+    }
+
+    if (!setUpstreamErrorOutput.isEmpty() && setUpstreamErrorOutput.get(0)
+        .equals("fatal: the requested upstream branch '${renamedRemoteName}' does not exist")) {
+      val unsetUpstream = unsetUpstream(newBranchName);
+      val unsetUpstreamErrorOutput = unsetUpstream.getErrorOutput();
+      if (unsetUpstream.success()) {
+        // This happens when one renames a branch with a remote branch set up,
+        // and a local branch with the new name is created for the second and next time,
+        // and the remote with the new name does not exist.
+        return;
+      } else {
+        if (!unsetUpstreamErrorOutput.isEmpty() && unsetUpstreamErrorOutput.get(0)
             .equals("fatal: Branch '${newBranchName}' has no upstream information")) {
           // This happens when one renames a branch with a remote branch set up,
           // and a local branch with the new name is created for the first time,
           // and the remote with the new name does not exist.
           return;
         }
-        error = unsetUpstream.getErrorOutputAsJoinedString();
       }
-
-      VcsNotifier.getInstance(project).notifyError(null,
-          getString("action.GitMachete.RenameBackgroundable.rename-failed"),
-          error);
-    } else {
-      // This happens when one renames a branch with a remote branch set up,
-      // and the remote with the new name exist.
+      error = unsetUpstream.getErrorOutputAsJoinedString();
     }
+
+    VcsNotifier.getInstance(project).notifyError(null,
+        getString("action.GitMachete.RenameBackgroundable.rename-failed"),
+        error);
   }
 
   @UIThreadUnsafe

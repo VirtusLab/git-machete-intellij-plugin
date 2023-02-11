@@ -9,7 +9,6 @@ import java.util.Collections;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import git4idea.branch.GitBranchOperationType;
-import git4idea.branch.GitNewBranchDialog;
 import git4idea.repo.GitRepository;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
@@ -18,6 +17,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.RenameBackgroundable;
+import com.virtuslab.gitmachete.frontend.actions.dialogs.MyGitNewBranchDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
@@ -84,7 +84,7 @@ public abstract class BaseRenameAction extends BaseGitMacheteRepositoryReadyActi
     val project = gitRepository.getProject();
     val remotes = new ArrayList<>(gitRepository.getRemotes());
 
-    val gitNewBranchDialog = new GitNewBranchDialog(project, Collections.singletonList(gitRepository),
+    val gitNewBranchDialog = new MyGitNewBranchDialog(project, Collections.singletonList(gitRepository),
         getString("action.GitMachete.BaseRenameAction.description").fmt(branch.getName()),
         branch.getName(),
         /* showCheckOutOption */ false,

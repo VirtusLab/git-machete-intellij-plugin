@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.resourcebundles;
 
 import java.text.MessageFormat;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 import org.checkerframework.checker.i18nformatter.qual.I18nFormatFor;
@@ -12,6 +13,7 @@ import org.checkerframework.common.value.qual.MinLen;
 import org.jetbrains.annotations.PropertyKey;
 
 public final class GitMacheteBundle {
+  public static final char MNEMONIC = 0x1B;
   public static final String BUNDLE = "GitMacheteBundle";
   private static final ResourceBundle instance = ResourceBundle.getBundle(BUNDLE);
 
@@ -37,11 +39,67 @@ public final class GitMacheteBundle {
 
   @I18nMakeFormat
   public static String getString(@PropertyKey(resourceBundle = BUNDLE) String key) {
-    return instance.getString(key);
+    String string = instance.getString(key);
+    return replaceMnemonicAmpersand(string);
   }
 
   @I18nMakeFormat
   public static @Untainted String getNonHtmlString(@PropertyKey(resourceBundle = BUNDLE) String key) {
     return instance.getString(key);
   }
+
+  /**
+   * This method has been inspired by {@link com.intellij.BundleBase#replaceMnemonicAmpersand}.
+   * It is required to correctly process the mnemonics.
+   */
+  private static String replaceMnemonicAmpersand(String value) {
+    if (value.indexOf('&') < 0 || value.indexOf(MNEMONIC) >= 0) {
+      return value;
+    }
+
+    StringBuilder builder = new StringBuilder();
+    boolean macMnemonic = value.contains("&&");
+    boolean mnemonicAdded = false;
+    int i = 0;
+    while (i < value.length()) {
+      char c = value.charAt(i);
+      if (c == '\\') {
+        if (i < value.length() - 1 && value.charAt(i + 1) == '&') {
+          builder.append('&');
+          i++;
+        } else {
+          builder.append(c);
+        }
+      } else if (c == '&') {
+        if (i < value.length() - 1 && value.charAt(i + 1) == '&') {
+          if (SystemInfoRt.IS_MAC) {
+            if (!mnemonicAdded) {
+              mnemonicAdded = true;
+              builder.append(MNEMONIC);
+            }
+          }
+          i++;
+        } else if (!SystemInfoRt.IS_MAC || !macMnemonic) {
+          if (!mnemonicAdded) {
+            mnemonicAdded = true;
+            builder.append(MNEMONIC);
+          }
+        }
+      } else {
+        builder.append(c);
+      }
+      i++;
+    }
+    return builder.toString();
+  }
+}
+
+/**
+ * This method has been inspired by {@link com.intellij.openapi.util.SystemInfoRt}.
+ * It is required for {@link GitMacheteBundle#replaceMnemonicAmpersand(String)}.
+ */
+class SystemInfoRt {
+  public static final String OS_NAME = System.getProperty("os.name");
+  private static final String LOWERCASE_OS_NAME = OS_NAME.toLowerCase(Locale.ENGLISH);
+  public static final boolean IS_MAC = LOWERCASE_OS_NAME.startsWith("mac");
 }
