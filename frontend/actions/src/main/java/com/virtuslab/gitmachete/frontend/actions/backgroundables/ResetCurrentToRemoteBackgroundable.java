@@ -36,9 +36,8 @@ public class ResetCurrentToRemoteBackgroundable extends Task.Backgroundable {
   private final GitRepository gitRepository;
 
   public ResetCurrentToRemoteBackgroundable(String title,
-      boolean canBeCancelled,
       String localBranchName, String remoteTrackingBranchName, GitRepository gitRepository) {
-    super(gitRepository.getProject(), title, canBeCancelled);
+    super(gitRepository.getProject(), title);
     this.localBranchName = localBranchName;
     this.remoteTrackingBranchName = remoteTrackingBranchName;
     this.gitRepository = gitRepository;

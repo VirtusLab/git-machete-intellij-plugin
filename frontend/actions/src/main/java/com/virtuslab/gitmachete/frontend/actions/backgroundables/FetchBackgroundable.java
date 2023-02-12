@@ -34,7 +34,7 @@ public class FetchBackgroundable extends Task.Backgroundable {
       String taskTitle,
       @Untainted String failureNotificationText,
       String successNotificationText) {
-    super(gitRepository.getProject(), taskTitle, /* canBeCancelled */ true);
+    super(gitRepository.getProject(), taskTitle);
     this.gitRepository = gitRepository;
     this.remoteName = remoteName;
     this.refspec = refspec;

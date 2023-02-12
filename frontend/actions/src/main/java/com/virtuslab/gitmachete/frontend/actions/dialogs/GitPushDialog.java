@@ -95,7 +95,7 @@ public final class GitPushDialog extends VcsPushDialog {
   public void push(boolean forcePush) {
 
     String title = getString("string.GitMachete.GitPushDialog.task-title");
-    executeAfterRunningPrePushHandlers(new Task.Backgroundable(myProject, title, /* canBeCancelled */ true) {
+    executeAfterRunningPrePushHandlers(new Task.Backgroundable(myProject, title) {
       @Override
       @UIThreadUnsafe
       public void run(ProgressIndicator indicator) {

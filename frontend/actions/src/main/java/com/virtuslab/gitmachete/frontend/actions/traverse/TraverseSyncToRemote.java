@@ -211,8 +211,7 @@ public class TraverseSyncToRemote {
       case YES :
         new ResetCurrentToRemoteBackgroundable(
             getString("action.GitMachete.BaseResetToRemoteAction.task-title"),
-            /* canBeCancelled */ true, gitMacheteBranch.getName(), remoteTrackingBranch.getName(),
-            gitRepository) {
+            gitMacheteBranch.getName(), remoteTrackingBranch.getName(), gitRepository) {
           @Override
           public void onSuccess() {
             graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);

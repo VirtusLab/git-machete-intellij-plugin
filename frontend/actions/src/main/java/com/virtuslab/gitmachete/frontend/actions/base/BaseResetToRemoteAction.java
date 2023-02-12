@@ -191,6 +191,6 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
 
     new ResetCurrentToRemoteBackgroundable(
         getString("action.GitMachete.BaseResetToRemoteAction.task-title"),
-        /* canBeCancelled */ true, localBranchName, remoteTrackingBranchName, gitRepository).queue();
+        localBranchName, remoteTrackingBranchName, gitRepository).queue();
   }
 }

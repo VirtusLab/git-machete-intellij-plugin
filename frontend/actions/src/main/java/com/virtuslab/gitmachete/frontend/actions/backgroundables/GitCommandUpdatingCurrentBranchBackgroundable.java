@@ -59,7 +59,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Task
   public GitCommandUpdatingCurrentBranchBackgroundable(
       GitRepository gitRepository,
       String taskTitle) {
-    super(gitRepository.getProject(), taskTitle, /* canBeCancelled */ true);
+    super(gitRepository.getProject(), taskTitle);
     this.project = gitRepository.getProject();
     this.gitRepository = gitRepository;
   }

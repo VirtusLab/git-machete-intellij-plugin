@@ -65,7 +65,7 @@ public class FetchAllRemotesAction extends BaseProjectDependentAction {
     val project = getProject(anActionEvent);
     val gitRepository = getSelectedGitRepository(anActionEvent);
     val title = getString("action.GitMachete.FetchAllRemotesAction.task-title");
-    new Task.Backgroundable(project, title, /* canBeCancelled */ true) {
+    new Task.Backgroundable(project, title) {
       private @MonotonicNonNull GitFetchResult result = null;
 
       @Override
