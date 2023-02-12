@@ -10,7 +10,7 @@ Use IntelliJ IDEA Community Edition/Ultimate.
    Open `Search Actions` dialog with Ctrl+Shift+A (⌘⇧A on macOS),
    type `plugins`, press Alt+Enter (⌥↩ on macOS), then press the chosen shortcut (suggested: Ctrl+Alt+Shift+P, or ⌘⌥⇧P on macOS).
 
-2. Make sure the following bundled plugins are enabled, in the `Installed` tab of `File > Settings > Plugins` (`Preferences > Plugins` on macOS):
+2. Make sure the following bundled plugins are enabled, in the `Installed` tab of `File > Settings > Plugins` (`Preferences/Settings > Plugins` on macOS):
    * Git
    * Gradle
    * IntelliLang (for highlighting of language injections, e.g. JavaScript within Scala, or shell script within YAML)
@@ -40,7 +40,7 @@ Use IntelliJ IDEA Community Edition/Ultimate.
 
 6. Enable annotation processing (for Lombok):
    `File > Settings > Build, Execution, Deployment > Compiler > Annotation Processors > Enable Annotation Processing`
-   (`Preferences > Build, Execution, Deployment > Compiler > Annotation Processors > Enable Annotation Processing` on macOS).
+   (`Preferences/Settings > Build, Execution, Deployment > Compiler > Annotation Processors > Enable Annotation Processing` on macOS).
    Select `Obtain annotation processors from classpath` radio box.
 
 7. (optional) Increase maximum heap size for the IDE (the default value is 2048 MB) under `Help > Change Memory Settings`.
@@ -49,9 +49,9 @@ Use IntelliJ IDEA Community Edition/Ultimate.
    It can be significantly useful while working with UI components (or tests).
    To investigate the UI you may want to use `Tools > Internal Actions > UI > UI Inspector`.
 
-9. (optional) Set `Class count before import with '*'` and `Names count to use static import with '*'` to a very high number (e.g. 500)
-   to avoid problems with CheckStyle when editing code. To do that go to `File > Settings > Editor > Code Style > Java > Imports`
-   (`Preferences > Editor > Code Style > Java > Imports` on macOS).
+9. (optional) Go to `File > Settings > Editor > Code Style > Java > Imports` (`Preferences/Settings > Editor > Code Style > Java > Imports` on macOS).
+   Set `Class count before import with '*'` and `Names count to use static import with '*'` to a very high number (e.g. 500)
+   to avoid problems with CheckStyle when editing code, and remove exceptions like `javax.swing.*` from `Packages to Use Import with '*'`.
 
 ### Git config/hooks
 
@@ -116,6 +116,8 @@ Local (non-CI) builds by default skip most of [Checker Framework's](https://chec
 To make local builds more aligned with CI builds (at the expense of ~2x longer compilation from scratch),
 set `runAllCheckers` Gradle project property (e.g. `./gradlew -PrunAllCheckers build`).
 
+### Fix problems with the build
+
 In case of spurious cache-related issues with the Gradle build, try the following remedies (in the order from the least intrusive to the most):
 * `./gradlew --stop` to shut down Gradle daemon
 * `pkill -e -9 -f '.*Gradle.*'` to kill all Gradle processes
@@ -151,6 +153,21 @@ set `forceRunTests` project property: `./gradlew -PforceRunTests test`.
 
 To include test stdout/stderr in the output of tests (without enabling `--info` log level in Gradle, which leads to a lot of spam),
 set `printTestOutput` project property: `./gradlew -PprintTestOutput test`.
+
+### Regenerate pre-recorded CLI outputs
+
+See [`backend/impl/src/test/resources`](backend/impl/src/test/resources) and
+[`StatusAndDiscoverIntegrationTestSuite`](backend/impl/src/test/java/com/virtuslab/gitmachete/backend/integration/StatusAndDiscoverIntegrationTestSuite.java)
+for context.
+
+Regeneration is needed when:
+1. A change is done to test repository setup scripts in [testCommon/src/testFixtures/resources](testCommon/src/testFixtures/resources)
+2. A change is done to backend logic in this plugin, or to logic/rendering of `git machete status` or `git machete discover`.
+
+To regenerate the CLI outputs:
+1. Make sure you've got the latest [git-machete CLI installed](https://github.com/VirtusLab/git-machete#install).
+2. Run `./gradlew backend:impl:regenerateCliOutputs`.
+3. Commit the changes to `backend/impl/src/test/resources`.
 
 ### Run UI tests
 
@@ -189,7 +206,7 @@ Alternatively, download the plugin zip from the artifacts of the given build
 in [CircleCI](https://app.circleci.com/pipelines/github/VirtusLab/git-machete-intellij-plugin).
 
 In either case (locally-built or CI-built), the zip can be installed via `File > Settings > Plugins > (gear icon) > Install Plugin from Disk...`
-(`Preferences > Plugins > (gear icon) > Install Plugin from Disk...` on macOS).
+(`Preferences/Settings > Plugins > (gear icon) > Install Plugin from Disk...` on macOS).
 Select the zip and restart the IDE.
 
 

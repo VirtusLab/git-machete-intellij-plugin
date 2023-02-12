@@ -38,7 +38,7 @@ are available for earlier IDE versions as well, starting from as early as 2020.1
 ## Installing from JetBrains Marketplace
 
 This plugin is available on [JetBrains Marketplace](https://plugins.jetbrains.com/plugin/14221-git-machete). <br/>
-To install this plugin go to `File > Settings > Plugins` (`Preferences > Plugins` on macOS) in your IDE,
+To install this plugin go to `File > Settings > Plugins` (`Preferences/Settings > Plugins` on macOS) in your IDE,
 then make sure you are on `Marketplace` tab (not `Installed`), in search box type `Git Machete` and click `Install`. <br/>
 After installation, depending on the IDE version, the restart may be required.
 In that case, just click `Restart IDE` and confirm that action in a message box.
