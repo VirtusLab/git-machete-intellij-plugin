@@ -109,8 +109,7 @@ public class CreateGitMacheteRepositoryAux extends Aux {
     val operationsBaseBranchName = deriveOngoingOperationsBaseBranchName(ongoingOperationType);
 
     return new GitMacheteRepositorySnapshot(mainGitDirectoryPath, List.narrow(rootBranches), branchLayout,
-        currentBranchIfManaged,
-        managedBranchByName, duplicatedBranchNames, skippedBranchNames, preRebaseHookExecutor,
+        currentBranchIfManaged, managedBranchByName, duplicatedBranchNames, skippedBranchNames, preRebaseHookExecutor,
         new IGitMacheteRepositorySnapshot.OngoingRepositoryOperation(ongoingOperationType, operationsBaseBranchName));
   }
 
