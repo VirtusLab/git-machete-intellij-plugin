@@ -62,7 +62,8 @@ public abstract class BaseCompareWithParentAction extends BaseGitMacheteReposito
     }
 
     val parent = managedBranch.asNonRoot().getParent();
-    GitBrancher.getInstance(project).compare(parent.getName(), Collections.singletonList(gitRepository));
+    val repositories = Collections.singletonList(gitRepository);
+    GitBrancher.getInstance(project).compareAny(parent.getName(), managedBranch.getName(), repositories);
   }
 
 }
