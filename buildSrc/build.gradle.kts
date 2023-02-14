@@ -60,7 +60,7 @@ tasks.withType<Test> {
 // In the top-level Gradle config, there is a Gradle toolchain,
 // which makes sure that the project itself builds under the correct (high) Java version,
 // even if it was previously missing from the machine.
-val buildSrcJavaVersion = JavaVersion.VERSION_1_8.toString()
+val buildSrcJavaVersion = JavaVersion.VERSION_17.toString()
 
 project.tasks.withType<KotlinCompile> {
   kotlinOptions {
