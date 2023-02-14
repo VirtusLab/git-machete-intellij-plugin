@@ -1,5 +1,7 @@
 # Changelog
 
+## v3.6.1
+
 ## v3.6.0
 - Improved the repository selection combobox so that modules are now searchable.
 - Added a field to provide/edit a custom annotation in the Slide In dialog.
