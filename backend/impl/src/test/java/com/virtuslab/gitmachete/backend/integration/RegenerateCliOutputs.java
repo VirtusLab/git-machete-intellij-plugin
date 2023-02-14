@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import io.vavr.collection.List;
 import io.vavr.collection.Stream;
 import lombok.SneakyThrows;
 
@@ -50,11 +51,7 @@ public class RegenerateCliOutputs {
 
   @SneakyThrows
   private static String runGitMacheteCommandAndReturnStdout(Path workingDirectory, int timeoutSeconds, String... arguments) {
-    String[] command = {"git", "machete"};
-    String[] commandAndArgs = new String[command.length + arguments.length];
-    System.arraycopy(command, 0, commandAndArgs, 0, command.length);
-    System.arraycopy(arguments, 0, commandAndArgs, command.length, arguments.length);
-
+    String[] commandAndArgs = List.of("git", "machete").appendAll(List.of(arguments)).toJavaArray(String[]::new);
     return runProcessAndReturnStdout(workingDirectory, timeoutSeconds, commandAndArgs);
   }
 
