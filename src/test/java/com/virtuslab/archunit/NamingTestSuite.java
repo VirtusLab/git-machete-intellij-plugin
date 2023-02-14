@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 public class NamingTestSuite extends BaseArchUnitTestSuite {
 
   @Test
-  public void exception_class_names_should_end_with_Exception() {
+  public void ApplicationException() {
     classes()
         .that().areAssignableTo(Exception.class)
         .should().haveSimpleNameEndingWith("Exception")
@@ -16,7 +16,7 @@ public class NamingTestSuite extends BaseArchUnitTestSuite {
   }
 
   @Test
-  public void interface_names_should_start_with_I() {
+  public void IParser() {
     // Checking for @Target seems the best available way to identify annotations
     classes()
         .that().areInterfaces()
@@ -26,7 +26,7 @@ public class NamingTestSuite extends BaseArchUnitTestSuite {
         .check(productionClasses);
   }
   @Test
-  public void class_names_should_not_end_with_Manager() {
+  public void ServiceManager() {
     noClasses()
         .should().haveSimpleNameEndingWith("Manager")
         .because("classes called `...Manager` are an indicator of poor design; " +
@@ -35,7 +35,7 @@ public class NamingTestSuite extends BaseArchUnitTestSuite {
   }
 
   @Test
-  public void class_names_should_not_end_with_Util() {
+  public void StringUtil() {
     noClasses()
         .should().haveSimpleNameEndingWith("Util")
         .because("we use `...Utils` (not `...Util`) naming convention")
