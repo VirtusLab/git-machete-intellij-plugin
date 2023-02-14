@@ -13,8 +13,8 @@ plugins {
   alias(libs.plugins.versionsFilter)
 }
 
-fun getFlagsForAddOpens(vararg packages: String, module: String): List<String> {
-  return packages.toList().map { "--add-opens=$module/$it=ALL-UNNAMED" }
+fun getFlagsForAddExports(vararg packages: String, module: String): List<String> {
+  return packages.toList().map { "--add-exports=$module/$it=ALL-UNNAMED" }
 }
 
 // TODO (#859): bump to Java 17 once we no longer support IntelliJ 2022.1 (the last version to run on Java 11)
@@ -88,11 +88,11 @@ allprojects {
     targetCompatibility = targetJavaVersion // redundant, added for clarity
   }
 
-  // String interpolation support, see https://github.com/antkorwin/better-strings
+  // String interpolation support, see https://github.com/antkorwin/better-strings.
   // This needs to be enabled in each subproject by default because there's going to be no warning
   // if this annotation processor isn't run in any subproject (the strings will be just interpreted
   // verbatim, without interpolation applied).
-  // We'd only capture that in CI's post-compile checks by analyzing constants in class files.
+  // Otherwise, we'd only capture an unprocessed interpolation in ArchUnit tests by analyzing constant pools of classes.
   betterStrings()
 
   tasks.withType<JavaCompile> {
@@ -114,7 +114,7 @@ allprojects {
     )
     // Required for better-strings to work under Java 17: https://github.com/antkorwin/better-strings/issues/21
     options.forkOptions.jvmArgs?.addAll(
-      getFlagsForAddOpens(
+      getFlagsForAddExports(
         "com.sun.tools.javac.api",
         "com.sun.tools.javac.code",
         "com.sun.tools.javac.processing",
@@ -245,3 +245,9 @@ junit()
 junitPlatformLauncher()
 lombok("test")
 vavr("test")
+
+// This is needed solely for ArchUnit tests that detect unprocessed string interpolations
+// to access constant pools of classes.
+tasks.withType<Test> {
+  jvmArgs(getFlagsForAddExports("jdk.internal.reflect", module = "java.base"))
+}

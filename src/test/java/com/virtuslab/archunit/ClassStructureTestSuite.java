@@ -5,6 +5,8 @@ import static com.tngtech.archunit.core.domain.JavaModifier.SYNTHETIC;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -182,6 +184,41 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
           }
         })
         .because("LOG field should be used explicitly instead")
+        .check(productionClasses);
+  }
+
+  @Test
+  @SneakyThrows
+  public void no_classes_should_contain_unprocessed_string_interpolations() {
+    Method getConstantPool = Class.class.getDeclaredMethod("getConstantPool");
+    getConstantPool.setAccessible(true);
+
+    noClasses()
+        .should(new ArchCondition<>("contain unprocessed string interpolations") {
+          @SneakyThrows
+          @Override
+          public void check(JavaClass clazz, ConditionEvents events) {
+            val constantPool = getConstantPool.invoke(clazz.reflect());
+            int constantPoolSize = (int) constantPool.getClass().getDeclaredMethod("getSize").invoke(constantPool);
+            for (int i = 0; i < constantPoolSize; i++) {
+              try {
+                String constant = (String) constantPool.getClass().getDeclaredMethod("getUTF8At", int.class)
+                    .invoke(constantPool, i);
+                if (constant.matches("^.*\\$\\{.+}.*$")) {
+                  events.add(SimpleConditionEvent.satisfied(clazz, "class " + clazz.getName() + " contains " + constant));
+                }
+              } catch (InvocationTargetException e) {
+                if (!(e.getCause() instanceof IllegalArgumentException)) {
+                  // IllegalArgumentException wrapped into InvocationTargetException is expected
+                  // when `getUTF8At` is called for an index in constant pool that doesn't correspond to a String.
+                  // All other errors are unexpected.
+                  throw e;
+                }
+              }
+            }
+          }
+        })
+        .because("it's likely that better-strings annotation processor has not been properly applied on some subproject(s)")
         .check(productionClasses);
   }
 }
