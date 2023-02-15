@@ -68,6 +68,12 @@
                 serviceImplementation="com.virtuslab.gitmachete.frontend.ui.impl.table.EnhancedGraphTable"/>
     </extensions>
 
+    <projectListeners>
+        <listener
+                class="com.virtuslab.gitmachete.frontend.file.ReparseMacheteFileOnGitRepositoryChange"
+                topic="git4idea.repo.GitRepositoryChangeListener"/>
+    </projectListeners>
+
     <resource-bundle>GitMacheteBundle</resource-bundle>
 
     <actions>

@@ -5,6 +5,7 @@
 - Fixed: in case of red edge from a branch to its parent, the unique history of a branch can no longer include any commits reachable from its parent.
 - Improved: side-effecting actions (like Rebase, Pull, Discover etc.) are disabled while another side-effecting action is ongoing.
 - Fixed: _Current branch ... is not managed by Git Machete_ notification no longer shows up right after running Slide In action.
+- Fixed: after using "Create branch" quick fix in Machete file editor, red squiggles now immediately disappear once the branch is created.
 
 ## v3.6.0
 - Improved the repository selection combobox so that modules are now searchable.

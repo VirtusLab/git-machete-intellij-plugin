@@ -1,10 +1,9 @@
 package com.virtuslab.gitmachete.frontend.file;
 
-import java.nio.file.Path;
-
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryManager;
@@ -67,14 +66,17 @@ public final class MacheteFileUtils {
     }
   }
 
-  public static boolean macheteFileIsOpenedAndFocused(Project project, Path macheteFilePath) {
+  public static @Nullable VirtualFile getMacheteVirtualFileIfSelected(Project project) {
     val fileEditorManager = FileEditorManager.getInstance(project);
-    val macheteVirtualFile = List.of(fileEditorManager.getSelectedFiles())
-        .find(virtualFile -> virtualFile.getPath().equals(macheteFilePath.toString()));
-    if (macheteVirtualFile.isEmpty()) {
-      return false;
-    } else {
-      return fileEditorManager.getAllEditors(macheteVirtualFile.get()).length > 0;
-    }
+    return List.of(fileEditorManager.getSelectedFiles())
+        .find(virtualFile -> virtualFile.getFileType().equals(MacheteFileType.instance)).getOrNull();
+  }
+
+  /**
+   * "Selected" = open AND focused.
+   * Note that there can be multiple selected files in the given project, e.g. in case of split editors.
+   */
+  public static boolean isMacheteFileSelected(Project project) {
+    return getMacheteVirtualFileIfSelected(project) != null;
   }
 }

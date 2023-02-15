@@ -238,6 +238,9 @@ class FileEditorManager {
   static FileEditorManager getInstance(Project project);
 
   @SafeEffect
+  VirtualFile[] getOpenFiles();
+
+  @SafeEffect
   VirtualFile[] getSelectedFiles();
 }
 
@@ -585,6 +588,7 @@ package com.intellij.util;
 @UI class ContentsUtil {}
 @UI class EditSourceOnDoubleClickHandler {}
 @UI class EditSourceOnEnterKeyHandler {}
+@UI class FileContentUtilCore {}
 
 class ModalityUiUtil {
   @SafeEffect
