@@ -36,6 +36,7 @@ public class Aux {
   private final java.util.Map<IGitCoreBranchSnapshot, List<IGitCoreReflogEntry>> filteredReflogByBranch = new java.util.HashMap<>();
   private @MonotonicNonNull Map<IGitCoreCommitHash, Seq<IBranchReference>> branchesContainingGivenCommitInReflog;
 
+  @UIThreadUnsafe
   public Aux(IGitCoreRepository gitCoreRepository) throws GitCoreException {
     this.gitCoreRepository = gitCoreRepository;
     this.localBranches = gitCoreRepository.deriveAllLocalBranches();
