@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
-import com.jcabi.aspects.Loggable;
 import lombok.CustomLog;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
@@ -43,7 +42,6 @@ public final class PreRebaseHookExecutor extends BaseHookExecutor {
    *         or null when the hook has not been executed (because it's absent or non-executable)
    * @throws GitMacheteException when a timeout or I/O exception occurs
    */
-  @Loggable(value = Loggable.DEBUG)
   public @Nullable IExecutionResult executeHookFor(IGitRebaseParameters gitRebaseParameters) throws GitMacheteException {
     val hookFilePath = hookFile.getAbsolutePath();
     if (!hookFile.isFile()) {

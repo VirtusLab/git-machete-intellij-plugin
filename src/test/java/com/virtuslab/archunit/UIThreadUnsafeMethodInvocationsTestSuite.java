@@ -8,7 +8,6 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noMethods;
 import java.util.Arrays;
 
 import com.intellij.openapi.progress.Task;
-import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaCodeUnit;
 import com.tngtech.archunit.core.domain.JavaMethod;
@@ -73,38 +72,6 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
         // which require a parameter of type `CheckedFunction0`, which implements `Serializable`.
         // See https://www.baeldung.com/java-serialize-lambda for details.
         .doNotHaveName("$deserializeLambda$")
-        // AspectJ puts the original method body within an `<original-method-name>_aroundBodyX` synthetic method,
-        // while the original method body is replaced with AspectJ-generated code
-        // that includes the woven-in action (e.g. logging, in case of @Loggable)
-        // and calls the actual logic in `..._aroundBodyX`.
-        .and(new DescribedPredicate<JavaCodeUnit>("are not AspectJ wrappers for ${UIThreadUnsafeName} methods") {
-          @Override
-          public boolean test(JavaCodeUnit codeUnit) {
-            if (!codeUnit.getName().matches("^.*_aroundBody[0-9]$")) {
-              return true;
-            }
-            // An `..._aroundBodyX` method does NOT inherit the annotations of the original method,
-            // so it won't be filtered out by `.areNotAnnotatedWith(UIThreadUnsafe.class)` condition.
-            // This might cause a false positive: if the original method is annotated with @UIThreadUnsafe
-            // AND its body has a call to an @UIThreadUnsafe-annotated method,
-            // then ArchUnit will incorrectly report an error.
-
-            // To prevent such cases, let's get the original code unit...
-            Class<?>[] parameterClasses = codeUnit.getRawParameterTypes().stream()
-                .map(JavaClass::reflect)
-                // Let's skip `this` param
-                .skip(1)
-                // ...and the final param, both added by AspectJ to what's in the original code unit
-                .filter(clazz -> !clazz.getName().equals("org.aspectj.lang.JoinPoint"))
-                .toArray(Class[]::new);
-
-            JavaMethod originalMethod = codeUnit.getOwner()
-                .tryGetMethod(codeUnit.getName().replaceAll("_aroundBody[0-9]$", ""), parameterClasses).orElse(null);
-
-            // ...and check if the original method qualifies under `.areNotAnnotatedWith(UIThreadUnsafe.class)` condition.
-            return originalMethod == null || !originalMethod.isAnnotatedWith(UIThreadUnsafe.class);
-          }
-        })
         .should(callAnyCodeUnitsThat("are annotated with ${UIThreadUnsafeName}",
             (codeUnit, calledCodeUnit) -> calledCodeUnit.isAnnotatedWith(UIThreadUnsafe.class)
                 && !extractWhitelistedCodeUnitsFromAnnotation(codeUnit).contains(calledCodeUnit.getFullName())))

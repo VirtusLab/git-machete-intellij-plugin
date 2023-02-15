@@ -14,7 +14,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-import com.jcabi.aspects.Loggable;
 import io.vavr.Tuple;
 import io.vavr.Tuple3;
 import io.vavr.control.Option;
@@ -54,7 +53,6 @@ public final class StatusBranchHookExecutor extends BaseHookExecutor {
     return new StatusBranchHookExecutor(rootDirectory, hookFile);
   }
 
-  @Loggable(value = Loggable.DEBUG)
   private @Nullable String executeHookFor(String branchName) throws GitMacheteException {
     val hookFilePath = hookFile.getAbsolutePath();
     if (!hookFile.isFile()) {
