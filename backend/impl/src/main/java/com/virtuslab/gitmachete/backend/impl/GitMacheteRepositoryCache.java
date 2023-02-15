@@ -60,6 +60,7 @@ public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
     return newValue;
   }
 
+  @UIThreadUnsafe
   private IGitCoreRepository createGitCoreRepository(Path rootDirectoryPath, Path mainGitDirectoryPath,
       Path worktreeGitDirectoryPath) throws GitMacheteException {
     try {

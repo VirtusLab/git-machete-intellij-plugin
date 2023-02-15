@@ -1,6 +1,8 @@
 package com.virtuslab.archunit;
 
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.codeUnits;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noCodeUnits;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noMethods;
 
 import java.util.Arrays;
@@ -8,6 +10,7 @@ import java.util.Arrays;
 import com.intellij.openapi.progress.Task;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.core.domain.JavaCodeUnit;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
@@ -43,8 +46,8 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
   }
 
   @Test
-  public void ui_thread_unsafe_methods_should_not_be_uieffect() {
-    methods()
+  public void ui_thread_unsafe_code_units_should_not_be_uieffect() {
+    codeUnits()
         .that()
         .areAnnotatedWith(UIThreadUnsafe.class)
         .should()
@@ -52,17 +55,17 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
         .check(productionClasses);
   }
 
-  private static List<String> extractWhitelistedMethodsFromAnnotation(JavaMethod method) {
-    if (method.isAnnotatedWith(IgnoreUIThreadUnsafeCalls.class)) {
-      return List.of(method.getAnnotationOfType(IgnoreUIThreadUnsafeCalls.class).value());
+  private static List<String> extractWhitelistedCodeUnitsFromAnnotation(JavaCodeUnit codeUnit) {
+    if (codeUnit.isAnnotatedWith(IgnoreUIThreadUnsafeCalls.class)) {
+      return List.of(codeUnit.getAnnotationOfType(IgnoreUIThreadUnsafeCalls.class).value());
     } else {
       return List.empty();
     }
   }
 
   @Test
-  public void only_ui_thread_unsafe_methods_should_call_other_ui_thread_unsafe_methods() {
-    noMethods()
+  public void only_ui_thread_unsafe_code_units_should_call_other_ui_thread_unsafe_code_units() {
+    noCodeUnits()
         .that()
         .areNotAnnotatedWith(UIThreadUnsafe.class)
         .and()
@@ -74,10 +77,10 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
         // while the original method body is replaced with AspectJ-generated code
         // that includes the woven-in action (e.g. logging, in case of @Loggable)
         // and calls the actual logic in `..._aroundBodyX`.
-        .and(new DescribedPredicate<JavaMethod>("are not AspectJ wrappers for ${UIThreadUnsafeName} methods") {
+        .and(new DescribedPredicate<JavaCodeUnit>("are not AspectJ wrappers for ${UIThreadUnsafeName} methods") {
           @Override
-          public boolean test(JavaMethod method) {
-            if (!method.getName().matches("^.*_aroundBody[0-9]$")) {
+          public boolean test(JavaCodeUnit codeUnit) {
+            if (!codeUnit.getName().matches("^.*_aroundBody[0-9]$")) {
               return true;
             }
             // An `..._aroundBodyX` method does NOT inherit the annotations of the original method,
@@ -86,25 +89,25 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
             // AND its body has a call to an @UIThreadUnsafe-annotated method,
             // then ArchUnit will incorrectly report an error.
 
-            // To prevent such cases, let's get the original method...
-            Class<?>[] parameterClasses = method.getRawParameterTypes().stream()
+            // To prevent such cases, let's get the original code unit...
+            Class<?>[] parameterClasses = codeUnit.getRawParameterTypes().stream()
                 .map(JavaClass::reflect)
                 // Let's skip `this` param
                 .skip(1)
-                // ...and the final param, both added by AspectJ to what's in the original method
+                // ...and the final param, both added by AspectJ to what's in the original code unit
                 .filter(clazz -> !clazz.getName().equals("org.aspectj.lang.JoinPoint"))
                 .toArray(Class[]::new);
 
-            JavaMethod originalMethod = method.getOwner()
-                .tryGetMethod(method.getName().replaceAll("_aroundBody[0-9]$", ""), parameterClasses).orElse(null);
+            JavaMethod originalMethod = codeUnit.getOwner()
+                .tryGetMethod(codeUnit.getName().replaceAll("_aroundBody[0-9]$", ""), parameterClasses).orElse(null);
 
             // ...and check if the original method qualifies under `.areNotAnnotatedWith(UIThreadUnsafe.class)` condition.
             return originalMethod == null || !originalMethod.isAnnotatedWith(UIThreadUnsafe.class);
           }
         })
-        .should(callAnyMethodsThat("are annotated with ${UIThreadUnsafeName}",
-            (method, calledMethod) -> calledMethod.isAnnotatedWith(UIThreadUnsafe.class)
-                && !extractWhitelistedMethodsFromAnnotation(method).contains(calledMethod.getFullName())))
+        .should(callAnyCodeUnitsThat("are annotated with ${UIThreadUnsafeName}",
+            (codeUnit, calledCodeUnit) -> calledCodeUnit.isAnnotatedWith(UIThreadUnsafe.class)
+                && !extractWhitelistedCodeUnitsFromAnnotation(codeUnit).contains(calledCodeUnit.getFullName())))
         .check(productionClasses);
   }
 
@@ -115,7 +118,7 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
       "org.eclipse.jgit",
   };
 
-  private static final String[] uiThreadSafeMethodsInUnsafePackages = {
+  private static final String[] uiThreadSafeCodeUnitsInUnsafePackages = {
       "git4idea.GitLocalBranch.getName()",
       "git4idea.GitRemoteBranch.getName()",
       "git4idea.GitUtil.findGitDir(com.intellij.openapi.vfs.VirtualFile)",
@@ -203,32 +206,38 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
       "org.eclipse.jgit.lib.ReflogEntry.parseCheckout()",
       "org.eclipse.jgit.lib.Ref.getName()",
       "org.eclipse.jgit.lib.Ref.getObjectId()",
+      "org.eclipse.jgit.revwalk.RevCommit.getCommitTime()",
+      "org.eclipse.jgit.revwalk.RevCommit.getFullMessage()",
+      "org.eclipse.jgit.revwalk.RevCommit.getId()",
+      "org.eclipse.jgit.revwalk.RevCommit.getTree()",
+      "org.eclipse.jgit.revwalk.RevTree.getId()",
   };
 
   @Test
-  public void only_ui_thread_unsafe_method_should_call_blocking_intellij_methods() {
-    noMethods()
+  public void only_ui_thread_unsafe_code_units_should_call_blocking_intellij_apis() {
+    noCodeUnits()
         .that()
         .areNotAnnotatedWith(UIThreadUnsafe.class)
-        .should(callAnyMethodsThat("are known to be blocking IntelliJ APIs",
-            (method, calledMethod) -> calledMethod.getFullName().equals("com.intellij.dvcs.push.PushController.push(boolean)")))
+        .should(callAnyCodeUnitsThat("are known to be blocking IntelliJ APIs",
+            (codeUnit, calledCodeUnit) -> calledCodeUnit.getFullName()
+                .equals("com.intellij.dvcs.push.PushController.push(boolean)")))
         .check(productionClasses);
   }
 
   @Test
-  public void only_ui_thread_unsafe_method_should_call_git4idea_or_io_methods() {
-    noMethods()
+  public void only_ui_thread_unsafe_code_units_should_call_git4idea_or_io_code_units() {
+    noCodeUnits()
         .that()
         .areNotAnnotatedWith(UIThreadUnsafe.class)
         .and()
         .doNotHaveName("$deserializeLambda$")
-        .should(callAnyMethodsThat("are known to be blocking Git or I/O APIs", (method, calledMethod) -> {
-          String calledMethodPackageName = calledMethod.getOwner().getPackageName();
-          String calledMethodFullName = calledMethod.getFullName();
+        .should(callAnyCodeUnitsThat("are known to be blocking Git or I/O APIs", (codeUnit, calledCodeUnit) -> {
+          String calledCodeUnitPackageName = calledCodeUnit.getOwner().getPackageName();
+          String calledCodeUnitFullName = calledCodeUnit.getFullName();
 
-          return uiThreadUnsafePackagePrefixes.stream().anyMatch(prefix -> calledMethodPackageName.startsWith(prefix))
-              && !uiThreadSafeMethodsInUnsafePackages.asList().contains(calledMethodFullName) &&
-              !extractWhitelistedMethodsFromAnnotation(method).contains(calledMethodFullName);
+          return uiThreadUnsafePackagePrefixes.stream().anyMatch(prefix -> calledCodeUnitPackageName.startsWith(prefix))
+              && !uiThreadSafeCodeUnitsInUnsafePackages.asList().contains(calledCodeUnitFullName) &&
+              !extractWhitelistedCodeUnitsFromAnnotation(codeUnit).contains(calledCodeUnitFullName);
         }))
         .check(productionClasses);
   }

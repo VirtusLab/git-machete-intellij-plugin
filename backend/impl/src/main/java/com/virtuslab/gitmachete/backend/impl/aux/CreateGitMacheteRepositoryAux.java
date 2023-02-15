@@ -60,6 +60,7 @@ public class CreateGitMacheteRepositoryAux extends Aux {
   private final java.util.Set<String> createdBranches = new java.util.HashSet<>();
   private final Path mainGitDirectoryPath;
 
+  @UIThreadUnsafe
   public CreateGitMacheteRepositoryAux(
       IGitCoreRepository gitCoreRepository,
       StatusBranchHookExecutor statusHookExecutor,

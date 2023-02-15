@@ -31,7 +31,7 @@ public class BackgroundTaskEnqueuingTestSuite extends BaseArchUnitTestSuite {
                 .anyMatch(constructorCall -> constructorCall.getTargetOwner().isAssignableTo(Task.Backgroundable.class));
           }
         })
-        .should(callAtLeastOnceAMethodThat("is Task.Backgroundable#queue()",
+        .should(callAtLeastOnceACodeUnitThat("is Task.Backgroundable#queue()",
             (method, calledMethod) -> calledMethod.getOwner().isAssignableTo(Task.Backgroundable.class)
                 && calledMethod.getName().equals("queue")))
         .because("otherwise it's likely that you forgot about actually scheduling the task; " +
@@ -46,7 +46,7 @@ public class BackgroundTaskEnqueuingTestSuite extends BaseArchUnitTestSuite {
         .areNotAnnotatedWith(ContinuesInBackground.class)
         .and()
         .areNotAnnotatedWith(DoesNotContinueInBackground.class)
-        .should(callAnyMethodsThat("are annotated with ${ContinuesInBackgroundName}",
+        .should(callAnyCodeUnitsThat("are annotated with ${ContinuesInBackgroundName}",
             (method, calledMethod) -> calledMethod.isAnnotatedWith(ContinuesInBackground.class)))
         .check(productionClasses);
   }
@@ -58,7 +58,7 @@ public class BackgroundTaskEnqueuingTestSuite extends BaseArchUnitTestSuite {
         .areNotAnnotatedWith(ContinuesInBackground.class)
         .and()
         .areNotAnnotatedWith(DoesNotContinueInBackground.class)
-        .should(callAnyMethodsThat("enqueue background tasks", (method, calledMethod) -> {
+        .should(callAnyCodeUnitsThat("enqueue background tasks", (method, calledMethod) -> {
           String calledMethodName = calledMethod.getName();
           JavaClass calledMethodOwner = calledMethod.getOwner();
           return calledMethodOwner.isAssignableTo(Task.Backgroundable.class) && calledMethodName.equals("queue") ||

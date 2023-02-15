@@ -79,6 +79,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
   private static final String ORIGIN = "origin";
 
+  @UIThreadUnsafe
   public GitCoreRepository(Path rootDirectoryPath, Path mainGitDirectoryPath, Path worktreeGitDirectoryPath)
       throws GitCoreException {
     this.rootDirectoryPath = rootDirectoryPath;

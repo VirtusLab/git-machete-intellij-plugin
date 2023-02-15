@@ -16,7 +16,7 @@ public class MethodCallsTestSuite extends BaseArchUnitTestSuite {
   public void overridden_onUpdate_methods_should_call_super_onUpdate() {
     methods().that().haveName("onUpdate")
         .and().areNotDeclaredIn(com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction.class)
-        .should(callAtLeastOnceAMethodThat("is called onUpdate and is declared in the direct superclass",
+        .should(callAtLeastOnceACodeUnitThat("is called onUpdate and is declared in the direct superclass",
             (method, calledMethod) -> {
               val superclass = method.getOwner().getSuperclass().orElse(null);
               return calledMethod.getOwner().equals(superclass) && calledMethod.getName().equals("onUpdate");

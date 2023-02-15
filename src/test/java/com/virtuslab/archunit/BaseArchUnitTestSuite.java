@@ -4,7 +4,7 @@ import java.util.function.BiPredicate;
 
 import com.tngtech.archunit.core.domain.AccessTarget;
 import com.tngtech.archunit.core.domain.JavaClasses;
-import com.tngtech.archunit.core.domain.JavaMethod;
+import com.tngtech.archunit.core.domain.JavaCodeUnit;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.lang.ArchCondition;
@@ -22,29 +22,30 @@ public class BaseArchUnitTestSuite {
       .withImportOption(location -> !location.contains("/build/classes/scala/uiTest/"))
       .importPackages("com.virtuslab");
 
-  protected static ArchCondition<JavaMethod> callAnyMethodsThat(String description,
-      BiPredicate<? super JavaMethod, AccessTarget.MethodCallTarget> predicate) {
-    return new ArchCondition<JavaMethod>("call methods that " + description) {
+  protected static ArchCondition<JavaCodeUnit> callAnyCodeUnitsThat(String description,
+      BiPredicate<? super JavaCodeUnit, AccessTarget.CodeUnitCallTarget> predicate) {
+    return new ArchCondition<JavaCodeUnit>("call code units that " + description) {
       @Override
-      public void check(JavaMethod method, ConditionEvents events) {
-        method.getMethodCallsFromSelf().forEach(call -> {
-          val calledMethod = call.getTarget();
-          if (predicate.test(method, calledMethod)) {
-            events.add(SimpleConditionEvent.satisfied(method, method.getFullName() + " calls " + calledMethod.getFullName()));
+      public void check(JavaCodeUnit codeUnit, ConditionEvents events) {
+        codeUnit.getCallsFromSelf().forEach(call -> {
+          val callTarget = call.getTarget();
+          if (predicate.test(codeUnit, callTarget)) {
+            String message = codeUnit.getFullName() + " calls " + callTarget.getFullName();
+            events.add(SimpleConditionEvent.satisfied(codeUnit, message));
           }
         });
       }
     };
   }
 
-  protected static ArchCondition<JavaMethod> callAtLeastOnceAMethodThat(String description,
-      BiPredicate<? super JavaMethod, AccessTarget.MethodCallTarget> predicate) {
-    return new ArchCondition<JavaMethod>("call a method that " + description) {
+  protected static ArchCondition<JavaCodeUnit> callAtLeastOnceACodeUnitThat(String description,
+      BiPredicate<? super JavaCodeUnit, AccessTarget.CodeUnitCallTarget> predicate) {
+    return new ArchCondition<JavaCodeUnit>("call a code unit that " + description) {
       @Override
-      public void check(JavaMethod method, ConditionEvents events) {
-        if (method.getMethodCallsFromSelf().stream().noneMatch(call -> predicate.test(method, call.getTarget()))) {
-          String message = "method ${method.getFullName()} does not call any method that " + description;
-          events.add(SimpleConditionEvent.violated(method, message));
+      public void check(JavaCodeUnit codeUnit, ConditionEvents events) {
+        if (codeUnit.getCallsFromSelf().stream().noneMatch(call -> predicate.test(codeUnit, call.getTarget()))) {
+          String message = "code unit ${codeUnit.getFullName()} does not call any code unit that " + description;
+          events.add(SimpleConditionEvent.violated(codeUnit, message));
         }
       }
     };

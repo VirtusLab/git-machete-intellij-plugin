@@ -34,6 +34,7 @@ public class DiscoverGitMacheteRepositoryAux extends CreateGitMacheteRepositoryA
   private static final String MAIN = "main"; // see https://github.com/github/renaming
   private static final String DEVELOP = "develop";
 
+  @UIThreadUnsafe
   public DiscoverGitMacheteRepositoryAux(
       IGitCoreRepository gitCoreRepository,
       StatusBranchHookExecutor statusHookExecutor,
