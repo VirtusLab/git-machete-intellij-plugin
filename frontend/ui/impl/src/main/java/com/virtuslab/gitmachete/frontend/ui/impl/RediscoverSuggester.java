@@ -113,7 +113,6 @@ public class RediscoverSuggester {
     }.queue();
   }
 
-  @UIThreadUnsafe
   private boolean areAllLocalBranchesManaged(Path macheteFilePath) {
     val localBranches = gitRepository.getBranches().getLocalBranches();
     try {

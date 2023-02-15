@@ -5,7 +5,6 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.nio.file.Path;
-import java.util.Objects;
 import java.util.OptionalInt;
 
 import com.intellij.codeInsight.hint.HintManager;
@@ -30,7 +29,6 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BranchLayout;
-import com.virtuslab.branchlayout.api.BranchLayoutEntry;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileReader;
@@ -118,7 +116,6 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     }
   }
 
-  @UIThreadUnsafe
   private boolean isBranchNameRepeated(IBranchLayoutReader branchLayoutReader, PsiFile file, String branchName) {
     BranchLayout branchLayout;
     try {
@@ -130,7 +127,6 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     return branchLayout.isEntryDuplicated(branchName);
   }
 
-  @UIThreadUnsafe
   private String getParentBranchName(IBranchLayoutReader branchLayoutReader, PsiFile file, String branchName) {
     BranchLayout branchLayout;
     try {
@@ -139,17 +135,15 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     } catch (BranchLayoutException e) { // might appear if branchLayout has inconsistent indentation characters or file is inaccessible
       return "";
     }
-    BranchLayoutEntry parentEntry;
-    try {
-      parentEntry = Objects.requireNonNull(branchLayout.getEntryByName(branchName)).getParent();
-    } catch (NullPointerException e) { // might appear if saveDocument(file) has not completed yet
+    val entry = branchLayout.getEntryByName(branchName);
+    if (entry == null) { // might happen if saveDocument(file) has not completed yet
       return "";
     }
+    val parentEntry = entry.getParent();
     if (parentEntry == null) {
       return "";
-    } else {
-      return parentEntry.getName();
     }
+    return parentEntry.getName();
   }
 
   private void processIndentationElement(PsiElement element, AnnotationHolder holder) {
