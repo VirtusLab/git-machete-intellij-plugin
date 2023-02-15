@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
-import static com.virtuslab.gitmachete.frontend.file.MacheteFileUtils.macheteFileIsOpenedAndFocused;
+import static com.virtuslab.gitmachete.frontend.file.MacheteFileUtils.isMacheteFileSelected;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.nio.file.Path;
@@ -109,7 +109,7 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
         return gitMacheteRepository.createSnapshotForLayout(branchLayout);
       } catch (MacheteFileReaderException e) {
         LOG.warn("Unable to create Git Machete repository", e);
-        if (!macheteFileIsOpenedAndFocused(getProject(), macheteFilePath)) {
+        if (!isMacheteFileSelected(getProject())) {
           notifyUpdateRepositoryException(e);
         }
         return null;

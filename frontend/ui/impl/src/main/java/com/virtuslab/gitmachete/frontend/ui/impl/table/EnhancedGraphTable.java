@@ -4,7 +4,7 @@ import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.blockingRunWriteActionOnUIThread;
 import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
 import static com.virtuslab.gitmachete.frontend.defs.ActionIds.OPEN_MACHETE_FILE;
-import static com.virtuslab.gitmachete.frontend.file.MacheteFileUtils.macheteFileIsOpenedAndFocused;
+import static com.virtuslab.gitmachete.frontend.file.MacheteFileUtils.isMacheteFileSelected;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
@@ -381,7 +381,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
     setModel(new GraphTableModel(repositoryGraph));
 
-    if (!macheteFileIsOpenedAndFocused(project, macheteFilePath)) {
+    if (!isMacheteFileSelected(project)) {
       // notify if a branch listed in the machete file does not exist
       Set<String> skippedBranchNames = repositorySnapshot.getSkippedBranchNames();
       if (skippedBranchNames.nonEmpty()) {
