@@ -1,5 +1,6 @@
 package com.virtuslab.archunit;
 
+import static com.tngtech.archunit.core.domain.JavaModifier.ABSTRACT;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.codeUnits;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noCodeUnits;
@@ -8,6 +9,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noMethods;
 import java.util.Arrays;
 
 import com.intellij.openapi.progress.Task;
+import com.tngtech.archunit.core.domain.AccessTarget;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaCodeUnit;
 import com.tngtech.archunit.core.domain.JavaMethod;
@@ -72,11 +74,16 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
         // which require a parameter of type `CheckedFunction0`, which implements `Serializable`.
         // See https://www.baeldung.com/java-serialize-lambda for details.
         .doNotHaveName("$deserializeLambda$")
-        .should(callAnyCodeUnitsThat("are annotated with ${UIThreadUnsafeName}",
-            (codeUnit, calledCodeUnit) -> calledCodeUnit.isAnnotatedWith(UIThreadUnsafe.class)
+        .should(callAnyCodeUnitsThat("are UI thread unsafe",
+            (codeUnit, calledCodeUnit) -> isUIThreadUnsafe(calledCodeUnit)
                 && !extractWhitelistedCodeUnitsFromAnnotation(codeUnit).contains(calledCodeUnit.getFullName())))
         .check(productionClasses);
   }
+
+  private static final String[] knownBlockingCodeUnits = {
+      "com.intellij.dvcs.push.PushController.push(boolean)",
+      "java.lang.Thread.sleep(long)"
+  };
 
   private static final String[] uiThreadUnsafePackagePrefixes = {
       "git4idea",
@@ -180,33 +187,14 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
       "org.eclipse.jgit.revwalk.RevTree.getId()",
   };
 
-  @Test
-  public void only_ui_thread_unsafe_code_units_should_call_blocking_intellij_apis() {
-    noCodeUnits()
-        .that()
-        .areNotAnnotatedWith(UIThreadUnsafe.class)
-        .should(callAnyCodeUnitsThat("are known to be blocking IntelliJ APIs",
-            (codeUnit, calledCodeUnit) -> calledCodeUnit.getFullName()
-                .equals("com.intellij.dvcs.push.PushController.push(boolean)")))
-        .check(productionClasses);
-  }
+  private static boolean isUIThreadUnsafe(AccessTarget.CodeUnitCallTarget codeUnit) {
+    String packageName = codeUnit.getOwner().getPackageName();
+    String fullName = codeUnit.getFullName();
 
-  @Test
-  public void only_ui_thread_unsafe_code_units_should_call_git4idea_or_io_code_units() {
-    noCodeUnits()
-        .that()
-        .areNotAnnotatedWith(UIThreadUnsafe.class)
-        .and()
-        .doNotHaveName("$deserializeLambda$")
-        .should(callAnyCodeUnitsThat("are known to be blocking Git or I/O APIs", (codeUnit, calledCodeUnit) -> {
-          String calledCodeUnitPackageName = calledCodeUnit.getOwner().getPackageName();
-          String calledCodeUnitFullName = calledCodeUnit.getFullName();
-
-          return uiThreadUnsafePackagePrefixes.stream().anyMatch(prefix -> calledCodeUnitPackageName.startsWith(prefix))
-              && !uiThreadSafeCodeUnitsInUnsafePackages.asList().contains(calledCodeUnitFullName) &&
-              !extractWhitelistedCodeUnitsFromAnnotation(codeUnit).contains(calledCodeUnitFullName);
-        }))
-        .check(productionClasses);
+    return uiThreadUnsafePackagePrefixes.stream().anyMatch(prefix -> packageName.startsWith(prefix))
+        && !uiThreadSafeCodeUnitsInUnsafePackages.asList().contains(fullName)
+        || knownBlockingCodeUnits.asList().contains(fullName)
+        || codeUnit.isAnnotatedWith(UIThreadUnsafe.class);
   }
 
   @Test
@@ -244,6 +232,19 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
             }
           }
         })
+        .check(productionClasses);
+  }
+
+  @Test
+  public void concrete_ui_thread_unsafe_code_units_should_call_at_least_one_ui_thread_unsafe_code_unit() {
+    codeUnits()
+        .that()
+        .doNotHaveModifier(ABSTRACT)
+        .and()
+        .areAnnotatedWith(UIThreadUnsafe.class)
+        .should(callAtLeastOnceACodeUnitThat("is UI-thread unsafe",
+            (codeUnit, calledCodeUnit) -> isUIThreadUnsafe(calledCodeUnit)
+                && !extractWhitelistedCodeUnitsFromAnnotation(codeUnit).contains(calledCodeUnit.getFullName())))
         .check(productionClasses);
   }
 }

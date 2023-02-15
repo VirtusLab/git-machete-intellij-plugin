@@ -1,7 +1,6 @@
 package com.virtuslab.gitmachete.frontend.file;
 
 import java.nio.file.Path;
-import java.util.Objects;
 
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
@@ -62,7 +61,10 @@ public final class MacheteFileUtils {
   @UIEffect
   public static void saveDocument(PsiFile file) {
     val fileDocManager = FileDocumentManager.getInstance();
-    fileDocManager.saveDocument(Objects.requireNonNull(fileDocManager.getDocument(file.getVirtualFile())));
+    val document = fileDocManager.getDocument(file.getVirtualFile());
+    if (document != null) {
+      fileDocManager.saveDocument(document);
+    }
   }
 
   public static boolean macheteFileIsOpenedAndFocused(Project project, Path macheteFilePath) {
