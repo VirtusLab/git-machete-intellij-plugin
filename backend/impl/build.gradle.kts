@@ -1,16 +1,5 @@
 import com.virtuslab.gitmachete.buildsrc.*
 
-plugins {
-  alias(libs.plugins.aspectj.postCompileWeaving)
-}
-
-tasks.withType<JavaCompile> {
-  // Suppress adviceDidNotMatch warnings
-  configure<io.freefair.gradle.plugins.aspectj.AjcAction> {
-    options.compilerArgs.add("-Xlint:ignore")
-  }
-}
-
 dependencies {
   implementation(project(":gitCore:api"))
 
@@ -24,7 +13,6 @@ dependencies {
 
 addIntellijToCompileClasspath(withGit4Idea = false)
 commonsIO()
-jcabiAspects()
 junit()
 junitParams()
 junitPlatformLauncher()

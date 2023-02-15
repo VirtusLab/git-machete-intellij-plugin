@@ -155,12 +155,6 @@ fun Project.ideProbe() {
   }
 }
 
-fun Project.jcabiAspects() {
-  dependencies {
-    "aspect"(lib("jcabi.aspects"))
-  }
-}
-
 fun Project.jetbrainsAnnotations() {
   dependencies {
     val annotations = lib("jetbrains.annotations")

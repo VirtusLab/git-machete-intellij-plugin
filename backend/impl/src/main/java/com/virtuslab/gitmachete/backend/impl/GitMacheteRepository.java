@@ -1,6 +1,5 @@
 package com.virtuslab.gitmachete.backend.impl;
 
-import com.jcabi.aspects.Loggable;
 import io.vavr.collection.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -31,7 +30,6 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
   @Override
   @UIThreadUnsafe
-  @Loggable(value = Loggable.DEBUG, prepend = true, skipArgs = true, skipResult = true)
   public IGitMacheteRepositorySnapshot createSnapshotForLayout(BranchLayout branchLayout) throws GitMacheteException {
     try {
       val aux = new CreateGitMacheteRepositoryAux(gitCoreRepository, statusHookExecutor, preRebaseHookExecutor);
@@ -43,7 +41,6 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
   @Override
   @UIThreadUnsafe
-  @Loggable(value = Loggable.DEBUG, prepend = true)
   public @Nullable ILocalBranchReference inferParentForLocalBranch(
       Set<String> eligibleLocalBranchNames,
       String localBranchName) throws GitMacheteException {
@@ -57,7 +54,6 @@ public class GitMacheteRepository implements IGitMacheteRepository {
 
   @Override
   @UIThreadUnsafe
-  @Loggable(value = Loggable.DEBUG, prepend = true, skipResult = true)
   public IGitMacheteRepositorySnapshot discoverLayoutAndCreateSnapshot() throws GitMacheteException {
     try {
       val aux = new DiscoverGitMacheteRepositoryAux(gitCoreRepository, statusHookExecutor, preRebaseHookExecutor);
