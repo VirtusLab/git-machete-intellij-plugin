@@ -207,8 +207,8 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
           LOCAL_REPOSITORY_NAME,
           refspec,
           "Fetching Remote Branch",
-          getNonHtmlString("action.GitMachete.BasePullAction.notification.title.pull-fail").fmt(branchName),
-          getString("action.GitMachete.BasePullAction.notification.title.pull-success.HTML").fmt(branchName)).queue());
+          getNonHtmlString("action.GitMachete.Pull.notification.title.pull-fail").fmt(branchName),
+          getString("action.GitMachete.Pull.notification.title.pull-success.HTML").fmt(branchName)).queue());
     }
   }
 

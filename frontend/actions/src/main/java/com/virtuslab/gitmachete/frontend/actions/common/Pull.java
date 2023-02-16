@@ -1,9 +1,11 @@
 package com.virtuslab.gitmachete.frontend.actions.common;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTimeoutStatus.FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.fmt;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
+import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.repo.GitRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.ExtensionMethod;
@@ -13,7 +15,6 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
 import com.virtuslab.gitmachete.backend.api.IRemoteTrackingBranchReference;
-import com.virtuslab.gitmachete.frontend.actions.backgroundables.FastForwardMergeBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.async.ContinuesInBackground;
@@ -42,37 +43,44 @@ public final class Pull {
         ? getNonHtmlString("action.GitMachete.Pull.notification.prefix.no-fetch-performed")
             .fmt(FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING)
         : getNonHtmlString("action.GitMachete.Pull.notification.prefix.fetch-performed");
-    val fetchNotificationTextPrefix = fetchNotificationPrefix + (fetchNotificationPrefix.isEmpty() ? "" : " ");
-    val fastForwardBackgroundable = new FastForwardMergeBackgroundable(gitRepository, mergeProps, fetchNotificationTextPrefix,
-        doInUIThreadWhenReady);
+    val fastForwardMerge = new FastForwardMerge(gitRepository, mergeProps, fetchNotificationPrefix);
 
     if (isUpToDate) {
-      fastForwardBackgroundable.queue();
+      fastForwardMerge.run(doInUIThreadWhenReady);
     } else {
-      updateRepositoryFetchBackgroundable(/* onSuccessRunnable */ () -> fastForwardBackgroundable.queue());
+      fetchAndThenFFMerge(fetchNotificationPrefix, /* onSuccessRunnable */ () -> fastForwardMerge.run(doInUIThreadWhenReady));
     }
   }
 
   @ContinuesInBackground
-  private void updateRepositoryFetchBackgroundable(Runnable onSuccessRunnable) {
-    val remoteName = remoteBranch.getRemoteName();
+  private void fetchAndThenFFMerge(String fetchNotificationPrefix, Runnable onSuccessRunnable) {
+    String remoteName = remoteBranch.getRemoteName();
+    String remoteBranchName = remoteBranch.getName();
 
     String taskTitle = getString("action.GitMachete.BasePullAction.task-title");
-
     new FetchBackgroundable(
         gitRepository,
         remoteName,
         /* refspec */ null, // let's use the default refspec for the given remote, as defined in git config
         taskTitle,
-        getNonHtmlString("action.GitMachete.BasePullAction.notification.title.pull-fail").fmt(remoteBranch.getName()),
-        getString("action.GitMachete.BasePullAction.notification.title.pull-success.HTML").fmt(remoteBranch.getName())) {
+        getNonHtmlString("action.GitMachete.Pull.notification.title.pull-fail").fmt(remoteBranchName),
+        getString("action.GitMachete.Pull.notification.title.pull-success.HTML").fmt(remoteBranchName)) {
 
       @Override
       @UIEffect
       public void onSuccess() {
         String repoName = gitRepository.getRoot().getName();
         FetchUpToDateTimeoutStatus.update(repoName);
-        onSuccessRunnable.run();
+
+        if (gitRepository.getBranches().findBranchByName(remoteBranchName) == null) {
+          val errorMessage = fmt(getString("action.GitMachete.Pull.notification.remote-branch-missing.text"), remoteBranchName);
+          val taskFailNotificationTitle = getString(
+              "action.GitMachete.BaseFastForwardMergeToParentAction.notification.title.ff-fail");
+          VcsNotifier.getInstance(gitRepository.getProject()).notifyError(
+              /* displayId */ null, taskFailNotificationTitle, fetchNotificationPrefix + " " + errorMessage);
+        } else {
+          onSuccessRunnable.run();
+        }
       }
     }.queue();
   }
