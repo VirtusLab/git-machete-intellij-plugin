@@ -88,8 +88,8 @@ public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteReposi
     val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(GitReference::getName).getOrNull();
     val nonRootMovingBranch = movingBranch.asNonRoot();
     val mergeProps = new MergeProps(
-        /* movingBranchName */ nonRootMovingBranch,
-        /* stayingBranchName */ nonRootMovingBranch.getParent());
+        /* movingBranch */ nonRootMovingBranch,
+        /* stayingBranch */ nonRootMovingBranch.getParent());
 
     if (nonRootMovingBranch.getName().equals(currentBranchName)) {
       doMergeIntoCurrentBranch(gitRepository, mergeProps);

@@ -3,9 +3,7 @@ package com.virtuslab.gitmachete.frontend.actions.traverse;
 import static com.intellij.openapi.ui.MessageConstants.NO;
 import static com.intellij.openapi.ui.MessageConstants.YES;
 import static com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperationType.NO_OPERATION;
-import static com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTimeoutStatus.FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING;
 import static com.virtuslab.gitmachete.frontend.actions.traverse.CheckoutAndExecute.checkoutAndExecuteOnUIThread;
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.application.ModalityState;
@@ -24,10 +22,8 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.IBranchReference;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
-import com.virtuslab.gitmachete.frontend.actions.backgroundables.FastForwardMergeBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.ResetCurrentToRemoteBackgroundable;
-import com.virtuslab.gitmachete.frontend.actions.common.FetchUpToDateTimeoutStatus;
-import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
+import com.virtuslab.gitmachete.frontend.actions.common.Pull;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.GitPushDialog;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
@@ -238,19 +234,8 @@ public class TraverseSyncToRemote {
 
     switch (pullApprovalDialogBuilder.show(project)) {
       case YES :
-        val mergeProps = new MergeProps(
-            /* movingBranchName */ gitMacheteBranch,
-            /* stayingBranchName */ remoteTrackingBranch);
-
-        val isUpToDate = FetchUpToDateTimeoutStatus.isUpToDate(gitRepository);
-        val fetchNotificationPrefix = isUpToDate
-            ? getNonHtmlString("action.GitMachete.BasePullAction.notification.prefix.no-fetch-perform")
-                .fmt(FETCH_ALL_UP_TO_DATE_TIMEOUT_AS_STRING)
-            : getNonHtmlString("action.GitMachete.BasePullAction.notification.prefix.fetch-perform");
-        val fetchNotificationTextPrefix = fetchNotificationPrefix + (fetchNotificationPrefix.isEmpty() ? "" : " ");
         Runnable doInUIThreadWhenReady = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
-        new FastForwardMergeBackgroundable(gitRepository, mergeProps, fetchNotificationTextPrefix, doInUIThreadWhenReady)
-            .queue();
+        new Pull(gitRepository, gitMacheteBranch, remoteTrackingBranch).run(doInUIThreadWhenReady);
         break;
 
       case NO :
