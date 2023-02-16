@@ -29,7 +29,8 @@ public class MergeCurrentBranchFastForwardOnlyBackgroundable extends GitCommandU
   public MergeCurrentBranchFastForwardOnlyBackgroundable(
       GitRepository gitRepository,
       IBranchReference targetBranch) {
-    super(gitRepository, getString("action.GitMachete.BaseFastForwardMergeToParentAction.task-title"));
+    super(gitRepository, getString("action.GitMachete.BaseFastForwardMergeToParentAction.task-title"),
+        "fast-forward merge of current branch");
     this.targetBranch = targetBranch;
   }
 
