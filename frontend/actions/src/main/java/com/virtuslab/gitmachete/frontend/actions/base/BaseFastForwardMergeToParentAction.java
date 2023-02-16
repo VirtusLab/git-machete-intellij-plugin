@@ -12,7 +12,7 @@ import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.tainting.qual.Untainted;
 
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
-import com.virtuslab.gitmachete.frontend.actions.backgroundables.FastForwardMergeBackgroundable;
+import com.virtuslab.gitmachete.frontend.actions.common.FastForwardMerge;
 import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
 import com.virtuslab.qual.async.ContinuesInBackground;
 
@@ -69,6 +69,6 @@ public abstract class BaseFastForwardMergeToParentAction extends BaseGitMacheteR
     val mergeProps = new MergeProps(
         /* movingBranch */ nonRootStayingBranch.getParent(),
         /* stayingBranch */ nonRootStayingBranch);
-    new FastForwardMergeBackgroundable(gitRepository, mergeProps, /* fetchNotificationTextPrefix */ "").queue();
+    new FastForwardMerge(gitRepository, mergeProps, /* fetchNotificationTextPrefix */ "").run();
   }
 }
