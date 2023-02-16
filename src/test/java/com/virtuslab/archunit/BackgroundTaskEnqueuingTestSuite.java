@@ -32,8 +32,8 @@ public class BackgroundTaskEnqueuingTestSuite extends BaseArchUnitTestSuite {
           }
         })
         .should(callAtLeastOnceACodeUnitThat("is Task.Backgroundable#queue()",
-            (method, calledMethod) -> calledMethod.getOwner().isAssignableTo(Task.Backgroundable.class)
-                && calledMethod.getName().equals("queue")))
+            (codeUnit, calledCodeUnit) -> calledCodeUnit.getOwner().isAssignableTo(Task.Backgroundable.class)
+                && calledCodeUnit.getName().equals("queue")))
         .because("otherwise it's likely that you forgot about actually scheduling the task; " +
             "mark the method with ${BackgroundableQueuedElsewhere.class.getSimpleName()} if this is expected")
         .check(productionClasses);
@@ -47,7 +47,7 @@ public class BackgroundTaskEnqueuingTestSuite extends BaseArchUnitTestSuite {
         .and()
         .areNotAnnotatedWith(DoesNotContinueInBackground.class)
         .should(callAnyCodeUnitsThat("are annotated with ${ContinuesInBackgroundName}",
-            (method, calledMethod) -> calledMethod.isAnnotatedWith(ContinuesInBackground.class)))
+            (codeUnit, calledCodeUnit) -> calledCodeUnit.isAnnotatedWith(ContinuesInBackground.class)))
         .check(productionClasses);
   }
 
@@ -58,15 +58,15 @@ public class BackgroundTaskEnqueuingTestSuite extends BaseArchUnitTestSuite {
         .areNotAnnotatedWith(ContinuesInBackground.class)
         .and()
         .areNotAnnotatedWith(DoesNotContinueInBackground.class)
-        .should(callAnyCodeUnitsThat("enqueue background tasks", (method, calledMethod) -> {
-          String calledMethodName = calledMethod.getName();
-          JavaClass calledMethodOwner = calledMethod.getOwner();
-          return calledMethodOwner.isAssignableTo(Task.Backgroundable.class) && calledMethodName.equals("queue") ||
-              calledMethodOwner.isAssignableTo(GitBrancher.class)
-                  && !(calledMethodName.equals("getInstance") || calledMethodName.equals("compareAny"))
+        .should(callAnyCodeUnitsThat("enqueue background tasks", (codeUnit, calledCodeUnit) -> {
+          String calledCodeUnitName = calledCodeUnit.getName();
+          JavaClass calledCodeUnitOwner = calledCodeUnit.getOwner();
+          return calledCodeUnitOwner.isAssignableTo(Task.Backgroundable.class) && calledCodeUnitName.equals("queue") ||
+              calledCodeUnitOwner.isAssignableTo(GitBrancher.class)
+                  && !(calledCodeUnitName.equals("getInstance") || calledCodeUnitName.equals("compareAny"))
               ||
-              calledMethodOwner.isAssignableTo(VcsPushDialog.class) && calledMethodName.equals("show") ||
-              calledMethod.getRawReturnType().isEquivalentTo(java.util.concurrent.Future.class);
+              calledCodeUnitOwner.isAssignableTo(VcsPushDialog.class) && calledCodeUnitName.equals("show") ||
+              calledCodeUnit.getRawReturnType().isEquivalentTo(java.util.concurrent.Future.class);
         }))
         .because("running tasks in background is inextricably linked to the increased risk of race conditions; " +
             "mark the calling method as ${ContinuesInBackgroundName} to make it clear that it executes asynchronously")
