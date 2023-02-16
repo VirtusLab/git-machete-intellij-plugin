@@ -31,7 +31,7 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
   public void task_backgroundable_run_methods_must_be_ui_thread_unsafe() {
     methods()
         .that()
-        .haveName("run")
+        .haveNameMatching("^(doRun|run)$")
         .and()
         .areDeclaredInClassesThat()
         .areAssignableTo(Task.Backgroundable.class)
