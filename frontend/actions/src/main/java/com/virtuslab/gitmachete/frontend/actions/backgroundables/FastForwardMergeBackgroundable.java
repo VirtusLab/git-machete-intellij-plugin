@@ -6,22 +6,26 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.vcs.VcsNotifier;
+import git4idea.GitBranch;
 import git4idea.GitReference;
 import git4idea.repo.GitRepository;
 import io.vavr.control.Option;
+import lombok.SneakyThrows;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.tainting.qual.Untainted;
 
+import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod({GitMacheteBundle.class})
-public class FastForwardMergeBackgroundable extends CheckRemoteBranchBackgroundable {
+public class FastForwardMergeBackgroundable extends SideEffectingBackgroundable {
 
   private final GitRepository gitRepository;
 
@@ -38,11 +42,8 @@ public class FastForwardMergeBackgroundable extends CheckRemoteBranchBackgrounda
 
   public FastForwardMergeBackgroundable(GitRepository gitRepository, MergeProps mergeProps,
       @Untainted String fetchNotificationTextPrefix, @UI Runnable doInUIThreadWhenReady) {
-    super(gitRepository,
-        /* remoteBranchName */ mergeProps.getStayingBranch().getName(),
-        /* taskFailNotificationTitle */ getString(
-            "action.GitMachete.BaseFastForwardMergeToParentAction.notification.title.ff-fail"),
-        /* taskFailNotificationPrefix */ fetchNotificationTextPrefix);
+    super(gitRepository.getProject(), getString("action.GitMachete.FastForwardMergeBackgroundable.task-title"),
+        "fast-forward merge");
     this.gitRepository = gitRepository;
     this.mergeProps = mergeProps;
     this.fetchNotificationTextPrefix = fetchNotificationTextPrefix;
@@ -51,9 +52,15 @@ public class FastForwardMergeBackgroundable extends CheckRemoteBranchBackgrounda
 
   @Override
   @ContinuesInBackground
+  @SneakyThrows
   @UIThreadUnsafe
-  public void run(ProgressIndicator indicator) {
-    super.run(indicator);
+  public void doRun(ProgressIndicator indicator) {
+    val remoteBranchName = mergeProps.getStayingBranch().getName();
+    GitBranch targetBranch = gitRepository.getBranches().findBranchByName(remoteBranchName);
+    if (targetBranch == null) {
+      throw new GitMacheteException(
+          getString("action.GitMachete.FastForwardMergeBackgroundable.notification.fail.text").fmt(remoteBranchName));
+    }
 
     val currentBranchName = Option.of(gitRepository.getCurrentBranch()).map(GitReference::getName).getOrNull();
     if (mergeProps.getMovingBranch().getName().equals(currentBranchName)) {
@@ -107,4 +114,17 @@ public class FastForwardMergeBackgroundable extends CheckRemoteBranchBackgrounda
       }
     }.queue();
   }
+
+  @Override
+  @UIEffect
+  public void onThrowable(Throwable error) {
+    String errorMessage = error.getMessage();
+    if (errorMessage != null) {
+      val taskFailNotificationTitle = getString(
+          "action.GitMachete.BaseFastForwardMergeToParentAction.notification.title.ff-fail");
+      VcsNotifier.getInstance(gitRepository.getProject()).notifyError(
+          /* displayId */ null, taskFailNotificationTitle, fetchNotificationTextPrefix + errorMessage);
+    }
+  }
+
 }
