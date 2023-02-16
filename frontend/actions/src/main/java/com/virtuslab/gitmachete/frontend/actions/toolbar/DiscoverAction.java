@@ -11,8 +11,6 @@ import java.util.function.Consumer;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vcs.VcsNotifier;
@@ -21,7 +19,6 @@ import com.intellij.util.ModalityUiUtil;
 import git4idea.repo.GitRepository;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
-import lombok.SneakyThrows;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UI;
@@ -37,9 +34,7 @@ import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
-import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.guieffect.IgnoreUIThreadUnsafeCalls;
-import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod({GitMacheteBundle.class, GitVfsUtils.class, Objects.class})
 @CustomLog
@@ -56,7 +51,6 @@ public class DiscoverAction extends BaseProjectDependentAction {
   }
 
   @Override
-  @ContinuesInBackground
   // TODO (#1472): extract a backgroundable for the heavy lifting
   @IgnoreUIThreadUnsafeCalls({
       "com.virtuslab.gitmachete.backend.api.IGitMacheteRepository.discoverLayoutAndCreateSnapshot()",
@@ -104,14 +98,12 @@ public class DiscoverAction extends BaseProjectDependentAction {
     }
   }
 
-  @ContinuesInBackground
   private Consumer<IGitMacheteRepositorySnapshot> saveAndDoNotOpenMacheteFileSnapshotConsumer(GitRepository gitRepository,
       IBranchLayoutWriter branchLayoutWriter) {
     return repositorySnapshot -> saveDiscoveredLayout(repositorySnapshot,
         gitRepository.getMacheteFilePath(), gitRepository.getProject(), branchLayoutWriter, () -> {});
   }
 
-  @ContinuesInBackground
   private Consumer<IGitMacheteRepositorySnapshot> saveAndOpenMacheteFileSnapshotConsumer(GitRepository gitRepository,
       IBranchLayoutWriter branchLayoutWriter) {
     return repositorySnapshot -> saveDiscoveredLayout(repositorySnapshot,
@@ -119,43 +111,20 @@ public class DiscoverAction extends BaseProjectDependentAction {
         branchLayoutWriter, () -> openMacheteFile(gitRepository));
   }
 
-  @ContinuesInBackground
   private void saveDiscoveredLayout(IGitMacheteRepositorySnapshot repositorySnapshot,
       Path macheteFilePath,
       Project project,
       IBranchLayoutWriter branchLayoutWriter,
       @UI Runnable postWriteRunnable) {
     val branchLayout = repositorySnapshot.getBranchLayout();
-    new Task.Backgroundable(project, getString("action.GitMachete.DiscoverAction.write-file.task-title")) {
-      @UIThreadUnsafe
-      @Override
-      @SneakyThrows
-      public void run(ProgressIndicator indicator) {
-        blockingRunWriteActionOnUIThread(() -> MacheteFileWriter.writeBranchLayout(
-            macheteFilePath,
-            branchLayoutWriter,
-            branchLayout,
-            /* backupOldLayout */ true,
-            /* requestor */ this));
-      }
-
-      @Override
-      @UIEffect
-      public void onSuccess() {
-        VfsUtil.markDirtyAndRefresh(/* async */ false, /* recursive */ true, /* reloadChildren */ false,
-            ProjectRootManager.getInstance(project).getContentRoots());
-        postWriteRunnable.run();
-      }
-
-      @Override
-      @UIEffect
-      public void onThrowable(Throwable e) {
-        VcsNotifier.getInstance(project).notifyError(
-            /* displayId */ null,
-            /* title */ getString("action.GitMachete.DiscoverAction.notification.title.write-file-error"),
-            /* message */ e.getMessage().requireNonNullElse(""));
-      }
-
-    }.queue();
+    blockingRunWriteActionOnUIThread(() -> MacheteFileWriter.writeBranchLayout(
+        macheteFilePath,
+        branchLayoutWriter,
+        branchLayout,
+        /* backupOldLayout */ true,
+        /* requestor */ this));
+    VfsUtil.markDirtyAndRefresh(/* async */ false, /* recursive */ true, /* reloadChildren */ false,
+        ProjectRootManager.getInstance(project).getContentRoots());
+    ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, postWriteRunnable);
   }
 }
