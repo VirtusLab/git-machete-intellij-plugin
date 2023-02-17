@@ -3,9 +3,6 @@ package com.virtuslab.gitmachete.frontend.ui.impl.table;
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
@@ -26,12 +23,15 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 @ExtensionMethod(GitVfsUtils.class)
 @AllArgsConstructor
 @CustomLog
-public class SlideInUnmanagedBranch {
+public abstract class SlideInUnmanagedBranch {
 
   private final Project project;
-  private final Supplier<Try<ILocalBranchReference>> inferParentResultSupplier;
   private final IGitRepositorySelectionProvider gitRepositorySelectionProvider;
-  private final Consumer<ILocalBranchReference> onSuccessInferredParentBranchConsumer;
+
+  @UIThreadUnsafe
+  protected abstract Try<ILocalBranchReference> inferParentResult();
+
+  protected abstract void onSuccessInferredParentBranch(ILocalBranchReference inferredParent);
 
   @ContinuesInBackground
   public void enqueue() {
@@ -48,7 +48,7 @@ public class SlideInUnmanagedBranch {
       @UIThreadUnsafe
       public void run(ProgressIndicator indicator) {
         LOG.debug("Running infer parent for unmanaged branch slide in task");
-        val inferParentResult = inferParentResultSupplier.get();
+        val inferParentResult = inferParentResult();
         if (inferParentResult.isFailure()) {
           LOG.debug("Inferring parent failed");
           val exception = inferParentResult.getCause();
@@ -64,7 +64,7 @@ public class SlideInUnmanagedBranch {
         val inferredParent = inferParentResult.get();
 
         LOG.debug("Executing on-success consumer");
-        onSuccessInferredParentBranchConsumer.accept(inferredParent);
+        onSuccessInferredParentBranch(inferredParent);
       }
     }.queue();
   }
