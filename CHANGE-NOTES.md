@@ -1,6 +1,7 @@
 # Changelog
 
 ## v3.6.1
+- Fixed: notification about unmanaged current branch wasn't showing up
 
 ## v3.6.0
 - Improved the repository selection combobox so that modules are now searchable.

@@ -295,7 +295,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
           unmanagedBranchNotification.expire();
         }
         val snapshot = gitMacheteRepositorySnapshot;
-        val mainGitDirectory = GitVfsUtils.getMainGitDirectory(repository);
+        Path mainGitDirectory = GitVfsUtils.getMainGitDirectory(repository).toNioPath();
         // 1. As for now, only the snapshot of the repository selected in Git Machete panel is available
         // (not all snapshots of all repositories!).
         // 2. The unmanaged branch notification works on the same snapshot as the one selected in Git Machete panel.

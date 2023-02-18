@@ -10,6 +10,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
 
 import lombok.SneakyThrows;
+import lombok.val;
 import org.apache.commons.io.IOUtils;
 
 public final class TestFileUtils {
@@ -29,7 +30,9 @@ public final class TestFileUtils {
 
   @SneakyThrows
   public static void cleanUpDir(Path dir) {
-    Files.walk(dir).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+    try (val walkDirs = Files.walk(dir)) {
+      walkDirs.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+    }
   }
 
   @SneakyThrows

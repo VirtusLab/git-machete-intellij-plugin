@@ -1,14 +1,16 @@
 package com.virtuslab.branchlayout.api;
 
+import lombok.Getter;
 import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public class BranchLayoutException extends Exception {
 
+  @Getter
   private final @Nullable @Positive Integer errorLine;
 
   public BranchLayoutException(@Nullable @Positive Integer errorLine, String message) {
-    super(message);
+    super(message + (errorLine != null ? ". Problematic line number: " + errorLine : ""));
     this.errorLine = errorLine;
   }
 
@@ -23,14 +25,5 @@ public class BranchLayoutException extends Exception {
 
   public BranchLayoutException(String message, Throwable e) {
     this(null, message, e);
-  }
-
-  public @Nullable @Positive Integer getErrorLine() {
-    return errorLine;
-  }
-
-  @Override
-  public String toString() {
-    return super.toString() + (errorLine != null ? ". Problematic line number: " + errorLine : "");
   }
 }
