@@ -46,7 +46,6 @@ import git4idea.repo.GitRepository;
 import git4idea.repo.GitRepositoryChangeListener;
 import io.vavr.collection.Set;
 import io.vavr.control.Option;
-import io.vavr.control.Try;
 import lombok.AccessLevel;
 import lombok.CustomLog;
 import lombok.Getter;
@@ -62,6 +61,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
+import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
@@ -270,12 +270,12 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
       @Override
       @UIThreadUnsafe
-      protected Try<ILocalBranchReference> inferParentResult() {
-        return Try.of(() -> repository.inferParentForLocalBranch(eligibleLocalBranchNames, branchName));
+      protected @Nullable ILocalBranchReference inferParent() throws GitMacheteException {
+        return repository.inferParentForLocalBranch(eligibleLocalBranchNames, branchName);
       }
 
       @Override
-      protected void onSuccessInferredParentBranch(ILocalBranchReference inferredParent) {
+      protected void onInferParentSuccess(ILocalBranchReference inferredParent) {
         notifyAboutUnmanagedBranch(inferredParent, branchName);
       }
     }.enqueue();
