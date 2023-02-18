@@ -1,10 +1,10 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
-import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.blockingRunWriteActionOnUIThread;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import com.intellij.openapi.application.ApplicationManager;
@@ -12,7 +12,6 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
-import com.intellij.util.ModalityUiUtil;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
@@ -30,7 +29,7 @@ import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
-@ExtensionMethod(GitVfsUtils.class)
+@ExtensionMethod({GitVfsUtils.class, Objects.class})
 @AllArgsConstructor
 @CustomLog
 public class GitMacheteRepositoryDiscoverer {
@@ -66,12 +65,12 @@ public class GitMacheteRepositoryDiscoverer {
               .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath);
         } catch (GitMacheteException e) {
           LOG.debug("Instantiation failed");
-          ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> VcsNotifier.getInstance(project)
+          VcsNotifier.getInstance(project)
               .notifyError(
                   /* displayId */ null,
                   getString(
                       "string.GitMachete.EnhancedGraphTable.automatic-discover.notification.title.cannot-discover-layout-error"),
-                  e.getMessage() != null ? e.getMessage() : ""));
+                  e.getMessage().requireNonNullElse(""));
           return;
         }
 
@@ -80,12 +79,12 @@ public class GitMacheteRepositoryDiscoverer {
           repositorySnapshot = repository.discoverLayoutAndCreateSnapshot();
         } catch (GitMacheteException e) {
           LOG.debug("Snapshot creation failed");
-          ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> VcsNotifier.getInstance(project)
+          VcsNotifier.getInstance(project)
               .notifyError(
                   /* displayId */ null,
                   getString(
                       "string.GitMachete.EnhancedGraphTable.automatic-discover.notification.title.cannot-discover-layout-error"),
-                  e.getMessage() != null ? e.getMessage() : ""));
+                  e.getMessage().requireNonNullElse(""));
           return;
         }
 
@@ -115,12 +114,12 @@ public class GitMacheteRepositoryDiscoverer {
       @UIEffect
       public void onThrowable(Throwable e) {
         LOG.debug("Handling branch layout exception");
-        ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> VcsNotifier.getInstance(project)
+        VcsNotifier.getInstance(project)
             .notifyError(
                 /* displayId */ null,
                 getString(
                     "string.GitMachete.EnhancedGraphTable.automatic-discover.notification.title.cannot-discover-layout-error"),
-                e.getMessage() != null ? e.getMessage() : ""));
+                e.getMessage().requireNonNullElse(""));
       }
 
     }.queue();

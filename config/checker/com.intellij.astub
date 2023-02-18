@@ -345,6 +345,8 @@ package com.intellij.openapi.vcs;
 
 @UI class CheckinProjectPanel {}
 
+// Experimentally verified that these methods can be called from outside UI thread.
+@AlwaysSafe
 class VcsNotifier {
   Notification notifyError(@Nullable String displayId, @Tainted String title, @Tainted String message);
   Notification notifySuccess(@Nullable String displayId, @Tainted String title, @Tainted String message);

@@ -1,13 +1,14 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
-import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
+
+import java.util.Objects;
 
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
-import com.intellij.util.ModalityUiUtil;
+import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -15,6 +16,7 @@ import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
+@ExtensionMethod(Objects.class)
 public abstract class InferParentForUnmanagedBranchBackgroundable extends Task.Backgroundable {
 
   private final Project project;
@@ -37,12 +39,12 @@ public abstract class InferParentForUnmanagedBranchBackgroundable extends Task.B
         onInferParentSuccess(inferredParent);
       }
     } catch (GitMacheteException e) {
-      ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> VcsNotifier.getInstance(project)
+      VcsNotifier.getInstance(project)
           .notifyError(
               /* displayId */ null,
               getString(
                   "string.GitMachete.EnhancedGraphTable.automatic-discover.notification.title.cannot-discover-layout-error"),
-              e.getMessage() != null ? e.getMessage() : ""));
+              e.getMessage().requireNonNullElse(""));
     }
   }
 }

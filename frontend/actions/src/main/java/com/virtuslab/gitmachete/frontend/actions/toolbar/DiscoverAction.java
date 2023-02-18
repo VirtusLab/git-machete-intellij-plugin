@@ -91,10 +91,10 @@ public class DiscoverAction extends BaseProjectDependentAction {
           /* cancelButtonVisible */ true,
           /* shouldDisplayActionToolTips */ false).show());
     } catch (GitMacheteException e) {
-      ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> VcsNotifier.getInstance(project).notifyError(
+      VcsNotifier.getInstance(project).notifyError(
           /* displayId */ null,
           /* title */ getString("action.GitMachete.DiscoverAction.notification.title.repository-discover-error"),
-          /* message */ e.getMessage().requireNonNullElse("")));
+          /* message */ e.getMessage().requireNonNullElse(""));
     }
   }
 
