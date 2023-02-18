@@ -82,7 +82,6 @@ import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRenderer
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.async.DoesNotContinueInBackground;
-import com.virtuslab.qual.guieffect.IgnoreUIThreadUnsafeCalls;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 /**
@@ -228,8 +227,6 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   }
 
   @ContinuesInBackground
-  @IgnoreUIThreadUnsafeCalls("com.virtuslab.gitmachete.backend.api.IGitMacheteRepository.inferParentForLocalBranch"
-      + "(io.vavr.collection.Set, java.lang.String)")
   private void inferParentForUnmanagedBranchNotificationAndNotify(String branchName) {
     if (!enqueuingUpdatesEnabled.get()) {
       LOG.debug("Enqueuing updates disabled");
@@ -266,7 +263,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     val eligibleLocalBranchNames = gitMacheteRepositorySnapshot.getManagedBranches().map(IManagedBranchSnapshot::getName)
         .toSet();
 
-    new SlideInUnmanagedBranch(project, /* gitRepositorySelectionProvider */ getGitRepositorySelectionProvider()) {
+    new InferParentForUnmanagedBranchBackgroundable(project) {
 
       @Override
       @UIThreadUnsafe
@@ -278,7 +275,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       protected void onInferParentSuccess(ILocalBranchReference inferredParent) {
         notifyAboutUnmanagedBranch(inferredParent, branchName);
       }
-    }.enqueue();
+    }.queue();
   }
 
   private void notifyAboutUnmanagedBranch(ILocalBranchReference inferredParent, String branchName) {
