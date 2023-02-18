@@ -8,19 +8,17 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.util.ModalityUiUtil;
-import io.vavr.control.Try;
 import lombok.AllArgsConstructor;
 import lombok.CustomLog;
-import lombok.experimental.ExtensionMethod;
 import lombok.val;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
+import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
-import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
-@ExtensionMethod(GitVfsUtils.class)
 @AllArgsConstructor
 @CustomLog
 public abstract class SlideInUnmanagedBranch {
@@ -29,9 +27,9 @@ public abstract class SlideInUnmanagedBranch {
   private final IGitRepositorySelectionProvider gitRepositorySelectionProvider;
 
   @UIThreadUnsafe
-  protected abstract Try<ILocalBranchReference> inferParentResult();
+  protected abstract @Nullable ILocalBranchReference inferParent() throws GitMacheteException;
 
-  protected abstract void onSuccessInferredParentBranch(ILocalBranchReference inferredParent);
+  protected abstract void onInferParentSuccess(ILocalBranchReference inferredParent);
 
   @ContinuesInBackground
   public void enqueue() {
@@ -48,23 +46,20 @@ public abstract class SlideInUnmanagedBranch {
       @UIThreadUnsafe
       public void run(ProgressIndicator indicator) {
         LOG.debug("Running infer parent for unmanaged branch slide in task");
-        val inferParentResult = inferParentResult();
-        if (inferParentResult.isFailure()) {
+        try {
+          val inferredParent = inferParent();
+          if (inferredParent != null) {
+            onInferParentSuccess(inferredParent);
+          }
+        } catch (GitMacheteException e) {
           LOG.debug("Inferring parent failed");
-          val exception = inferParentResult.getCause();
           ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> VcsNotifier.getInstance(project)
               .notifyError(
                   /* displayId */ null,
                   getString(
                       "string.GitMachete.EnhancedGraphTable.automatic-discover.notification.title.cannot-discover-layout-error"),
-                  exception.getMessage() != null ? exception.getMessage() : ""));
-          return;
+                  e.getMessage() != null ? e.getMessage() : ""));
         }
-
-        val inferredParent = inferParentResult.get();
-
-        LOG.debug("Executing on-success consumer");
-        onSuccessInferredParentBranch(inferredParent);
       }
     }.queue();
   }
