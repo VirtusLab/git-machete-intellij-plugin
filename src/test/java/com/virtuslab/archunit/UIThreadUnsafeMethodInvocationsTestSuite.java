@@ -10,14 +10,8 @@ import java.util.Arrays;
 
 import com.intellij.openapi.progress.Task;
 import com.tngtech.archunit.core.domain.AccessTarget;
-import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaCodeUnit;
-import com.tngtech.archunit.core.domain.JavaMethod;
-import com.tngtech.archunit.lang.ArchCondition;
-import com.tngtech.archunit.lang.ConditionEvents;
-import com.tngtech.archunit.lang.SimpleConditionEvent;
 import io.vavr.collection.List;
-import io.vavr.control.Option;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -197,41 +191,29 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
         || codeUnit.isAnnotatedWith(UIThreadUnsafe.class);
   }
 
+  private static final String[] knownMethodsOverridableAsUIThreadUnsafe = {
+      // These two methods have been experimentally verified to be executed by IntelliJ outside of UI thread.
+      "com.intellij.codeInsight.completion.CompletionContributor.fillCompletionVariants(com.intellij.codeInsight.completion.CompletionParameters, com.intellij.codeInsight.completion.CompletionResultSet)",
+      "com.intellij.lang.annotation.Annotator.annotate(com.intellij.psi.PsiElement, com.intellij.lang.annotation.AnnotationHolder)",
+      // This method (overridden in Backgroundables) is meant to run outside of UI thread by design.
+      "com.intellij.openapi.progress.Progressive.run(com.intellij.openapi.progress.ProgressIndicator)",
+  };
+
   @Test
   public void ui_thread_unsafe_methods_should_not_override_ui_thread_safe_methods() {
     noMethods()
         .that()
         .areAnnotatedWith(UIThreadUnsafe.class)
-        .should(new ArchCondition<JavaMethod>("override a method that's NOT ${UIThreadUnsafeName} itself") {
-          @Override
-          public void check(JavaMethod method, ConditionEvents events) {
-            JavaClass owner = method.getOwner();
-            val superTypes = List.ofAll(owner.getAllRawInterfaces()).appendAll(owner.getAllRawSuperclasses());
-            val paramTypeNames = method.getParameters().stream().map(p -> p.getRawType().getFullName()).toArray(String[]::new);
-            val overriddenMethods = superTypes
-                .flatMap(s -> Option.ofOptional(s.tryGetMethod(method.getName(), paramTypeNames)));
-
-            for (val overriddenMethod : overriddenMethods) {
-              val overriddenMethodFullName = overriddenMethod.getFullName();
-
-              //noinspection MismatchedReadAndWriteOfArray
-              String[] knownMethodsOverridableAsUIThreadUnsafe = {
-                  // These two methods have been experimentally verified to be executed by IntelliJ outside of UI thread.
-                  "com.intellij.codeInsight.completion.CompletionContributor.fillCompletionVariants(com.intellij.codeInsight.completion.CompletionParameters, com.intellij.codeInsight.completion.CompletionResultSet)",
-                  "com.intellij.lang.annotation.Annotator.annotate(com.intellij.psi.PsiElement, com.intellij.lang.annotation.AnnotationHolder)",
-                  // This method (overridden in Backgroundables) is meant to run outside of UI thread by design.
-                  "com.intellij.openapi.progress.Progressive.run(com.intellij.openapi.progress.ProgressIndicator)",
-              };
-              if (overriddenMethod.isAnnotatedWith(UIThreadUnsafe.class)
-                  || knownMethodsOverridableAsUIThreadUnsafe.asList().contains(overriddenMethodFullName)) {
-                return;
-              }
-              String message = "a ${UIThreadUnsafeName} method ${method.getFullName()} " +
-                  "overrides a non-${UIThreadUnsafeName} method ${overriddenMethodFullName}";
-              events.add(SimpleConditionEvent.satisfied(method, message));
-            }
+        .should(overrideAnyMethodThat("is NOT ${UIThreadUnsafeName} itself", (method, overriddenMethod) -> {
+          val overriddenMethodFullName = overriddenMethod.getFullName();
+          if (overriddenMethod.isAnnotatedWith(UIThreadUnsafe.class)) {
+            return false;
           }
-        })
+          if (knownMethodsOverridableAsUIThreadUnsafe.asList().contains(overriddenMethodFullName)) {
+            return false;
+          }
+          return true;
+        }))
         .check(productionClasses);
   }
 

@@ -14,6 +14,7 @@ import com.virtuslab.gitmachete.backend.api.ICommitOfManagedBranch;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
+import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
@@ -36,6 +37,7 @@ public class OverrideForkPointBackgroundable extends SideEffectingBackgroundable
   }
 
   @Override
+  @ContinuesInBackground
   @UIThreadUnsafe
   public void doRun(ProgressIndicator indicator) {
     if (selectedCommit != null) {
@@ -47,6 +49,7 @@ public class OverrideForkPointBackgroundable extends SideEffectingBackgroundable
     }
   }
 
+  @ContinuesInBackground
   @UIThreadUnsafe
   private void overrideForkPoint(IManagedBranchSnapshot branch, ICommitOfManagedBranch forkPoint) {
     if (gitRepository != null) {

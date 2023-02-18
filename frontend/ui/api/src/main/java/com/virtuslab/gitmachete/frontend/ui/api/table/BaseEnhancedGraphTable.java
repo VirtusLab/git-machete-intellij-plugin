@@ -8,6 +8,8 @@ import com.intellij.openapi.project.Project;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
+import com.virtuslab.qual.async.ContinuesInBackground;
+
 /**
  *  This class compared to {@code SimpleGraphTable} has graph table refreshing.
  *  Also, while there may be multiple {@code SimpleGraphTable}s per {@link Project},
@@ -22,6 +24,7 @@ public abstract class BaseEnhancedGraphTable extends BaseGraphTable {
   @UIEffect
   public abstract void setListingCommits(boolean isListingCommits);
 
+  @ContinuesInBackground
   public abstract void enableEnqueuingUpdates();
 
   public abstract void disableEnqueuingUpdates();
@@ -30,6 +33,7 @@ public abstract class BaseEnhancedGraphTable extends BaseGraphTable {
    * Refresh the model synchronously (i.e. in a blocking manner).
    * Must be called from the UI thread (hence {@link UIEffect}).
    */
+  @ContinuesInBackground
   @UIEffect
   public abstract void refreshModel();
 
@@ -39,11 +43,14 @@ public abstract class BaseEnhancedGraphTable extends BaseGraphTable {
    *
    * @param doOnUIThreadWhenReady an action to execute on the UI thread after the model is refreshed.
    */
+  @ContinuesInBackground
   public abstract void queueRepositoryUpdateAndModelRefresh(@UI Runnable doOnUIThreadWhenReady);
 
+  @ContinuesInBackground
   public final void queueRepositoryUpdateAndModelRefresh() {
     queueRepositoryUpdateAndModelRefresh(() -> {});
   }
 
+  @ContinuesInBackground
   public abstract void queueDiscover(Path macheteFilePath, @UI Runnable doOnUIThreadWhenReady);
 }

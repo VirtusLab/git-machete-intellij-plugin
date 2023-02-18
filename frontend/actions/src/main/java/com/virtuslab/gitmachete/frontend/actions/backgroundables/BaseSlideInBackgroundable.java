@@ -25,6 +25,7 @@ import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
+import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class, Objects.class})
@@ -113,6 +114,7 @@ public abstract class BaseSlideInBackgroundable extends SideEffectingBackgrounda
   }
 
   @Override
+  @ContinuesInBackground
   public final void onFinished() {
     graphTable.enableEnqueuingUpdates();
   }

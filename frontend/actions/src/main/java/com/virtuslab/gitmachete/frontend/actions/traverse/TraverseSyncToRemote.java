@@ -209,6 +209,7 @@ public class TraverseSyncToRemote {
             getString("action.GitMachete.BaseResetToRemoteAction.task-title"),
             gitMacheteBranch.getName(), remoteTrackingBranch.getName(), gitRepository) {
           @Override
+          @ContinuesInBackground
           public void onSuccess() {
             graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
           }

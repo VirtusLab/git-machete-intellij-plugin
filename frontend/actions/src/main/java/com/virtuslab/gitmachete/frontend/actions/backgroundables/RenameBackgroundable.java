@@ -88,6 +88,7 @@ public class RenameBackgroundable extends SideEffectingBackgroundable {
   }
 
   @Override
+  @ContinuesInBackground
   public void onFinished() {
     graphTable.enableEnqueuingUpdates();
   }
