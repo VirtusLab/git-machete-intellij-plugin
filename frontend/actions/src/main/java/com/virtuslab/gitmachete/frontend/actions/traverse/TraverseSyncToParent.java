@@ -161,6 +161,7 @@ public class TraverseSyncToParent {
             getString("action.GitMachete.BaseSyncToParentByRebaseAction.task-title"),
             gitRepository, repositorySnapshot, managedBranch, /* shouldExplicitlyCheckout */ false) {
           @Override
+          @ContinuesInBackground
           public void onSuccess() {
             graphTable.queueRepositoryUpdateAndModelRefresh(syncToRemoteRunnable);
           }

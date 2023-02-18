@@ -25,6 +25,7 @@ import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepos
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.ui.impl.RediscoverSuggester;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
+import com.virtuslab.qual.async.ContinuesInBackground;
 
 @ExtensionMethod(GitVfsUtils.class)
 @CustomLog
@@ -50,6 +51,7 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
     // The following listener executes on each opening of the Git Machete tab.
     addAncestorListener(new AncestorListenerAdapter() {
       @Override
+      @ContinuesInBackground
       public void ancestorAdded(AncestorEvent event) {
         val gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository();
         if (gitRepository != null) {

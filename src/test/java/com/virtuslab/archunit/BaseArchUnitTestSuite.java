@@ -3,13 +3,17 @@ package com.virtuslab.archunit;
 import java.util.function.BiPredicate;
 
 import com.tngtech.archunit.core.domain.AccessTarget;
+import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.domain.JavaCodeUnit;
+import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
+import io.vavr.collection.List;
+import io.vavr.control.Option;
 import lombok.val;
 
 public class BaseArchUnitTestSuite {
@@ -46,6 +50,27 @@ public class BaseArchUnitTestSuite {
         if (codeUnit.getCallsFromSelf().stream().noneMatch(call -> predicate.test(codeUnit, call.getTarget()))) {
           String message = "code unit ${codeUnit.getFullName()} does not call any code unit that " + description;
           events.add(SimpleConditionEvent.violated(codeUnit, message));
+        }
+      }
+    };
+  }
+
+  protected static ArchCondition<JavaMethod> overrideAnyMethodThat(String description,
+      BiPredicate<JavaMethod, JavaMethod> predicate) {
+    return new ArchCondition<JavaMethod>("override any method that " + description) {
+      @Override
+      public void check(JavaMethod method, ConditionEvents events) {
+        JavaClass owner = method.getOwner();
+        val superTypes = List.ofAll(owner.getAllRawInterfaces()).appendAll(owner.getAllRawSuperclasses());
+        val paramTypeNames = method.getParameters().stream().map(p -> p.getRawType().getFullName()).toArray(String[]::new);
+        val overriddenMethods = superTypes
+            .flatMap(s -> Option.ofOptional(s.tryGetMethod(method.getName(), paramTypeNames)));
+
+        for (val overriddenMethod : overriddenMethods) {
+          if (predicate.test(method, overriddenMethod)) {
+            String message = method.getFullName() + " overrides " + overriddenMethod.getFullName();
+            events.add(SimpleConditionEvent.satisfied(method, message));
+          }
         }
       }
     };

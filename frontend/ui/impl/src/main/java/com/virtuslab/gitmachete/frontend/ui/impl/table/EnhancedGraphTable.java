@@ -193,6 +193,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     messageBusConnection.subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
 
       @Override
+      @ContinuesInBackground
       @UIEffect
       public void after(java.util.List<? extends VFileEvent> events) {
         for (val event : events) {
@@ -323,6 +324,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     queueRepositoryUpdateAndModelRefresh();
   }
 
+  @DoesNotContinueInBackground(reason = "because the call to queueRepositoryUpdateAndModelRefresh happens in listener")
   private void subscribeToSelectedGitRepositoryChange() {
     // The method reference is invoked when user changes repository in the selection component menu
     val gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
@@ -583,6 +585,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   }
 
   @Override
+  @ContinuesInBackground
   public void enableEnqueuingUpdates() {
     enqueuingUpdatesEnabled.set(true);
     queueRepositoryUpdateAndModelRefresh();
