@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.ui.impl.table;
+package com.virtuslab.gitmachete.frontend.ui.impl.backgroundables;
 
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 

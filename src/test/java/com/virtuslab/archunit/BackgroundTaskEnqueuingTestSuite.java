@@ -63,6 +63,7 @@ public class BackgroundTaskEnqueuingTestSuite extends BaseArchUnitTestSuite {
   private static final String[] knownMethodsOverridableAsContinuesInBackground = {
       "com.intellij.codeInsight.intention.IntentionAction.invoke(com.intellij.openapi.project.Project, com.intellij.openapi.editor.Editor, com.intellij.psi.PsiFile)",
       "com.intellij.openapi.actionSystem.AnAction.actionPerformed(com.intellij.openapi.actionSystem.AnActionEvent)",
+      "com.intellij.openapi.progress.Progressive.run(com.intellij.openapi.progress.ProgressIndicator)",
       "com.intellij.openapi.progress.Task.onFinished()",
       "com.intellij.openapi.progress.Task.onSuccess()",
       "com.intellij.openapi.vfs.newvfs.BulkFileListener.after(java.util.List)",
