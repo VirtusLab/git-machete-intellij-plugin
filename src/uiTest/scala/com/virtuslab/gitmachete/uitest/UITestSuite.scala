@@ -240,7 +240,7 @@ class UITestSuite extends TestGitRepository(SETUP_WITH_SINGLE_REMOTE) {
     project.acceptSquash()
 
     // call-ws had 3 commits before the squash
-    var managedBranches = project.refreshModelAndGetManagedBranchesAndCommits()
+    var managedBranchesAndCommits = project.refreshModelAndGetManagedBranchesAndCommits()
     assertEquals(
       Seq(
         "develop",
@@ -260,16 +260,16 @@ class UITestSuite extends TestGitRepository(SETUP_WITH_SINGLE_REMOTE) {
         "HOTFIX Add the trigger",
         "hotfix/add-trigger"
       ),
-      managedBranches.toSeq
+      managedBranchesAndCommits.toSeq
     )
 
-    assertEquals(16, managedBranches.length)
+    assertEquals(16, managedBranchesAndCommits.length)
 
     // squashNonCurrentBranch
     project.squashSelected("hotfix/add-trigger")
     project.acceptSquash()
-    // call-ws had 3 commits before the squash
-    managedBranches = project.refreshModelAndGetManagedBranchesAndCommits()
+    // hotfix/add-trigger had 2 commits before the squash
+    managedBranchesAndCommits = project.refreshModelAndGetManagedBranchesAndCommits()
     assertEquals(
       Seq(
         "develop",
@@ -288,10 +288,8 @@ class UITestSuite extends TestGitRepository(SETUP_WITH_SINGLE_REMOTE) {
         "HOTFIX Add the trigger",
         "hotfix/add-trigger"
       ),
-      managedBranches.toSeq
+      managedBranchesAndCommits.toSeq
     )
-
-    assertEquals(15, managedBranches.length)
   }
 
   private def macheteFilePath: Path = mainGitDirectoryPath.resolve("machete")
