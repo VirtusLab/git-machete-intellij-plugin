@@ -77,6 +77,9 @@ import com.virtuslab.gitmachete.frontend.graph.api.repository.NullRepositoryGrap
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
+import com.virtuslab.gitmachete.frontend.ui.impl.backgroundables.AutodiscoverBackgroundable;
+import com.virtuslab.gitmachete.frontend.ui.impl.backgroundables.GitMacheteRepositoryUpdateBackgroundable;
+import com.virtuslab.gitmachete.frontend.ui.impl.backgroundables.InferParentForUnmanagedBranchBackgroundable;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCell;
 import com.virtuslab.gitmachete.frontend.ui.impl.cell.BranchOrCommitCellRenderer;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
@@ -455,44 +458,46 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
   @ContinuesInBackground
   public void queueDiscover(Path macheteFilePath, @UI Runnable doOnUIThreadWhenReady) {
-    new GitMacheteRepositoryDiscoverer(
-        project,
-        getGitRepositorySelectionProvider(),
-        getUnsuccessfulDiscoverMacheteFilePathConsumer(),
-        getSuccessfulDiscoverRepositorySnapshotConsumer(doOnUIThreadWhenReady),
-        /* getSuccessfulDiscoverRepositoryConsumer */ gitMacheteRepositoryRef::set)
-            .enqueue(macheteFilePath);
-  }
+    val gitRepository = getGitRepositorySelectionProvider().getSelectedGitRepository();
+    if (gitRepository == null) {
+      return;
+    }
 
-  @ContinuesInBackground
-  private Consumer<IGitMacheteRepositorySnapshot> getSuccessfulDiscoverRepositorySnapshotConsumer(
-      @UI Runnable doOnUIThreadWhenReady) {
-    return (IGitMacheteRepositorySnapshot repositorySnapshot) -> ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> {
-      gitMacheteRepositorySnapshot = repositorySnapshot;
-      queueRepositoryUpdateAndModelRefresh(doOnUIThreadWhenReady);
+    new AutodiscoverBackgroundable(gitRepository, macheteFilePath) {
+      @Override
+      protected void onDiscoverFailure() {
+        ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> setTextForEmptyTable(
+            getString("string.GitMachete.EnhancedGraphTable.empty-table-text.cannot-discover-layout")
+                .fmt(macheteFilePath.toString())));
+      }
 
-      val notifier = VcsNotifier.getInstance(project);
-      val notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(
-          getString("string.GitMachete.EnhancedGraphTable.automatic-discover.success-message"),
-          NotificationType.INFORMATION);
-      notification.addAction(NotificationAction.createSimple(
-          getString("action.GitMachete.OpenMacheteFileAction.description"), () -> {
-            val actionEvent = createAnActionEvent();
-            ActionManager.getInstance().getAction(OPEN_MACHETE_FILE).actionPerformed(actionEvent);
-          }));
-      notifier.notify(notification);
-    });
+      @Override
+      @ContinuesInBackground
+      protected void onDiscoverSuccess(IGitMacheteRepository repository, IGitMacheteRepositorySnapshot repositorySnapshot) {
+        gitMacheteRepositoryRef.set(repository);
+
+        ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> {
+          gitMacheteRepositorySnapshot = repositorySnapshot;
+          queueRepositoryUpdateAndModelRefresh(doOnUIThreadWhenReady);
+
+          val notifier = VcsNotifier.getInstance(project);
+          val notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(
+              getString("string.GitMachete.EnhancedGraphTable.automatic-discover.success-message"),
+              NotificationType.INFORMATION);
+          notification.addAction(NotificationAction.createSimple(
+              getString("action.GitMachete.OpenMacheteFileAction.description"), () -> {
+                val actionEvent = createAnActionEvent();
+                ActionManager.getInstance().getAction(OPEN_MACHETE_FILE).actionPerformed(actionEvent);
+              }));
+          notifier.notify(notification);
+        });
+      }
+    }.queue();
   }
 
   private AnActionEvent createAnActionEvent() {
     val dataContext = DataManager.getInstance().getDataContext(this);
     return AnActionEvent.createFromDataContext(ActionPlaces.VCS_NOTIFICATION, new Presentation(), dataContext);
-  }
-
-  private Consumer<Path> getUnsuccessfulDiscoverMacheteFilePathConsumer() {
-    return (Path macheteFilePath) -> ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> setTextForEmptyTable(
-        getString("string.GitMachete.EnhancedGraphTable.empty-table-text.cannot-discover-layout")
-            .fmt(macheteFilePath.toString())));
   }
 
   @Override

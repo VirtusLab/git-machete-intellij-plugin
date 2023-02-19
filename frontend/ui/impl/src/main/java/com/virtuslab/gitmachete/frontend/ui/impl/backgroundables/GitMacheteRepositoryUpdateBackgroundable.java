@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.ui.impl.table;
+package com.virtuslab.gitmachete.frontend.ui.impl.backgroundables;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.file.MacheteFileUtils.isMacheteFileSelected;
@@ -33,6 +33,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.MacheteFileReaderException;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileReader;
+import com.virtuslab.gitmachete.frontend.ui.impl.table.EnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
