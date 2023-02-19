@@ -37,9 +37,8 @@ RUN apt-get install --no-install-recommends -y imagemagick zip
 # jq             => jq
 # shellcheck     => shellcheck
 # sudo           => sudo
-# unzip          => zipinfo
 # xxd            => xxd
-RUN apt-get install --no-install-recommends -y jq shellcheck sudo unzip xxd
+RUN apt-get install --no-install-recommends -y jq shellcheck sudo xxd
 
 # Markdown validation utilities
 RUN \
