@@ -1,19 +1,7 @@
 package com.virtuslab.gitmachete.backend.api;
 
-public class MacheteFileReaderException extends GitMacheteException {
-  public MacheteFileReaderException() {
-    super();
-  }
+import lombok.experimental.StandardException;
 
-  public MacheteFileReaderException(String message) {
-    super(message);
-  }
-
-  public MacheteFileReaderException(Throwable e) {
-    super(e);
-  }
-
-  public MacheteFileReaderException(String message, Throwable e) {
-    super(message, e);
-  }
-}
+@StandardException
+@SuppressWarnings("nullness:argument")
+public class MacheteFileReaderException extends GitMacheteException {}
