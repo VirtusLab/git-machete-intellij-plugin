@@ -10,7 +10,6 @@ import java.util.Objects;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
@@ -29,7 +28,6 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 @ExtensionMethod({GitVfsUtils.class, Objects.class})
 public class RenameBackgroundable extends SideEffectingBackgroundable {
 
-  protected final Project project;
   private final GitRepository gitRepository;
   private final BaseEnhancedGraphTable graphTable;
   private final BranchLayout branchLayout;
@@ -42,7 +40,6 @@ public class RenameBackgroundable extends SideEffectingBackgroundable {
       String currentBranchName,
       String newBranchName) {
     super(gitRepository.getProject(), getString("action.GitMachete.RenameBackgroundable.task-title"), "rename");
-    this.project = gitRepository.getProject();
     this.gitRepository = gitRepository;
     this.graphTable = graphTable;
     this.branchLayout = branchLayout;

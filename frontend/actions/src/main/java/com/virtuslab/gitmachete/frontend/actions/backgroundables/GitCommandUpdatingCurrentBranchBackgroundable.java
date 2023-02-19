@@ -14,7 +14,6 @@ import com.intellij.notification.NotificationAction;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vcs.ex.ProjectLevelVcsManagerEx;
@@ -52,7 +51,6 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 @ExtensionMethod(GitMacheteBundle.class)
 public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends SideEffectingBackgroundable {
 
-  protected final Project project;
   protected final GitRepository gitRepository;
 
   public GitCommandUpdatingCurrentBranchBackgroundable(
@@ -60,7 +58,6 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Side
       String taskTitle,
       @Untainted String shortName) {
     super(gitRepository.getProject(), taskTitle, shortName);
-    this.project = gitRepository.getProject();
     this.gitRepository = gitRepository;
   }
 
