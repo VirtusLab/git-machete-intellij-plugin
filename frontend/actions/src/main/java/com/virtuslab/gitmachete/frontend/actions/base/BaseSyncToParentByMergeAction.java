@@ -71,7 +71,6 @@ public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteReposi
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
 
-    val project = getProject(anActionEvent);
     val gitRepository = getSelectedGitRepository(anActionEvent);
     val stayingBranchName = getNameOfBranchUnderAction(anActionEvent);
     if (gitRepository == null || stayingBranchName == null) {
