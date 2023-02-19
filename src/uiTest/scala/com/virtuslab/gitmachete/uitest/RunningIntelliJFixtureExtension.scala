@@ -88,10 +88,6 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         runJs("project.acceptRebase()")
       }
 
-      def acceptResetToRemote(): Unit = doAndAwait {
-        runJs("project.acceptResetToRemote()")
-      }
-
       def acceptSquash(): Unit = doAndAwait {
         runJs("project.acceptSquash()")
       }
@@ -176,22 +172,6 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
           // This comment applies here, below and to toolbar counterparts.
         }
 
-        def syncByRebase(): Unit = {
-          runJs("project.contextMenu.syncByRebase()")
-        }
-
-        def checkoutAndSyncByMerge(): Unit = doAndAwait {
-          runJs("project.contextMenu.checkoutAndSyncByMerge()")
-        }
-
-        def syncByMerge(): Unit = doAndAwait {
-          runJs("project.contextMenu.syncByMerge()")
-        }
-
-        def overrideForkPoint(): Unit = doAndAwait {
-          runJs(s"project.contextMenu.overrideForkPoint()")
-        }
-
         def push(): Unit = doAndAwait {
           runJs("project.contextMenu.push()")
         }
@@ -208,10 +188,6 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
           runJs("project.contextMenu.fastForwardMerge()")
         }
 
-        def squash(): Unit = doAndAwait {
-          runJs("project.contextMenu.checkoutAndSquash()")
-        }
-
         def slideIn(): Unit = doAndAwait {
           runJs("project.contextMenu.slideIn()")
         }
@@ -220,20 +196,9 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
           runJs("project.contextMenu.slideOut()")
         }
 
-        def showInGitLog(): Unit = doAndAwait {
-          runJs("project.contextMenu.showInGitLog()")
-        }
       }
 
       object toolbar {
-
-        def syncByRebase(): Unit = {
-          runJs("project.toolbar.syncByRebase()")
-        }
-
-        def squash(): Unit = doAndAwait {
-          runJs("project.toolbar.squash()")
-        }
 
         def pull(): Unit = doAndAwait {
           runJs("project.toolbar.pull()")
@@ -294,10 +259,6 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
       def syncSelectedToParentByMerge(branch: String): Unit = doAndAwait {
         runJs(s"project.syncSelectedToParentByMerge('$branch')")
-      }
-
-      def syncCurrentToParentByMerge(): Unit = doAndAwait {
-        runJs(s"project.syncCurrentToParentByMerge()")
       }
 
       def squashSelected(branch: String): Unit = doAndAwait {
