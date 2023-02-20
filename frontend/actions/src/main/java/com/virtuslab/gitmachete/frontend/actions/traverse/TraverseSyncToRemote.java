@@ -4,6 +4,7 @@ import static com.intellij.openapi.ui.MessageConstants.NO;
 import static com.intellij.openapi.ui.MessageConstants.YES;
 import static com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperationType.NO_OPERATION;
 import static com.virtuslab.gitmachete.frontend.actions.traverse.CheckoutAndExecute.checkoutAndExecuteOnUIThread;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.application.ModalityState;
@@ -129,7 +130,7 @@ public class TraverseSyncToRemote {
         getString("action.GitMachete.BaseTraverseAction.dialog.push-approval.title"),
         getString("action.GitMachete.BaseTraverseAction.dialog.push-approval.untracked.text.HTML")
             .fmt(gitManagedBranch.getName()))
-        .cancelText(getString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
+        .cancelText(getNonHtmlString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
 
     switch (pushApprovalDialogBuilder.show(project)) {
       case YES :
@@ -153,7 +154,7 @@ public class TraverseSyncToRemote {
         getString("action.GitMachete.BaseTraverseAction.dialog.push-approval.title"),
         getString("action.GitMachete.BaseTraverseAction.dialog.push-approval.ahead.text.HTML")
             .fmt(gitMacheteBranch.getName(), remoteTrackingBranch.getName()))
-        .cancelText(getString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
+        .cancelText(getNonHtmlString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
 
     switch (pushApprovalDialogBuilder.show(project)) {
       case YES :
@@ -177,7 +178,7 @@ public class TraverseSyncToRemote {
         getString("action.GitMachete.BaseTraverseAction.dialog.force-push-approval.title"),
         getString("action.GitMachete.BaseTraverseAction.dialog.force-push-approval.text.HTML")
             .fmt(gitMacheteBranch.getName(), remoteTrackingBranch.getName()))
-        .cancelText(getString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
+        .cancelText(getNonHtmlString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
 
     switch (forcePushApprovalDialogBuilder.show(project)) {
       case YES :
@@ -202,7 +203,7 @@ public class TraverseSyncToRemote {
         getString("action.GitMachete.BaseTraverseAction.dialog.reset-approval.title"),
         getString("action.GitMachete.BaseTraverseAction.dialog.reset-approval.text.HTML")
             .fmt(gitMacheteBranch.getName(), remoteTrackingBranch.getName()))
-        .cancelText(getString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
+        .cancelText(getNonHtmlString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
     switch (resetApprovalDialogBuilder.show(project)) {
       case YES :
         new ResetCurrentToRemoteBackgroundable(gitMacheteBranch.getName(), remoteTrackingBranch.getName(), gitRepository) {
@@ -229,7 +230,7 @@ public class TraverseSyncToRemote {
         getString("action.GitMachete.BaseTraverseAction.dialog.pull-approval.title"),
         getString("action.GitMachete.BaseTraverseAction.dialog.pull-approval.text.HTML")
             .fmt(gitMacheteBranch.getName(), remoteTrackingBranch.getName()))
-        .cancelText(getString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
+        .cancelText(getNonHtmlString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
 
     switch (pullApprovalDialogBuilder.show(project)) {
       case YES :

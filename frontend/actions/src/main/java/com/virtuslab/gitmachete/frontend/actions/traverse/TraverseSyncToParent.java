@@ -4,6 +4,7 @@ import static com.intellij.openapi.ui.MessageConstants.NO;
 import static com.intellij.openapi.ui.MessageConstants.YES;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.DivergedFromAndOlderThanRemote;
 import static com.virtuslab.gitmachete.frontend.actions.traverse.CheckoutAndExecute.checkoutAndExecuteOnUIThread;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.application.ModalityState;
@@ -118,7 +119,7 @@ public class TraverseSyncToParent {
             "action.GitMachete.BaseTraverseAction.dialog.merged-to-parent.text.HTML").fmt(
                 managedBranch.getName(),
                 managedBranch.getParent().getName()))
-        .cancelText(getString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
+        .cancelText(getNonHtmlString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
 
     switch (slideOutDialog.show(project)) {
       case YES :
@@ -153,7 +154,7 @@ public class TraverseSyncToParent {
         text.fmt(
             managedBranch.getName(),
             managedBranch.getParent().getName()))
-        .cancelText(getString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
+        .cancelText(getNonHtmlString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
 
     switch (rebaseDialog.show(project)) {
       case YES :

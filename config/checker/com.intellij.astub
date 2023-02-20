@@ -333,7 +333,17 @@ class DialogWrapper {
 
 class MessageDialogBuilder<T extends MessageDialogBuilder> {
   @SafeEffect
-  YesNo yesNo(@Tainted String title, @Tainted String message);
+  static OkCancelDialogBuilder okCancel(@Tainted String title, @Tainted String message);
+
+  @SafeEffect
+  static YesNo yesNo(@Tainted String title, @Tainted String message);
+
+  @SafeEffect
+  static YesNoCancel yesNoCancel(@Tainted String title, @Tainted String message);
+
+  class YesNoCancel {
+    YesNoCancel cancelText(@Untainted String cancelText);
+  }
 }
 
 class MessageUtil {
