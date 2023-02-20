@@ -112,7 +112,6 @@ public class TraverseSyncToParent {
       INonRootManagedBranchSnapshot managedBranch,
       Runnable syncToRemoteRunnable) {
     val branchLayout = repositorySnapshot.getBranchLayout();
-    val currentBranchIfManaged = repositorySnapshot.getCurrentBranchIfManaged();
     val slideOutDialog = MessageDialogBuilder.yesNoCancel(
         getString("action.GitMachete.BaseTraverseAction.dialog.merged-to-parent.title"),
         getString(
@@ -126,7 +125,7 @@ public class TraverseSyncToParent {
         // For a branch merged to its parent, we're not syncing to remote.
         // Let's just go straight to the next branch.
         Runnable doInUIThreadWhenReady = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
-        new SlideOut(managedBranch, gitRepository, currentBranchIfManaged, branchLayout, graphTable).run(doInUIThreadWhenReady);
+        new SlideOut(managedBranch, gitRepository, branchLayout, graphTable).run(doInUIThreadWhenReady);
         break;
 
       case NO :

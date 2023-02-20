@@ -45,7 +45,6 @@ public class SlideOut {
 
   private final Project project;
   private final String branchToSlideOutName;
-  private final @Nullable String currentBranchNameIfManaged;
   private final BranchLayout branchLayout;
   private final GitRepository gitRepository;
   private final BaseEnhancedGraphTable graphTable;
@@ -54,18 +53,13 @@ public class SlideOut {
 
   public SlideOut(IManagedBranchSnapshot branchToSlideOut,
       GitRepository gitRepository,
-      @Nullable IManagedBranchSnapshot currentBranchNameIfManaged,
       BranchLayout branchLayout,
       BaseEnhancedGraphTable graphTable) {
     this.project = gitRepository.getProject();
     this.branchToSlideOutName = branchToSlideOut.getName();
-    this.currentBranchNameIfManaged = currentBranchNameIfManaged != null ? currentBranchNameIfManaged.getName() : null;
     this.branchLayout = branchLayout;
     this.gitRepository = gitRepository;
     this.graphTable = graphTable;
-
-    LOG.debug(() -> "Entering: branchToSlideOut = ${branchToSlideOutName}");
-    LOG.debug("Refreshing repository state");
   }
 
   @ContinuesInBackground
@@ -75,7 +69,7 @@ public class SlideOut {
 
   @ContinuesInBackground
   public void run(@UI Runnable doInUIThreadWhenReady) {
-    val slideOutBranchIsCurrent = branchToSlideOutName.equals(currentBranchNameIfManaged);
+    val slideOutBranchIsCurrent = branchToSlideOutName.equals(gitRepository.getCurrentBranchName());
     if (slideOutBranchIsCurrent) {
       LOG.debug("Skipping (optional) local branch deletion because it is equal to current branch");
       slideOutBranch(branchToSlideOutName);
