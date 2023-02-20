@@ -46,22 +46,6 @@ val shouldRunAllCheckers: Boolean by extra(isCI || project.hasProperty("runAllCh
 
 tasks.register<UpdateIntellijVersions>("updateIntellijVersions")
 
-tasks.register("printPluginZipPath") {
-  doLast {
-    val buildPlugin = tasks.findByPath(":buildPlugin")!!
-    println(buildPlugin.outputs.files.first().path)
-  }
-}
-tasks.register("printSignedPluginZipPath") {
-  // Required to prevent https://github.com/VirtusLab/git-machete-intellij-plugin/issues/1358
-  dependsOn(":buildPlugin")
-
-  doLast {
-    val signPlugin = tasks.findByPath(":signPlugin")!!
-    println(signPlugin.outputs.files.first().path)
-  }
-}
-
 val configCheckerDirectory: String by extra(rootProject.file("config/checker").path)
 
 configure<VersionCatalogUpdateExtension> {

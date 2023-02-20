@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.buildsrc
 
 import org.gradle.api.Project
+import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.changelog.Changelog
@@ -10,6 +11,8 @@ import org.jetbrains.intellij.IntelliJPlugin
 import org.jetbrains.intellij.IntelliJPluginExtension
 import org.jetbrains.intellij.tasks.*
 import java.util.*
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
 
 fun Project.configureIntellijPlugin() {
   apply<IntelliJPlugin>()
@@ -85,8 +88,71 @@ fun Project.configureIntellijPlugin() {
     dependsOn(verifyVersionTask, verifyContentsTask)
   }
 
+  tasks.register("printPluginZipPath") {
+    doLast {
+      val buildPlugin = tasks.findByPath(":buildPlugin")!!
+      println(buildPlugin.outputs.files.first().path)
+    }
+  }
+
+  tasks.register("printSignedPluginZipPath") {
+    // Required to prevent https://github.com/VirtusLab/git-machete-intellij-plugin/issues/1358
+    dependsOn(":buildPlugin")
+
+    doLast {
+      val signPlugin = tasks.findByPath(":signPlugin")!!
+      println(signPlugin.outputs.files.first().path)
+    }
+  }
+
+  val verifyPluginZipTask = tasks.register("verifyPluginZip") {
+    val buildPlugin = tasks.findByPath(":buildPlugin")!!
+    dependsOn(buildPlugin)
+
+    doLast {
+      val pluginZipPath = buildPlugin.outputs.files.first().path
+      val jarsInPluginZip = ZipFile(pluginZipPath).use { zf ->
+        zf.stream()
+          .map(ZipEntry::getName)
+          .map { it.removePrefix("git-machete-intellij-plugin/").removePrefix("lib/").removeSuffix(".jar") }
+          .filter { it.isNotEmpty() }
+          .toList()
+      }
+
+      for (proj in subprojects) {
+        val projJar = proj.path.replaceFirst(":", "").replace(":", "-")
+        val javaExtension = proj.extensions.getByType<JavaPluginExtension>()
+        if (javaExtension.sourceSets["main"].allSource.srcDirs.any { it?.exists() ?: false }) {
+          check(projJar in jarsInPluginZip) {
+            "$projJar.jar was expected in plugin zip ($pluginZipPath) but was NOT found"
+          }
+        } else {
+          check(projJar !in jarsInPluginZip) {
+            "$projJar.jar was NOT expected in plugin zip ($pluginZipPath) but was found"
+          }
+        }
+      }
+
+      val expectedLibs = listOf("org.eclipse.jgit", "slf4j-lambda-core", "vavr", "vavr-match")
+      for (expectedLib in expectedLibs) {
+        val libRegexStr = "^" + expectedLib.replace(".", "\\.") + "-[0-9.]+.*$"
+        check(jarsInPluginZip.any { it.matches(libRegexStr.toRegex()) }) {
+          "A jar for $expectedLib was expected in plugin zip ($pluginZipPath) but was NOT found"
+        }
+      }
+
+      val forbiddenLibPrefixes = listOf("ide-probe", "idea", "kotlin", "lombok", "remote-robot", "scala", "slf4j")
+      for (jar in jarsInPluginZip) {
+        check(forbiddenLibPrefixes.none { jar.startsWith(it) } || expectedLibs.any { jar.startsWith(it) }) {
+          "$jar.jar was NOT expected in plugin zip ($pluginZipPath) but was found"
+        }
+      }
+    }
+  }
+
   tasks.named<Zip>("buildPlugin") {
     dependsOn(verifyVersionTask)
+    finalizedBy(verifyPluginZipTask)
   }
 
   tasks.withType<PatchPluginXmlTask> {
