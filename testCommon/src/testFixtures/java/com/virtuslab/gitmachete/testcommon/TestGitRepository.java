@@ -31,5 +31,7 @@ public class TestGitRepository {
     copyScriptFromResources("common.sh", parentDirectoryPath);
     copyScriptFromResources(scriptName, parentDirectoryPath);
     prepareRepoFromScript(scriptName, parentDirectoryPath);
+
+    System.out.println("Set up a test repo in " + rootDirectoryPath);
   }
 }

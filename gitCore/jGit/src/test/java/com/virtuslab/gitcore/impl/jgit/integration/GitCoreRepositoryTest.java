@@ -1,6 +1,7 @@
 package com.virtuslab.gitcore.impl.jgit.integration;
 
 import static com.virtuslab.gitmachete.testcommon.SetupScripts.SETUP_WITH_SINGLE_REMOTE;
+import static com.virtuslab.gitmachete.testcommon.TestFileUtils.cleanUpDir;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -11,7 +12,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import lombok.SneakyThrows;
-import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.simplify4u.slf4jmock.LoggerMock;
@@ -22,12 +22,13 @@ import com.virtuslab.gitmachete.testcommon.TestGitRepository;
 
 public class GitCoreRepositoryTest {
 
+  private TestGitRepository repo;
   private GitCoreRepository gitCoreRepository;
 
   @BeforeEach
   @SneakyThrows
   public void setUp() {
-    val repo = new TestGitRepository(SETUP_WITH_SINGLE_REMOTE);
+    repo = new TestGitRepository(SETUP_WITH_SINGLE_REMOTE);
 
     gitCoreRepository = new GitCoreRepository(repo.rootDirectoryPath, repo.mainGitDirectoryPath, repo.worktreeGitDirectoryPath);
   }
@@ -39,6 +40,9 @@ public class GitCoreRepositoryTest {
     // Let's check against a non-existent commit.
     // No exception should be thrown, just a null returned.
     assertNull(gitCoreRepository.parseRevision("0".repeat(40)));
+
+    // Deliberately done in the test and in not an @After method, so that the directory is retained in case of test failure.
+    cleanUpDir(repo.parentDirectoryPath);
   }
 
   // See https://github.com/VirtusLab/git-machete-intellij-plugin/issues/1298 for the origin of this test
@@ -61,5 +65,8 @@ public class GitCoreRepositoryTest {
     // ending up in an user-visible, confusing error notification.
     // See the issue and PR #1304 for more details.
     verify(logger, never()).error(anyString(), any(Throwable.class));
+
+    // Deliberately done in the test and in not an @After method, so that the directory is retained in case of test failure.
+    cleanUpDir(repo.parentDirectoryPath);
   }
 }
