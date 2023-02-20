@@ -122,7 +122,7 @@ fun Project.configureIntellijPlugin() {
       for (proj in subprojects) {
         val projJar = proj.path.replaceFirst(":", "").replace(":", "-")
         val javaExtension = proj.extensions.getByType<JavaPluginExtension>()
-        if (javaExtension.sourceSets["main"].allSource.srcDirs.any { it?.exists() == true }) {
+        if (javaExtension.sourceSets["main"].allSource.srcDirs.any { it?.exists() ?: false }) {
           check(projJar in jarsInPluginZip) {
             "$projJar.jar was expected in plugin zip ($pluginZipPath) but was NOT found"
           }
@@ -135,8 +135,8 @@ fun Project.configureIntellijPlugin() {
 
       val expectedLibs = listOf("org.eclipse.jgit", "slf4j-lambda-core", "vavr", "vavr-match")
       for (expectedLib in expectedLibs) {
-        val libRegex = "^" + expectedLib.replace(".", "\\.") + "-[0-9.]+.*$"
-        check(jarsInPluginZip.any { it.matches(libRegex.toRegex()) }) {
+        val libRegexStr = "^" + expectedLib.replace(".", "\\.") + "-[0-9.]+.*$"
+        check(jarsInPluginZip.any { it.matches(libRegexStr.toRegex()) }) {
           "A jar for $expectedLib was expected in plugin zip ($pluginZipPath) but was NOT found"
         }
       }
