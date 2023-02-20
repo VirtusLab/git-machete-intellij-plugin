@@ -16,7 +16,7 @@ public abstract class SideEffectingBackgroundable extends Task.Backgroundable {
   protected final Project project;
   private final @Untainted String shortName;
 
-  public SideEffectingBackgroundable(Project project, String title, @Untainted String shortName) {
+  public SideEffectingBackgroundable(Project project, @Untainted String title, @Untainted String shortName) {
     super(project, title);
     this.project = project;
     this.shortName = shortName;

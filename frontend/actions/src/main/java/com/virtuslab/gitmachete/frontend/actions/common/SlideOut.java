@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.common;
 
 import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.blockingRunWriteActionOnUIThread;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
 
@@ -169,7 +170,7 @@ public class SlideOut {
   @ContinuesInBackground
   private void getDeleteLocalBranchOnSlideOutGitConfigValueAndExecute(VirtualFile root,
       Consumer<@Nullable Boolean> doForConfigValue) {
-    new Task.Backgroundable(project, getString("action.GitMachete.get-git-config.task-title")) {
+    new Task.Backgroundable(project, getNonHtmlString("action.GitMachete.get-git-config.task-title")) {
 
       @Override
       @UIThreadUnsafe
@@ -191,7 +192,8 @@ public class SlideOut {
 
   @ContinuesInBackground
   private void setDeleteLocalBranchOnSlideOutGitConfigValue(VirtualFile root, String value) {
-    new SideEffectingBackgroundable(project, getString("action.GitMachete.set-git-config.task-title"), "setting git config") {
+    new SideEffectingBackgroundable(project, getNonHtmlString("action.GitMachete.set-git-config.task-title"),
+        "setting git config") {
 
       @Override
       @UIThreadUnsafe

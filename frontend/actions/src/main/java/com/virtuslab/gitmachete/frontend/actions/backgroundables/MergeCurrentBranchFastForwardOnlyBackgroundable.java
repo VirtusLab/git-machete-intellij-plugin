@@ -1,7 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitLineHandler;
@@ -29,7 +28,7 @@ public class MergeCurrentBranchFastForwardOnlyBackgroundable extends GitCommandU
   public MergeCurrentBranchFastForwardOnlyBackgroundable(
       GitRepository gitRepository,
       IBranchReference targetBranch) {
-    super(gitRepository, getString("action.GitMachete.MergeCurrentBranchFastForwardOnlyBackgroundable.task-title"),
+    super(gitRepository, getNonHtmlString("action.GitMachete.MergeCurrentBranchFastForwardOnlyBackgroundable.task-title"),
         "fast-forward merge of current branch");
     this.targetBranch = targetBranch;
   }

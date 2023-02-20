@@ -58,10 +58,7 @@ public abstract class BaseOverrideForkPointAction extends BaseGitMacheteReposito
     val nonRootBranch = branch.asNonRoot();
     val selectedCommit = new OverrideForkPointDialog(project, nonRootBranch).showAndGetSelectedCommit();
 
-    new OverrideForkPointBackgroundable(getString("action.GitMachete.BaseOverrideForkPointAction.task.title"),
-        gitRepository, nonRootBranch,
-        getGraphTable(anActionEvent),
-        selectedCommit).queue();
+    new OverrideForkPointBackgroundable(gitRepository, nonRootBranch, getGraphTable(anActionEvent), selectedCommit).queue();
   }
 
 }

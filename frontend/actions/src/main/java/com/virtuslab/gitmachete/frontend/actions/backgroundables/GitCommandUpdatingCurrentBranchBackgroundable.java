@@ -55,7 +55,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Side
 
   public GitCommandUpdatingCurrentBranchBackgroundable(
       GitRepository gitRepository,
-      String taskTitle,
+      @Untainted String taskTitle,
       @Untainted String shortName) {
     super(gitRepository.getProject(), taskTitle, shortName);
     this.gitRepository = gitRepository;

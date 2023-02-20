@@ -158,7 +158,6 @@ public class TraverseSyncToParent {
     switch (rebaseDialog.show(project)) {
       case YES :
         new RebaseOnParentBackgroundable(
-            getString("action.GitMachete.BaseSyncToParentByRebaseAction.task-title"),
             gitRepository, repositorySnapshot, managedBranch, /* shouldExplicitlyCheckout */ false) {
           @Override
           @ContinuesInBackground

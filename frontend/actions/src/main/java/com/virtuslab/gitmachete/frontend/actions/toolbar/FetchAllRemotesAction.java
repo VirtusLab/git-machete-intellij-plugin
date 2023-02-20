@@ -1,7 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -69,7 +68,7 @@ public class FetchAllRemotesAction extends BaseProjectDependentAction {
 
     val project = getProject(anActionEvent);
     val gitRepository = getSelectedGitRepository(anActionEvent);
-    val title = getString("action.GitMachete.FetchAllRemotesAction.task-title");
+    val title = getNonHtmlString("action.GitMachete.FetchAllRemotesAction.task-title");
     new SideEffectingBackgroundable(project, title, "fetch") {
       private @MonotonicNonNull GitFetchResult result = null;
 

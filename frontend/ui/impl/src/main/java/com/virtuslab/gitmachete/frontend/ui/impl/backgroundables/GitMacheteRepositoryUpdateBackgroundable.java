@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.frontend.ui.impl.backgroundables;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.file.MacheteFileUtils.isMacheteFileSelected;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.nio.file.Path;
@@ -57,7 +58,8 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
       IBranchLayoutReader branchLayoutReader,
       @UI Consumer<@Nullable IGitMacheteRepositorySnapshot> doOnUIThreadWhenDone,
       Consumer<@Nullable IGitMacheteRepository> gitMacheteRepositoryConsumer) {
-    super(gitRepository.getProject(), getString("action.GitMachete.GitMacheteRepositoryUpdateBackgroundable.task-title"));
+    super(gitRepository.getProject(),
+        getNonHtmlString("action.GitMachete.GitMacheteRepositoryUpdateBackgroundable.task-title"));
 
     this.gitRepository = gitRepository;
     this.branchLayoutReader = branchLayoutReader;

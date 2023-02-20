@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.dialogs;
 
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 
 import java.awt.event.ActionEvent;
 
@@ -94,7 +94,7 @@ public final class GitPushDialog extends VcsPushDialog {
   @UIEffect
   public void push(boolean forcePush) {
 
-    String title = getString("string.GitMachete.GitPushDialog.task-title");
+    String title = getNonHtmlString("string.GitMachete.GitPushDialog.task-title");
     executeAfterRunningPrePushHandlers(new SideEffectingBackgroundable(myProject, title, "push") {
       @Override
       @UIThreadUnsafe

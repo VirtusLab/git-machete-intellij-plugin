@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.backgroundables;
 
 import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.blockingRunWriteActionOnUIThread;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.nio.file.Path;
@@ -39,7 +40,8 @@ public abstract class AutodiscoverBackgroundable extends Task.Backgroundable {
   private final Path macheteFilePath;
 
   public AutodiscoverBackgroundable(GitRepository gitRepository, Path macheteFilePath) {
-    super(gitRepository.getProject(), getString("string.GitMachete.AutodiscoverBackgroundable.automatic-discover.task-title"));
+    super(gitRepository.getProject(),
+        getNonHtmlString("string.GitMachete.AutodiscoverBackgroundable.automatic-discover.task-title"));
     this.project = gitRepository.getProject();
     this.gitRepository = gitRepository;
     this.macheteFilePath = macheteFilePath;

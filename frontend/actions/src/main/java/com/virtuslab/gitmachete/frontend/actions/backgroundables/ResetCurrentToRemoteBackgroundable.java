@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
 import static com.virtuslab.gitmachete.frontend.actions.base.BaseResetToRemoteAction.VCS_NOTIFIER_TITLE;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getRootDirectory;
 import static git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector.Operation.RESET;
@@ -34,9 +35,10 @@ public class ResetCurrentToRemoteBackgroundable extends SideEffectingBackgrounda
   private final String remoteTrackingBranchName;
   private final GitRepository gitRepository;
 
-  public ResetCurrentToRemoteBackgroundable(String title,
-      String localBranchName, String remoteTrackingBranchName, GitRepository gitRepository) {
-    super(gitRepository.getProject(), title, "reset");
+  public ResetCurrentToRemoteBackgroundable(String localBranchName, String remoteTrackingBranchName,
+      GitRepository gitRepository) {
+    super(gitRepository.getProject(), getNonHtmlString("action.GitMachete.ResetCurrentToRemoteBackgroundable.task-title"),
+        "reset");
     this.localBranchName = localBranchName;
     this.remoteTrackingBranchName = remoteTrackingBranchName;
     this.gitRepository = gitRepository;
@@ -50,7 +52,7 @@ public class ResetCurrentToRemoteBackgroundable extends SideEffectingBackgrounda
       LOG.debug(() -> "Resetting '${localBranchName}' to '${remoteTrackingBranchName}'");
 
       try (AccessToken ignored = DvcsUtil.workingTreeChangeStarted(project,
-          getString("action.GitMachete.BaseResetToRemoteAction.task-title"))) {
+          getString("action.GitMachete.ResetCurrentToRemoteBackgroundable.task-title"))) {
         val resetHandler = new GitLineHandler(project, gitRepository.getRoot(), GitCommand.RESET);
         resetHandler.addParameters("--keep");
         resetHandler.addParameters(remoteTrackingBranchName);

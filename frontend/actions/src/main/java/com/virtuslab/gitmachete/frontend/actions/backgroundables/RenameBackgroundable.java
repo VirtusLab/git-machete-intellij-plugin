@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.BranchCreationUtils.waitForCreationOfLocalBranch;
 import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.blockingRunWriteActionOnUIThread;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.nio.file.Path;
@@ -39,7 +40,7 @@ public class RenameBackgroundable extends SideEffectingBackgroundable {
       BaseEnhancedGraphTable graphTable, BranchLayout branchLayout,
       String currentBranchName,
       String newBranchName) {
-    super(gitRepository.getProject(), getString("action.GitMachete.RenameBackgroundable.task-title"), "rename");
+    super(gitRepository.getProject(), getNonHtmlString("action.GitMachete.RenameBackgroundable.task-title"), "rename");
     this.gitRepository = gitRepository;
     this.graphTable = graphTable;
     this.branchLayout = branchLayout;

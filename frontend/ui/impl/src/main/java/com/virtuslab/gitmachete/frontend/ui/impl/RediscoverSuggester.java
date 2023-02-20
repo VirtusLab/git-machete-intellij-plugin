@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.ui.impl;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.nio.file.Path;
@@ -100,7 +101,7 @@ public class RediscoverSuggester {
   public void enqueueChecksAndSuggestIfApplicable(Path macheteFilePath) {
     new Task.Backgroundable(
         gitRepository.getProject(),
-        getString("string.GitMachete.RediscoverSuggester.backgroundable-check-task.title")) {
+        getNonHtmlString("string.GitMachete.RediscoverSuggester.backgroundable-check-task.title")) {
       @UIThreadUnsafe
       @Override
       public void run(ProgressIndicator indicator) {

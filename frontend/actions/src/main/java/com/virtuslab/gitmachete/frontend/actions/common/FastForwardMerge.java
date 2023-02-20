@@ -76,7 +76,7 @@ public class FastForwardMerge {
         gitRepository,
         LOCAL_REPOSITORY_NAME,
         refspecFromChildToParent,
-        getString("action.GitMachete.FastForwardMerge.task-title"),
+        getNonHtmlString("action.GitMachete.FastForwardMerge.task-title"),
         notificationTextPrefix + " " + failFFMergeNotification,
         notificationTextPrefix + " " + successFFMergeNotification) {
       @Override

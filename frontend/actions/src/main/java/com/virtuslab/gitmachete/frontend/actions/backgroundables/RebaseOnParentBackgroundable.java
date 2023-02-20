@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.util.Arrays;
@@ -42,11 +43,12 @@ public class RebaseOnParentBackgroundable extends SideEffectingBackgroundable {
   private final INonRootManagedBranchSnapshot branchToRebase;
   private final boolean shouldExplicitlyCheckout;
 
-  public RebaseOnParentBackgroundable(String title, GitRepository gitRepository,
+  public RebaseOnParentBackgroundable(GitRepository gitRepository,
       IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot,
       INonRootManagedBranchSnapshot branchToRebase,
       boolean shouldExplicitlyCheckout) {
-    super(gitRepository.getProject(), title, "rebase");
+    super(gitRepository.getProject(), getNonHtmlString("action.GitMachete.RebaseOnParentBackgroundable.task-title"),
+        /* shortName */ "rebase");
 
     this.gitRepository = gitRepository;
     this.branchToRebase = branchToRebase;

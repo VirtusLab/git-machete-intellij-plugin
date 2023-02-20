@@ -298,7 +298,13 @@ class Task {
 
   @UIEffect
   void onSuccess();
+
+  class Backgroundable  {
+    Backgroundable(Project project, @Untainted String title);
+  }
 }
+
+
 
 package com.intellij.openapi.project;
 
