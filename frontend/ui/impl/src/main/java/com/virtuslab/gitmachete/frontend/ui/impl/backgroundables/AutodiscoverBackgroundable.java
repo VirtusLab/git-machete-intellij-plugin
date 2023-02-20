@@ -39,7 +39,7 @@ public abstract class AutodiscoverBackgroundable extends Task.Backgroundable {
   private final Path macheteFilePath;
 
   public AutodiscoverBackgroundable(GitRepository gitRepository, Path macheteFilePath) {
-    super(gitRepository.getProject(), getString("string.GitMachete.EnhancedGraphTable.automatic-discover.task-title"));
+    super(gitRepository.getProject(), getString("string.GitMachete.AutodiscoverBackgroundable.automatic-discover.task-title"));
     this.project = gitRepository.getProject();
     this.gitRepository = gitRepository;
     this.macheteFilePath = macheteFilePath;
