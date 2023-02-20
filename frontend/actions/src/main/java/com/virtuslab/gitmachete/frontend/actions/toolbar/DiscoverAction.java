@@ -79,7 +79,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
     val worktreeGitDirPath = gitRepository.getWorktreeGitDirectoryPath().toAbsolutePath();
     val branchLayoutWriter = ApplicationManager.getApplication().getService(IBranchLayoutWriter.class);
 
-    new SideEffectingBackgroundable(project, getString("action.GitMachete.DiscoverAction.task.title"), "discovery") {
+    new SideEffectingBackgroundable(project, getNonHtmlString("action.GitMachete.DiscoverAction.task.title"), "discovery") {
       @Override
       @SneakyThrows
       @UIThreadUnsafe

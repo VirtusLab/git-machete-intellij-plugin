@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
 import static com.virtuslab.gitmachete.frontend.actions.common.BranchCreationUtils.waitForCreationOfLocalBranch;
 import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.blockingRunWriteActionOnUIThread;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.nio.file.Path;
@@ -44,7 +45,7 @@ public abstract class BaseSlideInBackgroundable extends SideEffectingBackgrounda
       BaseEnhancedGraphTable graphTable,
       Runnable preSlideInRunnable,
       SlideInOptions slideInOptions) {
-    super(gitRepository.getProject(), getString("action.GitMachete.BaseSlideInBackgroundable.task-title"), "slide-in");
+    super(gitRepository.getProject(), getNonHtmlString("action.GitMachete.BaseSlideInBackgroundable.task-title"), "slide-in");
     this.gitRepository = gitRepository;
     this.branchLayout = branchLayout;
     this.branchLayoutWriter = branchLayoutWriter;

@@ -178,7 +178,7 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
         gitRepository,
         LOCAL_REPOSITORY_NAME,
         refspecFromRemoteToLocal,
-        getString("action.GitMachete.BaseResetToRemoteAction.task-title"),
+        getNonHtmlString("action.GitMachete.ResetCurrentToRemoteBackgroundable.task-title"),
         getNonHtmlString("action.GitMachete.BaseResetToRemoteAction.notification.title.reset-fail")
             .fmt(localBranch.getName()),
         getString("action.GitMachete.BaseResetToRemoteAction.notification.title.reset-success.HTML").fmt(localBranch.getName()))
@@ -194,8 +194,6 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
     val localBranchName = localBranch.getName();
     val remoteTrackingBranchName = remoteTrackingBranch.getName();
 
-    new ResetCurrentToRemoteBackgroundable(
-        getString("action.GitMachete.BaseResetToRemoteAction.task-title"),
-        localBranchName, remoteTrackingBranchName, gitRepository).queue();
+    new ResetCurrentToRemoteBackgroundable(localBranchName, remoteTrackingBranchName, gitRepository).queue();
   }
 }

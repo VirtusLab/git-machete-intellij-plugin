@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.backgroundables;
 
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.util.Objects;
@@ -22,7 +23,7 @@ public abstract class InferParentForUnmanagedBranchBackgroundable extends Task.B
   private final Project project;
 
   public InferParentForUnmanagedBranchBackgroundable(Project project) {
-    super(project, getString("string.GitMachete.InferParentForUnmanagedBranchBackgroundable.task-title"));
+    super(project, getNonHtmlString("string.GitMachete.InferParentForUnmanagedBranchBackgroundable.task-title"));
     this.project = project;
   }
 

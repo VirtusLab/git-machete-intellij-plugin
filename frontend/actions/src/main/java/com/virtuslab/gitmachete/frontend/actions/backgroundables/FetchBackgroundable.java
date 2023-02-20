@@ -30,7 +30,7 @@ public class FetchBackgroundable extends SideEffectingBackgroundable {
       GitRepository gitRepository,
       String remoteName,
       @Nullable String refspec,
-      String taskTitle,
+      @Untainted String taskTitle,
       @Untainted String failureNotificationText,
       String successNotificationText) {
     super(gitRepository.getProject(), taskTitle, "fetch");

@@ -57,7 +57,7 @@ public final class Pull {
     String remoteName = remoteBranch.getRemoteName();
     String remoteBranchName = remoteBranch.getName();
 
-    String taskTitle = getString("action.GitMachete.BasePullAction.task-title");
+    String taskTitle = getNonHtmlString("action.GitMachete.BasePullAction.task-title");
     new FetchBackgroundable(
         gitRepository,
         remoteName,

@@ -143,8 +143,8 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
         /* dialogLabel */ getNonHtmlString("action.GitMachete.BaseSquashAction.dialog.label"));
 
     String taskName = isSquashingCurrentBranch
-        ? getString("action.GitMachete.BaseSquashAction.task-title.current")
-        : getString("action.GitMachete.BaseSquashAction.task-title.non-current");
+        ? getNonHtmlString("action.GitMachete.BaseSquashAction.task-title.current")
+        : getNonHtmlString("action.GitMachete.BaseSquashAction.task-title.non-current");
 
     dialog.show(
         newMessage -> {

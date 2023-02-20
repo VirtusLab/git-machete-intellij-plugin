@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
+
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsException;
@@ -26,10 +28,10 @@ public class OverrideForkPointBackgroundable extends SideEffectingBackgroundable
   private final ICommitOfManagedBranch selectedCommit;
   private final BaseEnhancedGraphTable graphTable;
 
-  public OverrideForkPointBackgroundable(String title, GitRepository gitRepository,
-      INonRootManagedBranchSnapshot nonRootBranch, BaseEnhancedGraphTable graphTable,
-      @Nullable ICommitOfManagedBranch selectedCommit) {
-    super(gitRepository.getProject(), title, "fork point override");
+  public OverrideForkPointBackgroundable(GitRepository gitRepository, INonRootManagedBranchSnapshot nonRootBranch,
+      BaseEnhancedGraphTable graphTable, @Nullable ICommitOfManagedBranch selectedCommit) {
+    super(gitRepository.getProject(), getNonHtmlString("action.GitMachete.OverrideForkPointBackgroundable.task.title"),
+        "fork point override");
     this.gitRepository = gitRepository;
     this.nonRootBranch = nonRootBranch;
     this.graphTable = graphTable;

@@ -205,9 +205,7 @@ public class TraverseSyncToRemote {
         .cancelText(getString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
     switch (resetApprovalDialogBuilder.show(project)) {
       case YES :
-        new ResetCurrentToRemoteBackgroundable(
-            getString("action.GitMachete.BaseResetToRemoteAction.task-title"),
-            gitMacheteBranch.getName(), remoteTrackingBranch.getName(), gitRepository) {
+        new ResetCurrentToRemoteBackgroundable(gitMacheteBranch.getName(), remoteTrackingBranch.getName(), gitRepository) {
           @Override
           @ContinuesInBackground
           public void onSuccess() {
