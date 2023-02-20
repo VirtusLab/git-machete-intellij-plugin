@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.frontend.actions.toolbar;
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
 import static com.virtuslab.gitmachete.frontend.actions.toolbar.OpenMacheteFileAction.openMacheteFile;
 import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.blockingRunWriteActionOnUIThread;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import java.nio.file.Path;
@@ -11,6 +12,7 @@ import java.util.function.Consumer;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vcs.VcsNotifier;
@@ -19,22 +21,24 @@ import com.intellij.util.ModalityUiUtil;
 import git4idea.repo.GitRepository;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
+import lombok.SneakyThrows;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
-import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
+import com.virtuslab.gitmachete.frontend.actions.backgroundables.SideEffectingBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.GraphTableDialog;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
-import com.virtuslab.qual.guieffect.IgnoreUIThreadUnsafeCalls;
+import com.virtuslab.qual.async.ContinuesInBackground;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod({GitMacheteBundle.class, GitVfsUtils.class, Objects.class})
 @CustomLog
@@ -51,12 +55,14 @@ public class DiscoverAction extends BaseProjectDependentAction {
   }
 
   @Override
-  // TODO (#1472): extract a backgroundable for the heavy lifting
-  @IgnoreUIThreadUnsafeCalls({
-      "com.virtuslab.gitmachete.backend.api.IGitMacheteRepository.discoverLayoutAndCreateSnapshot()",
-      "com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache.getInstance(java.nio.file.Path, java.nio.file.Path, java.nio.file.Path)"
-  })
   @UIEffect
+  public void onUpdate(AnActionEvent actionEvent) {
+    super.onUpdate(actionEvent);
+    actionEvent.getPresentation().setDescription(getNonHtmlString("action.GitMachete.DiscoverAction.description"));
+  }
+
+  @Override
+  @ContinuesInBackground
   public void actionPerformed(AnActionEvent anActionEvent) {
     val project = getProject(anActionEvent);
     val gitRepository = project.getService(IGitRepositorySelectionProvider.class).getSelectedGitRepository();
@@ -73,29 +79,34 @@ public class DiscoverAction extends BaseProjectDependentAction {
     val worktreeGitDirPath = gitRepository.getWorktreeGitDirectoryPath().toAbsolutePath();
     val branchLayoutWriter = ApplicationManager.getApplication().getService(IBranchLayoutWriter.class);
 
-    try {
-      // Note that we're essentially doing a heavy-ish operation of discoverLayoutAndCreateSnapshot on UI thread here.
-      // This is still acceptable since it simplifies the flow (no background task needed)
-      // and this action is not going to be invoked frequently (probably just once for a given project).
-      val repoSnapshot = ApplicationManager.getApplication().getService(IGitMacheteRepositoryCache.class)
-          .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath)
-          .discoverLayoutAndCreateSnapshot();
+    new SideEffectingBackgroundable(project, getString("action.GitMachete.DiscoverAction.task.title"), "discovery") {
+      @Override
+      @SneakyThrows
+      @UIThreadUnsafe
+      protected void doRun(ProgressIndicator indicator) {
+        val repoSnapshot = ApplicationManager.getApplication().getService(IGitMacheteRepositoryCache.class)
+            .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath)
+            .discoverLayoutAndCreateSnapshot();
 
-      ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> GraphTableDialog.Companion.of(
-          repoSnapshot,
-          /* windowTitle */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.title"),
-          /* emptyTableText */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.empty-table-text"),
-          /* saveAction */ saveAndDoNotOpenMacheteFileSnapshotConsumer(gitRepository, branchLayoutWriter),
-          /* saveAndEditAction */ saveAndOpenMacheteFileSnapshotConsumer(gitRepository, branchLayoutWriter),
-          /* okButtonText */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.save-button-text"),
-          /* cancelButtonVisible */ true,
-          /* shouldDisplayActionToolTips */ false).show());
-    } catch (GitMacheteException e) {
-      VcsNotifier.getInstance(project).notifyError(
-          /* displayId */ null,
-          /* title */ getString("action.GitMachete.DiscoverAction.notification.title.repository-discover-error"),
-          /* message */ e.getMessage().requireNonNullElse(""));
-    }
+        ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> GraphTableDialog.Companion.of(
+            repoSnapshot,
+            /* windowTitle */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.title"),
+            /* emptyTableText */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.empty-table-text"),
+            /* saveAction */ saveAndDoNotOpenMacheteFileSnapshotConsumer(gitRepository, branchLayoutWriter),
+            /* saveAndEditAction */ saveAndOpenMacheteFileSnapshotConsumer(gitRepository, branchLayoutWriter),
+            /* okButtonText */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.save-button-text"),
+            /* cancelButtonVisible */ true,
+            /* shouldDisplayActionToolTips */ false).show());
+      }
+
+      @Override
+      public void onThrowable(Throwable error) {
+        VcsNotifier.getInstance(project).notifyError(
+            /* displayId */ null,
+            /* title */ getString("action.GitMachete.DiscoverAction.notification.title.repository-discover-error"),
+            /* message */ error.getMessage().requireNonNullElse(""));
+      }
+    }.queue();
   }
 
   private Consumer<IGitMacheteRepositorySnapshot> saveAndDoNotOpenMacheteFileSnapshotConsumer(GitRepository gitRepository,
