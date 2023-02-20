@@ -123,6 +123,7 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
       "git4idea.repo.GitRemote.getName()",
       "git4idea.repo.GitRepository.getBranches()",
       "git4idea.repo.GitRepository.getCurrentBranch()",
+      "git4idea.repo.GitRepository.getCurrentBranchName()",
       "git4idea.repo.GitRepository.getProject()",
       "git4idea.repo.GitRepository.getRemotes()",
       "git4idea.repo.GitRepository.getRoot()",
