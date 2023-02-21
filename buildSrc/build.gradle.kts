@@ -3,6 +3,12 @@ import com.diffplug.gradle.spotless.SpotlessPlugin
 import nl.littlerobots.vcu.plugin.VersionCatalogUpdateExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+// Not worth using Gradle toolchains, they don't seem to work as expected for buildSrc (or are just hard to configure properly).
+// Let the developers install sdkman to switch Java versions instead.
+if (JavaVersion.current() != JavaVersion.VERSION_17) {
+  throw GradleException("This build must be run under Java 17. Consider using sdkman with .sdkmanrc file for easily switching Java versions.")
+}
+
 plugins {
   `kotlin-dsl`
   alias(libs.plugins.taskTree)
@@ -57,23 +63,9 @@ tasks.withType<Test> {
   useJUnitPlatform()
 }
 
-// Let's use a low version so that buildSrc/ itself builds & executes properly
-// on every machine even when running for the first time.
-// In the top-level Gradle config, there is a Gradle toolchain,
-// which makes sure that the project itself builds under the correct (high) Java version,
-// even if it was previously missing from the machine.
-val buildSrcJavaVersion = JavaVersion.VERSION_17.toString()
-
 project.tasks.withType<KotlinCompile> {
   kotlinOptions {
     allWarningsAsErrors = true
-    jvmTarget = buildSrcJavaVersion
-  }
-}
-
-kotlin {
-  kotlinDslPluginOptions {
-    jvmTarget.set(buildSrcJavaVersion)
   }
 }
 
