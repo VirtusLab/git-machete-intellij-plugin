@@ -38,6 +38,8 @@ repositories {
   mavenLocal()
   mavenCentral()
   gradlePluginPortal()
+  // For https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html#configuration-cache
+  maven("https://oss.sonatype.org/content/repositories/snapshots/")
 }
 
 dependencies {
