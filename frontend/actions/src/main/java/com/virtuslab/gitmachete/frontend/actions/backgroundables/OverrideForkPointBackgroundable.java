@@ -46,8 +46,8 @@ public class OverrideForkPointBackgroundable extends SideEffectingBackgroundable
       LOG.debug("Enqueueing fork point override");
       overrideForkPoint(nonRootBranch, selectedCommit);
     } else {
-      LOG.debug(
-          "Commit selected to be the new fork point is null: most likely the action has been canceled from override-fork-point dialog");
+      LOG.debug("Commit selected to be the new fork point is null: " +
+          "most likely the action has been canceled from override-fork-point dialog");
     }
   }
 
@@ -56,7 +56,7 @@ public class OverrideForkPointBackgroundable extends SideEffectingBackgroundable
   private void overrideForkPoint(IManagedBranchSnapshot branch, ICommitOfManagedBranch forkPoint) {
     if (gitRepository != null) {
       val root = gitRepository.getRoot();
-      setOverrideForkPointConfigValues(project, root, branch.getName(), forkPoint, branch.getPointedCommit());
+      setOverrideForkPointConfigValues(project, root, branch.getName(), forkPoint);
     }
 
     // required since the change of .git/config is not considered as a change to VCS (and detected by the listener)
@@ -68,8 +68,7 @@ public class OverrideForkPointBackgroundable extends SideEffectingBackgroundable
       Project project,
       VirtualFile root,
       String branchName,
-      ICommitOfManagedBranch forkPoint,
-      ICommitOfManagedBranch ancestorCommit) {
+      ICommitOfManagedBranch forkPoint) {
     val section = "machete";
     val subsectionPrefix = "overrideForkPoint";
     val to = "to";
@@ -88,6 +87,11 @@ public class OverrideForkPointBackgroundable extends SideEffectingBackgroundable
     }
 
     try {
+      // As a step towards deprecation of `whileDescendantOf` key (see #1580),
+      // let's just set its value to the same as `to` key.
+      // This will mitigate the problem pointed out in https://github.com/VirtusLab/git-machete/issues/611,
+      // while not breaking older git-machete clients (esp. CLI) that still require `whileDescendantOf` key to be present
+      // for a fork point override to be valid.
       GitConfigUtil.setValue(project, root, whileDescendantOfKey, forkPoint.getHash());
     } catch (VcsException e) {
       LOG.info("Attempt to get '${whileDescendantOf}' git config value failed: " + e.getMessage());

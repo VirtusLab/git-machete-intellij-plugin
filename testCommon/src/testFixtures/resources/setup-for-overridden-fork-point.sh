@@ -25,7 +25,6 @@ cd machete-sandbox
   git branch -d root
 
   git config machete.overrideForkPoint.build-chain.to "$(git rev-parse allow-ownership-link)"
-  git config machete.overrideForkPoint.build-chain.whileDescendantOf "$(git rev-parse build-chain)"
 
   # Let's skip allow-ownership-link on purpose so that develop and build-chain are connected with a yellow edge
   machete_file='

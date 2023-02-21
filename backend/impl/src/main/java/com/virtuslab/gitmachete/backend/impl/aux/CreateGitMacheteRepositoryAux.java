@@ -347,48 +347,34 @@ public class CreateGitMacheteRepositoryAux extends Aux {
     // Subsection is everything else
     String toRevision = gitCoreRepository
         .deriveConfigValue(section, subsectionPrefix + "." + branchName, "to");
-    String whileDescendantOfRevision = gitCoreRepository
-        .deriveConfigValue(section, subsectionPrefix + "." + branchName, "whileDescendantOf");
-    if (toRevision == null || whileDescendantOfRevision == null) {
+    // Note that we're ignoring `...whileDescendantOf` config key completely, as a step towards complete removal.
+    if (toRevision == null) {
       return null;
     }
-    LOG.debug(() -> "Fork point override config for '${branchName}': " +
-        "to='${toRevision}', whileDescendantOf='${whileDescendantOfRevision}'");
+    LOG.debug(() -> "Fork point override config for '${branchName}': <to>='${toRevision}'");
 
-    // Let's check the internal consistency of the config - we can't rule out that it's been tampered with.
-    IGitCoreCommit to = gitCoreRepository.parseRevision(toRevision);
-    IGitCoreCommit whileDescendantOf = gitCoreRepository.parseRevision(whileDescendantOfRevision);
-    if (to == null || whileDescendantOf == null) {
-      LOG.warn("Could not parse either <to> (${to}) or " +
-          "<whileDescendantOf> (${whileDescendantOf}) into a valid commit, ignoring faulty fork point override");
-      return null;
-    }
-    // Yes, that's not a bug. We're checking whether `whileDescendantOf` is a descendant of `to`, not the other way round.
-    // The `descendant of` part of `whileDescendantOf` refers to the *current branch* being a descendant
-    // of whatever `whileDescendantOf` points to.
-    if (!gitCoreRepository.isAncestorOrEqual(to, whileDescendantOf)) {
-      LOG.warn("Commit <to> (${to}) is NOT an ancestor of " +
-          "<whileDescendantOf> (${whileDescendantOf}), ignoring faulty fork point override");
+    // Let's validate the config - we can't rule out that it's been tampered with,
+    // or (more realistically) that it points to a commit that has since been e.g. GC'ed out of the repository.
+    IGitCoreCommit toCommit = gitCoreRepository.parseRevision(toRevision);
+    if (toCommit == null) {
+      LOG.warn("Could not parse <to> (${toCommit}) into a valid commit, ignoring faulty fork point override");
       return null;
     }
 
-    // Now we know that the override config is consistent, but it still doesn't mean
-    // that it actually applies to the given branch AT THIS POINT (it could e.g. have applied earlier but now no longer applies).
+    // Now we know that the commit pointed by the config exists, but it still doesn't mean
+    // that it actually applies to the given branch AT THIS POINT
+    // (it could e.g. have been applicable earlier but now no longer applies).
     val branchCommit = coreLocalBranch.getPointedCommit();
-    if (!gitCoreRepository.isAncestorOrEqual(whileDescendantOf, branchCommit)) {
-      LOG.debug(() -> "Branch ${branchName} (${branchCommit}) is NOT a descendant of " +
-          "<whileDescendantOf> (${whileDescendantOf}), ignoring outdated fork point override");
+    if (!gitCoreRepository.isAncestorOrEqual(toCommit, branchCommit)) {
+      LOG.debug(() -> "Branch ${branchName} (${branchCommit}) is NOT a descendant of <to> (${toCommit}), " +
+          "ignoring the outdated fork point override");
       return null;
     }
 
-    // Now we know that:
-    //   to <-- whileDescendantOf <-- branchCommit
-    // so the fork point override is internally consistent and applies to the commit currently pointed by the branch.
     // Note that we still need to validate whether the fork point is a descendant of the branch's parent,
     // but this will happen in parent-aware logic (and we're parent-agnostic here yet).
-    LOG.debug(() -> "Applying fork point override for '${branchName}' (${branchCommit}): " +
-        "to=${to}, whileDescendantOf=${whileDescendantOf}");
-    return to;
+    LOG.debug(() -> "Applying fork point override for '${branchName}' (${branchCommit}): ${toCommit}");
+    return toCommit;
   }
 
   @UIThreadUnsafe

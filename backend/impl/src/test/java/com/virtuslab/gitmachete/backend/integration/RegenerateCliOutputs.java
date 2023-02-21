@@ -24,6 +24,8 @@ public class RegenerateCliOutputs {
     saveFile(outputDirectory, "version.txt", versionOutput);
 
     for (String scriptName : ALL_SETUP_SCRIPTS) {
+      System.out.println("Regenerating the output for ${scriptName}...");
+
       Path parentDir = Files.createTempDirectory("machete-tests-");
       Path repositoryMainDir = parentDir.resolve("machete-sandbox");
 
