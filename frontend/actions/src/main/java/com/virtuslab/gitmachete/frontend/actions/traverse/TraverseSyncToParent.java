@@ -111,6 +111,15 @@ public class TraverseSyncToParent {
       IGitMacheteRepositorySnapshot repositorySnapshot,
       INonRootManagedBranchSnapshot managedBranch,
       Runnable syncToRemoteRunnable) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     val branchLayout = repositorySnapshot.getBranchLayout();
     val slideOutDialog = MessageDialogBuilder.yesNoCancel(
         getString("action.GitMachete.BaseTraverseAction.dialog.merged-to-parent.title"),
@@ -140,6 +149,15 @@ public class TraverseSyncToParent {
       IGitMacheteRepositorySnapshot repositorySnapshot,
       INonRootManagedBranchSnapshot managedBranch,
       Runnable syncToRemoteRunnable) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     var title = getString("action.GitMachete.BaseTraverseAction.dialog.out-of-sync-to-parent.title");
     var text = getString(
         "action.GitMachete.BaseTraverseAction.dialog.out-of-sync-to-parent.text.HTML");

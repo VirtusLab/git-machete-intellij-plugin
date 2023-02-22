@@ -41,6 +41,15 @@ public class OpenMacheteFileAction extends BaseProjectDependentAction {
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     val project = getProject(anActionEvent);
 
     // When selected Git repository is empty (due to e.g. unopened Git Machete tab)
@@ -95,6 +104,15 @@ public class OpenMacheteFileAction extends BaseProjectDependentAction {
 
   @UIEffect
   public static void openMacheteFile(GitRepository gitRepository) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     val project = gitRepository.getProject();
     val file = gitRepository.getMacheteFile();
     if (file != null) {

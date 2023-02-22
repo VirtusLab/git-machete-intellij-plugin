@@ -66,6 +66,17 @@ public class CreateGitMacheteRepositoryAux extends Aux {
       StatusBranchHookExecutor statusHookExecutor,
       PreRebaseHookExecutor preRebaseHookExecutor) throws GitCoreException {
     super(gitCoreRepository);
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
 
     this.statusHookExecutor = statusHookExecutor;
     this.preRebaseHookExecutor = preRebaseHookExecutor;
@@ -75,6 +86,17 @@ public class CreateGitMacheteRepositoryAux extends Aux {
 
   @UIThreadUnsafe
   public IGitMacheteRepositorySnapshot createSnapshot(BranchLayout branchLayout) throws GitMacheteException {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
     val rootBranchTries = branchLayout.getRootEntries().map(entry -> Try.of(() -> createGitMacheteRootBranch(entry)));
     val rootBranchCreationResults = Try.sequence(rootBranchTries).getOrElseThrow(GitMacheteException::getOrWrap).toList();
     val rootBranches = rootBranchCreationResults.flatMap(creationResult -> creationResult.getCreatedBranches());
@@ -117,6 +139,17 @@ public class CreateGitMacheteRepositoryAux extends Aux {
   @UIThreadUnsafe
   private @Nullable String deriveOngoingOperationsBaseBranchName(OngoingRepositoryOperationType ongoingOperation)
       throws GitMacheteException {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
     try {
       if (ongoingOperation == OngoingRepositoryOperationType.REBASING) {
         return gitCoreRepository.deriveRebasedBranch();
@@ -132,6 +165,17 @@ public class CreateGitMacheteRepositoryAux extends Aux {
 
   @UIThreadUnsafe
   private @Nullable IGitCoreLocalBranchSnapshot deriveCoreCurrentBranch() throws GitMacheteException {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
     try {
       return gitCoreRepository.deriveHead().getTargetBranch();
     } catch (GitCoreException e) {
@@ -156,6 +200,17 @@ public class CreateGitMacheteRepositoryAux extends Aux {
   @UIThreadUnsafe
   private CreatedAndDuplicatedAndSkippedBranches<RootManagedBranchSnapshot> createGitMacheteRootBranch(
       BranchLayoutEntry entry) throws GitCoreException {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
 
     val branchName = entry.getName();
     IGitCoreLocalBranchSnapshot coreLocalBranch = localBranchByName.get(branchName).getOrNull();
@@ -199,6 +254,17 @@ public class CreateGitMacheteRepositoryAux extends Aux {
   private CreatedAndDuplicatedAndSkippedBranches<NonRootManagedBranchSnapshot> createGitMacheteNonRootBranch(
       IGitCoreLocalBranchSnapshot parentCoreLocalBranch,
       BranchLayoutEntry entry) throws GitCoreException {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
 
     val branchName = entry.getName();
     IGitCoreLocalBranchSnapshot coreLocalBranch = localBranchByName.get(branchName).getOrNull();
@@ -268,6 +334,17 @@ public class CreateGitMacheteRepositoryAux extends Aux {
   public @Nullable ForkPointCommitOfManagedBranch deriveParentAwareForkPoint(
       IGitCoreLocalBranchSnapshot coreLocalBranch,
       IGitCoreLocalBranchSnapshot parentCoreLocalBranch) throws GitCoreException {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
     LOG.debug(() -> "Entering: coreLocalBranch = '${coreLocalBranch.getName()}', " +
         "parentCoreLocalBranch = '${parentCoreLocalBranch.getName()}'");
 
@@ -338,6 +415,17 @@ public class CreateGitMacheteRepositoryAux extends Aux {
   @UIThreadUnsafe
   private @Nullable IGitCoreCommit deriveParentAgnosticOverriddenForkPoint(IGitCoreLocalBranchSnapshot coreLocalBranch)
       throws GitCoreException {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
     String section = "machete";
     String subsectionPrefix = "overrideForkPoint";
     String branchName = coreLocalBranch.getName();
@@ -380,6 +468,17 @@ public class CreateGitMacheteRepositoryAux extends Aux {
   @UIThreadUnsafe
   private @Nullable ForkPointCommitOfManagedBranch deriveParentAgnosticInferredForkPoint(IGitCoreLocalBranchSnapshot branch)
       throws GitCoreException {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
     LOG.debug(() -> "Entering: branch = '${branch.getFullName()}'");
 
     val forkPointAndContainingBranches = gitCoreRepository
@@ -414,6 +513,17 @@ public class CreateGitMacheteRepositoryAux extends Aux {
   private CreatedAndDuplicatedAndSkippedBranches<NonRootManagedBranchSnapshot> deriveChildBranches(
       IGitCoreLocalBranchSnapshot parentCoreLocalBranch,
       List<BranchLayoutEntry> entries) throws GitCoreException {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
 
     val childBranchTries = entries.map(entry -> Try.of(
         () -> createGitMacheteNonRootBranch(parentCoreLocalBranch, entry)));
@@ -424,6 +534,17 @@ public class CreateGitMacheteRepositoryAux extends Aux {
 
   @UIThreadUnsafe
   public RelationToRemote deriveRelationToRemote(IGitCoreLocalBranchSnapshot coreLocalBranch) throws GitCoreException {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
     String localBranchName = coreLocalBranch.getName();
     LOG.debug(() -> "Entering: coreLocalBranch = '${localBranchName}'");
 
@@ -482,6 +603,17 @@ public class CreateGitMacheteRepositoryAux extends Aux {
   @UIThreadUnsafe
   private boolean isEquivalentTreeReachable(IGitCoreCommit equivalentTo, IGitCoreCommit reachableFrom)
       throws GitCoreException {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
     val applicableCommits = gitCoreRepository.deriveCommitRange(/* fromInclusive */ reachableFrom,
         /* untilExclusive */ equivalentTo);
     return applicableCommits.exists(commit -> commit.getTreeHash().equals(equivalentTo.getTreeHash()));
@@ -492,6 +624,17 @@ public class CreateGitMacheteRepositoryAux extends Aux {
       IGitCoreLocalBranchSnapshot coreLocalBranch,
       IGitCoreLocalBranchSnapshot parentCoreLocalBranch,
       @Nullable ForkPointCommitOfManagedBranch forkPoint) throws GitCoreException {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
     val branchName = coreLocalBranch.getName();
     val parentBranchName = parentCoreLocalBranch.getName();
     LOG.debug(() -> "Entering: coreLocalBranch = '${branchName}', " +

@@ -57,6 +57,15 @@ public class DiscoverAction extends BaseProjectDependentAction {
   @Override
   @UIEffect
   public void onUpdate(AnActionEvent actionEvent) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     super.onUpdate(actionEvent);
     actionEvent.getPresentation().setDescription(getNonHtmlString("action.GitMachete.DiscoverAction.description"));
   }
@@ -84,6 +93,17 @@ public class DiscoverAction extends BaseProjectDependentAction {
       @SneakyThrows
       @UIThreadUnsafe
       protected void doRun(ProgressIndicator indicator) {
+        if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+          var sw = new java.io.StringWriter();
+          var pw = new java.io.PrintWriter(sw);
+          new Exception().printStackTrace(pw);
+          String stackTrace = sw.toString();
+          if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+            System.out.println("Expected non-EDT:");
+            System.out.println(stackTrace);
+            throw new RuntimeException("Expected EDT: " + stackTrace);
+          }
+        }
         val repoSnapshot = ApplicationManager.getApplication().getService(IGitMacheteRepositoryCache.class)
             .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath)
             .discoverLayoutAndCreateSnapshot();

@@ -40,6 +40,17 @@ public class DiscoverGitMacheteRepositoryAux extends CreateGitMacheteRepositoryA
       StatusBranchHookExecutor statusHookExecutor,
       PreRebaseHookExecutor preRebaseHookExecutor) throws GitCoreException {
     super(gitCoreRepository, statusHookExecutor, preRebaseHookExecutor);
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
   }
 
   /**
@@ -110,6 +121,17 @@ public class DiscoverGitMacheteRepositoryAux extends CreateGitMacheteRepositoryA
 
   @UIThreadUnsafe
   private Map<String, Instant> deriveLastCheckoutTimestampByBranchName() throws GitCoreException {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
     java.util.Map<String, Instant> result = new java.util.HashMap<>();
 
     for (val reflogEntry : gitCoreRepository.deriveHead().getReflogFromMostRecent()) {
@@ -128,6 +150,17 @@ public class DiscoverGitMacheteRepositoryAux extends CreateGitMacheteRepositoryA
   @UIThreadUnsafe
   public IGitMacheteRepositorySnapshot discoverLayoutAndCreateSnapshot(int mostRecentlyCheckedOutBranchesCount)
       throws GitMacheteException, GitCoreException {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
 
     List<String> localBranchNames = localBranches.map(lb -> lb.getName());
     List<String> fixedRootBranchNames = List.empty();

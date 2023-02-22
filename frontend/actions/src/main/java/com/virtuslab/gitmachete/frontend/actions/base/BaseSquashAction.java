@@ -48,6 +48,15 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
   @Override
   @UIEffect
   protected void onUpdate(AnActionEvent anActionEvent) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     super.onUpdate(anActionEvent);
 
     val presentation = anActionEvent.getPresentation();
@@ -92,6 +101,15 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
   @ContinuesInBackground
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     val branchName = getNameOfBranchUnderAction(anActionEvent);
     val managedBranch = getManagedBranchByName(anActionEvent, branchName);
     val nonRootBranch = managedBranch != null && managedBranch.isNonRoot()
@@ -128,6 +146,15 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
       List<ICommitOfManagedBranch> commits,
       String branchName,
       boolean isSquashingCurrentBranch) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     val project = gitRepository.getProject();
 
     val vcsCommitMetadataAndMessage = commits.foldLeft(
@@ -152,6 +179,18 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
             @Override
             @UIThreadUnsafe
             public void doRun(ProgressIndicator indicator) {
+              if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+                var sw = new java.io.StringWriter();
+                var pw = new java.io.PrintWriter(sw);
+                new Exception().printStackTrace(pw);
+                String stackTrace = sw.toString();
+                if (!stackTrace
+                    .contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+                  System.out.println("Expected non-EDT:");
+                  System.out.println(stackTrace);
+                  throw new RuntimeException("Expected EDT: " + stackTrace);
+                }
+              }
               log().info("Checking out '${branchName}' branch and squashing it");
 
               if (!isSquashingCurrentBranch) {

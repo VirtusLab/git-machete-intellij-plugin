@@ -11,6 +11,15 @@ public class HelpAction extends DumbAwareAction {
   @Override
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     GraphTableDialog.Companion.ofDemoRepository().show();
   }
 }

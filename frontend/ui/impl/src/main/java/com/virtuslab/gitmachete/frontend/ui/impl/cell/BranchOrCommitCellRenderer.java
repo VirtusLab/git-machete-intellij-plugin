@@ -16,6 +16,15 @@ public class BranchOrCommitCellRenderer implements TableCellRenderer {
   @UIEffect
   public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row,
       int column) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     return new BranchOrCommitCellRendererComponent(table, value, isSelected, hasFocus, row, column,
         shouldDisplayActionToolTips);
   }

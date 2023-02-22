@@ -42,6 +42,17 @@ public class OverrideForkPointBackgroundable extends SideEffectingBackgroundable
   @ContinuesInBackground
   @UIThreadUnsafe
   public void doRun(ProgressIndicator indicator) {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
     if (selectedCommit != null) {
       LOG.debug("Enqueueing fork point override");
       overrideForkPoint(nonRootBranch, selectedCommit);
@@ -54,6 +65,17 @@ public class OverrideForkPointBackgroundable extends SideEffectingBackgroundable
   @ContinuesInBackground
   @UIThreadUnsafe
   private void overrideForkPoint(IManagedBranchSnapshot branch, ICommitOfManagedBranch forkPoint) {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
     if (gitRepository != null && myProject != null) {
       val root = gitRepository.getRoot();
       setOverrideForkPointConfigValues(myProject, root, branch.getName(), forkPoint);
@@ -69,6 +91,17 @@ public class OverrideForkPointBackgroundable extends SideEffectingBackgroundable
       VirtualFile root,
       String branchName,
       ICommitOfManagedBranch forkPoint) {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
     val section = "machete";
     val subsectionPrefix = "overrideForkPoint";
     val to = "to";

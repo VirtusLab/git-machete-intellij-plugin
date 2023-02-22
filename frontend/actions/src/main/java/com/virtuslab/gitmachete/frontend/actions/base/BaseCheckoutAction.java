@@ -33,6 +33,15 @@ public abstract class BaseCheckoutAction extends BaseGitMacheteRepositoryReadyAc
   @Override
   @UIEffect
   protected void onUpdate(AnActionEvent anActionEvent) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     super.onUpdate(anActionEvent);
 
     val presentation = anActionEvent.getPresentation();
@@ -68,6 +77,15 @@ public abstract class BaseCheckoutAction extends BaseGitMacheteRepositoryReadyAc
   @ContinuesInBackground
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     val targetBranchName = getTargetBranchName(anActionEvent);
     if (targetBranchName == null || targetBranchName.isEmpty()) {
       return;

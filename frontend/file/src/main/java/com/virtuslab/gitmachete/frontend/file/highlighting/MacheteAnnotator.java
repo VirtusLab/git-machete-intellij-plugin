@@ -48,6 +48,17 @@ public class MacheteAnnotator implements Annotator, DumbAware {
   @Override
   @UIThreadUnsafe
   public void annotate(PsiElement element, AnnotationHolder holder) {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
     if (element instanceof MacheteGeneratedEntry) {
       processMacheteGeneratedEntry((MacheteGeneratedEntry) element, holder);
     } else if (element.getNode().getElementType().equals(MacheteGeneratedElementTypes.INDENTATION)) {
@@ -57,6 +68,15 @@ public class MacheteAnnotator implements Annotator, DumbAware {
 
   @UIEffect
   private void showCantGetBranchesMessage(PsiFile file) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     Editor currentEditor = FileEditorManager.getInstance(file.getProject()).getSelectedTextEditor();
     if (currentEditor == null) {
       return;
@@ -68,6 +88,17 @@ public class MacheteAnnotator implements Annotator, DumbAware {
 
   @UIThreadUnsafe
   private void processMacheteGeneratedEntry(MacheteGeneratedEntry macheteEntry, AnnotationHolder holder) {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
     MacheteGeneratedBranch branch = macheteEntry.getBranch();
 
     PsiFile file = macheteEntry.getContainingFile();

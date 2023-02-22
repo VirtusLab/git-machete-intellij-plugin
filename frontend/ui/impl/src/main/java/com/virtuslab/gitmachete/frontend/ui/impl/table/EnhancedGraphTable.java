@@ -199,6 +199,15 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       @ContinuesInBackground
       @UIEffect
       public void after(java.util.List<? extends VFileEvent> events) {
+        if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+          var sw = new java.io.StringWriter();
+          var pw = new java.io.PrintWriter(sw);
+          new Exception().printStackTrace(pw);
+          String stackTrace = sw.toString();
+          System.out.println("Expected EDT:");
+          System.out.println(stackTrace);
+          throw new RuntimeException("Expected EDT: " + stackTrace);
+        }
         for (val event : events) {
           if (event instanceof VFileContentChangeEvent) {
             VirtualFile file = ((VFileContentChangeEvent) event).getFile();
@@ -219,6 +228,15 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   @DoesNotContinueInBackground(reason = "because the call to trackCurrentBranchChange happens in listener")
   @UIEffect
   private void subscribeToGitRepositoryFilesChanges() {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     Topic<GitRepositoryChangeListener> topic = GitRepository.GIT_REPO_CHANGE;
     // Let's explicitly mark this listener as @AlwaysSafe
     // as we've checked experimentally that there is no guarantee that it'll run on UI thread.
@@ -272,6 +290,17 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       @Override
       @UIThreadUnsafe
       protected @Nullable ILocalBranchReference inferParent() throws GitMacheteException {
+        if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+          var sw = new java.io.StringWriter();
+          var pw = new java.io.PrintWriter(sw);
+          new Exception().printStackTrace(pw);
+          String stackTrace = sw.toString();
+          if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+            System.out.println("Expected non-EDT:");
+            System.out.println(stackTrace);
+            throw new RuntimeException("Expected EDT: " + stackTrace);
+          }
+        }
         return repository.inferParentForLocalBranch(eligibleLocalBranchNames, branchName);
       }
 
@@ -300,6 +329,15 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   @ContinuesInBackground
   @UIEffect
   private void trackCurrentBranchChange(GitRepository repository) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     val repositoryCurrentBranch = repository.getCurrentBranch();
     if (repositoryCurrentBranch != null) {
       val repositoryCurrentBranchName = repositoryCurrentBranch.getName();
@@ -340,6 +378,15 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       GitRepository gitRepository,
       IGitMacheteRepositorySnapshot repositorySnapshot,
       @UI Runnable doOnUIThreadWhenReady) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     if (!project.isInitialized() || ApplicationManager.getApplication().isUnitTestMode()) {
       LOG.debug("Project is not initialized or application is in unit test mode. Returning.");
       return;
@@ -504,6 +551,15 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   @ContinuesInBackground
   @UIEffect
   public void refreshModel() {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     val gitRepositorySelectionProvider = getGitRepositorySelectionProvider();
     val gitRepository = gitRepositorySelectionProvider.getSelectedGitRepository();
     if (gitRepository != null) {
@@ -517,6 +573,15 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
   @UIEffect
   private void initColumns() {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     createDefaultColumnsFromModel();
 
     // Otherwise, sizes would be recalculated after each TableColumn re-initialization
@@ -575,6 +640,15 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
   @UIEffect
   private static void validateUnmanagedBranchNotification(IGitMacheteRepositorySnapshot newGitMacheteRepositorySnapshot,
       @Nullable UnmanagedBranchNotification notification) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     val branchEntryExists = Option.of(notification)
         .map(UnmanagedBranchNotification::getBranchName)
         .flatMap(b -> Option.of(newGitMacheteRepositorySnapshot.getBranchLayout().getEntryByName(b)))

@@ -72,6 +72,17 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
   @UIThreadUnsafe
   @Override
   public void run(ProgressIndicator indicator) {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
     // We can't queue repository update (onto a non-UI thread) and `doOnUIThreadWhenDone` (onto the UI thread) separately
     // since those two actions happen on two separate threads
     // and `doOnUIThreadWhenDone` can only start once repository update is complete.
@@ -90,6 +101,17 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
    */
   @UIThreadUnsafe
   private @Nullable IGitMacheteRepositorySnapshot updateRepositorySnapshot() {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
     Path rootDirectoryPath = gitRepository.getRootDirectoryPath();
     Path mainGitDirectoryPath = gitRepository.getMainGitDirectoryPath();
     Path worktreeGitDirectoryPath = gitRepository.getWorktreeGitDirectoryPath();

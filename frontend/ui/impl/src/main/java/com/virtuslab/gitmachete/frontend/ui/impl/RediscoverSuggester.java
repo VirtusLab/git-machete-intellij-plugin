@@ -48,6 +48,15 @@ public class RediscoverSuggester {
   @ContinuesInBackground
   @UIEffect
   public void perform() {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     val macheteFilePath = gitRepository.getMacheteFilePath();
 
     val lastModifiedTimeMillis = macheteFilePath.getFileModificationDate();
@@ -68,6 +77,15 @@ public class RediscoverSuggester {
 
   @UIEffect
   private void queueSuggestion(Path macheteFilePath) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     val yesNo = MessageDialogBuilder.yesNo(
         getString("string.GitMachete.RediscoverSuggester.dialog.title"),
         getString("string.GitMachete.RediscoverSuggester.dialog.question"));
@@ -88,6 +106,15 @@ public class RediscoverSuggester {
    */
   @UIEffect
   private void refreshFileModificationDate(Path macheteFilePath) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     macheteFilePath.setFileModificationDate(System.currentTimeMillis());
   }
 
@@ -105,6 +132,17 @@ public class RediscoverSuggester {
       @UIThreadUnsafe
       @Override
       public void run(ProgressIndicator indicator) {
+        if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+          var sw = new java.io.StringWriter();
+          var pw = new java.io.PrintWriter(sw);
+          new Exception().printStackTrace(pw);
+          String stackTrace = sw.toString();
+          if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+            System.out.println("Expected non-EDT:");
+            System.out.println(stackTrace);
+            throw new RuntimeException("Expected EDT: " + stackTrace);
+          }
+        }
         if (areAllLocalBranchesManaged(macheteFilePath) || isDiscoveredBranchLayoutEquivalentToCurrent(macheteFilePath)) {
           ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> refreshFileModificationDate(macheteFilePath));
         } else {
@@ -130,6 +168,17 @@ public class RediscoverSuggester {
 
   @UIThreadUnsafe
   private boolean isDiscoveredBranchLayoutEquivalentToCurrent(Path macheteFilePath) {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
     Path rootDirPath = gitRepository.getRootDirectoryPath().toAbsolutePath();
     Path mainGitDirPath = gitRepository.getMainGitDirectoryPath().toAbsolutePath();
     Path worktreeGitDirPath = gitRepository.getWorktreeGitDirectoryPath().toAbsolutePath();

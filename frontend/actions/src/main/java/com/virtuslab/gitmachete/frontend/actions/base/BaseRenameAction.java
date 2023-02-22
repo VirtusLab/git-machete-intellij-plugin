@@ -37,6 +37,15 @@ public abstract class BaseRenameAction extends BaseGitMacheteRepositoryReadyActi
   @Override
   @UIEffect
   protected void onUpdate(AnActionEvent anActionEvent) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     super.onUpdate(anActionEvent);
 
     val presentation = anActionEvent.getPresentation();
@@ -63,6 +72,15 @@ public abstract class BaseRenameAction extends BaseGitMacheteRepositoryReadyActi
   @ContinuesInBackground
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     val gitRepository = getSelectedGitRepository(anActionEvent);
     val branchName = getNameOfBranchUnderAction(anActionEvent);
     val branch = branchName != null ? getManagedBranchByName(anActionEvent, branchName) : null;
@@ -80,6 +98,15 @@ public abstract class BaseRenameAction extends BaseGitMacheteRepositoryReadyActi
   @UIEffect
   private void rename(GitRepository gitRepository, BaseEnhancedGraphTable graphTable, IManagedBranchSnapshot branch,
       BranchLayout branchLayout) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     val project = gitRepository.getProject();
 
     val gitNewBranchDialog = new GitNewBranchDialog(project, Collections.singletonList(gitRepository),

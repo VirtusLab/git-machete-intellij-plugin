@@ -37,6 +37,17 @@ public final class MacheteFileUtils {
 
   @UIThreadUnsafe
   public static List<String> getBranchNamesForPsiMacheteFile(PsiFile psiFile) {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
     val gitRepository = findGitRepositoryForPsiMacheteFile(psiFile);
 
     if (gitRepository == null) {
@@ -49,6 +60,17 @@ public final class MacheteFileUtils {
 
   @UIThreadUnsafe
   public static @Nullable GitRepository findGitRepositoryForPsiMacheteFile(PsiFile psiFile) {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
     val project = psiFile.getProject();
     return List.ofAll(GitRepositoryManager.getInstance(project).getRepositories())
         .find(repository -> {
@@ -59,6 +81,15 @@ public final class MacheteFileUtils {
 
   @UIEffect
   public static void saveDocument(PsiFile file) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     val fileDocManager = FileDocumentManager.getInstance();
     val document = fileDocManager.getDocument(file.getVirtualFile());
     if (document != null) {

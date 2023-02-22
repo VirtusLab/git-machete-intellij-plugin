@@ -90,6 +90,15 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
       int row,
       int column,
       boolean shouldDisplayActionToolTips) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
 
     this.graphTable = table;
 
@@ -213,6 +222,15 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
   @Override
   @UIEffect
   public void paintComponent(Graphics g) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     super.paintComponent(g);
 
     Graphics2D g2d = (Graphics2D) g;
@@ -231,6 +249,15 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
   @Override
   @UIEffect
   public FontMetrics getFontMetrics(Font font) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     return graphTable.getFontMetrics(font);
   }
 
@@ -246,6 +273,15 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
   @UIEffect
   @SuppressWarnings("nullness:argument") // for GraphicsConfiguration param
   private static BufferedImage getGraphImage(JTable table, @NonNegative int maxGraphNodePositionInRow) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     return UIUtil.createImage(table.getGraphicsConfiguration(),
         /* width */ PaintParameters.getNodeWidth(table.getRowHeight()) * (maxGraphNodePositionInRow + 2),
         /* height */ table.getRowHeight(),
@@ -255,6 +291,15 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
 
   @UIEffect
   private static @Positive int calculateTextPadding(JTable table, @NonNegative int maxPosition) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     int width = (maxPosition + 1) * PaintParameters.getNodeWidth(table.getRowHeight());
     int padding = width + LabelPainter.RIGHT_PADDING.get();
     // Our assumption here comes from the fact that we expect positive row height of graph table,
@@ -295,6 +340,15 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
 
   @UIEffect
   private void setBranchToolTipText(IManagedBranchSnapshot branch) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     if (branch.isRoot()) {
       setToolTipText(getRootToolTipText(branch.asRoot()));
     } else {
@@ -337,6 +391,15 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
         boolean hasFocus,
         int row,
         int column) {
+      if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+        var sw = new java.io.StringWriter();
+        var pw = new java.io.PrintWriter(sw);
+        new Exception().printStackTrace(pw);
+        String stackTrace = sw.toString();
+        System.out.println("Expected EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
       Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
       val backgroundColor = isSelected ? UIUtil.getListSelectionBackground(table.hasFocus()) : UIUtil.getListBackground();
       component.setBackground(backgroundColor);
@@ -351,6 +414,15 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
       int column,
       boolean hasFocus,
       final boolean selected) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     CellStyle style = getStyle(row, column, hasFocus, selected);
     rendererComponent.setBackground(style.getBackground());
     rendererComponent.setForeground(style.getForeground());
@@ -358,6 +430,15 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
 
   @UIEffect
   private CellStyle getStyle(int row, int column, boolean hasFocus, boolean selected) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     Component dummyRendererComponent = myTableCellRenderer.getTableCellRendererComponent(
         graphTable, /* value */ "", selected, hasFocus, row, column);
     val background = dummyRendererComponent.getBackground();

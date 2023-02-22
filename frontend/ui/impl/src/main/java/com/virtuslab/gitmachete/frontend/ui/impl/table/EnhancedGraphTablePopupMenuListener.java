@@ -16,12 +16,30 @@ class EnhancedGraphTablePopupMenuListener extends PopupMenuListenerAdapter {
 
   @UIEffect
   EnhancedGraphTablePopupMenuListener(EnhancedGraphTable graphTable) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     this.graphTable = graphTable;
   }
 
   @Override
   @UIEffect
   public void popupMenuWillBecomeVisible(PopupMenuEvent popupMenuEvent) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     // This delay is needed to avoid `focus transfer` effect when at the beginning row selection is light-blue,
     // but when the context menu is created (in a fraction of a second),
     // selection loses focus on the context menu and becomes dark blue.
@@ -38,6 +56,15 @@ class EnhancedGraphTablePopupMenuListener extends PopupMenuListenerAdapter {
   @Override
   @UIEffect
   public void popupMenuWillBecomeInvisible(PopupMenuEvent popupMenuEvent) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     graphTable.setRowSelectionAllowed(false);
   }
 }

@@ -50,6 +50,15 @@ public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteReposi
   @Override
   @UIEffect
   protected void onUpdate(AnActionEvent anActionEvent) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     super.onUpdate(anActionEvent);
     syncToParentStatusDependentActionUpdate(anActionEvent);
     val presentation = anActionEvent.getPresentation();
@@ -70,6 +79,15 @@ public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteReposi
   @ContinuesInBackground
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
 
     val gitRepository = getSelectedGitRepository(anActionEvent);
     val stayingBranchName = getNameOfBranchUnderAction(anActionEvent);
@@ -100,6 +118,15 @@ public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteReposi
   @ContinuesInBackground
   @UIEffect
   public void doMergeIntoCurrentBranch(GitRepository gitRepository, MergeProps mergeProps) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     val stayingBranch = mergeProps.getStayingBranch().getName();
     val project = gitRepository.getProject();
     log().debug(() -> "Entering: project = ${project}, gitRepository = ${gitRepository}," +
@@ -112,6 +139,15 @@ public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteReposi
   @ContinuesInBackground
   @UIEffect
   private void doMergeIntoNonCurrentBranch(GitRepository gitRepository, MergeProps mergeProps) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     val stayingBranch = mergeProps.getStayingBranch().getName();
     val movingBranch = mergeProps.getMovingBranch().getName();
     log().debug(() -> "Entering: gitRepository = ${gitRepository}," +

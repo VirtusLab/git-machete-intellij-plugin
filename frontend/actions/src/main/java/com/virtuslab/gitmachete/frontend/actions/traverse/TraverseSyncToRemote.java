@@ -126,6 +126,15 @@ public class TraverseSyncToRemote {
   @ContinuesInBackground
   @UIEffect
   private void handleUntracked(IManagedBranchSnapshot gitManagedBranch, GitLocalBranch localBranch) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     val pushApprovalDialogBuilder = MessageDialogBuilder.yesNoCancel(
         getString("action.GitMachete.BaseTraverseAction.dialog.push-approval.title"),
         getString("action.GitMachete.BaseTraverseAction.dialog.push-approval.untracked.text.HTML")
@@ -148,6 +157,15 @@ public class TraverseSyncToRemote {
   @ContinuesInBackground
   @UIEffect
   private void handleAheadOfRemote(IManagedBranchSnapshot gitMacheteBranch, GitLocalBranch localBranch) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     val remoteTrackingBranch = gitMacheteBranch.getRemoteTrackingBranch();
     assert remoteTrackingBranch != null : "remoteTrackingBranch is null";
     val pushApprovalDialogBuilder = MessageDialogBuilder.yesNoCancel(
@@ -172,6 +190,15 @@ public class TraverseSyncToRemote {
   @ContinuesInBackground
   @UIEffect
   private void handleDivergedFromAndNewerThanRemote(IManagedBranchSnapshot gitMacheteBranch, GitLocalBranch localBranch) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     val remoteTrackingBranch = gitMacheteBranch.getRemoteTrackingBranch();
     assert remoteTrackingBranch != null : "remoteTrackingBranch is null";
     val forcePushApprovalDialogBuilder = MessageDialogBuilder.yesNoCancel(
@@ -197,6 +224,15 @@ public class TraverseSyncToRemote {
   @ContinuesInBackground
   @UIEffect
   private void handleDivergedFromAndOlderThanRemote(IManagedBranchSnapshot gitMacheteBranch) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     val remoteTrackingBranch = gitMacheteBranch.getRemoteTrackingBranch();
     assert remoteTrackingBranch != null : "remoteTrackingBranch is null";
     val resetApprovalDialogBuilder = MessageDialogBuilder.yesNoCancel(
@@ -224,6 +260,15 @@ public class TraverseSyncToRemote {
   @ContinuesInBackground
   @UIEffect
   private void handleBehindRemote(IManagedBranchSnapshot gitMacheteBranch) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     val remoteTrackingBranch = gitMacheteBranch.getRemoteTrackingBranch();
     assert remoteTrackingBranch != null : "remoteTrackingBranch is null";
     val pullApprovalDialogBuilder = MessageDialogBuilder.yesNoCancel(

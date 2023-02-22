@@ -48,6 +48,15 @@ public abstract class BaseProjectDependentAction extends DumbAwareAction impleme
   @Override
   @UIEffect
   public final void update(AnActionEvent anActionEvent) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     super.update(anActionEvent);
 
     isUpdateInProgressOnUIThread = true;

@@ -67,12 +67,30 @@ public final class GitPushDialog extends VcsPushDialog {
   @Override
   @UIEffect
   protected void doOKAction() {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     push();
   }
 
   @Override
   @UIEffect
   protected Action[] createActions() {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     return new Action[]{pushAction, getCancelAction(), getHelpAction()};
   }
 
@@ -83,6 +101,15 @@ public final class GitPushDialog extends VcsPushDialog {
 
   @UIEffect
   private void push() {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     push(isForcePushRequired);
   }
 
@@ -95,18 +122,47 @@ public final class GitPushDialog extends VcsPushDialog {
   @BackgroundableQueuedElsewhere // passed on to `executeAfterRunningPrePushHandlers`
   @UIEffect
   public void push(boolean forcePush) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
 
     String title = getNonHtmlString("string.GitMachete.GitPushDialog.task-title");
     executeAfterRunningPrePushHandlers(new SideEffectingBackgroundable(project, title, /* name */ "push") {
       @Override
       @UIThreadUnsafe
       public void doRun(ProgressIndicator indicator) {
+        if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+          var sw = new java.io.StringWriter();
+          var pw = new java.io.PrintWriter(sw);
+          new Exception().printStackTrace(pw);
+          String stackTrace = sw.toString();
+          if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+            System.out.println("Expected non-EDT:");
+            System.out.println(stackTrace);
+            throw new RuntimeException("Expected EDT: " + stackTrace);
+          }
+        }
         myController.push(forcePush);
       }
 
       @Override
       @UIEffect
       public void onSuccess() {
+        if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+          var sw = new java.io.StringWriter();
+          var pw = new java.io.PrintWriter(sw);
+          new Exception().printStackTrace(pw);
+          String stackTrace = sw.toString();
+          System.out.println("Expected EDT:");
+          System.out.println(stackTrace);
+          throw new RuntimeException("Expected EDT: " + stackTrace);
+        }
         doInUIThreadWhenReady.run();
       }
     });
@@ -132,6 +188,15 @@ public final class GitPushDialog extends VcsPushDialog {
     @Override
     @UIEffect
     public void actionPerformed(ActionEvent e) {
+      if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+        var sw = new java.io.StringWriter();
+        var pw = new java.io.PrintWriter(sw);
+        new Exception().printStackTrace(pw);
+        String stackTrace = sw.toString();
+        System.out.println("Expected EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
       push();
     }
   }

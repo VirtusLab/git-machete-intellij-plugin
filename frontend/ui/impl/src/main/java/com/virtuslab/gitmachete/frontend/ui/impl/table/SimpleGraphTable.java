@@ -23,6 +23,15 @@ public final class SimpleGraphTable extends BaseGraphTable {
   @UIEffect
   public static SimpleGraphTable deriveInstance(IGitMacheteRepositorySnapshot macheteRepositorySnapshot,
       boolean isListingCommitsEnabled, boolean shouldDisplayActionToolTips) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     // We can keep the data - graph table model,
     // but wee need to reinstantiate the UI - demo graph table.
     return new SimpleGraphTable(deriveGraphTableModel(macheteRepositorySnapshot, isListingCommitsEnabled),
@@ -32,6 +41,15 @@ public final class SimpleGraphTable extends BaseGraphTable {
   @UIEffect
   private static GraphTableModel deriveGraphTableModel(IGitMacheteRepositorySnapshot macheteRepositorySnapshot,
       boolean isListingCommitsEnabled) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     val repositoryGraphCache = ApplicationManager.getApplication().getService(IRepositoryGraphCache.class);
     val repositoryGraph = repositoryGraphCache.getRepositoryGraph(macheteRepositorySnapshot, isListingCommitsEnabled);
     return new GraphTableModel(repositoryGraph);

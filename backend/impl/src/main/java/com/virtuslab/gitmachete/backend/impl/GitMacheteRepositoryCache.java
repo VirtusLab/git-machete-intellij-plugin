@@ -41,6 +41,17 @@ public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
   public IGitMacheteRepository getInstance(Path rootDirectoryPath, Path mainGitDirectoryPath,
       Path worktreeGitDirectoryPath)
       throws GitMacheteException {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
     val key = Tuple.of(rootDirectoryPath, worktreeGitDirectoryPath);
     val valueReference = gitMacheteRepositoryCache.get(key).getOrNull();
 
@@ -63,6 +74,17 @@ public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
   @UIThreadUnsafe
   private IGitCoreRepository createGitCoreRepository(Path rootDirectoryPath, Path mainGitDirectoryPath,
       Path worktreeGitDirectoryPath) throws GitMacheteException {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
     try {
       val gitCoreRepositoryFactory = dependencyResolver.getGitCoreRepositoryFactory();
       return gitCoreRepositoryFactory.create(rootDirectoryPath, mainGitDirectoryPath, worktreeGitDirectoryPath);

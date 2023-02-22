@@ -36,6 +36,15 @@ public final class MacheteFileWriter {
       BranchLayout branchLayout,
       boolean backupOldFile,
       @Nullable Object requestor) throws IOException {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     LOG.debug(() -> "Writing branch layout to (${path}), branchLayout = ${branchLayout}, backupOldFile = ${backupOldFile}");
 
     val parentPath = path.getParent();

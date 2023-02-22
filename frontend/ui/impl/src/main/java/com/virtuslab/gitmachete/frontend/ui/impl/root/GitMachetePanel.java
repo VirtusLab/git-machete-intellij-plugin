@@ -70,6 +70,15 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
 
   @UIEffect
   private static ActionToolbar createGitMacheteVerticalToolbar(BaseEnhancedGraphTable graphTable) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     val actionManager = ActionManager.getInstance();
     val toolbarActionGroup = (ActionGroup) actionManager.getAction(ActionGroupIds.TOOLBAR);
     val toolbar = actionManager.createActionToolbar(ActionPlaces.TOOLBAR, toolbarActionGroup, /* horizontal */ false);
@@ -79,6 +88,15 @@ public final class GitMachetePanel extends SimpleToolWindowPanel {
 
   @UIEffect
   private static JComponent createShrinkingWrapper(JComponent component) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     final JPanel wrapper = new JPanel(new BorderLayout());
     wrapper.add(component, BorderLayout.WEST);
     wrapper.add(Box.createHorizontalGlue(), BorderLayout.CENTER);

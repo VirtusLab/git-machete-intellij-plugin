@@ -62,6 +62,15 @@ public final class GitRepositoryComboBox extends JComboBox<GitRepository>
 
   @UIEffect
   private void updateRepositories() {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     val repositories = List.ofAll(GitUtil.getRepositories(project));
     LOG.debug("Git repositories:");
     repositories.forEach(r -> LOG.debug("* ${r.getRoot().getName()}"));
@@ -100,6 +109,15 @@ public final class GitRepositoryComboBox extends JComboBox<GitRepository>
   @Override
   @UIEffect
   public void setSelectedItem(@Nullable Object anObject) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     super.setSelectedItem(anObject);
     observers.forEach(o -> o.onSelectionChanged());
   }

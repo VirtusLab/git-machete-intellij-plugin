@@ -30,6 +30,15 @@ public class GraphCellPainter implements IGraphCellPainter {
 
   @UIEffect
   protected int getRowHeight() {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     val font = table.getFont();
     // The font (if missing) is being retrieved from parent. In the case of parent absence it could be null.
     if (font != null) {
@@ -42,11 +51,29 @@ public class GraphCellPainter implements IGraphCellPainter {
 
   @UIEffect
   private BasicStroke getOrdinaryStroke() {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     return new BasicStroke(PaintParameters.getLineThickness(getRowHeight()), BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL);
   }
 
   @UIEffect
   private void paintUpLine(Graphics2D g2, Color color, int posInRow) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     int nodeWidth = PaintParameters.getNodeWidth(getRowHeight());
     int x = nodeWidth * posInRow + nodeWidth / 2;
     int y1 = getRowHeight() / 2 - 1;
@@ -56,6 +83,15 @@ public class GraphCellPainter implements IGraphCellPainter {
 
   @UIEffect
   private void paintDownLine(Graphics2D g2, Color color, int posInRow) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     int nodeWidth = PaintParameters.getNodeWidth(getRowHeight());
     int y2 = getRowHeight();
     int y1 = getRowHeight() / 2;
@@ -65,6 +101,15 @@ public class GraphCellPainter implements IGraphCellPainter {
 
   @UIEffect
   private void paintRightLine(Graphics2D g2, Color color, int posInRow) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     int nodeWidth = PaintParameters.getNodeWidth(getRowHeight());
     int x1 = nodeWidth * posInRow + nodeWidth / 2;
     int x2 = x1 + nodeWidth;
@@ -74,6 +119,15 @@ public class GraphCellPainter implements IGraphCellPainter {
 
   @UIEffect
   private void paintLine(Graphics2D g2, Color color, int x1, int y1, int x2, int y2) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     g2.setColor(color);
     g2.setStroke(getOrdinaryStroke());
     g2.drawLine(x1, y1, x2, y2);
@@ -81,6 +135,15 @@ public class GraphCellPainter implements IGraphCellPainter {
 
   @UIEffect
   private void paintCircle(Graphics2D g2, int position, Color color) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     int nodeWidth = PaintParameters.getNodeWidth(getRowHeight());
     int x0 = nodeWidth * position + nodeWidth / 2;
     int y0 = getRowHeight() / 2;
@@ -98,12 +161,30 @@ public class GraphCellPainter implements IGraphCellPainter {
 
   @UIEffect
   private Color getColor(IRenderPart renderPart) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     return COLORS.getOrElse(renderPart.getGraphItemColor(), Colors.TRANSPARENT);
   }
 
   @Override
   @UIEffect
   public void draw(Graphics2D g2, List<? extends IRenderPart> renderParts) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
     for (IRenderPart renderPart : renderParts) {
@@ -113,6 +194,15 @@ public class GraphCellPainter implements IGraphCellPainter {
 
   @UIEffect
   protected void drawRenderPart(Graphics2D g2, IRenderPart renderPart) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     if (renderPart.isNode()) {
       int posInRow = renderPart.getPositionInRow();
       paintCircle(g2, posInRow, getColor(renderPart));
@@ -123,6 +213,15 @@ public class GraphCellPainter implements IGraphCellPainter {
 
   @UIEffect
   private void drawEdge(Graphics2D g2, Color color, IEdgeRenderPart edgeRenderPart) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     int posInRow = edgeRenderPart.getPositionInRow();
 
     if (edgeRenderPart.getType() == IEdgeRenderPart.Type.DOWN) {

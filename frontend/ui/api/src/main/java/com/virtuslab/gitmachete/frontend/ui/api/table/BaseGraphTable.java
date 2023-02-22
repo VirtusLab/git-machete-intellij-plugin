@@ -37,6 +37,15 @@ public abstract class BaseGraphTable extends JBTable {
   @Override
   @UIEffect
   public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     // In case row count is not equal the previous one, it means that the graph was changed, so we don't care
     // about previous row width and we must create new list with size equals new row count.
     // This is why we replace previous list with new, filled with 0.
@@ -55,6 +64,15 @@ public abstract class BaseGraphTable extends JBTable {
 
   @UIEffect
   public void setTextForEmptyTable(String text) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     getEmptyText().setText(text);
   }
 }

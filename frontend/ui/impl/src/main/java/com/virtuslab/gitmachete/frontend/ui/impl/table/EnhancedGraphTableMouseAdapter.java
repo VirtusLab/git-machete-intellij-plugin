@@ -29,6 +29,15 @@ class EnhancedGraphTableMouseAdapter extends MouseAdapter {
 
   @UIEffect
   EnhancedGraphTableMouseAdapter(EnhancedGraphTable graphTable) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     this.graphTable = graphTable;
     this.popupMenuListener = new EnhancedGraphTablePopupMenuListener(graphTable);
   }
@@ -36,6 +45,15 @@ class EnhancedGraphTableMouseAdapter extends MouseAdapter {
   @Override
   @UIEffect
   public void mouseClicked(MouseEvent e) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     Point point = e.getPoint();
     int row = graphTable.rowAtPoint(point);
     int col = graphTable.columnAtPoint(point);
@@ -57,6 +75,15 @@ class EnhancedGraphTableMouseAdapter extends MouseAdapter {
 
   @UIEffect
   private void performActionAfterChecks(MouseEvent e, Point point) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     ActionManager actionManager = ActionManager.getInstance();
     if (SwingUtilities.isRightMouseButton(e) || isCtrlClick(e)) {
       ActionGroup contextMenuActionGroup = (ActionGroup) actionManager.getAction(ActionGroupIds.CONTEXT_MENU);
@@ -87,6 +114,15 @@ class EnhancedGraphTableMouseAdapter extends MouseAdapter {
   // this method is needed as some macOS users use Ctrl + left-click as a replacement for the right-click
   @UIEffect
   private boolean isCtrlClick(MouseEvent e) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     return e.isControlDown() && SwingUtilities.isLeftMouseButton(e);
   }
 }

@@ -35,6 +35,15 @@ public abstract class BaseTraverseAction extends BaseGitMacheteRepositoryReadyAc
   @Override
   @UIEffect
   protected void onUpdate(AnActionEvent anActionEvent) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     super.onUpdate(anActionEvent);
     val presentation = anActionEvent.getPresentation();
     if (!presentation.isEnabledAndVisible()) {
@@ -88,6 +97,15 @@ public abstract class BaseTraverseAction extends BaseGitMacheteRepositoryReadyAc
   @ContinuesInBackground
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
+    if (!javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      System.out.println("Expected EDT:");
+      System.out.println(stackTrace);
+      throw new RuntimeException("Expected EDT: " + stackTrace);
+    }
     val gitRepository = getSelectedGitRepository(anActionEvent);
     val graphTable = getGraphTable(anActionEvent);
     val repositorySnapshot = graphTable.getGitMacheteRepositorySnapshot();

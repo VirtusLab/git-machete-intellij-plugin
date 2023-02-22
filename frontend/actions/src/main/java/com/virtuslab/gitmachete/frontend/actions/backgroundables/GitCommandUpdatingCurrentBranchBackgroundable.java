@@ -73,6 +73,17 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Side
   @Override
   @UIThreadUnsafe
   public final void doRun(ProgressIndicator indicator) {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
     val handler = createGitLineHandler();
     if (handler == null) {
       return;
@@ -106,6 +117,17 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Side
 
   @UIThreadUnsafe
   private @Nullable GitUpdatedRanges deriveGitUpdatedRanges(String targetBranchName) {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
     GitUpdatedRanges updatedRanges = null;
     val currentBranch = gitRepository.getCurrentBranch();
     if (currentBranch != null) {
@@ -129,6 +151,17 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Side
       GitRevisionNumber currentRev,
       Label beforeLabel,
       @Nullable GitUpdatedRanges updatedRanges) {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
     val root = gitRepository.getRoot();
     if (result.success()) {
       VfsUtil.markDirtyAndRefresh(/* async */ false, /* recursive */ true, /* reloadChildren */ false, root);
@@ -192,6 +225,17 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Side
 
   @UIThreadUnsafe
   private void showUpdates(GitRevisionNumber currentRev, Label beforeLabel) {
+    if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+      var sw = new java.io.StringWriter();
+      var pw = new java.io.PrintWriter(sw);
+      new Exception().printStackTrace(pw);
+      String stackTrace = sw.toString();
+      if (!stackTrace.contains("at com.virtuslab.gitmachete.frontend.actions.toolbar.DiscoverAction.actionPerformed")) {
+        System.out.println("Expected non-EDT:");
+        System.out.println(stackTrace);
+        throw new RuntimeException("Expected EDT: " + stackTrace);
+      }
+    }
     try {
       UpdatedFiles files = UpdatedFiles.create();
 
