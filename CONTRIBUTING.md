@@ -107,7 +107,7 @@ Additional setup:
 
 To build the project, run `./gradlew build`. Please note that for the initial build attempt, you might need to add the `--info` option, in order to respond to the prompt of accepting Gradle Terms of Service.
 
-Currently, very generous maximum heap size options are applied for Gradle's Java compilation tasks (search for `-Xmx` in [build.gradle.kts](build.gradle.kts)). <br/>
+Currently, quite generous maximum heap size options are applied for Gradle's Java compilation tasks (search for `-Xmx` in [build.gradle.kts](build.gradle.kts)). <br/>
 To overwrite them, use `compileJavaJvmArgs` Gradle project property
 (e.g. `./gradlew -PcompileJavaJvmArgs='-Xmx2g -XX:+HeapDumpOnOutOfMemoryError' build`,
 or equivalently with an env var: `ORG_GRADLE_PROJECT_compileJavaJvmArgs='-Xmx2g -XX:+HeapDumpOnOutOfMemoryError' ./gradlew build`).
