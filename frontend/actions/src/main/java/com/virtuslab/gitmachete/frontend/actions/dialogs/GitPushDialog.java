@@ -26,7 +26,6 @@ public final class GitPushDialog extends VcsPushDialog {
   private final boolean isForcePushRequired;
   private final @UI Runnable doInUIThreadWhenReady;
   private final Action pushAction;
-  private final Project project;
 
   @UIEffect
   public GitPushDialog(
@@ -52,7 +51,6 @@ public final class GitPushDialog extends VcsPushDialog {
     this.isForcePushRequired = isForcePushRequired;
     this.doInUIThreadWhenReady = doInUIThreadWhenReady;
     this.pushAction = new PushSwingAction();
-    this.project = project;
 
     // Note: since the class is final, `this` is already @Initialized at this point.
 
@@ -97,7 +95,7 @@ public final class GitPushDialog extends VcsPushDialog {
   public void push(boolean forcePush) {
 
     String title = getString("string.GitMachete.GitPushDialog.task-title");
-    executeAfterRunningPrePushHandlers(new SideEffectingBackgroundable(project, title, /* name */ "push") {
+    executeAfterRunningPrePushHandlers(new SideEffectingBackgroundable(myProject, title, "push") {
       @Override
       @UIThreadUnsafe
       public void doRun(ProgressIndicator indicator) {

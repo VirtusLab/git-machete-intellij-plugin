@@ -49,9 +49,9 @@ public class OverrideForkPointBackgroundable extends SideEffectingBackgroundable
 
   @UIThreadUnsafe
   private void overrideForkPoint(IManagedBranchSnapshot branch, ICommitOfManagedBranch forkPoint) {
-    if (gitRepository != null && myProject != null) {
+    if (gitRepository != null) {
       val root = gitRepository.getRoot();
-      setOverrideForkPointConfigValues(myProject, root, branch.getName(), forkPoint, branch.getPointedCommit());
+      setOverrideForkPointConfigValues(project, root, branch.getName(), forkPoint, branch.getPointedCommit());
     }
 
     // required since the change of .git/config is not considered as a change to VCS (and detected by the listener)

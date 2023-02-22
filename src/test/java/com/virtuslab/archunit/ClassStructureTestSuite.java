@@ -2,6 +2,7 @@ package com.virtuslab.archunit;
 
 import static com.tngtech.archunit.core.domain.JavaModifier.ABSTRACT;
 import static com.tngtech.archunit.core.domain.JavaModifier.SYNTHETIC;
+import static com.tngtech.archunit.core.domain.properties.HasName.Predicates.name;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
@@ -17,7 +18,6 @@ import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaAccess;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaConstructorCall;
-import com.tngtech.archunit.core.domain.JavaMethodCall;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
@@ -167,6 +167,7 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
             "and passing a reference to the enclosing object (or to the fields thereof) explicitly")
         .check(productionClasses);
   }
+
   @Test
   public void no_classes_declaring_LOG_field_should_call_log_method() {
     noClasses()
@@ -177,12 +178,7 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
           }
         })
         .should()
-        .callMethodWhere(new DescribedPredicate<JavaMethodCall>("call `log` method") {
-          @Override
-          public boolean test(JavaMethodCall javaMethodCall) {
-            return javaMethodCall.getTarget().getName().equals("log");
-          }
-        })
+        .callMethodWhere(name("log"))
         .because("LOG field should be used explicitly instead")
         .check(productionClasses);
   }
@@ -219,6 +215,17 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
           }
         })
         .because("it's likely that better-strings annotation processor has not been properly applied on some subproject(s)")
+        .check(productionClasses);
+  }
+
+  @Test
+  public void side_effecting_backgroundables_should_not_access_my_project() {
+    noClasses()
+        .that()
+        .areAssignableTo(com.virtuslab.gitmachete.frontend.actions.backgroundables.SideEffectingBackgroundable.class)
+        .should()
+        .accessFieldWhere(name("myProject"))
+        .because("`myProject` is nullable, which leads to redundant nullness checks; used `project` instead")
         .check(productionClasses);
   }
 }

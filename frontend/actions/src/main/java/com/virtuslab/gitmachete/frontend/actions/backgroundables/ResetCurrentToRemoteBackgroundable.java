@@ -45,32 +45,31 @@ public class ResetCurrentToRemoteBackgroundable extends SideEffectingBackgrounda
   @Override
   @UIThreadUnsafe
   public void doRun(ProgressIndicator indicator) {
-    if (myProject != null && localBranchName != null && remoteTrackingBranchName != null) {
+    if (localBranchName != null && remoteTrackingBranchName != null) {
 
       LOG.debug(() -> "Resetting '${localBranchName}' to '${remoteTrackingBranchName}'");
 
-      try (AccessToken ignored = DvcsUtil.workingTreeChangeStarted(myProject,
+      try (AccessToken ignored = DvcsUtil.workingTreeChangeStarted(project,
           getString("action.GitMachete.BaseResetToRemoteAction.task-title"))) {
-        val resetHandler = new GitLineHandler(myProject, gitRepository.getRoot(), GitCommand.RESET);
+        val resetHandler = new GitLineHandler(project, gitRepository.getRoot(), GitCommand.RESET);
         resetHandler.addParameters("--keep");
         resetHandler.addParameters(remoteTrackingBranchName);
         resetHandler.endOptions();
 
-        val localChangesDetector = new GitLocalChangesWouldBeOverwrittenDetector(
-            gitRepository.getRoot(), RESET);
+        val localChangesDetector = new GitLocalChangesWouldBeOverwrittenDetector(gitRepository.getRoot(), RESET);
         resetHandler.addLineListener(localChangesDetector);
 
         val result = Git.getInstance().runCommand(resetHandler);
 
         if (result.success()) {
-          VcsNotifier.getInstance(myProject).notifySuccess( /* displayId */ null,
+          VcsNotifier.getInstance(project).notifySuccess( /* displayId */ null,
               /* title */ "",
               getString("action.GitMachete.BaseResetToRemoteAction.notification.title.reset-success.HTML")
                   .fmt(localBranchName));
           LOG.debug(() -> "Branch '${localBranchName}' has been reset to '${remoteTrackingBranchName}");
 
         } else if (localChangesDetector.wasMessageDetected()) {
-          LocalChangesWouldBeOverwrittenHelper.showErrorNotification(myProject,
+          LocalChangesWouldBeOverwrittenHelper.showErrorNotification(project,
               /* displayId */ null,
               gitRepository.getRoot(),
               /* operationName */ "Reset",
@@ -78,12 +77,12 @@ public class ResetCurrentToRemoteBackgroundable extends SideEffectingBackgrounda
 
         } else {
           LOG.error(result.getErrorOutputAsJoinedString());
-          VcsNotifier.getInstance(myProject).notifyError(/* displayId */ null, VCS_NOTIFIER_TITLE,
+          VcsNotifier.getInstance(project).notifyError(/* displayId */ null, VCS_NOTIFIER_TITLE,
               result.getErrorOutputAsHtmlString());
         }
 
         val repositoryRoot = getRootDirectory(gitRepository);
-        GitRepositoryManager.getInstance(myProject).updateRepository(repositoryRoot);
+        GitRepositoryManager.getInstance(project).updateRepository(repositoryRoot);
         VfsUtil.markDirtyAndRefresh(/* async */ false, /* recursive */ true, /* reloadChildren */ false, repositoryRoot);
       }
     }

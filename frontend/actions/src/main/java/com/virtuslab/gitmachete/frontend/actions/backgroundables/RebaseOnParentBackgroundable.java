@@ -46,7 +46,7 @@ public class RebaseOnParentBackgroundable extends SideEffectingBackgroundable {
       IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot,
       INonRootManagedBranchSnapshot branchToRebase,
       boolean shouldExplicitlyCheckout) {
-    super(gitRepository.getProject(), title, /* name */ "rebase");
+    super(gitRepository.getProject(), title, "rebase");
 
     this.gitRepository = gitRepository;
     this.branchToRebase = branchToRebase;
