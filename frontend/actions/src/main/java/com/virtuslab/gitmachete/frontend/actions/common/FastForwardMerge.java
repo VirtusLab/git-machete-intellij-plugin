@@ -69,14 +69,14 @@ public class FastForwardMerge {
     val stayingName = mergeProps.getStayingBranch().getName();
     val movingName = mergeProps.getMovingBranch().getName();
     val successFFMergeNotification = getString(
-        "action.GitMachete.BaseFastForwardMergeToParentAction.notification.text.ff-success").fmt(stayingName, movingName);
+        "action.GitMachete.FastForwardMerge.notification.text.ff-success").fmt(stayingName, movingName);
     val failFFMergeNotification = getNonHtmlString(
-        "action.GitMachete.BaseFastForwardMergeToParentAction.notification.text.ff-fail").fmt(stayingName, movingName);
+        "action.GitMachete.FastForwardMerge.notification.text.ff-fail").fmt(stayingName, movingName);
     new FetchBackgroundable(
         gitRepository,
         LOCAL_REPOSITORY_NAME,
         refspecFromChildToParent,
-        getString("action.GitMachete.BaseFastForwardMergeToParentAction.task-title"),
+        getString("action.GitMachete.FastForwardMerge.task-title"),
         notificationTextPrefix + " " + failFFMergeNotification,
         notificationTextPrefix + " " + successFFMergeNotification) {
       @Override
