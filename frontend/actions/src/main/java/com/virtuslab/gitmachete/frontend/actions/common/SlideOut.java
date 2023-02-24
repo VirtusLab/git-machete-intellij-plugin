@@ -75,7 +75,7 @@ public class SlideOut {
       slideOutBranch(branchToSlideOutName);
       VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
           /* title */ "",
-          getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.of-current.HTML").fmt(
+          getString("action.GitMachete.SlideOut.notification.title.slide-out-success.of-current.HTML").fmt(
               branchToSlideOutName));
 
     } else {
@@ -104,9 +104,8 @@ public class SlideOut {
         setDeleteLocalBranchOnSlideOutGitConfigValue(gitRepository.getRoot(), value);
       }
     } else {
-      val title = getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-info.canceled");
-      val message = getString(
-          "action.GitMachete.BaseSlideOutAction.notification.message.slide-out-info.canceled.HTML").fmt(branchName);
+      val title = getString("action.GitMachete.SlideOut.notification.title.slide-out-info.canceled");
+      val message = getString("action.GitMachete.SlideOut.notification.message.slide-out-info.canceled.HTML").fmt(branchName);
       VcsNotifier.getInstance(project).notifyInfo(/* displayId */ null, title, message);
       doInUIThreadWhenBranchDeletionReady.run();
     }
@@ -121,14 +120,14 @@ public class SlideOut {
               Collections.singletonList(gitRepository)), () -> {
                 VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
                     /* title */ "",
-                    getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.with-delete.HTML").fmt(
+                    getString("action.GitMachete.SlideOut.notification.title.slide-out-success.with-delete.HTML").fmt(
                         branchName));
                 doInUIThreadWhenReady.run();
               }));
     } else {
       VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
           /* title */ "",
-          getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-success.without-delete.HTML").fmt(
+          getString("action.GitMachete.SlideOut.notification.title.slide-out-success.without-delete.HTML").fmt(
               branchName));
       ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, doInUIThreadWhenReady);
     }
@@ -155,7 +154,7 @@ public class SlideOut {
             (exceptionMessage == null ? "" : ": " + exceptionMessage);
         LOG.error(errorMessage);
         VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-            getString("action.GitMachete.BaseSlideOutAction.notification.title.slide-out-fail.HTML").fmt(branchName),
+            getString("action.GitMachete.SlideOut.notification.title.slide-out-fail.HTML").fmt(branchName),
             exceptionMessage == null ? "" : exceptionMessage);
       }
     });

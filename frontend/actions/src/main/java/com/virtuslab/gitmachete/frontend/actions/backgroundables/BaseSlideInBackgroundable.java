@@ -107,7 +107,7 @@ public abstract class BaseSlideInBackgroundable extends SideEffectingBackgrounda
     val exceptionMessage = e.getMessage();
     VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
         /* title */ getString(
-            "action.GitMachete.BaseSlideInBelowAction.notification.title.branch-layout-write-fail"),
+            "action.GitMachete.BaseSlideInBackgroundable.notification.title.branch-layout-write-fail"),
         exceptionMessage.requireNonNullElse(""));
   }
 

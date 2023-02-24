@@ -32,14 +32,14 @@ public final class BranchCreationUtils {
     } catch (InterruptedException e) {
       VcsNotifier.getInstance(gitRepository.getProject()).notifyWeakError(/* displayId */ null,
           /* title */ "",
-          getString("action.GitMachete.BaseSlideInBackgroundable.notification.message.wait-interrupted")
+          getString("action.GitMachete.BranchCreationUtils.notification.message.wait-interrupted")
               .fmt(branchName));
     }
 
     if (gitRepository.getBranches().findLocalBranch(branchName) == null) {
       VcsNotifier.getInstance(gitRepository.getProject()).notifyWeakError(/* displayId */ null,
           /* title */ "",
-          getString("action.GitMachete.BaseSlideInBackgroundable.notification.message.timeout").fmt(branchName));
+          getString("action.GitMachete.BranchCreationUtils.notification.message.timeout").fmt(branchName));
       return false;
     }
     return true;

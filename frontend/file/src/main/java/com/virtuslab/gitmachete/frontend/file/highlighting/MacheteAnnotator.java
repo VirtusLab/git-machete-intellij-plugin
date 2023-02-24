@@ -106,7 +106,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
           .newAnnotation(HighlightSeverity.ERROR,
               getNonHtmlString("string.GitMachete.MacheteAnnotator.cannot-find-local-branch-in-repo").fmt(processedBranchName))
           .range(branch);
-      if (parentBranchName.isEmpty()) { // do not suggest creating a new root branch
+      if (parentBranchName == null) { // do not suggest creating a new root branch
         basicAnnotationBuilder.create();
       } else { // suggest creating a new branch from the parent branch
         GitRepository gitRepository = MacheteFileUtils.findGitRepositoryForPsiMacheteFile(file);
@@ -127,21 +127,21 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     return branchLayout.isEntryDuplicated(branchName);
   }
 
-  private String getParentBranchName(IBranchLayoutReader branchLayoutReader, PsiFile file, String branchName) {
+  private @Nullable String getParentBranchName(IBranchLayoutReader branchLayoutReader, PsiFile file, String branchName) {
     BranchLayout branchLayout;
     try {
       branchLayout = ReadAction.compute(
           () -> MacheteFileReader.readBranchLayout(Path.of(file.getVirtualFile().getPath()), branchLayoutReader));
     } catch (BranchLayoutException e) { // might appear if branchLayout has inconsistent indentation characters or file is inaccessible
-      return "";
+      return null;
     }
     val entry = branchLayout.getEntryByName(branchName);
     if (entry == null) { // might happen if saveDocument(file) has not completed yet
-      return "";
+      return null;
     }
     val parentEntry = entry.getParent();
     if (parentEntry == null) {
-      return "";
+      return null;
     }
     return parentEntry.getName();
   }

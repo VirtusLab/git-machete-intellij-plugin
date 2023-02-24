@@ -80,8 +80,7 @@ public class RenameBackgroundable extends SideEffectingBackgroundable {
   public void onThrowable(Throwable e) {
     val exceptionMessage = e.getMessage();
     VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-        /* title */ getString(
-            "action.GitMachete.BaseSlideInBelowAction.notification.title.branch-layout-write-fail"),
+        /* title */ getString("action.GitMachete.RenameBackgroundable.notification.title.branch-layout-write-fail"),
         exceptionMessage.requireNonNullElse(""));
   }
 

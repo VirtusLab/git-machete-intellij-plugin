@@ -97,7 +97,7 @@ public class RebaseOnParentBackgroundable extends SideEffectingBackgroundable {
       val message = e.getMessage() == null ? "Unable to get rebase parameters." : e.getMessage();
       LOG.error(message);
       VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-          getString("action.GitMachete.BaseSyncToParentByRebaseAction.notification.title.rebase-fail"), message);
+          getString("action.GitMachete.RebaseOnParentBackgroundable.notification.title.rebase-fail"), message);
 
       return;
     }
@@ -120,7 +120,7 @@ public class RebaseOnParentBackgroundable extends SideEffectingBackgroundable {
       val message = "machete-pre-rebase hooks refused to rebase ${NL}error: ${hookResult.getCause().getMessage()}";
       LOG.error(message);
       VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-          getString("action.GitMachete.BaseSyncToParentByRebaseAction.notification.title.rebase-abort"),
+          getString("action.GitMachete.RebaseOnParentBackgroundable.notification.title.rebase-abort"),
           message);
       return;
     }
@@ -132,7 +132,7 @@ public class RebaseOnParentBackgroundable extends SideEffectingBackgroundable {
       val stdoutOption = executionResult.getStdout();
       val stderrOption = executionResult.getStderr();
       VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-          getString("action.GitMachete.BaseSyncToParentByRebaseAction.notification.title.rebase-abort"), message
+          getString("action.GitMachete.RebaseOnParentBackgroundable.notification.title.rebase-abort"), message
               + (!stdoutOption.isBlank() ? NL + "stdout:" + NL + stdoutOption : "")
               + (!stderrOption.isBlank() ? NL + "stderr:" + NL + stderrOption : ""));
       return;

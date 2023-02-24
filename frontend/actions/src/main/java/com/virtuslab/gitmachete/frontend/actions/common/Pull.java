@@ -57,7 +57,7 @@ public final class Pull {
     String remoteName = remoteBranch.getRemoteName();
     String remoteBranchName = remoteBranch.getName();
 
-    String taskTitle = getNonHtmlString("action.GitMachete.BasePullAction.task-title");
+    String taskTitle = getNonHtmlString("action.GitMachete.Pull.task-title");
     new FetchBackgroundable(
         gitRepository,
         remoteName,
@@ -75,7 +75,7 @@ public final class Pull {
         if (gitRepository.getBranches().findBranchByName(remoteBranchName) == null) {
           val errorMessage = fmt(getString("action.GitMachete.Pull.notification.remote-branch-missing.text"), remoteBranchName);
           val taskFailNotificationTitle = getString(
-              "action.GitMachete.BaseFastForwardMergeToParentAction.notification.title.ff-fail");
+              "action.GitMachete.Pull.notification.title.fast-forward-fail");
           VcsNotifier.getInstance(gitRepository.getProject()).notifyError(
               /* displayId */ null, taskFailNotificationTitle, fetchNotificationPrefix + " " + errorMessage);
         } else {
