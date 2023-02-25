@@ -268,8 +268,16 @@ class UITestSuite extends TestGitRepository(SETUP_WITH_SINGLE_REMOTE) {
     // squashNonCurrentBranch
     project.squashSelected("hotfix/add-trigger")
     project.acceptSquash()
-    // hotfix/add-trigger had 2 commits before the squash
-    managedBranchesAndCommits = project.refreshModelAndGetManagedBranchesAndCommits()
+
+    // Let's wait for the squash to complete.
+    // In case of all other operations, it's just enough to wait for all background tasks to complete
+    // (via org.virtuslab.ideprobe.ProbeDriver#await)... but here it apparently doesn't work,
+    // see https://github.com/VirtusLab/git-machete-intellij-plugin/issues/1079
+    do {
+      Thread.sleep(1000)
+      managedBranchesAndCommits = project.refreshModelAndGetManagedBranchesAndCommits()
+    } while (managedBranchesAndCommits.length != 15)
+
     assertEquals(
       Seq(
         "develop",
@@ -285,6 +293,7 @@ class UITestSuite extends TestGitRepository(SETUP_WITH_SINGLE_REMOTE) {
         "Call web service",
         "call-ws",
         "master",
+        // hotfix/add-trigger had 2 commits before the squash
         "HOTFIX Add the trigger",
         "hotfix/add-trigger"
       ),
