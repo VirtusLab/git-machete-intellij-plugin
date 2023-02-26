@@ -1,5 +1,10 @@
 # Changelog
 
+## v4.0.0
+- Dropped support for IntelliJ 2022.1.
+  Note that the versions of this plugin published so far will remain available for download in IntelliJ 2022.1 indefinitely.
+  The change in the range of supported IntelliJ versions will only affect the new plugin releases, starting from this one.
+
 ## v3.8.0
 - Improved: traverse action shows fewer dialogs making the process even smoother.
 
