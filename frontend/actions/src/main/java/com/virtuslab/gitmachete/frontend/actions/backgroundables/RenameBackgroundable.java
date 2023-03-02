@@ -13,7 +13,6 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.branch.GitBrancher;
-import git4idea.branch.GitNewBranchOptions;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitCommandResult;
@@ -26,6 +25,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
+import com.virtuslab.gitmachete.frontend.actions.dialogs.MyGitNewBranchOptions;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
@@ -39,15 +39,14 @@ public class RenameBackgroundable extends SideEffectingBackgroundable {
   private final BaseEnhancedGraphTable graphTable;
   private final BranchLayout branchLayout;
   private final IManagedBranchSnapshot currentBranchSnapshot;
-  private final GitNewBranchOptions gitNewBranchOptions;
+  private final MyGitNewBranchOptions gitNewBranchOptions;
 
   public RenameBackgroundable(
       GitRepository gitRepository,
       BaseEnhancedGraphTable graphTable, BranchLayout branchLayout,
       IManagedBranchSnapshot currentBranchSnapshot,
-      GitNewBranchOptions gitNewBranchOptions) {
+      MyGitNewBranchOptions gitNewBranchOptions) {
     super(gitRepository.getProject(), getNonHtmlString("action.GitMachete.RenameBackgroundable.task-title"), "rename");
-    this.project = gitRepository.getProject();
     this.gitRepository = gitRepository;
     this.graphTable = graphTable;
     this.branchLayout = branchLayout;
@@ -81,7 +80,7 @@ public class RenameBackgroundable extends SideEffectingBackgroundable {
     // Hence, we wait for the creation of the branch (with exponential backoff).
     waitForCreationOfLocalBranch(gitRepository, newBranchName);
 
-    if (gitNewBranchOptions.shouldSetTracking()) {
+    if (!gitNewBranchOptions.shouldKeepRemoteTrackingInfo()) {
       val remote = currentBranchSnapshot.getRemoteTrackingBranch();
       assert remote != null : "shouldSetTracking is true but the remote branch does not exist";
       handleSetTrackingBranch(remote.getRemoteName());
@@ -109,18 +108,29 @@ public class RenameBackgroundable extends SideEffectingBackgroundable {
       val unsetUpstream = unsetUpstream(newBranchName);
       val unsetUpstreamErrorOutput = unsetUpstream.getErrorOutput();
       if (unsetUpstream.success()) {
+        // the requested upstream branch 'origin/<new-branch-name>' does not exist
+        // hint:
+        // hint: If you are planning on basing your work on an upstream
+        // hint: branch that already exists at the remote, you may need to
+        // hint: run "git fetch" to retrieve it.
+        // hint:
+        // hint: If you are planning to push out a new local branch that
+        // hint: will track its remote counterpart, you may want to use
+        // hint: "git push -u" to set the upstream config as you push.
+        // hint: Disable this message with "git config advice.setUpstreamFailure false"
+        // ---
+        // This happens when one renames a branch with a remote branch set up,
+        // and a local branch with the new name is created for the first time,
+        // and the remote with the new name does not exist.
+        return;
+      } else if (!unsetUpstreamErrorOutput.isEmpty() && unsetUpstreamErrorOutput.get(0)
+          .equals("fatal: Branch '${newBranchName}' has no upstream information")) {
+        // fatal: Branch '<new-branch-name>' has no upstream information
+        // ---
         // This happens when one renames a branch with a remote branch set up,
         // and a local branch with the new name is created for the second and next time,
         // and the remote with the new name does not exist.
         return;
-      } else {
-        if (!unsetUpstreamErrorOutput.isEmpty() && unsetUpstreamErrorOutput.get(0)
-            .equals("fatal: Branch '${newBranchName}' has no upstream information")) {
-          // This happens when one renames a branch with a remote branch set up,
-          // and a local branch with the new name is created for the first time,
-          // and the remote with the new name does not exist.
-          return;
-        }
       }
       error = unsetUpstream.getErrorOutputAsJoinedString();
     }

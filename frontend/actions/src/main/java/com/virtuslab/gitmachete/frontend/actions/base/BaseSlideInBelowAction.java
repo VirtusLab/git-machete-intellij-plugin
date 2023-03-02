@@ -14,7 +14,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitRemoteBranch;
-import git4idea.branch.GitNewBranchOptions;
 import git4idea.repo.GitRepository;
 import git4idea.ui.branch.GitBranchCheckoutOperation;
 import io.vavr.Tuple;
@@ -173,7 +172,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
         /* showResetOption */ true,
         /* showSetTrackingOption */ false);
 
-    GitNewBranchOptions options = gitNewBranchDialog.showAndGetOptions();
+    val options = gitNewBranchDialog.showAndGetOptions();
 
     if (options == null) {
       log().debug("Name of branch to slide in is null: " +
@@ -192,7 +191,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
       return Tuple.of(branchName, () -> {
         //noinspection KotlinInternalInJava
         val gitBranchCheckoutOperation = new GitBranchCheckoutOperation(project, Collections.singletonList(gitRepository));
-        gitBranchCheckoutOperation.perform(startPoint, options);
+        gitBranchCheckoutOperation.perform(startPoint, options.toGit4IdeaOptions());
       });
 
     } else if (options.shouldCheckout()) {

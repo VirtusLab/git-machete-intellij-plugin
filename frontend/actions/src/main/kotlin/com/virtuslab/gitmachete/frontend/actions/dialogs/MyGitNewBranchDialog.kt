@@ -22,6 +22,15 @@ import git4idea.repo.GitRepository
 import git4idea.validators.*
 import javax.swing.JCheckBox
 
+data class MyGitNewBranchOptions @JvmOverloads constructor(
+  val name: String,
+  @get:JvmName("shouldCheckout") val checkout: Boolean = true,
+  @get:JvmName("shouldReset") val reset: Boolean = false,
+  @get:JvmName("shouldKeepRemoteTrackingInfo") val keepTracking: Boolean = true,
+) {
+  fun toGit4IdeaOptions(): GitNewBranchOptions = GitNewBranchOptions(name, checkout, reset, !keepTracking)
+}
+
 /**
  * This class has been inspired by [git4idea.branch.GitNewBranchOptions].
  * The main reason is that we want to rename the checkbox "Set tracking branch"
@@ -34,7 +43,7 @@ class MyGitNewBranchDialog @JvmOverloads constructor(
   initialName: String?,
   private val showCheckOutOption: Boolean = true,
   private val showResetOption: Boolean = false,
-  private val showRenameRemoteOption: Boolean = false,
+  private val showKeepRemoteOption: Boolean = false,
   private val localConflictsAllowed: Boolean = false,
   private val operation: GitBranchOperationType = if (showCheckOutOption) GitBranchOperationType.CREATE else GitBranchOperationType.CHECKOUT,
 ) :
@@ -46,7 +55,7 @@ class MyGitNewBranchDialog @JvmOverloads constructor(
 
   private var checkout = true
   private var reset = false
-  private var remote = showRenameRemoteOption
+  private var remote = true
   private var branchName = initialName.orEmpty()
   private val validator = GitRefNameValidator.getInstance()
 
@@ -58,9 +67,9 @@ class MyGitNewBranchDialog @JvmOverloads constructor(
     init()
   }
 
-  fun showAndGetOptions(): GitNewBranchOptions? {
+  fun showAndGetOptions(): MyGitNewBranchOptions? {
     if (!showAndGet()) return null
-    return GitNewBranchOptions(validator.cleanUpBranchName(branchName).trim(), checkout, reset, remote)
+    return MyGitNewBranchOptions(validator.cleanUpBranchName(branchName).trim(), checkout, reset, remote)
   }
 
   override fun createCenterPanel() = panel {
@@ -102,8 +111,8 @@ class MyGitNewBranchDialog @JvmOverloads constructor(
           }
           .component
       }
-      if (showRenameRemoteOption) {
-        checkBox(getString("string.GitMachete.NewBranchDialog.rename-remote-checkbox"))
+      if (showKeepRemoteOption) {
+        checkBox(getString("string.GitMachete.NewBranchDialog.keep-remote-checkbox"))
           .bindSelected(::remote)
           .component
       }
@@ -125,6 +134,7 @@ class MyGitNewBranchDialog @JvmOverloads constructor(
   }
 
   private fun collectLocalBranchNames() = repositories.asSequence().flatMap { it.branches.localBranches }.map { it.name }
+
   private fun collectRemoteBranchNames() = repositories.asSequence().flatMap { it.branches.remoteBranches }.map { it.nameForRemoteOperations }
 
   private fun collectDirectories(branchNames: Iterable<String>, withTrailingSlash: Boolean): Collection<String> {
