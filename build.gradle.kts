@@ -18,10 +18,9 @@ fun getFlagsForAddExports(vararg packages: String, module: String): List<String>
 }
 
 // TODO (#859): bump to Java 17 once we no longer support IntelliJ 2022.1 (the last version to run on Java 11)
-val targetJavaVersion: JavaVersion by extra(JavaVersion.VERSION_11)
 // Since 2022.3, IntelliJ itself is compiled for Java 17 (classfiles version 44+17=61).
 // 2022.2 is apparently compiled for Java 11 (classfiles version 44+11=55), but running on JBR 17 by default.
-val requiredJdkVersion: JavaVersion by extra(JavaVersion.VERSION_17)
+val targetJavaVersion: JavaVersion by extra(JavaVersion.VERSION_11)
 
 val ciBranch: String? by extra(System.getenv("CIRCLE_BRANCH"))
 val isCI: Boolean by extra(System.getenv("CI") == "true")
@@ -64,10 +63,6 @@ allprojects {
   apply<JavaLibraryPlugin>()
 
   java {
-    toolchain {
-      languageVersion.set(JavaLanguageVersion.of(requiredJdkVersion.toString()))
-    }
-
     sourceCompatibility = targetJavaVersion
     targetCompatibility = targetJavaVersion // redundant, added for clarity
   }
@@ -171,17 +166,6 @@ allprojects {
   // (and also between JGit&co.'s slf4j-api and Intellij's slf4j-api), we need to exclude the former
   // from ALL dependencies.
   configurations.runtimeClasspath { exclude(group = "org.slf4j", module = "slf4j-api") }
-
-  // TODO (#859): FYI, once gradle-grammarkit-plugin is bumped to 2022.3,
-  //  this will apply to GenerateLexer/GenerateParser tasks as well.
-  tasks.withType<JavaExec> {
-    val requiredJdkVersion: JavaVersion by rootProject.extra
-    javaLauncher.set(
-      javaToolchains.launcherFor {
-        languageVersion.set(JavaLanguageVersion.of(requiredJdkVersion.toString()))
-      },
-    )
-  }
 }
 
 subprojects {

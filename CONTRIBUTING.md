@@ -105,6 +105,9 @@ Additional setup:
 
 ## Build
 
+Set up Java 17, preferably using [sdkman](https://sdkman.io/),
+with [`sdkman_auto_env=true`](https://sdkman.io/usage#config) and [`.sdkmanrc`](https://sdkman.io/usage#env).
+
 To build the project, run `./gradlew build`. Please note that for the initial build attempt, you might need to add the `--info` option, in order to respond to the prompt of accepting Gradle Terms of Service.
 
 Currently, quite generous maximum heap size options are applied for Gradle's Java compilation tasks (search for `-Xmx` in [build.gradle.kts](build.gradle.kts)). <br/>

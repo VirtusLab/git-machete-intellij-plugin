@@ -280,21 +280,20 @@ jobs:
           commit_message_prefix: Update dependencies
           labels: build
 
-# TODO (#1543): make the project build under Gradle 8.0
-#      - run:
-#          name: Check for updates of Gradle
-#          # language=sh
-#          command: |
-#            latest_gradle_version=$(curl -fsSL https://services.gradle.org/versions/current | jq -r .version)
-#            ./gradlew wrapper --gradle-version=$latest_gradle_version  # this only updates gradle-wrapper.properties
-#            ./gradlew  # to actually pull the new wrapper script/jar
-#            echo "$latest_gradle_version" > /tmp/gradle-version
-#      - create_pull_request_if_files_changed:
-#          branch_name_prefix: update-gradle
-#          branch_name_command: cat /tmp/gradle-version
-#          commit_message_prefix: Update Gradle wrapper to
-#          commit_message_command: cat /tmp/gradle-version
-#          labels: build
+      - run:
+          name: Check for updates of Gradle
+          # language=sh
+          command: |
+            latest_gradle_version=$(curl -fsSL https://services.gradle.org/versions/current | jq -r .version)
+            ./gradlew wrapper --gradle-version=$latest_gradle_version  # this only updates gradle-wrapper.properties
+            ./gradlew  # to actually pull the new wrapper script/jar
+            echo "$latest_gradle_version" > /tmp/gradle-version
+      - create_pull_request_if_files_changed:
+          branch_name_prefix: update-gradle
+          branch_name_command: cat /tmp/gradle-version
+          commit_message_prefix: Update Gradle wrapper to
+          commit_message_command: cat /tmp/gradle-version
+          labels: build
 
 workflows:
   version: 2
