@@ -22,8 +22,8 @@ for referenced_file in $(git grep -Pho '(?<=loadIcon\(").*(?="\))' -- 'frontend/
   for file in "$referenced_file_path" "$referenced_file_path_dark"; do
     width=$(git grep -Pho '(?<=width=")[0-9]*(?=")' -- "$file" | head -1)
     height=$(git grep -Pho '(?<=height=")[0-9]*(?=")' -- "$file" | head -1)
-    if [[ $width != 16 || $height != 16 ]]; then
-      die "Icon '$file' has invalid dimensions ${width}x${height}. Required dimensions are 16x16!"
+    if [[ ! ($width == 16 && $height == 16) && ! ($width == 32 && $height == 32) ]]; then
+      die "Icon '$file' has invalid dimensions ${width}x${height}. Required dimensions are 16x16 or 32x32!"
     fi
   done
 

@@ -1,6 +1,7 @@
 # Changelog
 
-## v3.7.2
+## v3.8.0
+- Improved: traverse action shows fewer dialogs making the process even smoother.
 
 ## v3.7.1
 - Fixed: traverse used to always stop after sliding out the current branch (reported by @CLOVIS-AI);

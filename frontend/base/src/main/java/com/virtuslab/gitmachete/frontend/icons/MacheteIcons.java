@@ -7,6 +7,8 @@ import com.intellij.openapi.util.IconLoader;
 public final class MacheteIcons {
   private MacheteIcons() {}
 
+  public static final Icon LOGO = loadIcon("macheteLogoIcon32");
+
   public static final Icon DISCOVER = loadIcon("macheteLogoIcon");
 
   public static final Icon EDIT = loadIcon("edit");

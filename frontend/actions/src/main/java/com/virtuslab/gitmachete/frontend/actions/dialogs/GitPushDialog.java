@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JComponent;
 
 import com.intellij.dvcs.push.PushSource;
 import com.intellij.dvcs.push.PushSupport;
@@ -24,8 +25,11 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 public final class GitPushDialog extends VcsPushDialog {
   private final boolean isForcePushRequired;
+  private final @Nullable JComponent traverseInfoComponent;
   private final @UI Runnable doInUIThreadWhenReady;
   private final Action pushAction;
+  private final Action pushActionAndQuit;
+  private final Action skipAction;
 
   @UIEffect
   public GitPushDialog(
@@ -33,7 +37,7 @@ public final class GitPushDialog extends VcsPushDialog {
       Repository repository,
       PushSource pushSource,
       boolean isForcePushRequired) {
-    this(project, repository, pushSource, isForcePushRequired, () -> {});
+    this(project, repository, pushSource, isForcePushRequired, /* traverseInfoComponent */ null, () -> {});
   }
 
   @UIEffect
@@ -42,6 +46,7 @@ public final class GitPushDialog extends VcsPushDialog {
       Repository repository,
       PushSource pushSource,
       boolean isForcePushRequired,
+      @Nullable JComponent traverseInfoComponent,
       @UI Runnable doInUIThreadWhenReady) {
     // Presented dialog shows commits for branches belonging to allRepositories, selectedRepositories and currentRepo.
     // The second and the third one have a higher priority of loading its commits.
@@ -50,12 +55,21 @@ public final class GitPushDialog extends VcsPushDialog {
         /* selectedRepositories */ java.util.List.of(repository), /* currentRepo */ null, pushSource);
     this.isForcePushRequired = isForcePushRequired;
     this.doInUIThreadWhenReady = doInUIThreadWhenReady;
-    this.pushAction = new PushSwingAction();
+    this.pushAction = new PushSwingAction(/* isAndQuit */ false);
+    this.pushActionAndQuit = new PushSwingAction(/* isAndQuit */ true);
+    this.skipAction = new SkipSwingAction();
+    this.traverseInfoComponent = traverseInfoComponent;
 
     // Note: since the class is final, `this` is already @Initialized at this point.
 
-    setOKButtonText(getPushActionName());
+    setOKButtonText(getPushActionName(/* isAndQuit */ false));
     init();
+    setTitle("Git Machete Traverse: " + this.getTitle());
+  }
+
+  @Override
+  public @Nullable JComponent createNorthPanel() {
+    return traverseInfoComponent;
   }
 
   @Override
@@ -71,7 +85,13 @@ public final class GitPushDialog extends VcsPushDialog {
   @Override
   @UIEffect
   protected Action[] createActions() {
-    return new Action[]{pushAction, getCancelAction(), getHelpAction()};
+    Action cancelAction = getCancelAction();
+    if (traverseInfoComponent != null) {
+      cancelAction.putValue(Action.NAME, "_Quit Traverse");
+      return new Action[]{skipAction, pushAction, pushActionAndQuit, cancelAction, getHelpAction()};
+    } else {
+      return new Action[]{pushAction, cancelAction, getHelpAction()};
+    }
   }
 
   @Override
@@ -110,27 +130,67 @@ public final class GitPushDialog extends VcsPushDialog {
     });
   }
 
+  @BackgroundableQueuedElsewhere // passed on to `executeAfterRunningPrePushHandlers`
+  @UIEffect
+  public void pushAndQuit() {
+
+    String title = getNonHtmlString("string.GitMachete.GitPushDialog.task-title");
+    executeAfterRunningPrePushHandlers(new SideEffectingBackgroundable(myProject, title, "push") {
+      @Override
+      @UIThreadUnsafe
+      public void doRun(ProgressIndicator indicator) {
+        myController.push(isForcePushRequired);
+      }
+    });
+  }
+
   @Override
   public @Nullable VcsPushOptionValue getAdditionalOptionValue(PushSupport support) {
     return null;
   }
 
-  private String getPushActionName() {
-    return isForcePushRequired ? "Force _Push" : "_Push";
+  private String getPushActionName(boolean isAndQuit) {
+    if (isAndQuit) {
+      return (isForcePushRequired ? "Force Push" : "Push") + " _and Quit";
+    } else {
+      return isForcePushRequired ? "Force _Push" : "_Push";
+    }
   }
 
   private class PushSwingAction extends AbstractAction {
 
+    private final Runnable pushRunnable;
+
     @UIEffect
-    PushSwingAction() {
-      super(getPushActionName());
-      putValue(DEFAULT_ACTION, Boolean.TRUE);
+    PushSwingAction(boolean isAndQuit) {
+      super(getPushActionName(isAndQuit));
+      if (!isAndQuit) {
+        this.pushRunnable = GitPushDialog.this::push;
+        putValue(DEFAULT_ACTION, Boolean.TRUE);
+      } else {
+        this.pushRunnable = GitPushDialog.this::pushAndQuit;
+      }
     }
 
     @Override
     @UIEffect
     public void actionPerformed(ActionEvent e) {
-      push();
+      pushRunnable.run();
+    }
+  }
+
+  private class SkipSwingAction extends AbstractAction {
+
+    @UIEffect
+    SkipSwingAction() {
+      super("_Skip Push");
+    }
+
+    @Override
+    @UIEffect
+    public void actionPerformed(ActionEvent e) {
+      close(OK_EXIT_CODE);
+      doInUIThreadWhenReady.run();
     }
   }
 }
