@@ -293,7 +293,17 @@
                 icon="com.virtuslab.gitmachete.frontend.icons.MacheteIcons.MACHETE_FILE">
             <!-- `VcsGroups` is Git (VCS) menu. -->
             <add-to-group group-id="VcsGroups" anchor="last"/>
-            <!-- In $default keymap `control` key (Windows/Linux) corresponds to `cmd` key on macOS -->
+
+            <!-- `meta` is really `cmd` on macOS -->
+            <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="meta alt shift M" />
+            <!--
+              Let's provide an alternative to Cmd+Alt+Shift+M for the IDEs where Kotlin plugin is installed.
+              In Kotlin plugin, Cmd+Alt+Shift+M is taken by `Extract Function to Scope`,
+              which overrides our `Open Machete Tab` action in most contexts.
+            -->
+            <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="control alt shift M" />
+
+            <!-- This might be defined at the end; otherwise macOS-specific settings would apparently be overridden -->
             <keyboard-shortcut keymap="$default" first-keystroke="control alt shift M" />
         </action>
 
