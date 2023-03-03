@@ -353,12 +353,13 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         "isListingCommits = ${isListingCommits}");
 
     IRepositoryGraph repositoryGraph;
-    if (gitMacheteRepositorySnapshot == null) {
+    val snapshot = gitMacheteRepositorySnapshot;
+    if (snapshot == null) {
       repositoryGraph = NullRepositoryGraph.getInstance();
     } else {
-      repositoryGraph = repositoryGraphCache.getRepositoryGraph(gitMacheteRepositorySnapshot, isListingCommits);
-      if (gitMacheteRepositorySnapshot.getRootBranches().isEmpty()) {
-        if (gitMacheteRepositorySnapshot.getSkippedBranchNames().isEmpty()) {
+      repositoryGraph = repositoryGraphCache.getRepositoryGraph(snapshot, isListingCommits);
+      if (snapshot.getRootBranches().isEmpty()) {
+        if (snapshot.getSkippedBranchNames().isEmpty()) {
           LOG.info("Machete file (${macheteFilePath}) is empty");
           setTextForEmptyTable(
               getString("string.GitMachete.EnhancedGraphTable.empty-table-text.try-running-discover")
