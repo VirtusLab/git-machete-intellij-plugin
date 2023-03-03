@@ -1,25 +1,24 @@
 package com.virtuslab.gitmachete.frontend.actions.dialogs
 
-import com.intellij.codeInsight.completion.CompletionParameters
-import com.intellij.codeInsight.completion.CompletionResultSet
 import com.intellij.openapi.application.invokeLater
-import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.openapi.ui.validation.WHEN_STATE_CHANGED
-import com.intellij.openapi.ui.validation.WHEN_TEXT_FIELD_TEXT_CHANGED
 import com.intellij.openapi.util.text.HtmlBuilder
 import com.intellij.ui.dsl.builder.*
 import com.intellij.ui.layout.ValidationInfoBuilder
-import com.intellij.util.textCompletion.DefaultTextCompletionValueDescriptor
-import com.intellij.util.textCompletion.TextCompletionProviderBase
 import com.intellij.util.textCompletion.TextFieldWithCompletion
+import com.virtuslab.gitmachete.frontend.actions.common.BranchNamesCompletion
+import com.virtuslab.gitmachete.frontend.actions.compat.rowCompat
+import com.virtuslab.gitmachete.frontend.actions.dialogs.GitNewBranchDialogCompat.WHEN_TEXT_FIELD_TEXT_CHANGED
+import com.virtuslab.gitmachete.frontend.actions.dialogs.GitNewBranchDialogCompat.conflictsWithLocalBranchDirectory
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
 import git4idea.branch.GitBranchOperationType
 import git4idea.branch.GitNewBranchOptions
 import git4idea.repo.GitRepository
 import git4idea.validators.*
+import io.vavr.collection.List
 import javax.swing.JCheckBox
 
 data class MyGitNewBranchOptions @JvmOverloads constructor(
@@ -35,6 +34,8 @@ data class MyGitNewBranchOptions @JvmOverloads constructor(
  * This class has been inspired by [git4idea.branch.GitNewBranchOptions].
  * The main reason is that we want to rename the checkbox "Set tracking branch"
  * (which is unclear) to "Rename tracking branch".
+ *
+ * TODO (#1604): update this class (e.g. use align(AlignX.FILL))
  */
 class MyGitNewBranchDialog @JvmOverloads constructor(
   private val project: Project,
@@ -74,7 +75,8 @@ class MyGitNewBranchDialog @JvmOverloads constructor(
 
   override fun createCenterPanel() = panel {
     val overwriteCheckbox = JCheckBox(getString("string.GitMachete.NewBranchDialog.overwrite-checkbox"))
-    row {
+
+    rowCompat {
       cell(
         TextFieldWithCompletion(
           project,
@@ -87,7 +89,9 @@ class MyGitNewBranchDialog @JvmOverloads constructor(
         ),
       )
         .bind({ c -> c.text }, { c, v -> c.text = v }, ::branchName.toMutableProperty())
-        .align(AlignX.FILL)
+        .apply {
+          component.setPreferredWidth(250)
+        }
         .label(getString("string.GitMachete.NewBranchDialog.new-branch-name"), LabelPosition.TOP)
         .focused()
         .applyToComponent {
@@ -98,7 +102,7 @@ class MyGitNewBranchDialog @JvmOverloads constructor(
         .validationOnApply(validateBranchName(/* onApply */ true, overwriteCheckbox))
         .validationOnInput(validateBranchName(/* onApply */ false, overwriteCheckbox))
     }
-    row {
+    rowCompat {
       if (showCheckOutOption) {
         checkBox(getString("string.GitMachete.NewBranchDialog.checkout-checkbox"))
           .bindSelected(::checkout)
@@ -130,7 +134,7 @@ class MyGitNewBranchDialog @JvmOverloads constructor(
     allSuggestions += remoteBranches
     allSuggestions += localDirectories
     allSuggestions += remoteDirectories
-    return BranchNamesCompletion(localDirectories.toList(), allSuggestions.toList())
+    return BranchNamesCompletion(List.ofAll(localDirectories), List.ofAll(allSuggestions))
   }
 
   private fun collectLocalBranchNames() = repositories.asSequence().flatMap { it.branches.localBranches }.map { it.name }
@@ -203,24 +207,5 @@ class MyGitNewBranchDialog @JvmOverloads constructor(
 
     text = fixedText
     caretModel.moveToOffset(fixedCaret)
-  }
-
-  private class BranchNamesCompletion(
-    val localDirectories: List<String>,
-    val allSuggestions: List<String>,
-  ) :
-    TextCompletionProviderBase<String>(
-      DefaultTextCompletionValueDescriptor.StringValueDescriptor(),
-      emptyList(),
-      /* caseSensitive */ false,
-    ),
-    DumbAware {
-    override fun getValues(parameters: CompletionParameters, prefix: String, result: CompletionResultSet): Collection<String> {
-      return if (parameters.isAutoPopup) {
-        localDirectories
-      } else {
-        allSuggestions
-      }
-    }
   }
 }

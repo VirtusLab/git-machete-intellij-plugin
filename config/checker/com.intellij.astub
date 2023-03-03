@@ -32,6 +32,12 @@ class CodeStyle {}
 class LookupElementBuilder {
   @SafeEffect
   LookupElementBuilder create(String lookupString);
+
+  @SafeEffect
+  InsertHandler<LookupElement> getInsertHandler();
+
+  @SafeEffect
+  LookupElementBuilder withInsertHandler(InsertHandler<LookupElement> insertHandler);
 }
 
 @UIPackage package com.intellij.codeInsight.preview;
