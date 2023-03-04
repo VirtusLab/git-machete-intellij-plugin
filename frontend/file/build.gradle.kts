@@ -35,7 +35,7 @@ sourceSets["main"].java { srcDir(additionalSourceDirs) }
 
 val generateMacheteParser =
   tasks.withType<GenerateParserTask> {
-    source.set("$grammarSourcesRoot/Machete.bnf")
+    sourceFile.set(file("$grammarSourcesRoot/Machete.bnf"))
     targetRoot.set(generatedParserJavaSourcesRoot)
     pathToParser.set("/$grammarJavaPackagePath/MacheteGeneratedParser.java")
     pathToPsiRoot.set("/$grammarJavaPackagePath/")
@@ -46,7 +46,7 @@ val generateMacheteLexer =
   tasks.withType<GenerateLexerTask> {
     dependsOn(generateMacheteParser)
 
-    source.set("$grammarSourcesRoot/Machete.flex")
+    sourceFile.set(file("$grammarSourcesRoot/Machete.flex"))
     targetDir.set("$generatedLexerJavaSourcesRoot/$grammarJavaPackagePath/")
     targetClass.set("MacheteGeneratedLexer")
     purgeOldFiles.set(false)

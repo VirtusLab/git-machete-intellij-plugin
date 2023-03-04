@@ -17,10 +17,7 @@ fun getFlagsForAddExports(vararg packages: String, module: String): List<String>
   return packages.toList().map { "--add-exports=$module/$it=ALL-UNNAMED" }
 }
 
-// TODO (#859): bump to Java 17 once we no longer support IntelliJ 2022.1 (the last version to run on Java 11)
-// Since 2022.3, IntelliJ itself is compiled for Java 17 (classfiles version 44+17=61).
-// 2022.2 is apparently compiled for Java 11 (classfiles version 44+11=55), but running on JBR 17 by default.
-val targetJavaVersion: JavaVersion by extra(JavaVersion.VERSION_11)
+val targetJavaVersion: JavaVersion by extra(JavaVersion.VERSION_17)
 
 val ciBranch: String? by extra(System.getenv("CIRCLE_BRANCH"))
 val isCI: Boolean by extra(System.getenv("CI") == "true")
