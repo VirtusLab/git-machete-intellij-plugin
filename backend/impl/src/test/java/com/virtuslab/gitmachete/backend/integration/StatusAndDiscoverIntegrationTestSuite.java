@@ -9,9 +9,6 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.NoRemotes;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Untracked;
 import static com.virtuslab.gitmachete.testcommon.SetupScripts.ALL_SETUP_SCRIPTS;
 import static com.virtuslab.gitmachete.testcommon.TestFileUtils.cleanUpDir;
-import static io.vavr.API.$;
-import static io.vavr.API.Case;
-import static io.vavr.API.Match;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.charset.StandardCharsets;
@@ -176,12 +173,14 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseIntegrationTestSu
     if (syncToRemoteStatus != NoRemotes && syncToRemoteStatus != InSyncToRemote) {
       val remoteName = relationToRemote.getRemoteName();
       sb.append(" (");
-      sb.append(Match(syncToRemoteStatus).of(
-          Case($(Untracked), "untracked"),
-          Case($(AheadOfRemote), "ahead of " + remoteName),
-          Case($(BehindRemote), "behind " + remoteName),
-          Case($(DivergedFromAndNewerThanRemote), "diverged from " + remoteName),
-          Case($(DivergedFromAndOlderThanRemote), "diverged from & older than " + remoteName)));
+      sb.append(switch (syncToRemoteStatus) {
+        case Untracked -> "untracked";
+        case AheadOfRemote -> "ahead of " + remoteName;
+        case BehindRemote -> "behind " + remoteName;
+        case DivergedFromAndNewerThanRemote -> "diverged from " + remoteName;
+        case DivergedFromAndOlderThanRemote -> "diverged from & older than " + remoteName;
+        case InSyncToRemote, NoRemotes -> throw new IllegalStateException("Unexpected value: " + syncToRemoteStatus);
+      });
       sb.append(")");
     }
     val statusHookOutput = branch.getStatusHookOutput();

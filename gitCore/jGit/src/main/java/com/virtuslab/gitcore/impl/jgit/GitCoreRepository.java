@@ -2,10 +2,6 @@ package com.virtuslab.gitcore.impl.jgit;
 
 import static com.virtuslab.gitcore.impl.jgit.BranchFullNameUtils.getLocalBranchFullName;
 import static com.virtuslab.gitcore.impl.jgit.BranchFullNameUtils.getRemoteBranchFullName;
-import static io.vavr.API.$;
-import static io.vavr.API.Case;
-import static io.vavr.API.Match;
-import static io.vavr.Predicates.isIn;
 import static org.eclipse.jgit.lib.ConfigConstants.CONFIG_BRANCH_SECTION;
 import static org.eclipse.jgit.lib.ConfigConstants.CONFIG_KEY_MERGE;
 import static org.eclipse.jgit.lib.ConfigConstants.CONFIG_KEY_REMOTE;
@@ -34,7 +30,6 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.ReflogReader;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.lib.RepositoryState;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevSort;
 import org.eclipse.jgit.revwalk.RevWalk;
@@ -598,22 +593,17 @@ public final class GitCoreRepository implements IGitCoreRepository {
   @Override
   @UIThreadUnsafe
   public GitCoreRepositoryState deriveRepositoryState() {
-    return Match(jgitRepoForWorktreeGitDir.getRepositoryState()).of(
-    // @formatter:off
-        Case($(isIn(RepositoryState.CHERRY_PICKING, RepositoryState.CHERRY_PICKING_RESOLVED)),
-            GitCoreRepositoryState.CHERRY_PICK),
-        Case($(isIn(RepositoryState.MERGING, RepositoryState.MERGING_RESOLVED)),
-            GitCoreRepositoryState.MERGING),
-        Case($(isIn(RepositoryState.REBASING, RepositoryState.REBASING_INTERACTIVE, RepositoryState.REBASING_MERGE, RepositoryState.REBASING_REBASING)),
-            GitCoreRepositoryState.REBASING),
-        Case($(isIn(RepositoryState.REVERTING, RepositoryState.REVERTING_RESOLVED)),
-            GitCoreRepositoryState.REVERTING),
-        Case($(RepositoryState.APPLY),
-            GitCoreRepositoryState.APPLYING),
-        Case($(RepositoryState.BISECTING),
-            GitCoreRepositoryState.BISECTING),
-        Case($(), GitCoreRepositoryState.NORMAL));
-    // @formatter:on
+    val state = jgitRepoForWorktreeGitDir.getRepositoryState();
+    return switch (state) {
+      case CHERRY_PICKING, CHERRY_PICKING_RESOLVED -> GitCoreRepositoryState.CHERRY_PICKING;
+      case MERGING, MERGING_RESOLVED -> GitCoreRepositoryState.MERGING;
+      case REBASING, REBASING_INTERACTIVE, REBASING_MERGE, REBASING_REBASING -> GitCoreRepositoryState.REBASING;
+      case REVERTING, REVERTING_RESOLVED -> GitCoreRepositoryState.REVERTING;
+      case APPLY -> GitCoreRepositoryState.APPLYING;
+      case BISECTING -> GitCoreRepositoryState.BISECTING;
+      case SAFE -> GitCoreRepositoryState.NO_OPERATION;
+      case BARE -> throw new IllegalStateException("Unexpected value: " + state);
+    };
   }
 
   @Override

@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.BranchLayoutEntry;
+import com.virtuslab.gitcore.api.GitCoreRepositoryState;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
@@ -26,6 +27,7 @@ public class GitMacheteRepository_deriveCreatedAndDuplicatedAndSkippedBranchesUn
   private IGitMacheteRepositorySnapshot invokeCreateSnapshot(
       BranchLayout branchLayout, IGitCoreLocalBranchSnapshot... localBranchSnapshots) {
     when(gitCoreRepository.deriveAllRemoteNames()).thenReturn(List.empty());
+    when(gitCoreRepository.deriveRepositoryState()).thenReturn(GitCoreRepositoryState.NO_OPERATION);
     return aux(localBranchSnapshots).createSnapshot(branchLayout);
   }
 

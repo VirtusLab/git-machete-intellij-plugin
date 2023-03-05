@@ -125,9 +125,7 @@ public class UnmanagedBranchNotificationFactory {
           val dataContext = new DataContext() {
             @Override
             public @Nullable Object getData(String dataId) {
-              return Match(dataId).of(
-                  typeSafeCase(CommonDataKeys.PROJECT, project),
-                  Case($(), (Object) null));
+              return dataId.equals(CommonDataKeys.PROJECT.getName()) ? project : null;
             }
           };
           val actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.VCS_NOTIFICATION, new Presentation(), dataContext);

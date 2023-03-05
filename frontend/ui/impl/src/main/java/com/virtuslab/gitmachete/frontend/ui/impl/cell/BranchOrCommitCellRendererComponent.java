@@ -19,10 +19,6 @@ import static com.virtuslab.gitmachete.frontend.defs.Colors.ORANGE;
 import static com.virtuslab.gitmachete.frontend.defs.Colors.RED;
 import static com.virtuslab.gitmachete.frontend.defs.Colors.TRANSPARENT;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
-import static io.vavr.API.$;
-import static io.vavr.API.Case;
-import static io.vavr.API.Match;
-import static io.vavr.Predicates.isIn;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -138,26 +134,23 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
 
         if (maybeOperationsBaseBranchName != null
             && Objects.equals(maybeOperationsBaseBranchName, graphItem.getValue())) {
-          val ongoingOperationName = Match(repositoryOperation.getOperationType()).of(
-              Case($(OngoingRepositoryOperationType.BISECTING),
-                  getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.bisecting")),
-              Case($(OngoingRepositoryOperationType.REBASING),
-                  getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.rebasing")),
-              Case($(), ""));
+          val ongoingOperationName = switch (repositoryOperation.getOperationType()) {
+            case BISECTING -> getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.bisecting");
+            case REBASING -> getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.rebasing");
+            default -> "";
+          };
 
           append(ongoingOperationName + CELL_TEXT_FRAGMENTS_SPACING, attributes);
 
         } else if (graphItem.asBranchItem().isCurrentBranch()) {
-          val ongoingOperationName = Match(repositoryOperation.getOperationType()).of(
-              Case($(OngoingRepositoryOperationType.CHERRY_PICKING),
-                  getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.cherry-picking")),
-              Case($(OngoingRepositoryOperationType.MERGING),
-                  getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.merging")),
-              Case($(OngoingRepositoryOperationType.REVERTING),
-                  getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.reverting")),
-              Case($(OngoingRepositoryOperationType.APPLYING),
-                  getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.applying")),
-              Case($(), ""));
+          val ongoingOperationName = switch (repositoryOperation.getOperationType()) {
+            case CHERRY_PICKING -> getString(
+                "string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.cherry-picking");
+            case MERGING -> getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.merging");
+            case REVERTING -> getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.reverting");
+            case APPLYING -> getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.applying");
+            default -> "";
+          };
 
           append(ongoingOperationName + CELL_TEXT_FRAGMENTS_SPACING, attributes);
         }
@@ -264,33 +257,32 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
   }
 
   private static JBColor getColor(RelationToRemote relation) {
-    return Match(relation.getSyncToRemoteStatus()).of(
-        Case($(isIn(NoRemotes, InSyncToRemote)), TRANSPARENT),
-        Case($(Untracked), ORANGE),
-        Case($(isIn(AheadOfRemote, BehindRemote, DivergedFromAndNewerThanRemote, DivergedFromAndOlderThanRemote)), RED));
+    return switch (relation.getSyncToRemoteStatus()) {
+      case NoRemotes, InSyncToRemote -> TRANSPARENT;
+      case Untracked -> ORANGE;
+      case AheadOfRemote, BehindRemote, DivergedFromAndNewerThanRemote, DivergedFromAndOlderThanRemote -> RED;
+    };
   }
 
   private static String getRelationToRemoteBasedLabel(RelationToRemote relation) {
     val maybeRemoteName = relation.getRemoteName();
     val remoteName = maybeRemoteName != null ? maybeRemoteName : "";
-    return Match(relation.getSyncToRemoteStatus()).of(
-        Case($(isIn(NoRemotes, InSyncToRemote)), ""),
-        Case($(Untracked),
-            getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.untracked")),
-        Case($(AheadOfRemote),
-            getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.ahead-of-remote")
-                .fmt(remoteName)),
-        Case($(BehindRemote),
-            getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.behind-remote")
-                .fmt(remoteName)),
-        Case($(DivergedFromAndNewerThanRemote),
-            getString(
-                "string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.diverged-from-and-newer-than-remote")
-                .fmt(remoteName)),
-        Case($(DivergedFromAndOlderThanRemote),
-            getString(
-                "string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.diverged-from-and-older-than-remote")
-                .fmt(remoteName)));
+    return switch (relation.getSyncToRemoteStatus()) {
+      case NoRemotes, InSyncToRemote -> "";
+      case Untracked -> getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.untracked");
+      case AheadOfRemote -> getString(
+          "string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.ahead-of-remote")
+              .fmt(remoteName);
+      case BehindRemote -> getString(
+          "string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.behind-remote")
+              .fmt(remoteName);
+      case DivergedFromAndNewerThanRemote -> getString(
+          "string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.diverged-from-and-newer-than-remote")
+              .fmt(remoteName);
+      case DivergedFromAndOlderThanRemote -> getString(
+          "string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-remote-status-text.diverged-from-and-older-than-remote")
+              .fmt(remoteName);
+    };
   }
 
   @UIEffect
@@ -305,21 +297,20 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
   private static String getSyncToParentStatusBasedToolTipText(INonRootManagedBranchSnapshot branch) {
     val currentBranchName = branch.getName().escapeHtml4();
     val parentBranchName = branch.getParent().getName().escapeHtml4();
-    return Match(branch.getSyncToParentStatus()).of(
-        Case($(InSync),
-            getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.in-sync.HTML")
-                .fmt(currentBranchName, parentBranchName)),
-        Case($(InSyncButForkPointOff),
-            getString(
-                "string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.in-sync-but-fork-point-off.HTML")
-                .fmt(currentBranchName, parentBranchName)),
-        Case($(OutOfSync),
-            getString("string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.out-of-sync.HTML")
-                .fmt(currentBranchName, parentBranchName)),
-        Case($(MergedToParent),
-            getString(
-                "string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.merged-to-parent.HTML")
-                .fmt(currentBranchName, parentBranchName)));
+    return switch (branch.getSyncToParentStatus()) {
+      case InSync -> getString(
+          "string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.in-sync.HTML")
+              .fmt(currentBranchName, parentBranchName);
+      case InSyncButForkPointOff -> getString(
+          "string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.in-sync-but-fork-point-off.HTML")
+              .fmt(currentBranchName, parentBranchName);
+      case OutOfSync -> getString(
+          "string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.out-of-sync.HTML")
+              .fmt(currentBranchName, parentBranchName);
+      case MergedToParent -> getString(
+          "string.GitMachete.BranchOrCommitCellRendererComponent.sync-to-parent-status-tooltip.merged-to-parent.HTML")
+              .fmt(currentBranchName, parentBranchName);
+    };
   }
 
   private static String getRootToolTipText(IRootManagedBranchSnapshot branch) {

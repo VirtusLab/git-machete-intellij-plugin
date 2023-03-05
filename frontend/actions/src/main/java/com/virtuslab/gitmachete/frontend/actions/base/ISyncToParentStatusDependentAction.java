@@ -4,9 +4,6 @@ import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQu
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.fmt;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
-import static io.vavr.API.$;
-import static io.vavr.API.Case;
-import static io.vavr.API.Match;
 import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory.GENERAL;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -89,19 +86,16 @@ public interface ISyncToParentStatusDependentAction extends IBranchNameProvider,
     } else {
       presentation.setEnabled(false);
 
-      // @formatter:off
-      val desc = Match(syncToParentStatus).of(
-          Case($(SyncToParentStatus.InSync),
-              getString("action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.in-sync")),
-          Case($(SyncToParentStatus.InSyncButForkPointOff),
-              getString("action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.in-sync-but-fork-point-off")),
-          Case($(SyncToParentStatus.MergedToParent),
-              getString("action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.merged-to-parent")),
-          Case($(SyncToParentStatus.OutOfSync),
-              getString("action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.out-of-sync")),
-          Case($(),
-              fmt(getString("action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.unknown"), syncToParentStatus.toString())));
-      // @formatter:on
+      val desc = switch (syncToParentStatus) {
+        case InSync -> getString(
+            "action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.in-sync");
+        case InSyncButForkPointOff -> getString(
+            "action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.in-sync-but-fork-point-off");
+        case MergedToParent -> getString(
+            "action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.merged-to-parent");
+        case OutOfSync -> getString(
+            "action.GitMachete.ISyncToParentStatusDependentAction.description.sync-to-parent-status.out-of-sync");
+      };
 
       presentation.setDescription(
           fmt(getNonHtmlString("action.GitMachete.ISyncToParentStatusDependentAction.description.disabled.branch-status"),

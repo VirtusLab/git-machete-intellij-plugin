@@ -3,9 +3,6 @@ package com.virtuslab.gitmachete.frontend.actions.base;
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQuotedStringOrCurrent;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
-import static io.vavr.API.$;
-import static io.vavr.API.Case;
-import static io.vavr.API.Match;
 
 import java.util.Arrays;
 
@@ -55,18 +52,19 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
     } else if (state != Repository.State.NORMAL
         && !(isCalledFromContextMenu && state == Repository.State.DETACHED)) {
 
-      val stateName = Match(state).of(
-          Case($(Repository.State.GRAFTING),
-              getString("action.GitMachete.BaseSyncToParentByRebaseAction.description.repository.state.ongoing.cherry-pick")),
-          Case($(Repository.State.DETACHED),
-              getString("action.GitMachete.BaseSyncToParentByRebaseAction.description.repository.state.detached-head")),
-          Case($(Repository.State.MERGING),
-              getString("action.GitMachete.BaseSyncToParentByRebaseAction.description.repository.state.ongoing.merge")),
-          Case($(Repository.State.REBASING),
-              getString("action.GitMachete.BaseSyncToParentByRebaseAction.description.repository.state.ongoing.rebase")),
-          Case($(Repository.State.REVERTING),
-              getString("action.GitMachete.BaseSyncToParentByRebaseAction.description.repository.state.ongoing.revert")),
-          Case($(), ": " + state.name().toLowerCase()));
+      val stateName = switch (state) {
+        case GRAFTING -> getString(
+            "action.GitMachete.BaseSyncToParentByRebaseAction.description.repository.state.ongoing.cherry-pick");
+        case DETACHED -> getString(
+            "action.GitMachete.BaseSyncToParentByRebaseAction.description.repository.state.detached-head");
+        case MERGING -> getString(
+            "action.GitMachete.BaseSyncToParentByRebaseAction.description.repository.state.ongoing.merge");
+        case REBASING -> getString(
+            "action.GitMachete.BaseSyncToParentByRebaseAction.description.repository.state.ongoing.rebase");
+        case REVERTING -> getString(
+            "action.GitMachete.BaseSyncToParentByRebaseAction.description.repository.state.ongoing.revert");
+        case NORMAL -> throw new IllegalStateException("Unexpected value: " + state);
+      };
 
       presentation.setEnabled(false);
       presentation.setDescription(

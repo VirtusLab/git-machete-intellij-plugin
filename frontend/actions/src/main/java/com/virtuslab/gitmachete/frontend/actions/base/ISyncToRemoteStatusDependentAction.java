@@ -4,9 +4,6 @@ import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQu
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.fmt;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
-import static io.vavr.API.$;
-import static io.vavr.API.Case;
-import static io.vavr.API.Match;
 import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory.GENERAL;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -76,23 +73,22 @@ public interface ISyncToRemoteStatusDependentAction extends IBranchNameProvider,
     } else {
       presentation.setEnabled(false);
 
-      // @formatter:off
-      val desc = Match(status).of(
-          Case($(SyncToRemoteStatus.AheadOfRemote),
-              getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.ahead-of-remote")),
-          Case($(SyncToRemoteStatus.BehindRemote),
-              getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.behind-remote")),
-          Case($(SyncToRemoteStatus.DivergedFromAndNewerThanRemote),
-              getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.diverged-from.and-newer-than-remote")),
-          Case($(SyncToRemoteStatus.DivergedFromAndOlderThanRemote),
-              getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.diverged-from.and-older-than-remote")),
-          Case($(SyncToRemoteStatus.InSyncToRemote),
-              getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.in-sync-to-remote")),
-          Case($(SyncToRemoteStatus.Untracked),
-              getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.untracked")),
-          Case($(),
-              fmt(getString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.unknown"), status.toString())));
-      // @formatter:on
+      val desc = switch (status) {
+        case AheadOfRemote -> getString(
+            "action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.ahead-of-remote");
+        case BehindRemote -> getString(
+            "action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.behind-remote");
+        case DivergedFromAndNewerThanRemote -> getString(
+            "action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.diverged-from.and-newer-than-remote");
+        case DivergedFromAndOlderThanRemote -> getString(
+            "action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.diverged-from.and-older-than-remote");
+        case InSyncToRemote -> getString(
+            "action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.in-sync-to-remote");
+        case Untracked -> getString(
+            "action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.untracked");
+        case NoRemotes -> getString(
+            "action.GitMachete.ISyncToRemoteStatusDependentAction.description.sync-to-remote-status.no-remotes");
+      };
 
       presentation.setDescription(
           fmt(getNonHtmlString("action.GitMachete.ISyncToRemoteStatusDependentAction.description.disabled.branch-status"),

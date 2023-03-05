@@ -5,9 +5,6 @@ import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.BehindRemo
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.DivergedFromAndNewerThanRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.DivergedFromAndOlderThanRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.InSyncToRemote;
-import static io.vavr.API.$;
-import static io.vavr.API.Case;
-import static io.vavr.API.Match;
 
 import java.nio.file.Path;
 import java.time.Instant;
@@ -25,7 +22,6 @@ import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.BranchLayoutEntry;
 import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.GitCoreRelativeCommitCount;
-import com.virtuslab.gitcore.api.GitCoreRepositoryState;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
 import com.virtuslab.gitcore.api.IGitCoreReflogEntry;
@@ -98,14 +94,15 @@ public class CreateGitMacheteRepositoryAux extends Aux {
         ? currentBranchIfManaged.getName()
         : "<none> (unmanaged branch or detached HEAD)"));
 
-    val ongoingOperationType = Match(gitCoreRepository.deriveRepositoryState()).of(
-        Case($(GitCoreRepositoryState.CHERRY_PICK), OngoingRepositoryOperationType.CHERRY_PICKING),
-        Case($(GitCoreRepositoryState.MERGING), OngoingRepositoryOperationType.MERGING),
-        Case($(GitCoreRepositoryState.REBASING), OngoingRepositoryOperationType.REBASING),
-        Case($(GitCoreRepositoryState.REVERTING), OngoingRepositoryOperationType.REVERTING),
-        Case($(GitCoreRepositoryState.APPLYING), OngoingRepositoryOperationType.APPLYING),
-        Case($(GitCoreRepositoryState.BISECTING), OngoingRepositoryOperationType.BISECTING),
-        Case($(), OngoingRepositoryOperationType.NO_OPERATION));
+    val ongoingOperationType = switch (gitCoreRepository.deriveRepositoryState()) {
+      case CHERRY_PICKING -> OngoingRepositoryOperationType.CHERRY_PICKING;
+      case MERGING -> OngoingRepositoryOperationType.MERGING;
+      case REBASING -> OngoingRepositoryOperationType.REBASING;
+      case REVERTING -> OngoingRepositoryOperationType.REVERTING;
+      case APPLYING -> OngoingRepositoryOperationType.APPLYING;
+      case BISECTING -> OngoingRepositoryOperationType.BISECTING;
+      case NO_OPERATION -> OngoingRepositoryOperationType.NO_OPERATION;
+    };
 
     val operationsBaseBranchName = deriveOngoingOperationsBaseBranchName(ongoingOperationType);
 
