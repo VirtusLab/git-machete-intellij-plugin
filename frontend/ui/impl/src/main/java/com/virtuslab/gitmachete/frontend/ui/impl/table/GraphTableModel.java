@@ -29,23 +29,19 @@ public class GraphTableModel extends AbstractTableModel {
 
   @Override
   public Object getValueAt(@NonNegative int rowIndex, @NonNegative int columnIndex) {
-    switch (columnIndex) {
-      case BRANCH_OR_COMMIT_COLUMN :
-        IGraphItem graphItem = repositoryGraph.getGraphItem(rowIndex);
-        return new BranchOrCommitCell(graphItem, repositoryGraph.getRenderParts(rowIndex));
-      default :
-        throw new IllegalArgumentException("columnIndex is ${columnIndex} > ${getColumnCount() - 1}");
+    if (columnIndex == BRANCH_OR_COMMIT_COLUMN) {
+      IGraphItem graphItem = repositoryGraph.getGraphItem(rowIndex);
+      return new BranchOrCommitCell(graphItem, repositoryGraph.getRenderParts(rowIndex));
     }
+    throw new IllegalArgumentException("columnIndex is ${columnIndex} > ${getColumnCount() - 1}");
   }
 
   @Override
   public Class<?> getColumnClass(int column) {
-    switch (column) {
-      case BRANCH_OR_COMMIT_COLUMN :
-        return BranchOrCommitCell.class;
-      default :
-        throw new IllegalArgumentException("columnIndex is ${column} > ${getColumnCount() - 1}");
+    if (column == BRANCH_OR_COMMIT_COLUMN) {
+      return BranchOrCommitCell.class;
     }
+    throw new IllegalArgumentException("columnIndex is ${column} > ${getColumnCount() - 1}");
   }
 
   @Override
