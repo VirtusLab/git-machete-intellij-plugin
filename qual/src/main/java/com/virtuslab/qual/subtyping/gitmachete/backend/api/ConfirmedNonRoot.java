@@ -1,4 +1,4 @@
-package com.virtuslab.qual.gitmachete.backend.api;
+package com.virtuslab.qual.subtyping.gitmachete.backend.api;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -14,8 +14,6 @@ import com.virtuslab.qual.internal.SubtypingTop;
  * that has been statically proven to be a {@code com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot}.
  * <p>
  * See <a href="https://checkerframework.org/manual/#subtyping-checker">Subtyping Checker manual</a>.
- * <p>
- * TODO (#859): consider switching from Subtyping Checker to {@code instanceof} once we migrate to Java 17.
  */
 @Retention(RetentionPolicy.CLASS)
 @SubtypeOf(SubtypingTop.class)

@@ -6,6 +6,6 @@ import lombok.experimental.StandardException;
 @SuppressWarnings("nullness:argument")
 public class GitMacheteException extends Exception {
   public static GitMacheteException getOrWrap(Throwable e) {
-    return e instanceof GitMacheteException ? (GitMacheteException) e : new GitMacheteException(e);
+    return e instanceof GitMacheteException gme ? gme : new GitMacheteException(e);
   }
 }

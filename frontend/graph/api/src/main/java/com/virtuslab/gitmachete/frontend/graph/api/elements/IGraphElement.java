@@ -5,8 +5,8 @@ import org.checkerframework.framework.qual.EnsuresQualifierIf;
 import org.checkerframework.framework.qual.RequiresQualifier;
 
 import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IRenderPart;
-import com.virtuslab.qual.gitmachete.frontend.graph.api.elements.ConfirmedGraphEdge;
-import com.virtuslab.qual.gitmachete.frontend.graph.api.elements.ConfirmedGraphNode;
+import com.virtuslab.qual.subtyping.gitmachete.frontend.graph.api.elements.ConfirmedGraphEdge;
+import com.virtuslab.qual.subtyping.gitmachete.frontend.graph.api.elements.ConfirmedGraphNode;
 
 /**
  * Graph elements ({@link IGraphElement}, {@link GraphEdge}, {@link GraphNode}) represent the LOGICAL graph structure.

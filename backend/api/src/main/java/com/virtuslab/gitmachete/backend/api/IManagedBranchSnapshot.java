@@ -5,8 +5,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.framework.qual.EnsuresQualifierIf;
 import org.checkerframework.framework.qual.RequiresQualifier;
 
-import com.virtuslab.qual.gitmachete.backend.api.ConfirmedNonRoot;
-import com.virtuslab.qual.gitmachete.backend.api.ConfirmedRoot;
+import com.virtuslab.qual.subtyping.gitmachete.backend.api.ConfirmedNonRoot;
+import com.virtuslab.qual.subtyping.gitmachete.backend.api.ConfirmedRoot;
 
 /**
  * The only criterion for equality of any instances of any class implementing this interface is reference equality

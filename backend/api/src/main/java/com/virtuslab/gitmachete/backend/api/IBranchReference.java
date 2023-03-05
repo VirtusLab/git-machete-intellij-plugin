@@ -6,8 +6,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.framework.qual.EnsuresQualifierIf;
 import org.checkerframework.framework.qual.RequiresQualifier;
 
-import com.virtuslab.qual.gitmachete.backend.api.ConfirmedLocal;
-import com.virtuslab.qual.gitmachete.backend.api.ConfirmedRemote;
+import com.virtuslab.qual.subtyping.gitmachete.backend.api.ConfirmedLocal;
+import com.virtuslab.qual.subtyping.gitmachete.backend.api.ConfirmedRemote;
 
 /**
  * The only criterion for equality of any instances of any class implementing this interface

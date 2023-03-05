@@ -48,8 +48,8 @@ public class MacheteAnnotator implements Annotator, DumbAware {
   @Override
   @UIThreadUnsafe
   public void annotate(PsiElement element, AnnotationHolder holder) {
-    if (element instanceof MacheteGeneratedEntry) {
-      processMacheteGeneratedEntry((MacheteGeneratedEntry) element, holder);
+    if (element instanceof MacheteGeneratedEntry macheteGeneratedEntry) {
+      processMacheteGeneratedEntry(macheteGeneratedEntry, holder);
     } else if (element.getNode().getElementType().equals(MacheteGeneratedElementTypes.INDENTATION)) {
       processIndentationElement(element, holder);
     }

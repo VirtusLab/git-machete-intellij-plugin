@@ -33,7 +33,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.vfs.newvfs.BulkFileListener;
 import com.intellij.openapi.vfs.newvfs.events.VFileContentChangeEvent;
@@ -200,9 +199,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       @UIEffect
       public void after(java.util.List<? extends VFileEvent> events) {
         for (val event : events) {
-          if (event instanceof VFileContentChangeEvent) {
-            VirtualFile file = ((VFileContentChangeEvent) event).getFile();
-            if (file.getFileType().getName().equals(FileTypeIds.NAME)) {
+          if (event instanceof VFileContentChangeEvent vfccEvent) {
+            if (vfccEvent.getFile().getFileType().getName().equals(FileTypeIds.NAME)) {
               if (unmanagedBranchNotification != null && !unmanagedBranchNotification.isExpired()) {
                 unmanagedBranchNotification.expire();
               }

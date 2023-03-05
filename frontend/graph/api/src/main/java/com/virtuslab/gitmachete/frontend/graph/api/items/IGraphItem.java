@@ -9,8 +9,8 @@ import org.checkerframework.framework.qual.EnsuresQualifierIf;
 import org.checkerframework.framework.qual.RequiresQualifier;
 
 import com.virtuslab.gitmachete.frontend.graph.api.render.parts.IRenderPart;
-import com.virtuslab.qual.gitmachete.frontend.graph.api.items.ConfirmedBranchItem;
-import com.virtuslab.qual.gitmachete.frontend.graph.api.items.ConfirmedCommitItem;
+import com.virtuslab.qual.subtyping.gitmachete.frontend.graph.api.items.ConfirmedBranchItem;
+import com.virtuslab.qual.subtyping.gitmachete.frontend.graph.api.items.ConfirmedCommitItem;
 
 /**
  * Graph items ({@link IGraphItem}, {@link IBranchItem}, {@link ICommitItem}) represent the DATA of the graph.

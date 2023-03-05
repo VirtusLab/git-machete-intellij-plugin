@@ -9,14 +9,14 @@ import org.checkerframework.framework.qual.SubtypeOf;
 import org.checkerframework.framework.qual.TargetLocations;
 import org.checkerframework.framework.qual.TypeUseLocation;
 
-import com.virtuslab.qual.gitmachete.backend.api.ConfirmedLocal;
-import com.virtuslab.qual.gitmachete.backend.api.ConfirmedNonRoot;
-import com.virtuslab.qual.gitmachete.backend.api.ConfirmedRemote;
-import com.virtuslab.qual.gitmachete.backend.api.ConfirmedRoot;
-import com.virtuslab.qual.gitmachete.frontend.graph.api.elements.ConfirmedGraphEdge;
-import com.virtuslab.qual.gitmachete.frontend.graph.api.elements.ConfirmedGraphNode;
-import com.virtuslab.qual.gitmachete.frontend.graph.api.items.ConfirmedBranchItem;
-import com.virtuslab.qual.gitmachete.frontend.graph.api.items.ConfirmedCommitItem;
+import com.virtuslab.qual.subtyping.gitmachete.backend.api.ConfirmedLocal;
+import com.virtuslab.qual.subtyping.gitmachete.backend.api.ConfirmedNonRoot;
+import com.virtuslab.qual.subtyping.gitmachete.backend.api.ConfirmedRemote;
+import com.virtuslab.qual.subtyping.gitmachete.backend.api.ConfirmedRoot;
+import com.virtuslab.qual.subtyping.gitmachete.frontend.graph.api.elements.ConfirmedGraphEdge;
+import com.virtuslab.qual.subtyping.gitmachete.frontend.graph.api.elements.ConfirmedGraphNode;
+import com.virtuslab.qual.subtyping.gitmachete.frontend.graph.api.items.ConfirmedBranchItem;
+import com.virtuslab.qual.subtyping.gitmachete.frontend.graph.api.items.ConfirmedCommitItem;
 
 /**
  * There needs to be single subtyping hierarchy with single bottom and top annotation.
