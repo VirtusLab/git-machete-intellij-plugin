@@ -21,18 +21,15 @@ public final class MacheteFileUtils {
   private MacheteFileUtils() {}
 
   public static String getSampleMacheteFileContents() {
-    // We're deliberately using \n rather than `System.lineSeparator()` here
-    // since it turned out that even on Windows (which generally uses \r\n) IntelliJ expects \n in Color Settings code sample
-    // (and probably in Code Style as well).
-    @SuppressWarnings("regexp") String NL = "\n";
+    return """
+        develop
+          allow-ownership-link PR #123
+            build-chain
+          call-ws PR #124
 
-    return "develop" + NL +
-        "\tallow-ownership-link PR #123" + NL +
-        "\t\tbuild-chain" + NL +
-        "\tcall-ws PR #124" + NL +
-        NL +
-        "master" + NL +
-        "\thotfix/add-trigger PR #127";
+        master
+          hotfix/add-trigger PR #127
+        """;
   }
 
   @UIThreadUnsafe

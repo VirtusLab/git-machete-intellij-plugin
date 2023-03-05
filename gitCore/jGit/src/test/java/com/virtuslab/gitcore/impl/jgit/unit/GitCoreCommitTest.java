@@ -12,17 +12,19 @@ import com.virtuslab.gitcore.impl.jgit.GitCoreCommit;
 
 public class GitCoreCommitTest {
 
-  private static final String rawCommitData = "tree b8518260a35f740dbaa8161feda53017ab8c8be4\n" +
-      "parent e3be034fdef163e288f8219664f0df447bfe0ec3\n" +
-      "author foo <foo@example.com> 1664994622 +0200\n" +
-      "author foo <foo@example.com> 1664994622 +0200\n" +
-      "\n" +
-      "First line of subject\n" +
-      "- another line of subject\n" +
-      "- moar lines of subject\n" +
-      "\n" +
-      "First line of description\n" +
-      "More lines of description";
+  private static final String rawCommitData = """
+      tree b8518260a35f740dbaa8161feda53017ab8c8be4
+      parent e3be034fdef163e288f8219664f0df447bfe0ec3
+      author foo <foo@example.com> 1664994622 +0200
+      author foo <foo@example.com> 1664994622 +0200
+
+      First line of subject
+      - another line of subject
+      - moar lines of subject
+
+      First line of description
+      More lines of description
+      """;
 
   @Test
   public void shouldOnlyIncludeFirstLineOfSubjectInShortMessage() {
