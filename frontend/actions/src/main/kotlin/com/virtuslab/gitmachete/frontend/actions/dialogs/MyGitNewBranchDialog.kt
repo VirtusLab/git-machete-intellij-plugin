@@ -74,7 +74,7 @@ class MyGitNewBranchDialog @JvmOverloads constructor(
   }
 
   override fun createCenterPanel() = panel {
-    val overwriteCheckbox = JCheckBox(getString("string.GitMachete.NewBranchDialog.overwrite-checkbox"))
+    val overwriteCheckbox = JCheckBox(getString("string.GitMachete.MyGitNewBranchDialog.overwrite-checkbox"))
 
     rowCompat {
       cell(
@@ -89,10 +89,10 @@ class MyGitNewBranchDialog @JvmOverloads constructor(
         ),
       )
         .bind({ c -> c.text }, { c, v -> c.text = v }, ::branchName.toMutableProperty())
-        .apply {
-          component.setPreferredWidth(250)
+        .applyToComponent {
+          setPreferredWidth(250)
         }
-        .label(getString("string.GitMachete.NewBranchDialog.new-branch-name"), LabelPosition.TOP)
+        .label(getString("string.GitMachete.MyGitNewBranchDialog.new-branch-name"), LabelPosition.TOP)
         .focused()
         .applyToComponent {
           selectAll()
@@ -104,7 +104,7 @@ class MyGitNewBranchDialog @JvmOverloads constructor(
     }
     rowCompat {
       if (showCheckOutOption) {
-        checkBox(getString("string.GitMachete.NewBranchDialog.checkout-checkbox"))
+        checkBox(getString("string.GitMachete.MyGitNewBranchDialog.checkout-checkbox"))
           .bindSelected(::checkout)
       }
       if (showResetOption) {
@@ -116,8 +116,11 @@ class MyGitNewBranchDialog @JvmOverloads constructor(
           .component
       }
       if (showKeepRemoteOption) {
-        checkBox(getString("string.GitMachete.NewBranchDialog.keep-remote-checkbox"))
+        checkBox(getString("string.GitMachete.MyGitNewBranchDialog.keep-remote-checkbox"))
           .bindSelected(::remote)
+          .applyToComponent {
+            toolTipText = getString("string.GitMachete.MyGitNewBranchDialog.keep-remote-checkbox.tooltip.HTML")
+          }
           .component
       }
     }
@@ -181,7 +184,7 @@ class MyGitNewBranchDialog @JvmOverloads constructor(
         } else if (showResetOption) {
           error(
             HtmlBuilder().append(localBranchConflict.message + ".").br()
-              .append(getString("string.GitMachete.NewBranchDialog.overwrite-warning")).toString(),
+              .append(getString("string.GitMachete.MyGitNewBranchDialog.overwrite-warning")).toString(),
           )
         } else {
           error(localBranchConflict.message)

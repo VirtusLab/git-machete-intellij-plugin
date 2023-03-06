@@ -125,6 +125,8 @@ As you can see, the edge between `develop` and `call-ws` changed to grey &mdash;
 You can easily rename a branch directly from Git Machete.
 Open a context menu for a branch and choose `Rename...` action.
 
+For the tracked branches, it is also possible to rename the remote branch.
+
 
 ## Slide out branch
 
