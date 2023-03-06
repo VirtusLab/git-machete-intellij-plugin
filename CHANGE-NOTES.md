@@ -4,6 +4,7 @@
 - Added: an option to the branch rename dialog allowing to keep or discard the remote tracking branch info.
 - Added: extra backup keyboard shortcut (`Ctrl + Option + Shift + M`) for opening Git Machete tab on macOS,
   in case `Command + Option + Shift + M` is already taken by Kotlin plugin.
+- Improved: push action is no longer blocked by the other machete actions; it can be run in parallel.
 
 ## v3.6.1
 - Fixed: notification about unmanaged current branch wasn't showing up.

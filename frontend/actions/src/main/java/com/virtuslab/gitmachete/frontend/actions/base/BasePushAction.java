@@ -33,7 +33,7 @@ public abstract class BasePushAction extends BaseGitMacheteRepositoryReadyAction
 
   @Override
   protected boolean isSideEffecting() {
-    return true;
+    return false;
   }
 
   @Override
