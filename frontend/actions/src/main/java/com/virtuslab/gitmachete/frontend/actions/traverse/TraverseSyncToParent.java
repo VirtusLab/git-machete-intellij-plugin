@@ -1,15 +1,11 @@
 package com.virtuslab.gitmachete.frontend.actions.traverse;
 
-import static com.intellij.openapi.ui.MessageConstants.NO;
-import static com.intellij.openapi.ui.MessageConstants.YES;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.DivergedFromAndOlderThanRemote;
 import static com.virtuslab.gitmachete.frontend.actions.traverse.CheckoutAndExecute.checkoutAndExecuteOnUIThread;
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.util.ModalityUiUtil;
 import git4idea.repo.GitRepository;
 import lombok.CustomLog;
@@ -24,6 +20,7 @@ import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.RebaseOnParentBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.common.SlideOut;
+import com.virtuslab.gitmachete.frontend.actions.dialogs.TraverseStepConfirmationDialog;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
@@ -112,13 +109,12 @@ public class TraverseSyncToParent {
       INonRootManagedBranchSnapshot managedBranch,
       Runnable syncToRemoteRunnable) {
     val branchLayout = repositorySnapshot.getBranchLayout();
-    val slideOutDialog = MessageDialogBuilder.yesNoCancel(
-        getString("action.GitMachete.BaseTraverseAction.dialog.merged-to-parent.title"),
-        getString(
-            "action.GitMachete.BaseTraverseAction.dialog.merged-to-parent.text.HTML").fmt(
-                managedBranch.getName(),
-                managedBranch.getParent().getName()))
-        .cancelText(getNonHtmlString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
+    val title = getString("action.GitMachete.BaseTraverseAction.dialog.merged-to-parent.title");
+    val message = getString(
+        "action.GitMachete.BaseTraverseAction.dialog.merged-to-parent.text.HTML").fmt(
+            managedBranch.getName(),
+            managedBranch.getParent().getName());
+    val slideOutDialog = new TraverseStepConfirmationDialog(title, message);
 
     switch (slideOutDialog.show(project)) {
       case YES :
@@ -141,19 +137,15 @@ public class TraverseSyncToParent {
       INonRootManagedBranchSnapshot managedBranch,
       Runnable syncToRemoteRunnable) {
     var title = getString("action.GitMachete.BaseTraverseAction.dialog.out-of-sync-to-parent.title");
-    var text = getString(
-        "action.GitMachete.BaseTraverseAction.dialog.out-of-sync-to-parent.text.HTML");
+    var text = getString("action.GitMachete.BaseTraverseAction.dialog.out-of-sync-to-parent.text.HTML");
 
     if (managedBranch.getSyncToParentStatus() == SyncToParentStatus.InSyncButForkPointOff) {
       title = getString("action.GitMachete.BaseTraverseAction.dialog.fork-point-off.title");
       text = getString("action.GitMachete.BaseTraverseAction.dialog.fork-point-off.text.HTML");
     }
 
-    val rebaseDialog = MessageDialogBuilder.yesNoCancel(title,
-        text.fmt(
-            managedBranch.getName(),
-            managedBranch.getParent().getName()))
-        .cancelText(getNonHtmlString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
+    val message = text.fmt(managedBranch.getName(), managedBranch.getParent().getName());
+    val rebaseDialog = new TraverseStepConfirmationDialog(title, message);
 
     switch (rebaseDialog.show(project)) {
       case YES :

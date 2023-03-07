@@ -1,15 +1,11 @@
 package com.virtuslab.gitmachete.frontend.actions.traverse;
 
-import static com.intellij.openapi.ui.MessageConstants.NO;
-import static com.intellij.openapi.ui.MessageConstants.YES;
 import static com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperationType.NO_OPERATION;
 import static com.virtuslab.gitmachete.frontend.actions.traverse.CheckoutAndExecute.checkoutAndExecuteOnUIThread;
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.MessageDialogBuilder;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.util.ModalityUiUtil;
 import git4idea.GitLocalBranch;
@@ -26,6 +22,7 @@ import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.ResetCurrentToRemoteBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.common.Pull;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.GitPushDialog;
+import com.virtuslab.gitmachete.frontend.actions.dialogs.TraverseStepConfirmationDialog;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.qual.async.ContinuesInBackground;
@@ -126,13 +123,13 @@ public class TraverseSyncToRemote {
   @ContinuesInBackground
   @UIEffect
   private void handleUntracked(IManagedBranchSnapshot gitManagedBranch, GitLocalBranch localBranch) {
-    val pushApprovalDialogBuilder = MessageDialogBuilder.yesNoCancel(
-        getString("action.GitMachete.BaseTraverseAction.dialog.push-approval.title"),
-        getString("action.GitMachete.BaseTraverseAction.dialog.push-approval.untracked.text.HTML")
-            .fmt(gitManagedBranch.getName()))
-        .cancelText(getNonHtmlString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
 
-    switch (pushApprovalDialogBuilder.show(project)) {
+    val title = getString("action.GitMachete.BaseTraverseAction.dialog.push-approval.title");
+    val message = getString("action.GitMachete.BaseTraverseAction.dialog.push-approval.untracked.text.HTML")
+        .fmt(gitManagedBranch.getName());
+    val pushDialog = new TraverseStepConfirmationDialog(title, message);
+
+    switch (pushDialog.show(project)) {
       case YES :
         Runnable doInUIThreadWhenReady = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
         new GitPushDialog(project, gitRepository, GitPushSource.create(localBranch), /* isForcePushRequired */ false,
@@ -150,13 +147,13 @@ public class TraverseSyncToRemote {
   private void handleAheadOfRemote(IManagedBranchSnapshot gitMacheteBranch, GitLocalBranch localBranch) {
     val remoteTrackingBranch = gitMacheteBranch.getRemoteTrackingBranch();
     assert remoteTrackingBranch != null : "remoteTrackingBranch is null";
-    val pushApprovalDialogBuilder = MessageDialogBuilder.yesNoCancel(
-        getString("action.GitMachete.BaseTraverseAction.dialog.push-approval.title"),
-        getString("action.GitMachete.BaseTraverseAction.dialog.push-approval.ahead.text.HTML")
-            .fmt(gitMacheteBranch.getName(), remoteTrackingBranch.getName()))
-        .cancelText(getNonHtmlString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
 
-    switch (pushApprovalDialogBuilder.show(project)) {
+    val title = getString("action.GitMachete.BaseTraverseAction.dialog.push-approval.title");
+    val message = getString("action.GitMachete.BaseTraverseAction.dialog.push-approval.ahead.text.HTML")
+        .fmt(gitMacheteBranch.getName(), remoteTrackingBranch.getName());
+    val pushDialog = new TraverseStepConfirmationDialog(title, message);
+
+    switch (pushDialog.show(project)) {
       case YES :
         Runnable doInUIThreadWhenReady = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
         new GitPushDialog(project, gitRepository, GitPushSource.create(localBranch), /* isForcePushRequired */ false,
@@ -174,13 +171,12 @@ public class TraverseSyncToRemote {
   private void handleDivergedFromAndNewerThanRemote(IManagedBranchSnapshot gitMacheteBranch, GitLocalBranch localBranch) {
     val remoteTrackingBranch = gitMacheteBranch.getRemoteTrackingBranch();
     assert remoteTrackingBranch != null : "remoteTrackingBranch is null";
-    val forcePushApprovalDialogBuilder = MessageDialogBuilder.yesNoCancel(
-        getString("action.GitMachete.BaseTraverseAction.dialog.force-push-approval.title"),
-        getString("action.GitMachete.BaseTraverseAction.dialog.force-push-approval.text.HTML")
-            .fmt(gitMacheteBranch.getName(), remoteTrackingBranch.getName()))
-        .cancelText(getNonHtmlString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
+    val title = getString("action.GitMachete.BaseTraverseAction.dialog.force-push-approval.title");
+    val message = getString("action.GitMachete.BaseTraverseAction.dialog.force-push-approval.text.HTML")
+        .fmt(gitMacheteBranch.getName(), remoteTrackingBranch.getName());
+    val forcePushDialog = new TraverseStepConfirmationDialog(title, message);
 
-    switch (forcePushApprovalDialogBuilder.show(project)) {
+    switch (forcePushDialog.show(project)) {
       case YES :
         Runnable doInUIThreadWhenReady = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
         new GitPushDialog(project, gitRepository, GitPushSource.create(localBranch), /* isForcePushRequired */ true,
@@ -199,12 +195,13 @@ public class TraverseSyncToRemote {
   private void handleDivergedFromAndOlderThanRemote(IManagedBranchSnapshot gitMacheteBranch) {
     val remoteTrackingBranch = gitMacheteBranch.getRemoteTrackingBranch();
     assert remoteTrackingBranch != null : "remoteTrackingBranch is null";
-    val resetApprovalDialogBuilder = MessageDialogBuilder.yesNoCancel(
-        getString("action.GitMachete.BaseTraverseAction.dialog.reset-approval.title"),
-        getString("action.GitMachete.BaseTraverseAction.dialog.reset-approval.text.HTML")
-            .fmt(gitMacheteBranch.getName(), remoteTrackingBranch.getName()))
-        .cancelText(getNonHtmlString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
-    switch (resetApprovalDialogBuilder.show(project)) {
+
+    val title = getString("action.GitMachete.BaseTraverseAction.dialog.reset-approval.title");
+    val message = getString("action.GitMachete.BaseTraverseAction.dialog.reset-approval.text.HTML")
+        .fmt(gitMacheteBranch.getName(), remoteTrackingBranch.getName());
+    val resetDialog = new TraverseStepConfirmationDialog(title, message);
+
+    switch (resetDialog.show(project)) {
       case YES :
         new ResetCurrentToRemoteBackgroundable(gitMacheteBranch.getName(), remoteTrackingBranch.getName(), gitRepository) {
           @Override
@@ -226,13 +223,12 @@ public class TraverseSyncToRemote {
   private void handleBehindRemote(IManagedBranchSnapshot gitMacheteBranch) {
     val remoteTrackingBranch = gitMacheteBranch.getRemoteTrackingBranch();
     assert remoteTrackingBranch != null : "remoteTrackingBranch is null";
-    val pullApprovalDialogBuilder = MessageDialogBuilder.yesNoCancel(
-        getString("action.GitMachete.BaseTraverseAction.dialog.pull-approval.title"),
-        getString("action.GitMachete.BaseTraverseAction.dialog.pull-approval.text.HTML")
-            .fmt(gitMacheteBranch.getName(), remoteTrackingBranch.getName()))
-        .cancelText(getNonHtmlString("action.GitMachete.BaseTraverseAction.dialog.cancel-traverse"));
+    val title = getString("action.GitMachete.BaseTraverseAction.dialog.pull-approval.title");
+    val message = getString("action.GitMachete.BaseTraverseAction.dialog.pull-approval.text.HTML")
+        .fmt(gitMacheteBranch.getName(), remoteTrackingBranch.getName());
+    val pullDialog = new TraverseStepConfirmationDialog(title, message);
 
-    switch (pullApprovalDialogBuilder.show(project)) {
+    switch (pullDialog.show(project)) {
       case YES :
         Runnable doInUIThreadWhenReady = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
         new Pull(gitRepository, gitMacheteBranch, remoteTrackingBranch).run(doInUIThreadWhenReady);
