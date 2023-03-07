@@ -53,6 +53,10 @@ Use IntelliJ IDEA Community Edition/Ultimate.
    Set `Class count before import with '*'` and `Names count to use static import with '*'` to a very high number (e.g. 500)
    to avoid problems with CheckStyle when editing code, and remove exceptions like `javax.swing.*` from `Packages to Use Import with '*'`.
 
+10. (optional) Go to `File > File Properties > Associate with File Type...`.
+   Type `*.astub` into `File pattern`.
+   Select `Open matching files in IntelliJ IDEA` and then `Java` as file type.
+
 ### Git config/hooks
 
 Install [shellcheck](https://github.com/koalaman/shellcheck#installing), e.g. via `brew install shellcheck` on macOS.
