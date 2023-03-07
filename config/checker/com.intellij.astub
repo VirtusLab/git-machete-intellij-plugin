@@ -353,8 +353,13 @@ class MessageDialogBuilder<T extends MessageDialogBuilder> {
 }
 
 class MessageUtil {
-  int showOkCancelDialog(@Tainted String title, @Tainted String message, @Tainted String okText, @Tainted String cancelText,
-                           Icon icon, DoNotAskOption doNotAskOption, Project project);
+  int showOkCancelDialog(@Tainted String title, @Tainted String message, @Untainted String okText, @Untainted String cancelText,
+                         Icon icon, DoNotAskOption doNotAskOption, Project project);
+}
+
+class Messages {
+  static int showDialog(Project project, @Tainted String message, @Tainted String title,
+                        @Untainted String [] options, int defaultOptionIndex, Icon icon);
 }
 
 

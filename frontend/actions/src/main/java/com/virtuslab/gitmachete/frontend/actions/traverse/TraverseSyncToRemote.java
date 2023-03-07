@@ -136,6 +136,10 @@ public class TraverseSyncToRemote {
             doInUIThreadWhenReady).show();
         break;
 
+      case YES_AND_QUIT :
+        new GitPushDialog(project, gitRepository, GitPushSource.create(localBranch), /* isForcePushRequired */ false).show();
+        break;
+
       case NO :
         graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
         break;
@@ -160,6 +164,10 @@ public class TraverseSyncToRemote {
             doInUIThreadWhenReady).show();
         break;
 
+      case YES_AND_QUIT :
+        new GitPushDialog(project, gitRepository, GitPushSource.create(localBranch), /* isForcePushRequired */ false).show();
+        break;
+
       case NO :
         graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
         break;
@@ -181,6 +189,10 @@ public class TraverseSyncToRemote {
         Runnable doInUIThreadWhenReady = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
         new GitPushDialog(project, gitRepository, GitPushSource.create(localBranch), /* isForcePushRequired */ true,
             doInUIThreadWhenReady).show();
+        break;
+
+      case YES_AND_QUIT :
+        new GitPushDialog(project, gitRepository, GitPushSource.create(localBranch), /* isForcePushRequired */ true).show();
         break;
 
       case NO :
@@ -212,6 +224,11 @@ public class TraverseSyncToRemote {
         }.queue();
         break;
 
+      case YES_AND_QUIT :
+        new ResetCurrentToRemoteBackgroundable(gitMacheteBranch.getName(), remoteTrackingBranch.getName(), gitRepository)
+            .queue();
+        break;
+
       case NO :
         graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
         break;
@@ -232,6 +249,10 @@ public class TraverseSyncToRemote {
       case YES :
         Runnable doInUIThreadWhenReady = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
         new Pull(gitRepository, gitMacheteBranch, remoteTrackingBranch).run(doInUIThreadWhenReady);
+        break;
+
+      case YES_AND_QUIT :
+        new Pull(gitRepository, gitMacheteBranch, remoteTrackingBranch).run();
         break;
 
       case NO :

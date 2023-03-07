@@ -124,6 +124,10 @@ public class TraverseSyncToParent {
         new SlideOut(managedBranch, gitRepository, branchLayout, graphTable).run(doInUIThreadWhenReady);
         break;
 
+      case YES_AND_QUIT :
+        new SlideOut(managedBranch, gitRepository, branchLayout, graphTable).run();
+        break;
+
       case NO :
         graphTable.queueRepositoryUpdateAndModelRefresh(syncToRemoteRunnable);
         break;
@@ -157,6 +161,11 @@ public class TraverseSyncToParent {
             graphTable.queueRepositoryUpdateAndModelRefresh(syncToRemoteRunnable);
           }
         }.queue();
+        break;
+
+      case YES_AND_QUIT :
+        new RebaseOnParentBackgroundable(
+            gitRepository, repositorySnapshot, managedBranch, /* shouldExplicitlyCheckout */ false).queue();
         break;
 
       case NO :
