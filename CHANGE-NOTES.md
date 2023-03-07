@@ -5,6 +5,7 @@
 - Added: extra backup keyboard shortcut (`Ctrl + Option + Shift + M`) for opening Git Machete tab on macOS,
   in case `Command + Option + Shift + M` is already taken by Kotlin plugin.
 - Improved: push action is no longer blocked by the other machete actions; it can be run in parallel.
+- Added: `Yes + Quit` button in Traverse dialogs.
 
 ## v3.6.1
 - Fixed: notification about unmanaged current branch wasn't showing up.
