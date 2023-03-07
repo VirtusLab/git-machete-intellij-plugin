@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 import org.checkerframework.framework.qual.SubtypeOf;
 
-import com.virtuslab.qual.internal.SubtypingTop;
+import com.virtuslab.qual.subtyping.internal.SubtypingTop;
 
 /**
  * Used to annotate a type of a {@code com.virtuslab.gitmachete.frontend.graph.api.elements.IGraphElement} object

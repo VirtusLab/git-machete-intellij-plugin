@@ -131,7 +131,7 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
         .and().resideOutsideOfPackages("com.virtuslab.gitmachete.frontend.defs")
         .and().doNotBelongToAnyOf(classesReferencedFromPluginXmlAttributes)
         // SubtypingBottom is processed by CheckerFramework based on its annotations
-        .and().doNotHaveFullyQualifiedName(com.virtuslab.qual.internal.SubtypingBottom.class.getName())
+        .and().doNotHaveFullyQualifiedName(com.virtuslab.qual.subtyping.internal.SubtypingBottom.class.getName())
         .should(new BeReferencedFromOutsideItself())
         .check(productionClasses);
   }

@@ -1,4 +1,4 @@
-package com.virtuslab.qual.internal;
+package com.virtuslab.qual.subtyping.internal;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -21,7 +21,7 @@ import com.virtuslab.qual.subtyping.gitmachete.frontend.graph.api.items.Confirme
 /**
  * There needs to be single subtyping hierarchy with single bottom and top annotation.
  * We could theoretically create a separate hierarchy with a dedicated top and bottom type
- * for each pair of annotations from {@link com.virtuslab.qual.gitmachete}.* packages,
+ * for each pair of annotations from {@link com.virtuslab.qual.subtyping}.* packages,
  * but then <a href="https://checkerframework.org/manual/#subtyping-checker">Subtyping Checker</a>
  * would raise an error about multiple top/bottom types.
  */
