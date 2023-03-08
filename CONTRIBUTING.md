@@ -287,10 +287,10 @@ Then, update `executors.docker_executor.docker[0].image` in [.circleci/config.ym
 
 We follow [Semantic versioning](https://semver.org/) for the plugin releases:
 
-* MAJOR version must be bumped for each plugin release that stops supporting any IDEA build (typically when `sinceBuild` is increased). <br/>
+* MAJOR version must be bumped for each plugin release that stops supporting any IDEA build. <br/>
   This does not apply to 0->1 major version transition, which is going to happen when the plugin's compatibility range is considered stable.
 * MINOR version must be bumped for each plugin release that either adds a new user-facing feature
-  or starts supporting a new quarterly (`year.number`) IDEA build (typically when `untilBuild` is increased).
+  or starts supporting a new quarterly (`year.number`) IDEA build.
 * PATCH version must be bumped for each plugin release that adds no new user-facing features
   and doesn't change the range of supported IDEA builds.
 
@@ -310,14 +310,15 @@ in [version.gradle.kts](version.gradle.kts) in the following way:
 ### Change notes
 
 Change notes are stored in [CHANGE-NOTES.md](CHANGE-NOTES.md) file.
-The file is incremental, all previous versions' information are stored there and never deleted. <br/>
-Change notes should only be added as new bullet points listed under `Unreleased` section of the file. <br/>
+The file is incremental, the entries for all previous versions are stored there and never deleted. <br/>
+Change notes should only be added as new bullet points listed under the topmost section of the file. <br/>
 Change notes should contain only the **user-facing** plugin alterations like new features, public-requested bug fixes, etc. <br/>
 In spite of the above, change notes can sometimes contain a general description of the work done in the new version
 if the alternative is leaving them empty, which should be avoided.
-The change notes should be in past tense (e.g. use `Added...` instead of `Add...`);
-(if possible) they should start with words `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, etc.;
-they should be described in full sentences and end with a period;
+The change notes should be in past tense (e.g. use `Added...` instead of `Add...`).
+They should start with words like `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`,
+and be grouped by these first words.
+They should be described in full sentences and end with a period.
 Special phrases like action name references should be highlighted with `<i>...</i>`.
 
 ### Supported IDE versions
