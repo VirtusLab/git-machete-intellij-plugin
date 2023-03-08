@@ -269,15 +269,9 @@ class UITestSuite extends TestGitRepository(SETUP_WITH_SINGLE_REMOTE) {
     project.squashSelected("hotfix/add-trigger")
     project.acceptSquash()
 
-    // Let's wait for the squash to complete.
-    // In case of all other operations, it's just enough to wait for all background tasks to complete
-    // (via org.virtuslab.ideprobe.ProbeDriver#await)... but here it apparently doesn't work,
-    // see https://github.com/VirtusLab/git-machete-intellij-plugin/issues/1079
-    do {
-      Thread.sleep(1000)
-      managedBranchesAndCommits = project.refreshModelAndGetManagedBranchesAndCommits()
-    } while (managedBranchesAndCommits.length != 15)
-
+    managedBranchesAndCommits = project.refreshModelAndGetManagedBranchesAndCommits()
+    // TODO (#1079): figure out why once in ~100 test runs this squash does not take effect
+    //  (i.e. hotfix/add-trigger still has two unique commits)
     assertEquals(
       Seq(
         "develop",

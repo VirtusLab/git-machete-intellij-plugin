@@ -89,7 +89,7 @@ public abstract class BaseRenameAction extends BaseGitMacheteRepositoryReadyActi
         branch.getName(),
         /* showCheckOutOption */ false,
         /* showResetOption */ false,
-        /* showSetTrackingOption */ branch.getRemoteTrackingBranch() != null,
+        /* showKeepRemoteOption */ branch.getRemoteTrackingBranch() != null,
         /* localConflictsAllowed */ false,
         GitBranchOperationType.RENAME);
 

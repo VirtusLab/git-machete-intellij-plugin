@@ -125,8 +125,14 @@ As you can see, the edge between `develop` and `call-ws` changed to grey &mdash;
 You can easily rename a branch directly from Git Machete.
 Open a context menu for a branch and choose `Rename...` action.
 
-For the tracked branches, it is also possible to rename the remote branch.
+![](rename.png)
 
+There's a non-trivial concern around remote tracking branches when renaming a branch.
+If a branch `foo`, that has `origin/foo` remote tracking branch, is renamed to `new-foo`, then it is possible to either:
+1. select `Keep remote tracking info`, and then `new-foo` will be still tracked as `origin/foo`
+   (useful if there's already a pull request opened for `foo`), or
+2. unselect `Keep remote tracking info`, and then `new-foo` will be tracked as `origin/new-foo`
+   (which in particular cases might already exist in the remote).
 
 ## Slide out branch
 
