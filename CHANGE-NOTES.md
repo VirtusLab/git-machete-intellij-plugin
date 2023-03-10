@@ -1,5 +1,7 @@
 # Changelog
 
+## v3.7.1
+
 ## v3.7.0
 - Added: an option to the branch rename dialog allowing to keep or discard the remote tracking branch info.
 - Added: extra backup keyboard shortcut (`Ctrl + Option + Shift + M`) for opening Git Machete tab on macOS,
