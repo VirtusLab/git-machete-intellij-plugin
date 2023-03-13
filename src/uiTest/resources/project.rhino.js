@@ -1,5 +1,6 @@
 importClass(java.lang.System);
 importClass(java.lang.Thread);
+importClass(java.util.Arrays);
 importClass(java.util.stream.Collectors);
 importClass(java.util.stream.IntStream);
 
@@ -401,6 +402,10 @@ function Project(underlyingProject) {
       const result = robot.finder().findAll(component =>
         className.equals(component.getClass().getName()) && predicate(component)
       ).toArray();
+      // TODO (#1079): in `squashBranch` UI test, the second squash seems to never execute...
+      //  is there a problem with a different "OK" button getting clicked?
+      System.out.println("getComponentByClassAndPredicate(" + className + ", [predicate]) = "
+          + Arrays.deepToString(result) + "(" + result.length + " element(s))");
       return result.length === 1 ? result[0] : null;
     }
     // The action is invoked asynchronously, let's first make sure the component has already appeared.
