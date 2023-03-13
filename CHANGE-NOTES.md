@@ -2,6 +2,8 @@
 
 ## v3.7.1
 
+- Fixed: traverse no longer always stops after sliding out the current branch, as reported by @CLOVIS-AI.
+
 ## v3.7.0
 - Added: an option to the branch rename dialog allowing to keep or discard the remote tracking branch info.
 - Added: extra backup keyboard shortcut (`Ctrl + Option + Shift + M`) for opening Git Machete tab on macOS,

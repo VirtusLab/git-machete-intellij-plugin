@@ -77,7 +77,7 @@ public class SlideOut {
           /* title */ "",
           getString("action.GitMachete.SlideOut.notification.title.slide-out-success.of-current.HTML").fmt(
               branchToSlideOutName));
-
+      ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, doInUIThreadWhenReady);
     } else {
       val root = gitRepository.getRoot();
       getDeleteLocalBranchOnSlideOutGitConfigValueAndExecute(root, (@Nullable Boolean shouldDelete) -> {
