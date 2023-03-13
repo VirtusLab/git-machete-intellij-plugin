@@ -2,7 +2,8 @@
 
 ## v3.7.1
 
-- Fixed: traverse no longer always stops after sliding out the current branch, as reported by @CLOVIS-AI.
+- Fixed: traverse used to always stop after sliding out the current branch (reported by @CLOVIS-AI);
+  now it continues just as after rebase/push/pull (of course unless `Quit`/`Yes + Quit` option has been selected).
 
 ## v3.7.0
 - Added: an option to the branch rename dialog allowing to keep or discard the remote tracking branch info.
