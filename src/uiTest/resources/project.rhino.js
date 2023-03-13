@@ -12,10 +12,11 @@ importClass(com.intellij.openapi.actionSystem.DataContext);
 importClass(com.intellij.openapi.actionSystem.Presentation);
 importClass(com.intellij.openapi.actionSystem.impl.ActionButton);
 importClass(com.intellij.openapi.actionSystem.impl.ActionToolbarImpl);
+importClass(com.intellij.openapi.application.ApplicationManager);
 importClass(com.intellij.openapi.application.ModalityState);
 importClass(com.intellij.openapi.wm.ToolWindowId);
 importClass(com.intellij.openapi.wm.ToolWindowManager);
-importClass(com.intellij.ui.GuiUtils);
+importClass(com.intellij.util.ModalityUiUtil);
 
 importClass(org.assertj.swing.fixture.JComboBoxFixture);
 importClass(org.assertj.swing.fixture.JPanelFixture);
@@ -73,7 +74,7 @@ function Project(underlyingProject) {
 
     // The method is NOT meant to be executed on the UI thread,
     // so `runOrInvokeAndWait` really means `enqueue onto the UI thread and wait until complete`.
-    GuiUtils.runOrInvokeAndWait(() => {
+    ApplicationManager.getApplication().invokeAndWait(() => {
       toolWindow.activate(() => {});
       const contentManager = toolWindow.getContentManager();
       const tab = contentManager.findContent(tabName);
@@ -160,9 +161,8 @@ function Project(underlyingProject) {
     const action = getActionByName(actionName);
     const actionEvent = createActionEvent(actionPlace, data);
 
-    GuiUtils.invokeLaterIfNeeded(
-      () => action.actionPerformed(actionEvent),
-      ModalityState.NON_MODAL
+    ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL,
+      () => action.actionPerformed(actionEvent)
     );
   };
 
@@ -170,7 +170,7 @@ function Project(underlyingProject) {
     const action = getActionByName(actionName);
     const actionEvent = createActionEvent(actionPlace, data);
 
-    GuiUtils.runOrInvokeAndWait(() => action.actionPerformed(actionEvent));
+    ApplicationManager.getApplication().invokeAndWait(() => action.actionPerformed(actionEvent));
   };
 
   this.discoverBranchLayout = function () {
