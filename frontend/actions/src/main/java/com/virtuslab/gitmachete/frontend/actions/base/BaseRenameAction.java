@@ -101,7 +101,7 @@ public abstract class BaseRenameAction extends BaseGitMacheteRepositoryReadyActi
           branchLayout,
           branch,
           options)
-              .queue();
+          .queue();
 
     }
   }

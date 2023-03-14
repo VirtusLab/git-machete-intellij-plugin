@@ -182,7 +182,7 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
         getNonHtmlString("action.GitMachete.BaseResetToRemoteAction.notification.title.reset-fail")
             .fmt(localBranch.getName()),
         getString("action.GitMachete.BaseResetToRemoteAction.notification.title.reset-success.HTML").fmt(localBranch.getName()))
-            .queue();
+        .queue();
   }
 
   @ContinuesInBackground
