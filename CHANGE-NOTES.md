@@ -1,7 +1,8 @@
 # Changelog
 
-## v3.7.1
+## v3.7.2
 
+## v3.7.1
 - Fixed: traverse used to always stop after sliding out the current branch (reported by @CLOVIS-AI);
   now it continues just as after rebase/push/pull (of course unless `Quit`/`Yes + Quit` option has been selected).
 
