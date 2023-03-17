@@ -83,41 +83,36 @@ public class TraverseSyncToRemote {
     }
 
     switch (syncToRemoteStatus) {
-      case NoRemotes :
-      case InSyncToRemote :
+      case NoRemotes, InSyncToRemote ->
         // A repository refresh isn't needed here.
         // Each side-effecting action like push/rebase is responsible for refreshing repository on its own,
         // so we can assume that the repository is already up to date once we enter void execute().
         ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, traverseNextEntry);
-        break;
 
-      case Untracked :
+      case Untracked -> {
         @UI Runnable pushUntracked = () -> handleUntracked(gitMacheteBranch, localBranch);
         checkoutAndExecuteOnUIThread(gitRepository, graphTable, gitMacheteBranch.getName(), pushUntracked);
-        break;
+      }
 
-      case AheadOfRemote :
+      case AheadOfRemote -> {
         @UI Runnable pushAheadOfRemote = () -> handleAheadOfRemote(gitMacheteBranch, localBranch);
         checkoutAndExecuteOnUIThread(gitRepository, graphTable, gitMacheteBranch.getName(), pushAheadOfRemote);
-        break;
+      }
 
-      case DivergedFromAndNewerThanRemote :
+      case DivergedFromAndNewerThanRemote -> {
         @UI Runnable pushForceDiverged = () -> handleDivergedFromAndNewerThanRemote(gitMacheteBranch, localBranch);
         checkoutAndExecuteOnUIThread(gitRepository, graphTable, gitMacheteBranch.getName(), pushForceDiverged);
-        break;
+      }
 
-      case DivergedFromAndOlderThanRemote :
+      case DivergedFromAndOlderThanRemote -> {
         @UI Runnable resetToRemote = () -> handleDivergedFromAndOlderThanRemote(gitMacheteBranch);
         checkoutAndExecuteOnUIThread(gitRepository, graphTable, gitMacheteBranch.getName(), resetToRemote);
-        break;
+      }
 
-      case BehindRemote :
+      case BehindRemote -> {
         @UI Runnable pullBehindRemote = () -> handleBehindRemote(gitMacheteBranch);
         checkoutAndExecuteOnUIThread(gitRepository, graphTable, gitMacheteBranch.getName(), pullBehindRemote);
-        break;
-
-      default :
-        break;
+      }
     }
   }
 
@@ -170,7 +165,7 @@ public class TraverseSyncToRemote {
     val resetDialog = new TraverseStepConfirmationDialog(title, message);
 
     switch (resetDialog.show(project)) {
-      case YES :
+      case YES ->
         new ResetCurrentToRemoteBackgroundable(gitMacheteBranch.getName(), remoteTrackingBranch.getName(), gitRepository) {
           @Override
           @ContinuesInBackground
@@ -178,16 +173,12 @@ public class TraverseSyncToRemote {
             graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
           }
         }.queue();
-        break;
 
-      case YES_AND_QUIT :
+      case YES_AND_QUIT ->
         new ResetCurrentToRemoteBackgroundable(gitMacheteBranch.getName(), remoteTrackingBranch.getName(), gitRepository)
             .queue();
-        break;
 
-      case NO :
-        graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
-        break;
+      case NO -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
     }
   }
 
@@ -202,18 +193,14 @@ public class TraverseSyncToRemote {
     val pullDialog = new TraverseStepConfirmationDialog(title, message);
 
     switch (pullDialog.show(project)) {
-      case YES :
+      case YES -> {
         Runnable doInUIThreadWhenReady = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
         new Pull(gitRepository, gitMacheteBranch, remoteTrackingBranch).run(doInUIThreadWhenReady);
-        break;
+      }
 
-      case YES_AND_QUIT :
-        new Pull(gitRepository, gitMacheteBranch, remoteTrackingBranch).run();
-        break;
+      case YES_AND_QUIT -> new Pull(gitRepository, gitMacheteBranch, remoteTrackingBranch).run();
 
-      case NO :
-        graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
-        break;
+      case NO -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
     }
   }
 }

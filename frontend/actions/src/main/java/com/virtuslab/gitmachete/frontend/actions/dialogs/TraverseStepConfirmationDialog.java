@@ -29,15 +29,11 @@ public class TraverseStepConfirmationDialog {
     @Untainted String[] options = {yesText, yesAndQuitText, noText, quitText};
     int result = Messages.showDialog(project, message, title, options, /* defaultOptionIndex */ 0, Messages.getQuestionIcon());
 
-    switch (result) {
-      case 0 :
-        return Result.YES;
-      case 1 :
-        return Result.YES_AND_QUIT;
-      case 2 :
-        return Result.NO;
-      default :
-        return Result.QUIT;
-    }
+    return switch (result) {
+      case 0 -> Result.YES;
+      case 1 -> Result.YES_AND_QUIT;
+      case 2 -> Result.NO;
+      default -> Result.QUIT;
+    };
   }
 }

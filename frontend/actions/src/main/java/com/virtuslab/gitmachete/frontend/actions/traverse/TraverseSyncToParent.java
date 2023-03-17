@@ -71,23 +71,21 @@ public class TraverseSyncToParent {
     val syncToParentStatus = gitMacheteBranch.asNonRoot().getSyncToParentStatus();
     val syncToRemoteStatus = gitMacheteBranch.getRelationToRemote().getSyncToRemoteStatus();
     switch (syncToParentStatus) {
-      case InSync :
+      case InSync ->
         // A repository refresh isn't needed here.
         // Each side-effecting action like push/rebase is responsible for refreshing repository on its own,
         // so we can assume that the repository is already up to date once we enter void execute().
         ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, syncToRemoteRunnable);
-        break;
 
-      case MergedToParent :
+      case MergedToParent -> {
         @UI Runnable slideOut = () -> handleMergedToParent(repositorySnapshot, gitMacheteBranch.asNonRoot(),
             syncToRemoteRunnable);
         // Note that checking out the branch to be slid out has the unfortunate side effect
         // that we won't suggest deleting the branch after the slide out.
         checkoutAndExecuteOnUIThread(gitRepository, graphTable, branch.getName(), slideOut);
-        break;
+      }
 
-      case InSyncButForkPointOff :
-      case OutOfSync :
+      case InSyncButForkPointOff, OutOfSync -> {
         if (syncToRemoteStatus == DivergedFromAndOlderThanRemote) {
           ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, syncToRemoteRunnable);
         } else {
@@ -95,10 +93,7 @@ public class TraverseSyncToParent {
               syncToRemoteRunnable);
           checkoutAndExecuteOnUIThread(gitRepository, graphTable, branch.getName(), rebase);
         }
-        break;
-
-      default :
-        break;
+      }
     }
   }
 
@@ -117,20 +112,16 @@ public class TraverseSyncToParent {
     val slideOutDialog = new TraverseStepConfirmationDialog(title, message);
 
     switch (slideOutDialog.show(project)) {
-      case YES :
+      case YES -> {
         // For a branch merged to its parent, we're not syncing to remote.
         // Let's just go straight to the next branch.
         Runnable doInUIThreadWhenReady = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
         new SlideOut(managedBranch, gitRepository, branchLayout, graphTable).run(doInUIThreadWhenReady);
-        break;
+      }
 
-      case YES_AND_QUIT :
-        new SlideOut(managedBranch, gitRepository, branchLayout, graphTable).run();
-        break;
+      case YES_AND_QUIT -> new SlideOut(managedBranch, gitRepository, branchLayout, graphTable).run();
 
-      case NO :
-        graphTable.queueRepositoryUpdateAndModelRefresh(syncToRemoteRunnable);
-        break;
+      case NO -> graphTable.queueRepositoryUpdateAndModelRefresh(syncToRemoteRunnable);
     }
   }
 
@@ -152,25 +143,19 @@ public class TraverseSyncToParent {
     val rebaseDialog = new TraverseStepConfirmationDialog(title, message);
 
     switch (rebaseDialog.show(project)) {
-      case YES :
-        new RebaseOnParentBackgroundable(
-            gitRepository, repositorySnapshot, managedBranch, /* shouldExplicitlyCheckout */ false) {
-          @Override
-          @ContinuesInBackground
-          public void onSuccess() {
-            graphTable.queueRepositoryUpdateAndModelRefresh(syncToRemoteRunnable);
-          }
-        }.queue();
-        break;
+      case YES -> new RebaseOnParentBackgroundable(
+          gitRepository, repositorySnapshot, managedBranch, /* shouldExplicitlyCheckout */ false) {
+        @Override
+        @ContinuesInBackground
+        public void onSuccess() {
+          graphTable.queueRepositoryUpdateAndModelRefresh(syncToRemoteRunnable);
+        }
+      }.queue();
 
-      case YES_AND_QUIT :
-        new RebaseOnParentBackgroundable(
-            gitRepository, repositorySnapshot, managedBranch, /* shouldExplicitlyCheckout */ false).queue();
-        break;
+      case YES_AND_QUIT -> new RebaseOnParentBackgroundable(
+          gitRepository, repositorySnapshot, managedBranch, /* shouldExplicitlyCheckout */ false).queue();
 
-      case NO :
-        graphTable.queueRepositoryUpdateAndModelRefresh(syncToRemoteRunnable);
-        break;
+      case NO -> graphTable.queueRepositoryUpdateAndModelRefresh(syncToRemoteRunnable);
     }
   }
 
