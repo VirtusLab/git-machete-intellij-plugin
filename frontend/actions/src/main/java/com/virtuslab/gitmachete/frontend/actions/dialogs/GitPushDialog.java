@@ -55,14 +55,13 @@ public final class GitPushDialog extends VcsPushDialog {
         /* selectedRepositories */ java.util.List.of(repository), /* currentRepo */ null, pushSource);
     this.isForcePushRequired = isForcePushRequired;
     this.doInUIThreadWhenReady = doInUIThreadWhenReady;
-    this.pushAction = new PushSwingAction(/* isAndQuit */ false);
-    this.pushActionAndQuit = new PushSwingAction(/* isAndQuit */ true);
+    this.pushAction = new PushSwingAction();
+    this.pushActionAndQuit = new PushAndQuitSwingAction();
     this.skipAction = new SkipSwingAction();
     this.traverseInfoComponent = traverseInfoComponent;
 
     // Note: since the class is final, `this` is already @Initialized at this point.
 
-    setOKButtonText(getPushActionName(/* isAndQuit */ false));
     init();
     setTitle("Git Machete Traverse: " + this.getTitle());
   }
@@ -87,8 +86,8 @@ public final class GitPushDialog extends VcsPushDialog {
   protected Action[] createActions() {
     Action cancelAction = getCancelAction();
     if (traverseInfoComponent != null) {
-      cancelAction.putValue(Action.NAME, "_Quit Traverse");
-      return new Action[]{skipAction, pushAction, pushActionAndQuit, cancelAction, getHelpAction()};
+      cancelAction.putValue(Action.NAME, getNonHtmlString("action.GitMachete.BaseTraverseAction.dialog.quit"));
+      return new Action[]{cancelAction, skipAction, pushAction, pushActionAndQuit, getHelpAction()};
     } else {
       return new Action[]{pushAction, cancelAction, getHelpAction()};
     }
@@ -149,8 +148,8 @@ public final class GitPushDialog extends VcsPushDialog {
     return null;
   }
 
-  private String getPushActionName(boolean isAndQuit) {
-    if (isAndQuit) {
+  private String getPushActionName(boolean hasAndQuit) {
+    if (hasAndQuit) {
       return (isForcePushRequired ? "Force Push" : "Push") + " _and Quit";
     } else {
       return isForcePushRequired ? "Force _Push" : "_Push";
@@ -162,14 +161,27 @@ public final class GitPushDialog extends VcsPushDialog {
     private final Runnable pushRunnable;
 
     @UIEffect
-    PushSwingAction(boolean isAndQuit) {
-      super(getPushActionName(isAndQuit));
-      if (!isAndQuit) {
-        this.pushRunnable = GitPushDialog.this::push;
-        putValue(DEFAULT_ACTION, Boolean.TRUE);
-      } else {
-        this.pushRunnable = GitPushDialog.this::pushAndQuit;
-      }
+    PushSwingAction() {
+      super(getPushActionName(/* hasAndQuit */ false));
+      this.pushRunnable = GitPushDialog.this::push;
+      putValue(DEFAULT_ACTION, Boolean.TRUE);
+    }
+
+    @Override
+    @UIEffect
+    public void actionPerformed(ActionEvent e) {
+      pushRunnable.run();
+    }
+  }
+
+  private class PushAndQuitSwingAction extends AbstractAction {
+
+    private final Runnable pushRunnable;
+
+    @UIEffect
+    PushAndQuitSwingAction() {
+      super(getPushActionName(/* hasAndQuit */ true));
+      this.pushRunnable = GitPushDialog.this::pushAndQuit;
     }
 
     @Override
