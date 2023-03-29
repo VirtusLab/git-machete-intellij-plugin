@@ -157,37 +157,30 @@ public final class GitPushDialog extends VcsPushDialog {
   }
 
   private class PushSwingAction extends AbstractAction {
-
-    private final Runnable pushRunnable;
-
     @UIEffect
     PushSwingAction() {
       super(getPushActionName(/* hasAndQuit */ false));
-      this.pushRunnable = GitPushDialog.this::push;
       putValue(DEFAULT_ACTION, Boolean.TRUE);
     }
 
     @Override
     @UIEffect
     public void actionPerformed(ActionEvent e) {
-      pushRunnable.run();
+      push();
     }
   }
 
   private class PushAndQuitSwingAction extends AbstractAction {
 
-    private final Runnable pushRunnable;
-
     @UIEffect
     PushAndQuitSwingAction() {
       super(getPushActionName(/* hasAndQuit */ true));
-      this.pushRunnable = GitPushDialog.this::pushAndQuit;
     }
 
     @Override
     @UIEffect
     public void actionPerformed(ActionEvent e) {
-      pushRunnable.run();
+      pushAndQuit();
     }
   }
 
