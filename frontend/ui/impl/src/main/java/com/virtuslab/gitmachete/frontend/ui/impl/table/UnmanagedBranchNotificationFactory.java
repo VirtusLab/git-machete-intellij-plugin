@@ -4,6 +4,7 @@ import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
 import static com.virtuslab.gitmachete.frontend.defs.ActionIds.OPEN_MACHETE_FILE;
 import static com.virtuslab.gitmachete.frontend.defs.ActionIds.SLIDE_IN_UNMANAGED_BELOW;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
+import static com.virtuslab.gitmachete.frontend.ui.api.PropertiesComponentKeys.SHOW_UNMANAGED_BRANCH_NOTIFICATION;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
@@ -35,9 +36,6 @@ import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 @ExtensionMethod(GitMacheteBundle.class)
 @RequiredArgsConstructor
 public class UnmanagedBranchNotificationFactory {
-
-  public static final String SHOW_UNMANAGED_BRANCH_NOTIFICATION = "git-machete.unmanaged.notification.show";
-
   private final Project project;
   private final @Nullable IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot;
   private final String branchName;

@@ -4,6 +4,7 @@ import static com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBac
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.createRefspec;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
+import static com.virtuslab.gitmachete.frontend.ui.api.PropertiesComponentKeys.SHOW_RESET_INFO;
 import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCategory.GENERAL;
 
 import com.intellij.ide.util.PropertiesComponent;
@@ -39,8 +40,6 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
     implements
       IBranchNameProvider,
       ISyncToRemoteStatusDependentAction {
-
-  public static final String SHOW_RESET_INFO = "git-machete.reset.info.show";
 
   public static final String VCS_NOTIFIER_TITLE = getString(
       "action.GitMachete.BaseResetToRemoteAction.notification.title");

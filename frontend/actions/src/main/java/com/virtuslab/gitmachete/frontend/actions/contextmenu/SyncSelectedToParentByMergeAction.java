@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.contextmenu;
 
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
+import static com.virtuslab.gitmachete.frontend.ui.api.PropertiesComponentKeys.SHOW_MERGE_WARNING;
 
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -22,8 +23,6 @@ public class SyncSelectedToParentByMergeAction extends BaseSyncToParentByMergeAc
     implements
       IExpectsKeySelectedBranchName {
 
-  public static final String SHOW_MERGE_WARNING = "git-machete.merge.warning.show";
-
   @Override
   public @Nullable String getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
     return getSelectedBranchName(anActionEvent);
@@ -42,7 +41,7 @@ public class SyncSelectedToParentByMergeAction extends BaseSyncToParentByMergeAc
 
       dialogBuilder
           .icon(Messages.getWarningIcon())
-          .doNotAsk(new DoNotAskOption(project, SyncSelectedToParentByMergeAction.SHOW_MERGE_WARNING));
+          .doNotAsk(new DoNotAskOption(project, SHOW_MERGE_WARNING));
 
       val dialogResult = dialogBuilder.ask(project);
 

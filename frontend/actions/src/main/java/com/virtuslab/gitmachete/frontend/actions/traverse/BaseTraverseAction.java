@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.frontend.actions.traverse;
 
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
+import static com.virtuslab.gitmachete.frontend.ui.api.PropertiesComponentKeys.SHOW_TRAVERSE_INFO;
 
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -24,8 +25,6 @@ import com.virtuslab.qual.async.ContinuesInBackground;
 
 @ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class})
 public abstract class BaseTraverseAction extends BaseGitMacheteRepositoryReadyAction implements IBranchNameProvider {
-
-  public static final String SHOW_TRAVERSE_INFO = "git-machete.traverse.approval.show";
 
   @Override
   protected boolean isSideEffecting() {
