@@ -1,8 +1,8 @@
 package com.virtuslab.gitmachete.frontend.actions.traverse;
 
+import static com.virtuslab.gitmachete.frontend.defs.PropertiesComponentKeys.SHOW_TRAVERSE_INFO;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
-import static com.virtuslab.gitmachete.frontend.ui.api.PropertiesComponentKeys.SHOW_TRAVERSE_INFO;
 
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnActionEvent;

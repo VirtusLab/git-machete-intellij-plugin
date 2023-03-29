@@ -1,7 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.contextmenu;
 
+import static com.virtuslab.gitmachete.frontend.defs.PropertiesComponentKeys.SHOW_MERGE_WARNING;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
-import static com.virtuslab.gitmachete.frontend.ui.api.PropertiesComponentKeys.SHOW_MERGE_WARNING;
 
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnActionEvent;

@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.ui.api;
+package com.virtuslab.gitmachete.frontend.defs;
 
 public final class PropertiesComponentKeys {
   private PropertiesComponentKeys() {}
