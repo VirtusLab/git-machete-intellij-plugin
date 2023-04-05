@@ -29,6 +29,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
+import com.virtuslab.gitmachete.frontend.actions.handlers.MyGitInteractiveRebaseEditorHandler;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
@@ -82,7 +83,7 @@ public class RebaseOnParentBackgroundable extends SideEffectingBackgroundable {
 
     return new GitRebaseParams(gitVersion, currentBranchName, newBaseBranchFullName,
         /* upstream */ forkPointCommitHash, /* selectedOptions */ options, GitRebaseParams.AutoSquashOption.DEFAULT,
-        /* editorHandler */ null);
+        /* editorHandler */ new MyGitInteractiveRebaseEditorHandler(project, gitRepository.getRoot()));
   }
 
   @Override
