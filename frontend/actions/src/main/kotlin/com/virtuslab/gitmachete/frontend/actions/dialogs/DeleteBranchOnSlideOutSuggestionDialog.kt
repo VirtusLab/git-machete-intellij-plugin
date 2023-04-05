@@ -4,8 +4,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.dsl.builder.bindSelected
 import com.intellij.ui.dsl.builder.panel
-import com.virtuslab.gitmachete.frontend.actions.common.SlideOut.DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY
 import com.virtuslab.gitmachete.frontend.actions.compat.rowCompat
+import com.virtuslab.gitmachete.frontend.defs.GitConfigKeys.DELETE_LOCAL_BRANCH_ON_SLIDE_OUT
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.fmt
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
 import org.apache.commons.text.StringEscapeUtils
@@ -104,7 +104,7 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branc
           getString(
             "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.remember-choice.HTML",
           ),
-          DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY,
+          DELETE_LOCAL_BRANCH_ON_SLIDE_OUT,
         ),
       )
         .bindSelected(::remember)
