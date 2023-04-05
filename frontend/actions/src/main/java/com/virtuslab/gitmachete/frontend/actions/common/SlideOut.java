@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.common;
 
 import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.blockingRunWriteActionOnUIThread;
+import static com.virtuslab.gitmachete.frontend.defs.GitConfigKeys.DELETE_LOCAL_BRANCH_ON_SLIDE_OUT;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getMacheteFilePath;
@@ -48,8 +49,6 @@ public class SlideOut {
   private final BranchLayout branchLayout;
   private final GitRepository gitRepository;
   private final BaseEnhancedGraphTable graphTable;
-
-  public static final String DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY = "machete.slideOut.deleteLocalBranch";
 
   public SlideOut(IManagedBranchSnapshot branchToSlideOut,
       GitRepository gitRepository,
@@ -170,13 +169,13 @@ public class SlideOut {
       public void run(ProgressIndicator indicator) {
         Boolean result = null;
         try {
-          val value = GitConfigUtil.getValue(project, root, DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY);
+          val value = GitConfigUtil.getValue(project, root, DELETE_LOCAL_BRANCH_ON_SLIDE_OUT);
           if (value != null) {
             Boolean booleanValue = GitConfigUtil.getBooleanValue(value);
             result = booleanValue != null && booleanValue;
           }
         } catch (VcsException e) {
-          LOG.warn("Attempt to get '${DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY}' git config value failed", e);
+          LOG.warn("Attempt to get '${DELETE_LOCAL_BRANCH_ON_SLIDE_OUT}' git config value failed", e);
         }
         doForConfigValue.accept(result);
       }
@@ -193,9 +192,9 @@ public class SlideOut {
       public void doRun(ProgressIndicator indicator) {
         try {
           val additionalParameters = "--local";
-          GitConfigUtil.setValue(project, root, DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY, value, additionalParameters);
+          GitConfigUtil.setValue(project, root, DELETE_LOCAL_BRANCH_ON_SLIDE_OUT, value, additionalParameters);
         } catch (VcsException e) {
-          LOG.error("Attempt to set '${DELETE_LOCAL_BRANCH_ON_SLIDE_OUT_GIT_CONFIG_KEY}' git config value failed", e);
+          LOG.error("Attempt to set '${DELETE_LOCAL_BRANCH_ON_SLIDE_OUT}' git config value failed", e);
         }
       }
     }.queue();

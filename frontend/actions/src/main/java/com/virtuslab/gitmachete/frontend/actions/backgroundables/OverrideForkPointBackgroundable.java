@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
+import static com.virtuslab.gitmachete.frontend.defs.GitConfigKeys.overrideForkPointToKey;
+import static com.virtuslab.gitmachete.frontend.defs.GitConfigKeys.overrideForkPointWhileDescendantOf;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -69,16 +71,8 @@ public class OverrideForkPointBackgroundable extends SideEffectingBackgroundable
       VirtualFile root,
       String branchName,
       ICommitOfManagedBranch forkPoint) {
-    val section = "machete";
-    val subsectionPrefix = "overrideForkPoint";
-    val to = "to";
-    val whileDescendantOf = "whileDescendantOf";
-
-    // Section spans the characters before the first dot
-    // Name spans the characters after the last dot
-    // Subsection is everything else
-    val toKey = "${section}.${subsectionPrefix}.${branchName}.${to}";
-    val whileDescendantOfKey = "${section}.${subsectionPrefix}.${branchName}.${whileDescendantOf}";
+    val toKey = overrideForkPointToKey(branchName);
+    val whileDescendantOfKey = overrideForkPointWhileDescendantOf(branchName);
 
     try {
       GitConfigUtil.setValue(project, root, toKey, forkPoint.getHash());
@@ -94,7 +88,7 @@ public class OverrideForkPointBackgroundable extends SideEffectingBackgroundable
       // for a fork point override to be valid.
       GitConfigUtil.setValue(project, root, whileDescendantOfKey, forkPoint.getHash());
     } catch (VcsException e) {
-      LOG.info("Attempt to get '${whileDescendantOf}' git config value failed: " + e.getMessage());
+      LOG.info("Attempt to get '${whileDescendantOfKey}' git config value failed: " + e.getMessage());
     }
   }
 }
