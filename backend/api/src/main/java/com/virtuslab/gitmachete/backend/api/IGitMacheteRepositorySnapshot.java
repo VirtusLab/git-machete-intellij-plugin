@@ -8,7 +8,7 @@ import lombok.Data;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BranchLayout;
-import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
+import com.virtuslab.gitmachete.backend.api.hooks.ExecutionResult;
 
 /**
  * An immutable snapshot of an {@link IGitMacheteRepository} for some specific moment in time.
@@ -35,7 +35,7 @@ public interface IGitMacheteRepositorySnapshot {
   Set<String> getSkippedBranchNames();
 
   @Nullable
-  IExecutionResult executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters)
+  ExecutionResult executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters)
       throws GitMacheteException;
 
   @Data

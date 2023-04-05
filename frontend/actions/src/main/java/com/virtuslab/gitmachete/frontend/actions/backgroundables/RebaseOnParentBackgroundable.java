@@ -28,7 +28,7 @@ import com.virtuslab.gitmachete.backend.api.GitMacheteMissingForkPointException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
-import com.virtuslab.gitmachete.backend.api.hooks.IExecutionResult;
+import com.virtuslab.gitmachete.backend.api.hooks.ExecutionResult;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
@@ -102,15 +102,15 @@ public class RebaseOnParentBackgroundable extends SideEffectingBackgroundable {
       return;
     }
 
-    final AtomicReference<Try<@Nullable IExecutionResult>> wrapper = new AtomicReference<>(
+    final AtomicReference<Try<@Nullable ExecutionResult>> wrapper = new AtomicReference<>(
         Try.success(null));
     new GitFreezingProcess(project, getTitle(), () -> {
       LOG.info("Executing machete-pre-rebase hooks");
-      Try<@Nullable IExecutionResult> hookResult = Try
+      Try<@Nullable ExecutionResult> hookResult = Try
           .of(() -> gitMacheteRepositorySnapshot.executeMachetePreRebaseHookIfPresent(gitRebaseParameters));
       wrapper.set(hookResult);
     }).execute();
-    Try<@Nullable IExecutionResult> hookResult = wrapper.get();
+    Try<@Nullable ExecutionResult> hookResult = wrapper.get();
     if (hookResult == null) {
       // Not really possible, it's here just to calm down Checker Framework.
       return;

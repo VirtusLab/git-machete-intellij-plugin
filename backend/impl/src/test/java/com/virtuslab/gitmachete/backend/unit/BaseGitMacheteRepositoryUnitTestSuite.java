@@ -32,7 +32,7 @@ public class BaseGitMacheteRepositoryUnitTestSuite {
     when(gitCoreRepository.getMainGitDirectoryPath()).thenReturn(Paths.get("void"));
 
     // cannot be mocked as it is final
-    val statusBranchHookExecutor = StatusBranchHookExecutor.of(gitCoreRepository);
+    val statusBranchHookExecutor = new StatusBranchHookExecutor(gitCoreRepository);
 
     return new CreateGitMacheteRepositoryAux(gitCoreRepository, statusBranchHookExecutor, /* preRebaseHookExecutor */ null);
   }
