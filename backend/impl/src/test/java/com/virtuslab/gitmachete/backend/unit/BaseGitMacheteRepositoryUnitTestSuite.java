@@ -34,6 +34,6 @@ public class BaseGitMacheteRepositoryUnitTestSuite {
     // cannot be mocked as it is final
     val statusBranchHookExecutor = new StatusBranchHookExecutor(gitCoreRepository);
 
-    return new CreateGitMacheteRepositoryAux(gitCoreRepository, statusBranchHookExecutor, /* preRebaseHookExecutor */ null);
+    return new CreateGitMacheteRepositoryAux(gitCoreRepository, statusBranchHookExecutor);
   }
 }

@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.backend.api.hooks;
+package com.virtuslab.gitmachete.backend.hooks;
 
 import lombok.Data;
 

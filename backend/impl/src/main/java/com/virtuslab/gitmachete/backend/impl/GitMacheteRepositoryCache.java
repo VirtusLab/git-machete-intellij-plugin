@@ -17,8 +17,6 @@ import com.virtuslab.gitcore.api.IGitCoreRepositoryFactory;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
-import com.virtuslab.gitmachete.backend.impl.hooks.PreRebaseHookExecutor;
-import com.virtuslab.gitmachete.backend.impl.hooks.StatusBranchHookExecutor;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
@@ -52,9 +50,7 @@ public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
     }
 
     val gitCoreRepository = createGitCoreRepository(rootDirectoryPath, mainGitDirectoryPath, worktreeGitDirectoryPath);
-    val statusHookExecutor = new StatusBranchHookExecutor(gitCoreRepository);
-    val preRebaseHookExecutor = new PreRebaseHookExecutor(gitCoreRepository);
-    val newValue = new GitMacheteRepository(gitCoreRepository, statusHookExecutor, preRebaseHookExecutor);
+    val newValue = new GitMacheteRepository(gitCoreRepository);
     gitMacheteRepositoryCache = gitMacheteRepositoryCache.put(key, new SoftReference<>(newValue));
 
     return newValue;

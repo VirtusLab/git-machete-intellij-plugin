@@ -8,7 +8,6 @@ import lombok.Data;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BranchLayout;
-import com.virtuslab.gitmachete.backend.api.hooks.ExecutionResult;
 
 /**
  * An immutable snapshot of an {@link IGitMacheteRepository} for some specific moment in time.
@@ -33,10 +32,6 @@ public interface IGitMacheteRepositorySnapshot {
   Set<String> getDuplicatedBranchNames();
 
   Set<String> getSkippedBranchNames();
-
-  @Nullable
-  ExecutionResult executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters)
-      throws GitMacheteException;
 
   @Data
   // So that Interning Checker doesn't complain about enum comparison (by `equals` and not by `==`) in Lombok-generated `equals`

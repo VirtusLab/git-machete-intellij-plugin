@@ -9,7 +9,6 @@ import lombok.Getter;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BranchLayout;
-import com.virtuslab.gitmachete.backend.api.hooks.ExecutionResult;
 
 public final class NullGitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapshot {
   private static final NullGitMacheteRepositorySnapshot instance = new NullGitMacheteRepositorySnapshot();
@@ -58,11 +57,6 @@ public final class NullGitMacheteRepositorySnapshot implements IGitMacheteReposi
   @Override
   public Set<String> getSkippedBranchNames() {
     return TreeSet.empty();
-  }
-
-  @Override
-  public @Nullable ExecutionResult executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters) {
-    return null;
   }
 
   @Getter

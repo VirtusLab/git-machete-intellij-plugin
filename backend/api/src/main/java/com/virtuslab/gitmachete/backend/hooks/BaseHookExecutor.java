@@ -1,8 +1,9 @@
-package com.virtuslab.gitmachete.backend.impl.hooks;
+package com.virtuslab.gitmachete.backend.hooks;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -14,32 +15,30 @@ import lombok.val;
 import org.apache.commons.io.IOUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
-import com.virtuslab.gitmachete.backend.api.hooks.ExecutionResult;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
-abstract class BaseHookExecutor {
+public abstract class BaseHookExecutor {
   protected static final String NL = System.lineSeparator();
 
   protected final String name;
   protected final File rootDirectory;
   protected final File hookFile;
 
-  @UIThreadUnsafe
-  protected BaseHookExecutor(String name, IGitCoreRepository gitCoreRepository) {
+  protected BaseHookExecutor(String name, Path rootDirectoryPath, Path mainGitDirectoryPath,
+      @Nullable String gitConfigCoreHooksPath) {
     this.name = name;
-    this.rootDirectory = gitCoreRepository.getRootDirectoryPath().toFile();
+    this.rootDirectory = rootDirectoryPath.toFile();
 
-    val hooksDirFromConfig = gitCoreRepository.deriveConfigValue("core", "hooksPath");
-    val hooksDirPath = hooksDirFromConfig != null
-        ? Paths.get(hooksDirFromConfig)
-        : gitCoreRepository.getMainGitDirectoryPath().resolve("hooks");
+    val hooksDirPath = gitConfigCoreHooksPath != null
+        ? Paths.get(gitConfigCoreHooksPath)
+        : mainGitDirectoryPath.resolve("hooks");
     this.hookFile = hooksDirPath.resolve(name).toFile();
   }
 
   protected abstract LambdaLogger log();
 
+  @UIThreadUnsafe
   protected @Nullable ExecutionResult executeHook(int timeoutSeconds, OnExecutionTimeout onTimeout,
       Map<String, String> environment, String... args)
       throws GitMacheteException {

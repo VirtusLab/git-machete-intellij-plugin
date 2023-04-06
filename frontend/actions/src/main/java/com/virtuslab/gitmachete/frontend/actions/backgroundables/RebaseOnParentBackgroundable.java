@@ -8,11 +8,13 @@ import java.util.Collections;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.branch.GitBranchUiHandlerImpl;
 import git4idea.branch.GitBranchWorker;
 import git4idea.branch.GitRebaseParams;
 import git4idea.commands.Git;
+import git4idea.config.GitConfigUtil;
 import git4idea.config.GitVersion;
 import git4idea.rebase.GitRebaseOption;
 import git4idea.rebase.GitRebaseUtils;
@@ -28,11 +30,13 @@ import com.virtuslab.gitmachete.backend.api.GitMacheteMissingForkPointException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
-import com.virtuslab.gitmachete.backend.api.hooks.ExecutionResult;
+import com.virtuslab.gitmachete.backend.hooks.ExecutionResult;
+import com.virtuslab.gitmachete.frontend.actions.common.PreRebaseHookExecutor;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
+import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
-@ExtensionMethod(GitMacheteBundle.class)
+@ExtensionMethod({GitMacheteBundle.class, GitVfsUtils.class})
 @CustomLog
 public class RebaseOnParentBackgroundable extends SideEffectingBackgroundable {
 
@@ -102,12 +106,17 @@ public class RebaseOnParentBackgroundable extends SideEffectingBackgroundable {
       return;
     }
 
-    final AtomicReference<Try<@Nullable ExecutionResult>> wrapper = new AtomicReference<>(
+    AtomicReference<Try<@Nullable ExecutionResult>> wrapper = new AtomicReference<>(
         Try.success(null));
+
+    val preRebaseHookExecutor = new PreRebaseHookExecutor(
+        gitRepository.getRootDirectoryPath(),
+        gitRepository.getMainGitDirectoryPath(),
+        getGitConfigCoreHooksPath());
+
     new GitFreezingProcess(project, getTitle(), () -> {
       LOG.info("Executing machete-pre-rebase hooks");
-      Try<@Nullable ExecutionResult> hookResult = Try
-          .of(() -> gitMacheteRepositorySnapshot.executeMachetePreRebaseHookIfPresent(gitRebaseParameters));
+      Try<@Nullable ExecutionResult> hookResult = Try.of(() -> preRebaseHookExecutor.executeHookFor(gitRebaseParameters));
       wrapper.set(hookResult);
     }).execute();
     Try<@Nullable ExecutionResult> hookResult = wrapper.get();
@@ -155,5 +164,14 @@ public class RebaseOnParentBackgroundable extends SideEffectingBackgroundable {
               Collections.singletonList(gitRepository));
     }
     GitRebaseUtils.rebase(project, Collections.singletonList(gitRepository), params, indicator);
+  }
+
+  @UIThreadUnsafe
+  private @Nullable String getGitConfigCoreHooksPath() {
+    try {
+      return GitConfigUtil.getValue(project, gitRepository.getRoot(), "core.hooksPath");
+    } catch (VcsException e) {
+      return null;
+    }
   }
 }

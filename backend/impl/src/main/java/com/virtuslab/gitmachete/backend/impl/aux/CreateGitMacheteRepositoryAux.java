@@ -43,7 +43,6 @@ import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.impl.NonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.impl.RemoteTrackingBranchReference;
 import com.virtuslab.gitmachete.backend.impl.RootManagedBranchSnapshot;
-import com.virtuslab.gitmachete.backend.impl.hooks.PreRebaseHookExecutor;
 import com.virtuslab.gitmachete.backend.impl.hooks.StatusBranchHookExecutor;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
@@ -51,7 +50,6 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 public class CreateGitMacheteRepositoryAux extends Aux {
 
   private final StatusBranchHookExecutor statusHookExecutor;
-  private final PreRebaseHookExecutor preRebaseHookExecutor;
   private final List<String> remoteNames;
   private final java.util.Set<String> createdBranches = new java.util.HashSet<>();
   private final Path mainGitDirectoryPath;
@@ -59,12 +57,10 @@ public class CreateGitMacheteRepositoryAux extends Aux {
   @UIThreadUnsafe
   public CreateGitMacheteRepositoryAux(
       IGitCoreRepository gitCoreRepository,
-      StatusBranchHookExecutor statusHookExecutor,
-      PreRebaseHookExecutor preRebaseHookExecutor) throws GitCoreException {
+      StatusBranchHookExecutor statusHookExecutor) throws GitCoreException {
     super(gitCoreRepository);
 
     this.statusHookExecutor = statusHookExecutor;
-    this.preRebaseHookExecutor = preRebaseHookExecutor;
     this.remoteNames = gitCoreRepository.deriveAllRemoteNames();
     this.mainGitDirectoryPath = gitCoreRepository.getMainGitDirectoryPath();
   }
@@ -107,7 +103,7 @@ public class CreateGitMacheteRepositoryAux extends Aux {
     val operationsBaseBranchName = deriveOngoingOperationsBaseBranchName(ongoingOperationType);
 
     return new GitMacheteRepositorySnapshot(mainGitDirectoryPath, List.narrow(rootBranches), branchLayout,
-        currentBranchIfManaged, managedBranchByName, duplicatedBranchNames, skippedBranchNames, preRebaseHookExecutor,
+        currentBranchIfManaged, managedBranchByName, duplicatedBranchNames, skippedBranchNames,
         new IGitMacheteRepositorySnapshot.OngoingRepositoryOperation(ongoingOperationType, operationsBaseBranchName));
   }
 

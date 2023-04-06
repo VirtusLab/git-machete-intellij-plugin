@@ -30,7 +30,6 @@ import com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperationType;
 import com.virtuslab.gitmachete.backend.api.RelationToRemote;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus;
-import com.virtuslab.gitmachete.backend.api.hooks.ExecutionResult;
 
 public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapshot {
 
@@ -130,11 +129,6 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
   @Override
   public Set<String> getSkippedBranchNames() {
     return TreeSet.empty();
-  }
-
-  @Override
-  public @Nullable ExecutionResult executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters) {
-    return null;
   }
 
   @Getter

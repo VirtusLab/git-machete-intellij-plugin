@@ -76,7 +76,8 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
 
   private static final String[] knownBlockingCodeUnits = {
       "com.intellij.dvcs.push.PushController.push(boolean)",
-      "java.lang.Thread.sleep(long)"
+      "java.lang.Process.waitFor(long, java.util.concurrent.TimeUnit)",
+      "java.lang.Thread.sleep(long)",
   };
 
   private static final String[] uiThreadUnsafePackagePrefixes = {

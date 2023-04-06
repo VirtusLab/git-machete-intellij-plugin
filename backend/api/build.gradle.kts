@@ -5,5 +5,7 @@ dependencies {
   api(project(":branchLayout:api"))
 }
 
+commonsIO()
 lombok()
 vavr()
+slf4jLambdaApi()

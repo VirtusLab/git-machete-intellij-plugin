@@ -23,7 +23,6 @@ import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IBranchReference;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
-import com.virtuslab.gitmachete.backend.impl.hooks.PreRebaseHookExecutor;
 import com.virtuslab.gitmachete.backend.impl.hooks.StatusBranchHookExecutor;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
@@ -37,9 +36,8 @@ public class DiscoverGitMacheteRepositoryAux extends CreateGitMacheteRepositoryA
   @UIThreadUnsafe
   public DiscoverGitMacheteRepositoryAux(
       IGitCoreRepository gitCoreRepository,
-      StatusBranchHookExecutor statusHookExecutor,
-      PreRebaseHookExecutor preRebaseHookExecutor) throws GitCoreException {
-    super(gitCoreRepository, statusHookExecutor, preRebaseHookExecutor);
+      StatusBranchHookExecutor statusHookExecutor) throws GitCoreException {
+    super(gitCoreRepository, statusHookExecutor);
   }
 
   /**

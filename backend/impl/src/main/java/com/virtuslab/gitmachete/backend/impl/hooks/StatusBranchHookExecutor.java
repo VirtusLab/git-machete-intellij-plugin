@@ -23,6 +23,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
+import com.virtuslab.gitmachete.backend.hooks.BaseHookExecutor;
+import com.virtuslab.gitmachete.backend.hooks.OnExecutionTimeout;
 import com.virtuslab.gitmachete.backend.impl.CommitOfManagedBranch;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
@@ -39,7 +41,10 @@ public final class StatusBranchHookExecutor extends BaseHookExecutor {
 
   @UIThreadUnsafe
   public StatusBranchHookExecutor(IGitCoreRepository gitCoreRepository) {
-    super("machete-status-branch", gitCoreRepository);
+    super("machete-status-branch",
+        gitCoreRepository.getRootDirectoryPath(),
+        gitCoreRepository.getMainGitDirectoryPath(),
+        gitCoreRepository.deriveConfigValue("core", "hooksPath"));
   }
 
   /**
@@ -50,6 +55,7 @@ public final class StatusBranchHookExecutor extends BaseHookExecutor {
    *         or when the hook timed out.
    * @throws GitMacheteException when an I/O exception occurs
    */
+  @UIThreadUnsafe
   private @Nullable String executeHookFor(String branchName) throws GitMacheteException {
     // According to machete-status-branch hook spec (`git machete help hooks`),
     // the hook should receive `ASCII_ONLY=true` in its environment if only ASCII characters are expected in the output

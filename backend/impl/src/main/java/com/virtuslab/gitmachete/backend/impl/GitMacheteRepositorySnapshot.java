@@ -10,13 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BranchLayout;
-import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
-import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.IRootManagedBranchSnapshot;
-import com.virtuslab.gitmachete.backend.api.hooks.ExecutionResult;
-import com.virtuslab.gitmachete.backend.impl.hooks.PreRebaseHookExecutor;
 
 @RequiredArgsConstructor
 public class GitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapshot {
@@ -40,8 +36,6 @@ public class GitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapsh
   @Getter
   private final Set<String> skippedBranchNames;
 
-  private final PreRebaseHookExecutor preRebaseHookExecutor;
-
   @Getter
   private final OngoingRepositoryOperation ongoingRepositoryOperation;
 
@@ -63,11 +57,5 @@ public class GitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapsh
   @Override
   public @Nullable IManagedBranchSnapshot getManagedBranchByName(String branchName) {
     return managedBranchByName.get(branchName).getOrNull();
-  }
-
-  @Override
-  public @Nullable ExecutionResult executeMachetePreRebaseHookIfPresent(IGitRebaseParameters gitRebaseParameters)
-      throws GitMacheteException {
-    return preRebaseHookExecutor.executeHookFor(gitRebaseParameters);
   }
 }
