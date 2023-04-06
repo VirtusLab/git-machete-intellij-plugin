@@ -173,6 +173,11 @@ class UITestSuite extends TestGitRepository(SETUP_WITH_SINGLE_REMOTE) {
 
   @Test def syncToParentByRebaseAction(): Unit = {
 
+    machetePreRebaseHookPath
+      // Skip the fork point ($2) as it's a commit hash and it'll differ between test invocations.
+      .write(s""" echo "$$1 $$3" >> "$machetePreRebaseHookOutputPath" """)
+      .makeExecutable()
+
     // syncCurrentToParentByRebase
     project.openGitMacheteTab()
     project.checkoutBranch("allow-ownership-link")
@@ -182,6 +187,11 @@ class UITestSuite extends TestGitRepository(SETUP_WITH_SINGLE_REMOTE) {
     // syncSelectedToParentByRebase
     project.syncSelectedToParentByRebase("build-chain")
     project.assertSyncToParentStatus("build-chain", "InSync")
+
+    assertEquals(
+      "refs/heads/develop allow-ownership-link\nrefs/heads/allow-ownership-link build-chain\n",
+      machetePreRebaseHookOutputPath.content()
+    )
   }
 
   @Test def syncToParentByMergeAction(): Unit = {
@@ -296,6 +306,9 @@ class UITestSuite extends TestGitRepository(SETUP_WITH_SINGLE_REMOTE) {
   }
 
   private def macheteFilePath: Path = mainGitDirectoryPath.resolve("machete")
+
+  private def machetePreRebaseHookPath: Path = mainGitDirectoryPath.resolve("hooks").resolve("machete-pre-rebase");
+  private def machetePreRebaseHookOutputPath: Path = rootDirectoryPath.resolve("machete-pre-rebase-hooks-executed")
 
   private def deleteMacheteFile(): Unit = {
     macheteFilePath.delete()

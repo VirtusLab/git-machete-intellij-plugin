@@ -154,7 +154,7 @@ If you see any bug or just would like to propose any new feature, feel free to c
 When reporting a bug, it'd be very helpful for us if you could enable the IntelliJ logging on a DEBUG level, reproduce a bug
 and include the logs from IntelliJ in the issue.
 
-Go to `Help > Diagnostic Tools > Debug Log Settings` and then paste the following lines:
+Go to `Help > Diagnostic Tools > Debug Log Settings` and then paste the following line:
 
 ```
 com.virtuslab

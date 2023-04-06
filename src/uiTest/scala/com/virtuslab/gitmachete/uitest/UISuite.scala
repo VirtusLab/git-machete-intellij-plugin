@@ -7,7 +7,12 @@ trait UISuite extends RunningIntelliJPerSuiteBase with IdeProbeFixture with Runn
 
   registerFixtureTransformer(_.withAfterIntelliJStartup((_, intelliJ) => intelliJ.ide.configure()))
 
-  override protected def baseFixture: IntelliJFixture = fixtureFromConfig("ideprobe.conf")
+  override protected def baseFixture: IntelliJFixture = {
+    val osName = System.getProperty("os.name").toLowerCase
+    val isMacOs = osName.startsWith("mac os x")
+    val configFile = if (isMacOs) "ideprobe-macos.conf" else "ideprobe-linux.conf"
+    fixtureFromConfig(configFile)
+  }
 
   // Don't call it `beforeAll()`, such method already exists in `RunningIntelliJPerSuiteBase`
   @BeforeAll override final def setup(): Unit = super.setup()
