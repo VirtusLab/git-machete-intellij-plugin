@@ -34,6 +34,7 @@ import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.SideEffectingBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.DeleteBranchOnSlideOutSuggestionDialog;
+import com.virtuslab.gitmachete.frontend.actions.hooks.PostSlideOutHookExecutor;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
@@ -71,7 +72,7 @@ public class SlideOut {
     val slideOutBranchIsCurrent = branchToSlideOutName.equals(gitRepository.getCurrentBranchName());
     if (slideOutBranchIsCurrent) {
       LOG.debug("Skipping (optional) local branch deletion because it is equal to current branch");
-      slideOutBranch(() -> {
+      slideOutBranchAndRunPostSlideOutHookIfPresent(() -> {
         VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
             /* title */ "",
             getString("action.GitMachete.SlideOut.notification.title.slide-out-success.of-current.HTML").fmt(
@@ -113,7 +114,7 @@ public class SlideOut {
 
   @ContinuesInBackground
   private void handleBranchDeletionDecision(boolean shouldDelete, @UI Runnable doInUIThreadWhenReady) {
-    slideOutBranch(() -> {
+    slideOutBranchAndRunPostSlideOutHookIfPresent(() -> {
       if (shouldDelete) {
         graphTable.queueRepositoryUpdateAndModelRefresh(
             () -> GitBrancher.getInstance(project).deleteBranches(Collections.singletonMap(branchToSlideOutName,
@@ -134,8 +135,17 @@ public class SlideOut {
     });
   }
 
-  private void slideOutBranch(Runnable doWhenReady) {
+  @ContinuesInBackground
+  private void slideOutBranchAndRunPostSlideOutHookIfPresent(Runnable doWhenReady) {
     LOG.info("Sliding out '${branchToSlideOutName}' branch in memory");
+    val branchToSlideOut = branchLayout.getEntryByName(branchToSlideOutName);
+    if (branchToSlideOut == null) {
+      // Unlikely, let's handle this case to calm down Checker Framework.
+      return;
+    }
+    val parentBranch = branchToSlideOut.getParent();
+    val parentBranchName = parentBranch != null ? parentBranch.getName() : null;
+    val childBranchNames = branchToSlideOut.getChildren().map(child -> child.getName());
     val newBranchLayout = branchLayout.slideOut(branchToSlideOutName);
 
     // Let's execute the write action in a blocking way, in order to prevent branch deletion from running concurrently.
@@ -160,7 +170,17 @@ public class SlideOut {
       }
     });
 
-    doWhenReady.run();
+    new SideEffectingBackgroundable(project, getNonHtmlString("string.GitMachete.SlideOut.post-slide-out-hook-task.title"),
+        "machete-post-slide-out hook") {
+      @Override
+      @UIThreadUnsafe
+      protected void doRun(ProgressIndicator indicator) {
+        val postSlideOutHookExecutor = new PostSlideOutHookExecutor(gitRepository);
+        if (postSlideOutHookExecutor.executeHookFor(parentBranchName, branchToSlideOutName, childBranchNames)) {
+          doWhenReady.run();
+        }
+      }
+    }.queue();
   }
 
   @ContinuesInBackground

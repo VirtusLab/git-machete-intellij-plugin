@@ -21,7 +21,7 @@ public final class PreRebaseHookExecutor extends BaseGit4IdeaHookExecutor {
   @UIThreadUnsafe
   public boolean executeHookFor(IGitRebaseParameters gitRebaseParameters) {
     String failureNotificationTitle = getString(
-        "action.GitMachete.PreRebaseHookExecutor.notification.title.rebase-abort");
+        "action.GitMachete.PreRebaseHookExecutor.notification.title.abort");
 
     return executeGit4IdeaHook(failureNotificationTitle, EXECUTION_TIMEOUT_SECONDS,
         gitRebaseParameters.getNewBaseBranch().getFullName(),

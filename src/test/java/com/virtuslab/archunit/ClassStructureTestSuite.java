@@ -63,15 +63,15 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
   static class BeReferencedFromOutsideItself extends ArchCondition<JavaClass> {
 
     BeReferencedFromOutsideItself() {
-      super("is not referenced from any other compilation units");
+      super("be referenced from some other class");
     }
 
     @Override
     public void check(JavaClass javaClass, ConditionEvents events) {
-      Set<JavaAccess<?>> accessesFromOtherCompilationUnits = new HashSet<>(javaClass.getAccessesToSelf());
-      accessesFromOtherCompilationUnits.removeAll(javaClass.getAccessesFromSelf());
+      Set<JavaAccess<?>> accessesFromOtherClasses = new HashSet<>(javaClass.getAccessesToSelf());
+      accessesFromOtherClasses.removeAll(javaClass.getAccessesFromSelf());
 
-      if (accessesFromOtherCompilationUnits.isEmpty() && javaClass.getDirectDependenciesToSelf().isEmpty()) {
+      if (accessesFromOtherClasses.isEmpty() && javaClass.getDirectDependenciesToSelf().isEmpty()) {
         String message = javaClass.getDescription() + " is NOT referenced from any other class";
         events.add(SimpleConditionEvent.violated(javaClass, message));
       }

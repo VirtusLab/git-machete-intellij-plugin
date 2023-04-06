@@ -60,6 +60,10 @@ class UITestSuite extends TestGitRepository(SETUP_WITH_SINGLE_REMOTE) {
   }
 
   @Test def skipNonExistentBranches_toggleListingCommits_slideOutRoot(): Unit = {
+    machetePostSlideOutHookPath
+      .write(s""" echo "$$@" >> "$machetePostSlideOutHookOutputPath" """)
+      .makeExecutable()
+
     overwriteMacheteFile(
       """develop
         |  non-existent
@@ -128,6 +132,11 @@ class UITestSuite extends TestGitRepository(SETUP_WITH_SINGLE_REMOTE) {
     branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
     // 5 branch rows (`call-ws` is also no longer there) + 7 commit rows
     assertEquals(12, branchAndCommitRowsCount)
+
+    assertEquals(
+      " develop non-existent call-ws\n call-ws\n",
+      machetePostSlideOutHookOutputPath.content()
+    )
   }
 
   @Test def discoverBranchLayout(): Unit = {
@@ -311,6 +320,11 @@ class UITestSuite extends TestGitRepository(SETUP_WITH_SINGLE_REMOTE) {
     mainGitDirectoryPath.resolve("hooks").resolve("machete-pre-rebase")
   private def machetePreRebaseHookOutputPath: Path =
     rootDirectoryPath.resolve("machete-pre-rebase-hook-executed")
+
+  private def machetePostSlideOutHookPath: Path =
+    mainGitDirectoryPath.resolve("hooks").resolve("machete-post-slide-out")
+  private def machetePostSlideOutHookOutputPath: Path =
+    rootDirectoryPath.resolve("machete-post-slide-out-hook-executed")
 
   private def deleteMacheteFile(): Unit = {
     macheteFilePath.delete()
