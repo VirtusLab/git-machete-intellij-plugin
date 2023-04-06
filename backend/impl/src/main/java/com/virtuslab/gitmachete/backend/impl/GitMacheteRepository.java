@@ -14,7 +14,6 @@ import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
 import com.virtuslab.gitmachete.backend.impl.aux.Aux;
 import com.virtuslab.gitmachete.backend.impl.aux.CreateGitMacheteRepositoryAux;
 import com.virtuslab.gitmachete.backend.impl.aux.DiscoverGitMacheteRepositoryAux;
-import com.virtuslab.gitmachete.backend.impl.hooks.StatusBranchHookExecutor;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 public class GitMacheteRepository implements IGitMacheteRepository {

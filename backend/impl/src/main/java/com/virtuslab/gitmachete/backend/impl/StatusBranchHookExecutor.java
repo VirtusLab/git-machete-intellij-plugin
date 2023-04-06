@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.backend.impl.hooks;
+package com.virtuslab.gitmachete.backend.impl;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -25,7 +25,6 @@ import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.hooks.BaseHookExecutor;
 import com.virtuslab.gitmachete.backend.hooks.OnExecutionTimeout;
-import com.virtuslab.gitmachete.backend.impl.CommitOfManagedBranch;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog

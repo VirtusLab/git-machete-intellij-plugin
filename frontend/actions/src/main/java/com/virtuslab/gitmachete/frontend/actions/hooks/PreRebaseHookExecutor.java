@@ -1,7 +1,6 @@
-package com.virtuslab.gitmachete.frontend.actions.common;
+package com.virtuslab.gitmachete.frontend.actions.hooks;
 
-import java.nio.file.Path;
-
+import git4idea.repo.GitRepository;
 import io.vavr.collection.HashMap;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
@@ -9,17 +8,17 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
-import com.virtuslab.gitmachete.backend.hooks.BaseHookExecutor;
 import com.virtuslab.gitmachete.backend.hooks.ExecutionResult;
 import com.virtuslab.gitmachete.backend.hooks.OnExecutionTimeout;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
-public final class PreRebaseHookExecutor extends BaseHookExecutor {
+public final class PreRebaseHookExecutor extends BaseGit4IdeaHookExecutor {
   private static final int EXECUTION_TIMEOUT_SECONDS = 10;
 
-  public PreRebaseHookExecutor(Path rootDirectoryPath, Path mainGitDirectoryPath, @Nullable String gitConfigCoreHooksPath) {
-    super("machete-pre-rebase", rootDirectoryPath, mainGitDirectoryPath, gitConfigCoreHooksPath);
+  @UIThreadUnsafe
+  public PreRebaseHookExecutor(GitRepository gitRepository) {
+    super("machete-pre-rebase", gitRepository);
   }
 
   /**

@@ -13,8 +13,8 @@ import lombok.val;
 import com.virtuslab.gitcore.api.IGitCoreHeadSnapshot;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
+import com.virtuslab.gitmachete.backend.impl.StatusBranchHookExecutor;
 import com.virtuslab.gitmachete.backend.impl.aux.CreateGitMacheteRepositoryAux;
-import com.virtuslab.gitmachete.backend.impl.hooks.StatusBranchHookExecutor;
 
 public class BaseGitMacheteRepositoryUnitTestSuite {
 
