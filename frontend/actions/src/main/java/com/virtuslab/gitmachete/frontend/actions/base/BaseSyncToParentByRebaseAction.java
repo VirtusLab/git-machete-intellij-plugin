@@ -129,16 +129,12 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
   @ContinuesInBackground
   private void doRebase(AnActionEvent anActionEvent, INonRootManagedBranchSnapshot branchToRebase) {
     val gitRepository = getSelectedGitRepository(anActionEvent);
-    val gitMacheteRepositorySnapshot = getGitMacheteRepositorySnapshot(anActionEvent);
     val state = gitRepository != null ? gitRepository.getState() : null;
     val isCalledFromContextMenu = anActionEvent.getPlace().equals(ActionPlaces.CONTEXT_MENU);
     val shouldExplicitlyCheckout = isCalledFromContextMenu && Repository.State.DETACHED == state;
 
-    if (gitRepository != null && gitMacheteRepositorySnapshot != null) {
-      new RebaseOnParentBackgroundable(
-          gitRepository, gitMacheteRepositorySnapshot,
-          branchToRebase,
-          shouldExplicitlyCheckout).queue();
+    if (gitRepository != null) {
+      new RebaseOnParentBackgroundable(gitRepository, branchToRebase, shouldExplicitlyCheckout).queue();
     }
   }
 

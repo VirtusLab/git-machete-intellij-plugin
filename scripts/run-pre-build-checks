@@ -22,8 +22,8 @@ function _() {
   fi
 }
 
-_ enforce-change-notes-updated-on-pr-to-master
 _ enforce-astub-explicit-annotation-import
+_ enforce-change-notes-updated-on-pr-to-master
 _ enforce-indent-two-spaces-outside-java
 _ enforce-issue-number-for-todos
 _ enforce-newline-at-eof

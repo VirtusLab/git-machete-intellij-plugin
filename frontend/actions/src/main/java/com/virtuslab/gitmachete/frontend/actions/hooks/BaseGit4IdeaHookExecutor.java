@@ -20,7 +20,7 @@ public abstract class BaseGit4IdeaHookExecutor extends BaseHookExecutor {
   }
 
   @UIThreadUnsafe
-  private @Nullable static String getGitConfigCoreHooksPath(GitRepository gitRepository) {
+  private static @Nullable String getGitConfigCoreHooksPath(GitRepository gitRepository) {
     try {
       return GitConfigUtil.getValue(gitRepository.getProject(), gitRepository.getRoot(), "core.hooksPath");
     } catch (VcsException e) {

@@ -25,7 +25,6 @@ import lombok.val;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.GitMacheteMissingForkPointException;
-import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.hooks.ExecutionResult;
@@ -40,12 +39,10 @@ public class RebaseOnParentBackgroundable extends SideEffectingBackgroundable {
   private static final String NL = System.lineSeparator();
 
   private final GitRepository gitRepository;
-  private final IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot;
   private final INonRootManagedBranchSnapshot branchToRebase;
   private final boolean shouldExplicitlyCheckout;
 
   public RebaseOnParentBackgroundable(GitRepository gitRepository,
-      IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot,
       INonRootManagedBranchSnapshot branchToRebase,
       boolean shouldExplicitlyCheckout) {
     super(gitRepository.getProject(), getNonHtmlString("action.GitMachete.RebaseOnParentBackgroundable.task-title"),
@@ -53,7 +50,6 @@ public class RebaseOnParentBackgroundable extends SideEffectingBackgroundable {
 
     this.gitRepository = gitRepository;
     this.branchToRebase = branchToRebase;
-    this.gitMacheteRepositorySnapshot = gitMacheteRepositorySnapshot;
     this.shouldExplicitlyCheckout = shouldExplicitlyCheckout;
     LOG.debug(() -> "Entering: gitRepository = ${gitRepository}, branchToRebase = ${branchToRebase}");
   }

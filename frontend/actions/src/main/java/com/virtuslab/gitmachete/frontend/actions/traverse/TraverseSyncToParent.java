@@ -89,7 +89,7 @@ public class TraverseSyncToParent {
         if (syncToRemoteStatus == DivergedFromAndOlderThanRemote) {
           ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, syncToRemoteRunnable);
         } else {
-          @UI Runnable rebase = () -> handleOutOfSyncOrInSyncButForkPointOff(repositorySnapshot, gitMacheteBranch.asNonRoot(),
+          @UI Runnable rebase = () -> handleOutOfSyncOrInSyncButForkPointOff(gitMacheteBranch.asNonRoot(),
               syncToRemoteRunnable);
           checkoutAndExecuteOnUIThread(gitRepository, graphTable, branch.getName(), rebase);
         }
@@ -128,7 +128,6 @@ public class TraverseSyncToParent {
   @ContinuesInBackground
   @UIEffect
   private void handleOutOfSyncOrInSyncButForkPointOff(
-      IGitMacheteRepositorySnapshot repositorySnapshot,
       INonRootManagedBranchSnapshot managedBranch,
       Runnable syncToRemoteRunnable) {
     var title = getString("action.GitMachete.BaseTraverseAction.dialog.out-of-sync-to-parent.title");
@@ -143,8 +142,7 @@ public class TraverseSyncToParent {
     val rebaseDialog = new TraverseStepConfirmationDialog(title, message);
 
     switch (rebaseDialog.show(project)) {
-      case YES -> new RebaseOnParentBackgroundable(
-          gitRepository, repositorySnapshot, managedBranch, /* shouldExplicitlyCheckout */ false) {
+      case YES -> new RebaseOnParentBackgroundable(gitRepository, managedBranch, /* shouldExplicitlyCheckout */ false) {
         @Override
         @ContinuesInBackground
         public void onSuccess() {
@@ -153,7 +151,7 @@ public class TraverseSyncToParent {
       }.queue();
 
       case YES_AND_QUIT -> new RebaseOnParentBackgroundable(
-          gitRepository, repositorySnapshot, managedBranch, /* shouldExplicitlyCheckout */ false).queue();
+          gitRepository, managedBranch, /* shouldExplicitlyCheckout */ false).queue();
 
       case NO -> graphTable.queueRepositoryUpdateAndModelRefresh(syncToRemoteRunnable);
     }
