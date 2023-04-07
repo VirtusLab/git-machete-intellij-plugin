@@ -71,7 +71,7 @@ public class SlideOut {
     val slideOutBranchIsCurrent = branchToSlideOutName.equals(gitRepository.getCurrentBranchName());
     if (slideOutBranchIsCurrent) {
       LOG.debug("Skipping (optional) local branch deletion because it is equal to current branch");
-      slideOutBranch(branchToSlideOutName, () -> {
+      slideOutBranch(() -> {
         VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
             /* title */ "",
             getString("action.GitMachete.SlideOut.notification.title.slide-out-success.of-current.HTML").fmt(
@@ -82,10 +82,9 @@ public class SlideOut {
       val root = gitRepository.getRoot();
       getDeleteLocalBranchOnSlideOutGitConfigValueAndExecute(root, (@Nullable Boolean shouldDelete) -> {
         if (shouldDelete == null) {
-          ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL,
-              () -> suggestBranchDeletion(branchToSlideOutName, doInUIThreadWhenReady));
+          ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, () -> suggestBranchDeletion(doInUIThreadWhenReady));
         } else {
-          handleBranchDeletionDecision(branchToSlideOutName, shouldDelete, doInUIThreadWhenReady);
+          handleBranchDeletionDecision(shouldDelete, doInUIThreadWhenReady);
         }
       });
     }
@@ -93,11 +92,11 @@ public class SlideOut {
 
   @ContinuesInBackground
   @UIEffect
-  private void suggestBranchDeletion(String branchName, @UI Runnable doInUIThreadWhenBranchDeletionReady) {
-    val slideOutOptions = new DeleteBranchOnSlideOutSuggestionDialog(project, branchName).showAndGetSlideOutOptions();
+  private void suggestBranchDeletion(@UI Runnable doInUIThreadWhenBranchDeletionReady) {
+    val slideOutOptions = new DeleteBranchOnSlideOutSuggestionDialog(project, branchToSlideOutName).showAndGetSlideOutOptions();
 
     if (slideOutOptions != null) {
-      handleBranchDeletionDecision(branchName, slideOutOptions.shouldDelete(), doInUIThreadWhenBranchDeletionReady);
+      handleBranchDeletionDecision(slideOutOptions.shouldDelete(), doInUIThreadWhenBranchDeletionReady);
 
       if (slideOutOptions.shouldRemember()) {
         val value = String.valueOf(slideOutOptions.shouldDelete());
@@ -105,38 +104,39 @@ public class SlideOut {
       }
     } else {
       val title = getString("action.GitMachete.SlideOut.notification.title.slide-out-info.canceled");
-      val message = getString("action.GitMachete.SlideOut.notification.message.slide-out-info.canceled.HTML").fmt(branchName);
+      val message = getString("action.GitMachete.SlideOut.notification.message.slide-out-info.canceled.HTML")
+          .fmt(branchToSlideOutName);
       VcsNotifier.getInstance(project).notifyInfo(/* displayId */ null, title, message);
       doInUIThreadWhenBranchDeletionReady.run();
     }
   }
 
   @ContinuesInBackground
-  private void handleBranchDeletionDecision(String branchName, boolean shouldDelete, @UI Runnable doInUIThreadWhenReady) {
-    slideOutBranch(branchName, () -> {
+  private void handleBranchDeletionDecision(boolean shouldDelete, @UI Runnable doInUIThreadWhenReady) {
+    slideOutBranch(() -> {
       if (shouldDelete) {
         graphTable.queueRepositoryUpdateAndModelRefresh(
-            () -> GitBrancher.getInstance(project).deleteBranches(Collections.singletonMap(branchName,
+            () -> GitBrancher.getInstance(project).deleteBranches(Collections.singletonMap(branchToSlideOutName,
                 Collections.singletonList(gitRepository)), () -> {
                   VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
                       /* title */ "",
                       getString("action.GitMachete.SlideOut.notification.title.slide-out-success.with-delete.HTML").fmt(
-                          branchName));
+                          branchToSlideOutName));
                   doInUIThreadWhenReady.run();
                 }));
       } else {
         VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
             /* title */ "",
             getString("action.GitMachete.SlideOut.notification.title.slide-out-success.without-delete.HTML").fmt(
-                branchName));
+                branchToSlideOutName));
         ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, doInUIThreadWhenReady);
       }
     });
   }
 
-  private void slideOutBranch(String branchName, Runnable doWhenReady) {
-    LOG.info("Sliding out '${branchName}' branch in memory");
-    val newBranchLayout = branchLayout.slideOut(branchName);
+  private void slideOutBranch(Runnable doWhenReady) {
+    LOG.info("Sliding out '${branchToSlideOutName}' branch in memory");
+    val newBranchLayout = branchLayout.slideOut(branchToSlideOutName);
 
     // Let's execute the write action in a blocking way, in order to prevent branch deletion from running concurrently.
     // If branch deletion completes before the new branch layout is saved, we might end up with an issue like
@@ -151,11 +151,11 @@ public class SlideOut {
 
       } catch (IOException e) {
         val exceptionMessage = e.getMessage();
-        val errorMessage = "Error occurred while sliding out '${branchName}' branch" +
+        val errorMessage = "Error occurred while sliding out '${branchToSlideOutName}' branch" +
             (exceptionMessage == null ? "" : ": " + exceptionMessage);
         LOG.error(errorMessage);
         VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-            getString("action.GitMachete.SlideOut.notification.title.slide-out-fail.HTML").fmt(branchName),
+            getString("action.GitMachete.SlideOut.notification.title.slide-out-fail.HTML").fmt(branchToSlideOutName),
             exceptionMessage == null ? "" : exceptionMessage);
       }
     });
