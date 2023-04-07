@@ -5,7 +5,6 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.vcs.VcsNotifier;
@@ -17,8 +16,6 @@ import git4idea.config.GitVersion;
 import git4idea.rebase.GitRebaseOption;
 import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
-import git4idea.util.GitFreezingProcess;
-import io.vavr.control.Try;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
@@ -27,7 +24,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import com.virtuslab.gitmachete.backend.api.GitMacheteMissingForkPointException;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
-import com.virtuslab.gitmachete.backend.hooks.ExecutionResult;
 import com.virtuslab.gitmachete.frontend.actions.hooks.PreRebaseHookExecutor;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
@@ -99,41 +95,8 @@ public class RebaseOnParentBackgroundable extends SideEffectingBackgroundable {
       return;
     }
 
-    AtomicReference<Try<@Nullable ExecutionResult>> wrapper = new AtomicReference<>(
-        Try.success(null));
-
     val preRebaseHookExecutor = new PreRebaseHookExecutor(gitRepository);
-
-    new GitFreezingProcess(project, getTitle(), () -> {
-      LOG.info("Executing machete-pre-rebase hooks");
-      Try<@Nullable ExecutionResult> hookResult = Try.of(() -> preRebaseHookExecutor.executeHookFor(gitRebaseParameters));
-      wrapper.set(hookResult);
-    }).execute();
-    Try<@Nullable ExecutionResult> hookResult = wrapper.get();
-    if (hookResult == null) {
-      // Not really possible, it's here just to calm down Checker Framework.
-      return;
-    }
-
-    if (hookResult.isFailure()) {
-      val message = "machete-pre-rebase hooks refused to rebase ${NL}error: ${hookResult.getCause().getMessage()}";
-      LOG.error(message);
-      VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-          getString("action.GitMachete.RebaseOnParentBackgroundable.notification.title.rebase-abort"),
-          message);
-      return;
-    }
-
-    val executionResult = hookResult.get();
-    if (executionResult != null && executionResult.getExitCode() != 0) {
-      val message = "machete-pre-rebase hooks refused to rebase (exit code ${executionResult.getExitCode()})";
-      LOG.error(message);
-      val stdoutOption = executionResult.getStdout();
-      val stderrOption = executionResult.getStderr();
-      VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
-          getString("action.GitMachete.RebaseOnParentBackgroundable.notification.title.rebase-abort"), message
-              + (!stdoutOption.isBlank() ? NL + "stdout:" + NL + stdoutOption : "")
-              + (!stderrOption.isBlank() ? NL + "stderr:" + NL + stderrOption : ""));
+    if (!preRebaseHookExecutor.executeHookFor(gitRebaseParameters)) {
       return;
     }
 
