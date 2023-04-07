@@ -1,4 +1,4 @@
-  master (behind origin)  <2 files>
+  master (behind origin)
   |
   | HOTFIX Add the trigger (amended)
   o-hotfix/add-trigger * (diverged from origin)  <3 files>

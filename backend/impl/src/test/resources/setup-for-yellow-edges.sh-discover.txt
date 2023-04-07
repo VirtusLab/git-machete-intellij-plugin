@@ -1,4 +1,4 @@
-  master  <2 files>
+  master
   |
   o-behind/hotfix/add-trigger (untracked)  <2 files>
   |

@@ -1,4 +1,4 @@
-  master  <2 files>
+  master
   |
   | HOTFIX Add the trigger
   | HOTFIX Add the trigger - fixes
