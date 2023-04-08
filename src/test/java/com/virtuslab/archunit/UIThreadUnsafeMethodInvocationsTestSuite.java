@@ -76,6 +76,7 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
 
   private static final String[] knownBlockingCodeUnits = {
       "com.intellij.dvcs.push.PushController.push(boolean)",
+      "com.intellij.openapi.vcs.changes.VcsFreezingProcess.execute()",
       "java.lang.Process.waitFor(long, java.util.concurrent.TimeUnit)",
       "java.lang.Thread.sleep(long)",
   };
