@@ -18,12 +18,12 @@ import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod(GitVfsUtils.class)
-public abstract class BaseGit4IdeaHookExecutor extends BaseHookExecutor {
+abstract class BaseGit4IdeaHookExecutor extends BaseHookExecutor {
 
   private final Project project;
 
   @UIThreadUnsafe
-  public BaseGit4IdeaHookExecutor(String name, GitRepository gitRepository) {
+  BaseGit4IdeaHookExecutor(String name, GitRepository gitRepository) {
     super(name, gitRepository.getRootDirectoryPath(), gitRepository.getMainGitDirectoryPath(),
         getGitConfigCoreHooksPath(gitRepository));
 
@@ -39,6 +39,10 @@ public abstract class BaseGit4IdeaHookExecutor extends BaseHookExecutor {
     }
   }
 
+  /**
+   * @return true if the flow can be continued (including when the hook is missing or non-executable),
+   *         false if an error happened and the flow should be aborted
+   */
   @UIThreadUnsafe
   protected boolean executeGit4IdeaHook(String failureNotificationTitle, int timeoutSeconds, String... args) {
     ExecutionResult executionResult;

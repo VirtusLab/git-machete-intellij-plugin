@@ -18,14 +18,10 @@ public final class PreRebaseHookExecutor extends BaseGit4IdeaHookExecutor {
     super("machete-pre-rebase", gitRepository);
   }
 
-  /**
-   * @param gitRebaseParameters git rebase parameters
-   * @return true if the rebase flow can be continued, false if an error happened and the rebase flow should be aborted
-   */
   @UIThreadUnsafe
   public boolean executeHookFor(IGitRebaseParameters gitRebaseParameters) {
     String failureNotificationTitle = getString(
-        "action.GitMachete.RebaseOnParentBackgroundable.notification.title.rebase-abort");
+        "action.GitMachete.PreRebaseHookExecutor.notification.title.rebase-abort");
 
     return executeGit4IdeaHook(failureNotificationTitle, EXECUTION_TIMEOUT_SECONDS,
         gitRebaseParameters.getNewBaseBranch().getFullName(),
