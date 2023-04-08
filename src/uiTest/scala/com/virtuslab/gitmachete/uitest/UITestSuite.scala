@@ -307,8 +307,10 @@ class UITestSuite extends TestGitRepository(SETUP_WITH_SINGLE_REMOTE) {
 
   private def macheteFilePath: Path = mainGitDirectoryPath.resolve("machete")
 
-  private def machetePreRebaseHookPath: Path = mainGitDirectoryPath.resolve("hooks").resolve("machete-pre-rebase");
-  private def machetePreRebaseHookOutputPath: Path = rootDirectoryPath.resolve("machete-pre-rebase-hooks-executed")
+  private def machetePreRebaseHookPath: Path =
+    mainGitDirectoryPath.resolve("hooks").resolve("machete-pre-rebase")
+  private def machetePreRebaseHookOutputPath: Path =
+    rootDirectoryPath.resolve("machete-pre-rebase-hook-executed")
 
   private def deleteMacheteFile(): Unit = {
     macheteFilePath.delete()
