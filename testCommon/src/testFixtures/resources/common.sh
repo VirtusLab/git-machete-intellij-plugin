@@ -3,6 +3,7 @@
 status_branch_hook=$(cat <<'EOF'
 #!/usr/bin/env bash
 branch=$1
+# For machete-status-branch hook, let's just use a command whose output would differ between the branches.
 file_count=$(git ls-tree $branch | wc -l | sed 's/^ *//')
 if [[ $branch = master ]]; then
   # To test handling of failures (both stdout and stderr should be ignored)
