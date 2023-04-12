@@ -303,7 +303,7 @@
             -->
             <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="control alt shift M" />
 
-            <!-- This might be defined at the end; otherwise macOS-specific settings would apparently be overridden -->
+            <!-- This must be defined at the end; otherwise macOS-specific settings would apparently be overridden -->
             <keyboard-shortcut keymap="$default" first-keystroke="control alt shift M" />
         </action>
 

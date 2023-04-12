@@ -17,7 +17,7 @@
   | 2nd round of fixes
   o-call-ws  PR #124 (ahead of origin)  <6 files>
 
-  master  <2 files>
+  master
   |
   | HOTFIX Add the trigger
   | HOTFIX Add the trigger - fixes
