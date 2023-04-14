@@ -12,6 +12,8 @@ dependencies {
 addIntellijToCompileClasspath(withGit4Idea = true)
 apacheCommonsText()
 applyKotlinConfig()
+junit()
+junitPlatformLauncher()
 lombok()
 slf4jLambdaApi()
 vavr()

@@ -146,6 +146,8 @@ allprojects {
       showExceptions = true
       showStackTraces = true
     }
+
+    //jvmArgs("--add-opens=java.base/jdk.internal.reflect=ALL-UNNAMED")
   }
 
   configureCheckerFramework()
