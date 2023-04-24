@@ -21,6 +21,7 @@ import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction;
+import com.virtuslab.gitmachete.frontend.actions.github.GHPRLoaderBackgroundable;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 
@@ -42,6 +43,8 @@ public class OpenMacheteFileAction extends BaseProjectDependentAction {
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     val project = getProject(anActionEvent);
+
+    new GHPRLoaderBackgroundable(project).queue();
 
     // When selected Git repository is empty (due to e.g. unopened Git Machete tab)
     // an attempt to guess current repository based on presently opened file

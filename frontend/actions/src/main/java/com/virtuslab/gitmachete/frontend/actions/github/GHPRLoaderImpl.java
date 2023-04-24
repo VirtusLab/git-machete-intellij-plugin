@@ -5,12 +5,15 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.EmptyProgressIndicator;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.util.concurrency.Semaphore;
+import com.virtuslab.gitmachete.frontend.ui.api.gitrepositoryselection.IGitRepositorySelectionProvider;
+import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import io.vavr.Value;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
@@ -32,14 +35,11 @@ import org.jetbrains.plugins.github.pullrequest.ui.toolwindow.GHPRListSearchValu
 import org.jetbrains.plugins.github.util.GHCompatibilityUtil;
 import org.jetbrains.plugins.github.util.GithubUrlUtil;
 
-import com.virtuslab.binding.RuntimeBinding;
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.BranchLayoutEntry;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
-import com.virtuslab.gitmachete.frontend.ui.providerservice.GraphTableProvider;
-import com.virtuslab.gitmachete.frontend.ui.providerservice.SelectedGitRepositoryProvider;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
@@ -80,7 +80,7 @@ public class GHPRLoaderImpl implements IGHPRLoader {
   @UIThreadUnsafe
   private List<GHPullRequestShort> loadShortPRs(GHPRListLoader ghprListLoader) {
     val semaphore = new Semaphore(1);
-    ghprListLoader.setSearchQuery(GHPRListSearchValue.Companion.getDEFAULT().toQuery());
+    //ghprListLoader.setSearchQuery(GHPRListSearchValue.Companion.getDEFAULT().toQuery());
     ghprListLoader.addDataListener(disposable, new GHListLoader.ListDataListener() {
       //Remove when min version >= 2022.3
       @Override
@@ -125,31 +125,32 @@ public class GHPRLoaderImpl implements IGHPRLoader {
 
   @UIThreadUnsafe
   private void writeBranchLayout(List<GHPullRequest> pullRequests) {
-    val repository = project.getService(SelectedGitRepositoryProvider.class).getSelectedGitRepository();
+    val repository = project.getService(IGitRepositorySelectionProvider.class).getSelectedGitRepository();
 
     Map<String, GHPullRequest> requestMap = pullRequests.toMap(GHPullRequest::getHeadRefName, Function.identity());
-    val macheteFilePath = Option.of(repository).map(GitVfsUtils::getMacheteFilePath).getOrNull();
-    if (macheteFilePath != null) {
-      val branchLayoutReader = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutReader.class);
-      val branchLayoutWriter = RuntimeBinding.instantiateSoleImplementingClass(IBranchLayoutWriter.class);
-      try {
-        BranchLayout branchLayout = branchLayoutReader.read(macheteFilePath);
-        val newBranchLayout = branchLayout.map(entry -> {
-          String annotation = requestMap.get(entry.getName()).map(x -> "PR #" + x.getNumber()).getOrNull();
-          if (annotation == null) {
-            annotation = entry.getCustomAnnotation();
-          }
-          return new BranchLayoutEntry(entry.getName(), annotation, entry.getChildren());
-        });
-        indicator.checkCanceled();
-        indicator.setFraction(0.95);
-        branchLayoutWriter.write(macheteFilePath, newBranchLayout, false);
+    System.out.println("PRs: " + requestMap);
 
-      } catch (BranchLayoutException ignored) {}
-
-      project.getService(GraphTableProvider.class).getGraphTable().queueRepositoryUpdateAndModelRefresh();
-    }
-
+//    val macheteFilePath = Option.of(repository).map(GitVfsUtils::getMacheteFilePath).getOrNull();
+//    if (macheteFilePath != null) {
+//      val branchLayoutReader = ApplicationManager.getApplication().getService(IBranchLayoutReader.class);
+//      val branchLayoutWriter = ApplicationManager.getApplication().getService(IBranchLayoutWriter.class);
+//      try {
+//        BranchLayout branchLayout = branchLayoutReader.read(macheteFilePath);
+//        val newBranchLayout = branchLayout.map(entry -> {
+//          String annotation = requestMap.get(entry.getName()).map(x -> "PR #" + x.getNumber()).getOrNull();
+//          if (annotation == null) {
+//            annotation = entry.getCustomAnnotation();
+//          }
+//          return new BranchLayoutEntry(entry.getName(), annotation, entry.getChildren());
+//        });
+//        indicator.checkCanceled();
+//        indicator.setFraction(0.95);
+//        branchLayoutWriter.write(macheteFilePath, newBranchLayout, false);
+//
+//      } catch (BranchLayoutException ignored) {}
+//
+//      project.getService(BaseEnhancedGraphTable.class).queueRepositoryUpdateAndModelRefresh();
+//    }
   }
 
   @UIThreadUnsafe
@@ -173,14 +174,12 @@ public class GHPRLoaderImpl implements IGHPRLoader {
 
   @UIThreadUnsafe
   private static @Nullable GHRepositoryCoordinates getRepositoryCoordinates(Project project) {
-    val gitRepositoryProvider = project.getService(SelectedGitRepositoryProvider.class);
-
     val account = getGithubAccount();
     if (account == null) {
       return null;
     }
 
-    val selectedGitRepository = gitRepositoryProvider.getSelectedGitRepository();
+    val selectedGitRepository = project.getService(IGitRepositorySelectionProvider.class).getSelectedGitRepository();
     if (selectedGitRepository == null) {
       return null;
     }
