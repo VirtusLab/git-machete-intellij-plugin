@@ -1,6 +1,6 @@
 [versions]
 checker = "3.33.0"
-junitJupiter = "5.9.2"
+junitJupiter = "5.9.3"
 
 [libraries]
 # Libraries
@@ -13,10 +13,10 @@ commonsIO = "commons-io:commons-io:2.11.0"
 ideProbe-robotDriver = "org.virtuslab.ideprobe:robot-driver_2.13:0.51.0"
 jetbrains-annotations = "org.jetbrains:annotations:24.0.1"
 jgit = "org.eclipse.jgit:org.eclipse.jgit:6.4.0.202211300538-r"
-junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiter" }
+junit-api = "org.junit.jupiter:junit-jupiter-api:5.9.2"
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiter" }
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junitJupiter" }
-junit-platform-launcher = "org.junit.platform:junit-platform-launcher:1.9.2"
+junit-platform-launcher = "org.junit.platform:junit-platform-launcher:1.9.3"
 lombok = "org.projectlombok:lombok:1.18.26"
 mockito = "org.mockito:mockito-junit-jupiter:5.3.1"
 slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
