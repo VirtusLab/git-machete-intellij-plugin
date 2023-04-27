@@ -13,7 +13,7 @@ commonsIO = "commons-io:commons-io:2.11.0"
 ideProbe-robotDriver = "org.virtuslab.ideprobe:robot-driver_2.13:0.51.0"
 jetbrains-annotations = "org.jetbrains:annotations:24.0.1"
 jgit = "org.eclipse.jgit:org.eclipse.jgit:6.4.0.202211300538-r"
-junit-api = "org.junit.jupiter:junit-jupiter-api:5.9.2"
+junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiter" }
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiter" }
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junitJupiter" }
 junit-platform-launcher = "org.junit.platform:junit-platform-launcher:1.9.3"
