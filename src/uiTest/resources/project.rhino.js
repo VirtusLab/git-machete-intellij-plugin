@@ -66,11 +66,12 @@ function Project(underlyingProject) {
 
   const openTab = function (toolWindowId, tabName) {
     const toolWindowManager = ToolWindowManager.getInstance(underlyingProject);
-    let toolWindow;
+
+    let toolWindow, i = 0;
     do {
       toolWindow = toolWindowManager.getToolWindow(toolWindowId);
       sleep();
-    } while (toolWindow === null);
+    } while (toolWindow === null && ++i < 50);
 
     // The method is NOT meant to be executed on the UI thread,
     // so `runOrInvokeAndWait` really means `enqueue onto the UI thread and wait until complete`.
@@ -126,9 +127,11 @@ function Project(underlyingProject) {
     graphTable.queueRepositoryUpdateAndModelRefresh(/* doOnUIThreadWhenReady */ () => {
       refreshDone = true;
     });
+
+    let i = 0;
     do {
       sleep();
-    } while (!refreshDone);
+    } while (!refreshDone && ++i < 50);
 
     return graphTable.getModel();
   };
@@ -368,8 +371,8 @@ function Project(underlyingProject) {
     };
 
     // The action is invoked asynchronously, let's first make sure the button has already appeared.
-    let button = getButton();
-    while (button === null) {
+    let button = getButton(), i = 0;
+    while (button === null && i++ < 50) {
       clickMouseInGraphTable();
       button = getButton();
     }
@@ -409,8 +412,8 @@ function Project(underlyingProject) {
       return result.length === 1 ? result[0] : null;
     }
     // The action is invoked asynchronously, let's first make sure the component has already appeared.
-    let component = searchForComponent();
-    while (component === null) {
+    let component = searchForComponent(), i = 0;
+    while (component === null && i++ < 100) {
       clickMouseInGraphTable();
       component = searchForComponent();
     }

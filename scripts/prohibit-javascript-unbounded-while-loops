@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail -u
+
+self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
+source "$self_dir"/utils.sh
+
+if git grep -En -e 'while \(' --and --not -e ' && .* <' -- '*.js'; then
+  echo
+  error 'Do not use unbounded `while` loops in JavaScript code of UI test.'
+  error 'If a loop is stuck, then CircleCI will eventually kill the step:'
+  error '  * in ~10 minutes if there is no output: https://support.circleci.com/hc/en-us/articles/360045268074-Build-Fails-with-Too-long-with-no-output-exceeded-10m0s-context-deadline-exceeded-'
+  error '  * in ~1 hour (of total build time) if there is some output: https://support.circleci.com/hc/en-us/articles/4410707277083-Context-deadline-exceeded-after-1-hour-Build-timed-out-Free-tier-only-'
+  error 'and the artifacts that allow debugging UI tests (logs, screenshots) will NOT be saved.'
+  die   'Add (&&) a condition to define the maximum number of iterations (preferably in the order of tens).'
+fi

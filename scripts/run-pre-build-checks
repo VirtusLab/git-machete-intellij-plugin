@@ -32,12 +32,13 @@ _ enforce-settings-gradle-match-directories
 _ enforce-shell-scripts-pass-shellcheck
 _ enforce-version-bump
 
-# This one is needed as a pull request check. So, it should not run as a git pre-commit hook.
+# This one is needed as a pull request check. So, it should NOT run within a git pre-commit hook.
 _ prohibit-direct-merges-to-master --skip-in-pre-commit-hook
 _ prohibit-java-class-name-hardcode-in-strings
 _ prohibit-java-code-commented-out
 _ prohibit-java-lines-split-needlessly
 _ prohibit-java-unused-custom-log
+_ prohibit-javascript-unbounded-while-loops
 _ prohibit-kotlin-undefined-property-keys
 _ prohibit-kotlin-unsafe-cast
 _ prohibit-non-ascii-characters
