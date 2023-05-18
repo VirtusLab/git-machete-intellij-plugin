@@ -12,5 +12,5 @@ if git grep -En -e 'while \(' --and --not -e ' && .* <' -- '*.js'; then
   error '  * in ~10 minutes if there is no output: https://support.circleci.com/hc/en-us/articles/360045268074-Build-Fails-with-Too-long-with-no-output-exceeded-10m0s-context-deadline-exceeded-'
   error '  * in ~1 hour (of total build time) if there is some output: https://support.circleci.com/hc/en-us/articles/4410707277083-Context-deadline-exceeded-after-1-hour-Build-timed-out-Free-tier-only-'
   error 'and the artifacts that allow debugging UI tests (logs, screenshots) will NOT be saved.'
-  die   'Add (&&) a condition to define the maximum number of iterations (preferably in the order of tens).'
+  die   'Add (&&) a condition to define the maximum number of iterations (preferably in the order of tens). Do not forget to check if the primary condition is true after the loop!'
 fi

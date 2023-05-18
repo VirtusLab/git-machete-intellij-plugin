@@ -1,3 +1,4 @@
+importClass(java.lang.IllegalStateException);
 importClass(java.lang.System);
 importClass(java.lang.Thread);
 importClass(java.util.Arrays);
@@ -72,6 +73,9 @@ function Project(underlyingProject) {
       toolWindow = toolWindowManager.getToolWindow(toolWindowId);
       sleep();
     } while (toolWindow === null && ++i < 50);
+    if (toolWindow === null) {
+      throw new IlegalStateException("Waiting for condition timed out");
+    }
 
     // The method is NOT meant to be executed on the UI thread,
     // so `runOrInvokeAndWait` really means `enqueue onto the UI thread and wait until complete`.
@@ -132,6 +136,9 @@ function Project(underlyingProject) {
     do {
       sleep();
     } while (!refreshDone && ++i < 50);
+    if (!refreshDone) {
+      throw new IlegalStateException("Waiting for condition timed out");
+    }
 
     return graphTable.getModel();
   };
@@ -376,6 +383,9 @@ function Project(underlyingProject) {
       clickMouseInGraphTable();
       button = getButton();
     }
+    if (button === null) {
+      throw new IllegalStateException("Waiting for condition timed out");
+    }
     myClick(button, MouseButton.LEFT_BUTTON);
   };
 
@@ -416,6 +426,9 @@ function Project(underlyingProject) {
     while (component === null && i++ < 100) {
       clickMouseInGraphTable();
       component = searchForComponent();
+    }
+    if (component === null) {
+      throw new IllegalStateException("Waiting for condition timed out");
     }
     return component;
   };
