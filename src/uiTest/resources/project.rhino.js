@@ -1,3 +1,4 @@
+importClass(java.lang.Class);
 importClass(java.lang.IllegalStateException);
 importClass(java.lang.System);
 importClass(java.lang.Thread);
@@ -410,10 +411,12 @@ function Project(underlyingProject) {
     );
   };
 
+  /** Note that we're checking for the components that are exactly of the provided class, or of any subclass */
   const getComponentByClassAndPredicate = function (className, predicate) {
     const searchForComponent = function () {
+      const clazz = Class.forName(className);
       const result = robot.finder().findAll(component =>
-        className.equals(component.getClass().getName()) && predicate(component)
+        clazz.isInstance(component) && predicate(component)
       ).toArray();
       // TODO (#1079): in `squashBranch` UI test, the second squash seems to never execute...
       //  is there a problem with a different "OK" button getting clicked?
