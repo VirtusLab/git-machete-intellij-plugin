@@ -12,7 +12,7 @@ pluginPackages-jetbrains-intellij = "org.jetbrains.intellij.plugins:gradle-intel
 #      "If a plugin supports multiple platform versions, it must (...) target the lowest bundled stdlib version"
 #      which is different in our case (as this is the Kotlin version bundled into IntelliJ 2022.1).
 pluginPackages-jetbrains-kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.21"
-pluginPackages-spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.18.0"
+pluginPackages-spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.19.0"
 
 [plugins]
 taskTree = "com.dorongold.task-tree:2.1.1"

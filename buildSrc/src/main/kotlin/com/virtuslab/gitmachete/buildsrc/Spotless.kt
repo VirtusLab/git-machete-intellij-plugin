@@ -22,6 +22,7 @@ fun Project.configureSpotless() {
     }
 
     val ktlintEditorConfig = mapOf(
+      "ktlint_standard_comment-wrapping" to "disabled",
       "ktlint_standard_no-wildcard-imports" to "disabled",
       "ktlint_standard_filename" to "disabled",
       "indent_size" to 2,
