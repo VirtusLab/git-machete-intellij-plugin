@@ -138,7 +138,7 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
 
     val dialog = new GitNewCommitMessageActionDialog(
         /* project */ project,
-        /* message */ vcsCommitMetadataAndMessage.message,
+        /* message */ vcsCommitMetadataAndMessage.message.stripTrailing() + NL,
         /* title */ getNonHtmlString("action.GitMachete.BaseSquashAction.dialog.title"),
         /* dialogLabel */ getNonHtmlString("action.GitMachete.BaseSquashAction.dialog.label"));
 
