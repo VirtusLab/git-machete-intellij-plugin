@@ -1,5 +1,7 @@
 # Changelog
 
+## v4.0.1
+
 ## v4.0.0
 - Dropped support for IntelliJ 2022.1.
   Note that the versions of this plugin published so far will remain available for download in IntelliJ 2022.1 indefinitely.
