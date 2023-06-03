@@ -5,6 +5,8 @@ import static com.virtuslab.gitmachete.frontend.actions.dialogs.TraverseInfoComp
 import static com.virtuslab.gitmachete.frontend.actions.traverse.CheckoutAndExecute.checkoutAndExecuteOnUIThread;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
+import javax.swing.JComponent;
+
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
@@ -119,13 +121,13 @@ public class TraverseSyncToRemote {
   @ContinuesInBackground
   @UIEffect
   private void handleUntracked(IManagedBranchSnapshot gitManagedBranch, GitLocalBranch localBranch) {
+    JComponent traverseInfoComponent = pushInfo(
+        getString("action.GitMachete.BaseTraverseAction.dialog.push-approval.untracked.text.HTML")
+            .fmt(gitManagedBranch.getName()));
     Runnable doInUIThreadWhenReady = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
-    new GitPushDialog(project,
-        gitRepository, GitPushSource.create(localBranch), /* isForcePushRequired */ false,
-        pushInfo(
-            getString("action.GitMachete.BaseTraverseAction.dialog.push-approval.untracked.text.HTML")
-                .fmt(gitManagedBranch.getName())),
-        doInUIThreadWhenReady).show();
+    String titlePrefix = getString("string.GitMachete.GitPushDialog.title-prefix");
+    new GitPushDialog(project, gitRepository, GitPushSource.create(localBranch), /* isForcePushRequired */ false,
+        traverseInfoComponent, doInUIThreadWhenReady, titlePrefix).show();
   }
 
   @ContinuesInBackground
@@ -133,11 +135,13 @@ public class TraverseSyncToRemote {
   private void handleAheadOfRemote(IManagedBranchSnapshot gitMacheteBranch, GitLocalBranch localBranch) {
     val remoteTrackingBranch = gitMacheteBranch.getRemoteTrackingBranch();
     assert remoteTrackingBranch != null : "remoteTrackingBranch is null";
+    JComponent traverseInfoComponent = pushInfo(
+        getString("action.GitMachete.BaseTraverseAction.dialog.push-approval.ahead.text.HTML")
+            .fmt(gitMacheteBranch.getName(), remoteTrackingBranch.getName()));
     Runnable doInUIThreadWhenReady = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
+    String titlePrefix = getString("string.GitMachete.GitPushDialog.title-prefix");
     new GitPushDialog(project, gitRepository, GitPushSource.create(localBranch), /* isForcePushRequired */ false,
-        pushInfo(getString("action.GitMachete.BaseTraverseAction.dialog.push-approval.ahead.text.HTML")
-            .fmt(gitMacheteBranch.getName(), remoteTrackingBranch.getName())),
-        doInUIThreadWhenReady).show();
+        traverseInfoComponent, doInUIThreadWhenReady, titlePrefix).show();
   }
 
   @ContinuesInBackground
@@ -146,11 +150,12 @@ public class TraverseSyncToRemote {
     val remoteTrackingBranch = gitMacheteBranch.getRemoteTrackingBranch();
     assert remoteTrackingBranch != null : "remoteTrackingBranch is null";
     Runnable doInUIThreadWhenReady = () -> graphTable.queueRepositoryUpdateAndModelRefresh(traverseNextEntry);
+    String titlePrefix = getString("string.GitMachete.GitPushDialog.title-prefix");
+    JComponent traverseInfoComponent = pushInfo(
+        getString("action.GitMachete.BaseTraverseAction.dialog.force-push-approval.text.HTML")
+            .fmt(gitMacheteBranch.getName(), remoteTrackingBranch.getName()));
     new GitPushDialog(project, gitRepository, GitPushSource.create(localBranch), /* isForcePushRequired */ true,
-        pushInfo(
-            getString("action.GitMachete.BaseTraverseAction.dialog.force-push-approval.text.HTML")
-                .fmt(gitMacheteBranch.getName(), remoteTrackingBranch.getName())),
-        doInUIThreadWhenReady).show();
+        traverseInfoComponent, doInUIThreadWhenReady, titlePrefix).show();
   }
 
   @ContinuesInBackground

@@ -27,9 +27,6 @@ public final class GitPushDialog extends VcsPushDialog {
   private final boolean isForcePushRequired;
   private final @Nullable JComponent traverseInfoComponent;
   private final @UI Runnable doInUIThreadWhenReady;
-  private final Action pushAction;
-  private final Action pushActionAndQuit;
-  private final Action skipAction;
 
   @UIEffect
   public GitPushDialog(
@@ -37,7 +34,8 @@ public final class GitPushDialog extends VcsPushDialog {
       Repository repository,
       PushSource pushSource,
       boolean isForcePushRequired) {
-    this(project, repository, pushSource, isForcePushRequired, /* traverseInfoComponent */ null, () -> {});
+    this(project, repository, pushSource, isForcePushRequired,
+        /* traverseInfoComponent */ null, /* doInUIThreadWhenReady */ () -> {}, /* titlePrefix */ "");
   }
 
   @UIEffect
@@ -47,23 +45,21 @@ public final class GitPushDialog extends VcsPushDialog {
       PushSource pushSource,
       boolean isForcePushRequired,
       @Nullable JComponent traverseInfoComponent,
-      @UI Runnable doInUIThreadWhenReady) {
+      @UI Runnable doInUIThreadWhenReady,
+      String titlePrefix) {
     // Presented dialog shows commits for branches belonging to allRepositories, selectedRepositories and currentRepo.
     // The second and the third one have a higher priority of loading its commits.
     // From our perspective, we always have a single (pre-selected) repository, so we do not care about the priority.
     super(project, /* allRepositories */ java.util.List.of(repository),
         /* selectedRepositories */ java.util.List.of(repository), /* currentRepo */ null, pushSource);
     this.isForcePushRequired = isForcePushRequired;
-    this.doInUIThreadWhenReady = doInUIThreadWhenReady;
-    this.pushAction = new PushSwingAction();
-    this.pushActionAndQuit = new PushAndQuitSwingAction();
-    this.skipAction = new SkipSwingAction();
     this.traverseInfoComponent = traverseInfoComponent;
+    this.doInUIThreadWhenReady = doInUIThreadWhenReady;
 
     // Note: since the class is final, `this` is already @Initialized at this point.
 
     init();
-    setTitle("Git Machete Traverse: " + this.getTitle());
+    setTitle(titlePrefix + " " + this.getTitle());
   }
 
   @Override
@@ -85,9 +81,10 @@ public final class GitPushDialog extends VcsPushDialog {
   @UIEffect
   protected Action[] createActions() {
     Action cancelAction = getCancelAction();
+    Action pushAction = new PushSwingAction();
     if (traverseInfoComponent != null) {
       cancelAction.putValue(Action.NAME, getNonHtmlString("action.GitMachete.BaseTraverseAction.dialog.quit"));
-      return new Action[]{cancelAction, skipAction, pushAction, pushActionAndQuit, getHelpAction()};
+      return new Action[]{cancelAction, new SkipSwingAction(), pushAction, new PushAndQuitSwingAction(), getHelpAction()};
     } else {
       return new Action[]{pushAction, cancelAction, getHelpAction()};
     }
@@ -95,7 +92,7 @@ public final class GitPushDialog extends VcsPushDialog {
 
   @Override
   protected Action getOKAction() {
-    return pushAction;
+    return new PushSwingAction();
   }
 
   @UIEffect
