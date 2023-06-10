@@ -8,7 +8,6 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.provideDelegate
 import org.jsoup.Jsoup
-import java.net.URL
 
 open class UpdateIntellijVersions : DefaultTask() {
 
@@ -22,9 +21,9 @@ open class UpdateIntellijVersions : DefaultTask() {
 
   private fun getLinksFromUrl(repositoryUrl: String): List<String> {
     val selector = "a[href^=${repositoryUrl}com/jetbrains/intellij/idea/ideaIC/][href$=.pom]"
-    val rawHtml = URL(repositoryUrl).openStream().readAllBytes().decodeToString()
-    // Do not use Jsoup.connect(repositoryUrl) - since mid-2023, jetbrains.com seems to serve only part of the site to this client.
-    val result = Jsoup.parse(rawHtml).select(selector).map { it.attr("href") }
+    // `maxBodySize(0)`, i.e. no limit on body size, is needed
+    // as JSoup would only take the first 1MB of the document by default
+    val result = Jsoup.connect(repositoryUrl).maxBodySize(0).get().select(selector).map { it.attr("href") }
     if (result.isEmpty()) {
       throw RuntimeException(
         "No links matching regex '$selector' have been found under $repositoryUrl. " +
