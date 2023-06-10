@@ -8,21 +8,31 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.provideDelegate
 import org.jsoup.Jsoup
+import java.net.URL
 
 open class UpdateIntellijVersions : DefaultTask() {
 
-  private val intellijReleasesContents: List<String> by lazy {
+  private val linksToIntellijReleases: List<String> by lazy {
     getLinksFromUrl("https://www.jetbrains.com/intellij-repository/releases/")
   }
 
-  private val intellijSnapshotsContents: List<String> by lazy {
+  private val linksToIntellijSnapshots: List<String> by lazy {
     getLinksFromUrl("https://www.jetbrains.com/intellij-repository/snapshots/")
   }
 
   private fun getLinksFromUrl(repositoryUrl: String): List<String> {
-    return Jsoup.connect(repositoryUrl).get()
-      .select("a[href^=${repositoryUrl}com/jetbrains/intellij/idea/ideaIC/][href$=.pom]")
-      .map { it.attr("href") }
+    val selector = "a[href^=${repositoryUrl}com/jetbrains/intellij/idea/ideaIC/][href$=.pom]"
+    val rawHtml = URL(repositoryUrl).openStream().readAllBytes().decodeToString()
+    // Do not use Jsoup.connect(repositoryUrl) - since mid-2023, jetbrains.com seems to serve only part of the site to this client.
+    val result = Jsoup.parse(rawHtml).select(selector).map { it.attr("href") }
+    if (result.isEmpty()) {
+      throw RuntimeException(
+        "No links matching regex '$selector' have been found under $repositoryUrl. " +
+          "This indicates that either the server doesn't expose the entire site contents to this programmatic HTTP client, " +
+          "or that HTML structure of the site changed.",
+      )
+    }
+    return result
   }
 
   private fun findFirstMatchingVersionNewerThan(repoLinks: List<String>, regex: Regex, thresholdVersion: String): String? {
@@ -42,7 +52,7 @@ open class UpdateIntellijVersions : DefaultTask() {
 
   private fun findReleaseNewerThan(version: String): String? {
     return findFirstMatchingVersionNewerThan(
-      intellijReleasesContents,
+      linksToIntellijReleases,
       Regex("""(?<=ideaIC-)(\d+\.)+\d+(?=.pom)"""),
       version,
     )
@@ -52,7 +62,7 @@ open class UpdateIntellijVersions : DefaultTask() {
     val major = versionToMajorVersion(versionNumber)
 
     return findFirstMatchingVersionNewerThan(
-      intellijReleasesContents,
+      linksToIntellijReleases,
       Regex("""(?<=ideaIC-)$major(\.\d+)?(?=.pom)"""),
       major,
     ) ?: versionNumber
@@ -60,7 +70,7 @@ open class UpdateIntellijVersions : DefaultTask() {
 
   private fun findEapWithBuildNumberHigherThan(buildNumber: String): String? {
     return findFirstMatchingVersionNewerThan(
-      intellijSnapshotsContents,
+      linksToIntellijSnapshots,
       Regex("""(?<=ideaIC-)\d+\.\d+\.\d+(?=-EAP-SNAPSHOT\.pom)"""),
       buildNumber,
     )
@@ -74,7 +84,7 @@ open class UpdateIntellijVersions : DefaultTask() {
     val latestMinorsOfOldSupportedMajors = originalVersions.latestMinorsOfOldSupportedMajors.map { findLatestMinorOfVersion(it) }
 
     if (latestMinorsOfOldSupportedMajors != originalVersions.latestMinorsOfOldSupportedMajors) {
-      project.logger.lifecycle("latestMinorsOfOldSupportedMajors are updated to $latestMinorsOfOldSupportedMajors")
+      logger.lifecycle("latestMinorsOfOldSupportedMajors have been updated to $latestMinorsOfOldSupportedMajors")
       updatedVersions = updatedVersions.copy(latestMinorsOfOldSupportedMajors = latestMinorsOfOldSupportedMajors)
     }
 
@@ -82,12 +92,15 @@ open class UpdateIntellijVersions : DefaultTask() {
     val newerStable = findReleaseNewerThan(latestStable)
 
     if (newerStable != null) {
-      project.logger.lifecycle("latestStable is updated to $newerStable")
+      logger.lifecycle("latestStable has been updated to $newerStable")
       updatedVersions = updatedVersions.copy(latestStable = newerStable)
 
       if (versionToMajorVersion(latestStable) != versionToMajorVersion(newerStable)) {
+        val newLatestMinors = latestMinorsOfOldSupportedMajors.plus(findLatestMinorOfVersion(latestStable))
+        logger.lifecycle("latestMinorsOfOldSupportedMajors have been updated to $newLatestMinors")
+        logger.lifecycle("eapOfLatestSupportedMajor has been cleared")
         updatedVersions = updatedVersions.copy(
-          latestMinorsOfOldSupportedMajors = latestMinorsOfOldSupportedMajors.plus(findLatestMinorOfVersion(latestStable)),
+          latestMinorsOfOldSupportedMajors = newLatestMinors,
           eapOfLatestSupportedMajor = null,
         )
       }
@@ -99,7 +112,7 @@ open class UpdateIntellijVersions : DefaultTask() {
     val newerEapBuildNumber = findEapWithBuildNumberHigherThan(buildNumberThreshold)
 
     if (newerEapBuildNumber != null) {
-      project.logger.lifecycle("eapOfLatestSupportedMajor is updated to $newerEapBuildNumber")
+      logger.lifecycle("eapOfLatestSupportedMajor has been updated to $newerEapBuildNumber")
       updatedVersions = updatedVersions.copy(eapOfLatestSupportedMajor = "$newerEapBuildNumber-EAP-SNAPSHOT")
     }
 

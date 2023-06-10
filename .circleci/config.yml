@@ -66,12 +66,12 @@ jobs:
           keys:
             # First, try finding a cache entry with the same set of libraries
             # that also comes from the same branch (so as to make the best use of Gradle compilation cache).
-            - gradle-deps-v6-{{ checksum "gradle/libs.versions.toml" }}-{{ .Branch }}
+            - gradle-deps-v7-{{ checksum "gradle/libs.versions.toml" }}-{{ .Branch }}
             # If the above key is not found, try finding a cache entry with the same set of libraries
             # coming from another branch (Gradle compilation cache might then be less useful).
-            - gradle-deps-v6-{{ checksum "gradle/libs.versions.toml" }}-
+            - gradle-deps-v7-{{ checksum "gradle/libs.versions.toml" }}-
             # As a last resort, take any available cache entry.
-            - gradle-deps-v6-
+            - gradle-deps-v7-
       - run:
           name: Start Gradle daemon
           command: ./gradlew
@@ -199,9 +199,10 @@ jobs:
                   du -h -d1 ~/.gradle/caches/modules-2/files-2.1/ | sort -h
                   rm -rf ~/.gradle/caches/modules-2/files-2.1/com.jetbrains/
                   rm -rf ~/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/
+                  du -h -d2 ~/.gradle/ | sort -h
             - save_cache:
                 paths: [ ~/.gradle/ ]
-                key: gradle-deps-v6-{{ checksum "gradle/libs.versions.toml" }}-{{ .Branch }}
+                key: gradle-deps-v7-{{ checksum "gradle/libs.versions.toml" }}-{{ .Branch }}
 
       - when:
           condition:
