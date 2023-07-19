@@ -37,5 +37,5 @@ vavr = "io.vavr:vavr:0.10.4"
 [plugins]
 jetbrains-grammarkit = "org.jetbrains.grammarkit:2022.3.1"
 taskTree = "com.dorongold.task-tree:2.1.1"
-versionCatalogUpdate = "nl.littlerobots.version-catalog-update:0.8.0"
+versionCatalogUpdate = "nl.littlerobots.version-catalog-update:0.8.1"
 versionsFilter = "se.ascp.gradle.gradle-versions-filter:0.1.16"
