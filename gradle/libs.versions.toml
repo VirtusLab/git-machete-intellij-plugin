@@ -1,6 +1,5 @@
 [versions]
-# @pin until Checker gets fixed (OOM in CI on 3.35.0)
-checker = "3.34.0"
+checker = "3.37.0"
 junitJupiter = "5.10.0"
 
 [libraries]
