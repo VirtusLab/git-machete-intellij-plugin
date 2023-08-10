@@ -1,6 +1,5 @@
 package com.virtuslab.gitmachete.frontend.actions.common;
 
-import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.Set;
@@ -10,12 +9,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.checkerframework.checker.tainting.qual.Untainted;
 
-@Service
 @SuppressWarnings("regexp") // to allow for `synchronized`
 public final class SideEffectingActionTrackingService {
 
   // Let's compare action ids by reference, in case there are multiple actions with the same name going on.
-  // We don't want that finishing one of this actions is marked as if all of them completed.
+  // We don't want that finishing one of these actions gives an impression as if all of them completed.
   @RequiredArgsConstructor
   static class SideEffectiveActionId {
     @Getter

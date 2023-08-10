@@ -38,6 +38,12 @@ public abstract class BaseProjectDependentAction extends DumbAwareAction impleme
 
   protected abstract boolean isSideEffecting();
 
+  // Let's eagerly load the service *class* so that it does NOT end up loaded from an action `update` method.
+  // See https://github.com/VirtusLab/git-machete-intellij-plugin/issues/1692
+  // and https://github.com/VirtusLab/git-machete-intellij-plugin/issues/1694.
+  @SuppressWarnings("nullness:argument")
+  private static SideEffectingActionTrackingService DUMMY_SERVICE = new SideEffectingActionTrackingService(null);
+
   @SuppressWarnings("tainting:return")
   protected static @Nullable @Untainted String getOngoingSideEffectingActions(Project project) {
     val actions = project.getService(SideEffectingActionTrackingService.class).getOngoingActions();

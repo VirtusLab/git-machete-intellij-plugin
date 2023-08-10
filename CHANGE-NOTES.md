@@ -1,6 +1,7 @@
 # Changelog
 
 ## v4.0.1
+- Fixed: `com.intellij.diagnostic.PluginException: ... ms to call on EDT ...#update@...` errors due to loading of classes from action update
 
 ## v4.0.0
 - Dropped support for IntelliJ 2022.1.
