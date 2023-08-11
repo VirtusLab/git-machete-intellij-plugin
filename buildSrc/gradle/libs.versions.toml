@@ -1,5 +1,5 @@
 [libraries]
-jsoup = "org.jsoup:jsoup:1.16.1"
+jsoup = "org.jsoup:jsoup:1.15.4"
 junit-api = "org.junit.jupiter:junit-jupiter-api:5.10.0"
 # Plugin packages
 # This way of applying the plugins was needed for the build-related code in buildSrc/src/main/,
@@ -15,6 +15,6 @@ pluginPackages-jetbrains-kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6
 pluginPackages-spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.20.0"
 
 [plugins]
-taskTree = "com.dorongold.task-tree:2.1.1"
+taskTree = "com.dorongold.task-tree:2.1.0"
 versionCatalogUpdate = "nl.littlerobots.version-catalog-update:0.8.1"
 versionsFilter = "se.ascp.gradle.gradle-versions-filter:0.1.16"

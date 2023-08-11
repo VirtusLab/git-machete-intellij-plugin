@@ -1,5 +1,7 @@
 # Changelog
 
+## v4.0.2
+
 ## v4.0.1
 - Fixed: `com.intellij.diagnostic.PluginException: ... ms to call on EDT ...#update@...` errors due to loading of classes from action update
 
