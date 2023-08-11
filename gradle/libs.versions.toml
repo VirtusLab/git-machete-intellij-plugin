@@ -10,7 +10,7 @@ betterStrings = "com.antkorwin:better-strings:0.5"
 checker = { module = "org.checkerframework:checker", version.ref = "checker" }
 checker-qual = { module = "org.checkerframework:checker-qual", version.ref = "checker" }
 commonsIO = "commons-io:commons-io:2.13.0"
-ideProbe-robotDriver = "org.virtuslab.ideprobe:robot-driver_2.13:0.51.0"
+ideProbe-robotDriver = "org.virtuslab.ideprobe:robot-driver_2.13:0.52.0"
 jetbrains-annotations = "org.jetbrains:annotations:24.0.1"
 jgit = "org.eclipse.jgit:org.eclipse.jgit:6.6.0.202305301015-r"
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiter" }
