@@ -250,6 +250,7 @@ jobs:
       - reconfigure_origin_remote
 
       - run:
+          # These updates are unlikely to ever be supported by dependabot.
           name: Check for updates of IntelliJ versions
           command: ./gradlew updateIntellijVersions
       - create_pull_request_if_files_changed:
@@ -269,19 +270,7 @@ jobs:
           labels: intellij-support
 
       - run:
-          name: Check for updates of libraries & Gradle plugins
-          # language=sh
-          command: |
-            # TODO (littlerobots/version-catalog-update-plugin#100): JSON output format should be the default
-            ./gradlew -p .         versionCatalogUpdate -DoutputFormatter=json
-            ./gradlew -p buildSrc/ versionCatalogUpdate -DoutputFormatter=json
-      - create_pull_request_if_files_changed:
-          branch_name_prefix: update-deps
-          branch_name_command: md5sum gradle/libs.versions.toml | cut -d' ' -f 1
-          commit_message_prefix: Update dependencies
-          labels: build
-
-      - run:
+          # These updates don't seem to be supported by dependabot as of August 2023.
           name: Check for updates of Gradle
           # language=sh
           command: |

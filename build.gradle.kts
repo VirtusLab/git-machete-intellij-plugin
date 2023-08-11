@@ -1,6 +1,5 @@
 
 import com.virtuslab.gitmachete.buildsrc.*
-import nl.littlerobots.vcu.plugin.VersionCatalogUpdateExtension
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import java.util.Base64
 
@@ -9,8 +8,6 @@ plugins {
   `java-library`
   scala
   alias(libs.plugins.taskTree)
-  alias(libs.plugins.versionCatalogUpdate)
-  alias(libs.plugins.versionsFilter)
 }
 
 fun getFlagsForAddExports(vararg packages: String, module: String): List<String> {
@@ -43,13 +40,6 @@ val shouldRunAllCheckers: Boolean by extra(isCI || project.hasProperty("runAllCh
 tasks.register<UpdateIntellijVersions>("updateIntellijVersions")
 
 val configCheckerDirectory: String by extra(rootProject.file("config/checker").path)
-
-configure<VersionCatalogUpdateExtension> {
-  keep {
-    // For some reason, version-catalog-update plugin keeps removing certain plugins from the catalog
-    keepUnusedPlugins.set(true)
-  }
-}
 
 allprojects {
   repositories {

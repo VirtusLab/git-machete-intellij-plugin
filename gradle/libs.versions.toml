@@ -1,11 +1,11 @@
 [versions]
 checker = "3.37.0"
-junitJupiter = "5.9.0"
+junitJupiter = "5.10.0"
 
 [libraries]
 # Libraries
 apacheCommonsText = "org.apache.commons:commons-text:1.10.0"
-archunit = "com.tngtech.archunit:archunit:1.0.0"
+archunit = "com.tngtech.archunit:archunit:1.0.1"
 betterStrings = "com.antkorwin:better-strings:0.5"
 checker = { module = "org.checkerframework:checker", version.ref = "checker" }
 checker-qual = { module = "org.checkerframework:checker-qual", version.ref = "checker" }
@@ -21,12 +21,6 @@ lombok = "org.projectlombok:lombok:1.18.28"
 mockito = "org.mockito:mockito-junit-jupiter:5.4.0"
 slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
 slf4j-mock = "org.simplify4u:slf4j-mock:2.3.0"
-# @pin because slf4j-simple 2.0.0 isn't compatible with slf4j-api v1.x.y, which is still pulled in by our dependencies.
-#      See https://www.slf4j.org/faq.html#changesInVersion200.
-#      We could theoretically also override slf4j-api to v2.0.0 in tests that rely on slf4j-simple...
-#      but that's not worth it yet, esp. given that IntelliJ still runs on slf4j-api v1.x.y as of 2022.2.
-#      Also, see https://github.com/littlerobots/version-catalog-update-plugin/issues/79 for pinning just major version
-#      (1.*.*, rather than a specific version like 1.7.36).
 slf4j-simple = "org.slf4j:slf4j-simple:1.7.36"
 vavr = "io.vavr:vavr:0.10.4"
 
@@ -36,5 +30,3 @@ vavr = "io.vavr:vavr:0.10.4"
 [plugins]
 jetbrains-grammarkit = "org.jetbrains.grammarkit:2022.3.1"
 taskTree = "com.dorongold.task-tree:2.1.1"
-versionCatalogUpdate = "nl.littlerobots.version-catalog-update:0.8.1"
-versionsFilter = "se.ascp.gradle.gradle-versions-filter:0.1.16"

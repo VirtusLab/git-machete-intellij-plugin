@@ -10,6 +10,13 @@ updates:
     reviewers:
       - PawelLipski
     target-branch: develop
+    ignore:
+      # slf4j-simple 2.0.0 isn't compatible with slf4j-api v1.x.y, which is still pulled in by our dependencies.
+      # See https://www.slf4j.org/faq.html#changesInVersion200.
+      # We could theoretically also override slf4j-api to v2.0.0 in tests that rely on slf4j-simple...
+      # but that's not worth it yet, esp. given that IntelliJ still runs on slf4j-api v1.x.y as of 2022.2.
+      - dependency-name: "org.slf4j:slf4j-simple"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: "gradle"
     directory: "/buildSrc/"
     schedule:
@@ -17,3 +24,7 @@ updates:
     reviewers:
       - PawelLipski
     target-branch: develop
+    ignore:
+      # As per https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#kotlin-standard-library:
+      # "If a plugin supports multiple platform versions, it must (...) target the lowest bundled stdlib version".
+      - dependency-name: "org.jetbrains.kotlin:kotlin-gradle-plugin"

@@ -1,6 +1,5 @@
 import com.diffplug.gradle.spotless.SpotlessExtension
 import com.diffplug.gradle.spotless.SpotlessPlugin
-import nl.littlerobots.vcu.plugin.VersionCatalogUpdateExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 // Not worth using Gradle toolchains, they don't seem to work as expected for buildSrc (or are just hard to configure properly).
@@ -12,8 +11,6 @@ if (JavaVersion.current() != JavaVersion.VERSION_17) {
 plugins {
   `kotlin-dsl`
   alias(libs.plugins.taskTree)
-  alias(libs.plugins.versionCatalogUpdate)
-  alias(libs.plugins.versionsFilter)
 }
 
 // This is needed to use kotlin language version different from the default (1.4).
@@ -65,11 +62,6 @@ project.tasks.withType<KotlinCompile> {
   kotlinOptions {
     allWarningsAsErrors = true
   }
-}
-
-configure<VersionCatalogUpdateExtension> {
-  // To keep pluginPackages at the end
-  sortByKey.set(false)
 }
 
 apply<SpotlessPlugin>()
