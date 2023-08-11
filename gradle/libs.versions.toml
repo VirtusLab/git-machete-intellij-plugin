@@ -27,7 +27,7 @@ slf4j-mock = "org.simplify4u:slf4j-mock:2.3.0"
 #      but that's not worth it yet, esp. given that IntelliJ still runs on slf4j-api v1.x.y as of 2022.2.
 #      Also, see https://github.com/littlerobots/version-catalog-update-plugin/issues/79 for pinning just major version
 #      (1.*.*, rather than a specific version like 1.7.36).
-slf4j-simple = "org.slf4j:slf4j-simple:1.7.36"
+slf4j-simple = "org.slf4j:slf4j-simple:2.0.7"
 vavr = "io.vavr:vavr:0.10.4"
 
 # Note that certain plugins are also pulled in via buildSrc,
