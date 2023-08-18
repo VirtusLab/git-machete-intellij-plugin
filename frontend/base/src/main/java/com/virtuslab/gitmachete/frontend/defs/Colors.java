@@ -7,7 +7,7 @@ import com.intellij.ui.JBColor;
 public final class Colors {
   private Colors() {}
 
-  private static final Color RED_COLOR = Color.decode("#FF0000");
+  private static final Color RED_COLOR = Color.decode("#00FF00");
   private static final Color ORANGE_COLOR = Color.decode("#FDA909");
   private static final Color DARK_ORANGE_COLOR = Color.decode("#D68C00");
   private static final Color YELLOW_COLOR = Color.decode("#C4A000");
