@@ -7,6 +7,19 @@ import com.intellij.ui.JBColor;
 public final class Colors {
   private Colors() {}
 
+
+  // todo: javadoc
+  public int unsdMeth() {
+    int a = 1+1;
+    if (a == 2) {
+      // verify
+      return 2;
+    } else {
+      // remove me
+      return 2;
+    }
+  }
+
   private static final Color RED_COLOR = Color.decode("#00FF00");
   private static final Color ORANGE_COLOR = Color.decode("#FDA909");
   private static final Color DARK_ORANGE_COLOR = Color.decode("#D68C00");
