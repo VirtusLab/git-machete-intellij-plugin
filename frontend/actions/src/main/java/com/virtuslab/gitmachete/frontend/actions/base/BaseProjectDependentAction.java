@@ -21,6 +21,15 @@ import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 
 @ExtensionMethod({GitMacheteBundle.class})
 public abstract class BaseProjectDependentAction extends DumbAwareAction implements IWithLogger {
+
+  // Let's eagerly load these classes so that they do NOT end up loaded from an action `update` method.
+  // See issues #1692, #1694, #1713.
+  static {
+    @SuppressWarnings("nullness:argument") val dummyService = new SideEffectingActionTrackingService(null);
+
+    @SuppressWarnings("nullness:argument") val dummyId = new SideEffectingActionTrackingService.SideEffectiveActionId(null);
+  }
+
   @Override
   public final ActionUpdateThread getActionUpdateThread() {
     return ActionUpdateThread.EDT;
@@ -38,12 +47,6 @@ public abstract class BaseProjectDependentAction extends DumbAwareAction impleme
 
   protected abstract boolean isSideEffecting();
 
-  // Let's eagerly load the service *class* so that it does NOT end up loaded from an action `update` method.
-  // See https://github.com/VirtusLab/git-machete-intellij-plugin/issues/1692
-  // and https://github.com/VirtusLab/git-machete-intellij-plugin/issues/1694.
-  @SuppressWarnings("nullness:argument")
-  private static SideEffectingActionTrackingService DUMMY_SERVICE = new SideEffectingActionTrackingService(null);
-
   @SuppressWarnings("tainting:return")
   protected static @Nullable @Untainted String getOngoingSideEffectingActions(Project project) {
     val actions = project.getService(SideEffectingActionTrackingService.class).getOngoingActions();
@@ -53,7 +56,7 @@ public abstract class BaseProjectDependentAction extends DumbAwareAction impleme
     if (actions.size() == 1) {
       return actions.head();
     }
-    val sorted = actions.toList();
+    val sorted = actions.toList().sorted();
     return sorted.init().mkString(", ") + " and " + sorted.last();
   }
 

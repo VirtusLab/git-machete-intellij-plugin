@@ -3,7 +3,6 @@ package com.virtuslab.gitmachete.frontend.actions.common;
 import com.intellij.openapi.project.Project;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.Set;
-import io.vavr.collection.SortedSet;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -15,7 +14,8 @@ public final class SideEffectingActionTrackingService {
   // Let's compare action ids by reference, in case there are multiple actions with the same name going on.
   // We don't want that finishing one of these actions gives an impression as if all of them completed.
   @RequiredArgsConstructor
-  static class SideEffectiveActionId {
+  public static class SideEffectiveActionId {
+
     @Getter
     private final @Untainted String name;
 
@@ -35,8 +35,8 @@ public final class SideEffectingActionTrackingService {
     return new SideEffectingActionClosable(actionId);
   }
 
-  public synchronized SortedSet<String> getOngoingActions() {
-    return ongoingActions.map(a -> a.toString()).toSortedSet();
+  public synchronized Set<String> getOngoingActions() {
+    return ongoingActions.map(a -> a.toString());
   }
 
   @RequiredArgsConstructor
