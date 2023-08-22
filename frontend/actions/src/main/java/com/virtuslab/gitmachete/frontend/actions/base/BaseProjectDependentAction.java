@@ -2,14 +2,18 @@ package com.virtuslab.gitmachete.frontend.actions.base;
 
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 
+import java.nio.charset.StandardCharsets;
+
 import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import git4idea.repo.GitRepository;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
+import lombok.SneakyThrows;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
+import org.apache.commons.io.IOUtils;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.tainting.qual.Untainted;
@@ -22,12 +26,17 @@ import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 @ExtensionMethod({GitMacheteBundle.class})
 public abstract class BaseProjectDependentAction extends DumbAwareAction implements IWithLogger {
 
-  // Let's eagerly load these classes so that they do NOT end up loaded from an action `update` method.
-  // See issues #1692, #1694, #1713.
+  // Let's eagerly load certain classes so that they do NOT end up loaded from an action `update` method.
+  // See issues #1692, #1694, #1713, #1717.
   static {
-    @SuppressWarnings("nullness:argument") val dummyService = new SideEffectingActionTrackingService(null);
+    preloadClasses();
+  }
 
-    @SuppressWarnings("nullness:argument") val dummyId = new SideEffectingActionTrackingService.SideEffectiveActionId(null);
+  @SneakyThrows
+  private static void preloadClasses() {
+    for (String className : IOUtils.resourceToString("/classes-to-preload.txt", StandardCharsets.UTF_8).lines().toList()) {
+      Class.forName(className);
+    }
   }
 
   @Override

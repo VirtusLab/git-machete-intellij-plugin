@@ -1,0 +1,3 @@
+com.virtuslab.gitmachete.frontend.actions.common.SideEffectingActionTrackingService
+com.virtuslab.gitmachete.frontend.actions.common.SideEffectingActionTrackingService$SideEffectiveActionId
+com.virtuslab.gitmachete.frontend.ui.impl.gitrepositoryselection.GitRepositoryComboBox
