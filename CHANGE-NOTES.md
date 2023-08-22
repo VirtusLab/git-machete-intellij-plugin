@@ -1,5 +1,7 @@
 # Changelog
 
+## v4.0.3
+
 ## v4.0.2
 - Fixed: more `com.intellij.diagnostic.PluginException: ... ms to call on EDT ...#update@...` errors (reported by @itxshakil)
 
