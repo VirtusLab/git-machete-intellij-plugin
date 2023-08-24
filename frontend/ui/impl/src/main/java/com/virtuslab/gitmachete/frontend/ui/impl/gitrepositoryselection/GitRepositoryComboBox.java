@@ -5,6 +5,7 @@ import javax.swing.JComponent;
 
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.dvcs.repo.VcsRepositoryManager;
+import com.intellij.dvcs.repo.VcsRepositoryMappingListener;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.project.Project;
@@ -46,7 +47,7 @@ public final class GitRepositoryComboBox extends JComboBox<GitRepository>
 
     val messageBusConnection = project.getMessageBus().connect();
     messageBusConnection
-        .subscribe(VcsRepositoryManager.VCS_REPOSITORY_MAPPING_UPDATED, () -> {
+        .<VcsRepositoryMappingListener>subscribe(VcsRepositoryManager.VCS_REPOSITORY_MAPPING_UPDATED, () -> {
           LOG.debug("Git repository mappings changed");
           ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, () -> updateRepositories());
         });

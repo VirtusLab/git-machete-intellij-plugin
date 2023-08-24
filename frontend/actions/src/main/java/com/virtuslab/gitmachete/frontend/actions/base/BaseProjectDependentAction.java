@@ -22,17 +22,14 @@ import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 @ExtensionMethod({GitMacheteBundle.class})
 public abstract class BaseProjectDependentAction extends DumbAwareAction implements IWithLogger {
 
-  // Let's eagerly load these classes so that they do NOT end up loaded from an action `update` method.
-  // See issues #1692, #1694, #1713.
-  static {
-    @SuppressWarnings("nullness:argument") val dummyService = new SideEffectingActionTrackingService(null);
-
-    @SuppressWarnings("nullness:argument") val dummyId = new SideEffectingActionTrackingService.SideEffectiveActionId(null);
-  }
-
   @Override
   public final ActionUpdateThread getActionUpdateThread() {
-    return ActionUpdateThread.EDT;
+    // This is questionable, as update()/onUpdate() methods are supposed to be `@UIEffect` (able to touch UI directly).
+    // Still, using ActionUpdateThread.EDT here led to issues like #1692, #1694, #1713:
+    // update() taking more than 300ms on UI thread due to loading classes and other surprisingly heavyweight operations.
+    // Let's instead use BGT... somehow this doesn't lead to errors so far
+    // (but it might cause race conditions at some point (?)).
+    return ActionUpdateThread.BGT;
   }
 
   @UIEffect
