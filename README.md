@@ -5,7 +5,8 @@
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/14221-git-machete.svg)](https://plugins.jetbrains.com/plugin/14221-git-machete)
 ![License: MIT](https://img.shields.io/github/license/VirtusLab/git-machete-intellij-plugin)
 
-<img src="docs/logo.svg" style="width: 100%; display: block; margin-bottom: 10pt;"/>
+<img src="docs/logo.svg#gh-light-mode-only"     style="width: 100%; display: block; margin-bottom: 10pt;"/>
+<img src="docs/logo-dark.svg#gh-dark-mode-only" style="width: 100%; display: block; margin-bottom: 10pt;"/>
 
 💪 Git Machete plugin is a robust tool that **simplifies your git related workflow**.
 It's a great complement to the JetBrains products' built-in version control system.<br/>
