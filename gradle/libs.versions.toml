@@ -12,7 +12,7 @@ checker-qual = { module = "org.checkerframework:checker-qual", version.ref = "ch
 commonsIO = "commons-io:commons-io:2.13.0"
 ideProbe-robotDriver = "org.virtuslab.ideprobe:robot-driver_2.13:0.52.0"
 jetbrains-annotations = "org.jetbrains:annotations:24.0.1"
-jgit = "org.eclipse.jgit:org.eclipse.jgit:6.6.1.202309021850-r"
+jgit = "org.eclipse.jgit:org.eclipse.jgit:6.7.0.202309050840-r"
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiter" }
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiter" }
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junitJupiter" }
