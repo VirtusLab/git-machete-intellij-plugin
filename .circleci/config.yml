@@ -39,7 +39,7 @@ commands:
 
             branch_name="<<parameters.branch_name_prefix>>/$(<<parameters.branch_name_command>>)"
             if git ls-remote --exit-code --heads origin "$branch_name" &> /dev/null; then
-              git restore .  # so that the uncommitted changes don't propagate to the next step.
+              git restore .  # so that the uncommitted changes don't propagate to the next step
               echo "Branch $branch_name already exists in the remote, aborting"
               exit 0
             fi
@@ -276,6 +276,8 @@ jobs:
           # language=sh
           command: |
             latest_gradle_version=$(curl -fsSL https://services.gradle.org/versions/current | jq -r .version)
+            # TODO (#1744): bump Gradle wrapper (8.4 fails the configuration phase)
+            if [[ $latest_gradle_version == 8.4 ]]; then exit 0; fi
             ./gradlew wrapper --gradle-version=$latest_gradle_version  # this only updates gradle-wrapper.properties
             ./gradlew dependencies  # to actually pull the new wrapper script/jar
             echo "$latest_gradle_version" > /tmp/gradle-version
