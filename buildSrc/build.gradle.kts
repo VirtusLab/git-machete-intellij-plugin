@@ -85,4 +85,6 @@ configure<SpotlessExtension> {
 
 val isCI by extra(System.getenv("CI") == "true")
 
-if (!isCI) { tasks.withType<KotlinCompile> { dependsOn("spotlessKotlinApply", "spotlessKotlinGradleApply") } }
+if (!isCI) {
+  tasks.withType<KotlinCompile> { dependsOn("spotlessKotlinApply", "spotlessKotlinGradleApply") }
+}

@@ -41,8 +41,8 @@ fun Project.configureIntellijPlugin() {
   project.gradle.startParameter.excludedTaskNames.add("patchChangeLog")
 
   configure<ChangelogPluginExtension> {
-    val PROSPECTIVE_RELEASE_VERSION: String by extra
-    version.set("v$PROSPECTIVE_RELEASE_VERSION")
+    val prospectiveReleaseVersion: String by extra
+    version.set("v$prospectiveReleaseVersion")
     headerParserRegex.set(Regex("""v\d+\.\d+\.\d+"""))
     path.set("${project.projectDir}/CHANGE-NOTES.md")
   }

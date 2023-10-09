@@ -10,16 +10,16 @@ fun Project.configureVersionFromGit() {
   apply<GrgitPlugin>()
 
   apply(from = "version.gradle.kts")
-  val PROSPECTIVE_RELEASE_VERSION: String by extra
+  val prospectiveReleaseVersion: String by extra
 
   val ciBranch: String? by rootProject.extra
 
   if (ciBranch == "master") {
     // More precisely, "soon-to-happen-in-this-pipeline release version" in case of master builds
-    version = PROSPECTIVE_RELEASE_VERSION
+    version = prospectiveReleaseVersion
   } else if (!file(".git").exists()) {
     // To make sure it's safe for Docker image builds where .git folder is unavailable
-    version = "$PROSPECTIVE_RELEASE_VERSION-SNAPSHOT"
+    version = "$prospectiveReleaseVersion-SNAPSHOT"
   } else {
     val maybeSnapshot = if (ciBranch == "develop") "" else "-SNAPSHOT"
 
@@ -35,6 +35,6 @@ fun Project.configureVersionFromGit() {
     val maybeDirty = if (git.status().isClean) "" else "-dirty"
     git.close()
 
-    version = "$PROSPECTIVE_RELEASE_VERSION$maybeCommitCount$maybeSnapshot+git.$shortCommitHash$maybeDirty"
+    version = "$prospectiveReleaseVersion$maybeCommitCount$maybeSnapshot+git.$shortCommitHash$maybeDirty"
   }
 }
