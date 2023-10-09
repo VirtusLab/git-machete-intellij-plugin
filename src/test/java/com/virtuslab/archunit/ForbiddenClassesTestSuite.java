@@ -24,7 +24,7 @@ public class ForbiddenClassesTestSuite extends BaseArchUnitTestSuite {
   public void no_classes_should_depend_on_org_apache_commons_lang_NotImplementedException() {
     noClasses()
         .should()
-        .dependOnClassesThat().areAssignableTo(org.apache.commons.lang.NotImplementedException.class)
+        .dependOnClassesThat().areAssignableTo(org.apache.commons.lang3.NotImplementedException.class)
         .because("io.vavr.NotImplementedError should be used instead of apache-commons NotImplementedException")
         .check(productionClasses);
   }

@@ -20,7 +20,7 @@ import git4idea.repo.GitRepository;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.Nullable;

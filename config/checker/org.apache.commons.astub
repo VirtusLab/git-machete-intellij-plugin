@@ -1,7 +1,7 @@
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.nullness.qual.PolyNull;
 
-package org.apache.commons.lang.exception;
+package org.apache.commons.lang3.exception;
 
 class ExceptionUtils {
   static @Nullable String getRootCauseMessage(Throwable th);
