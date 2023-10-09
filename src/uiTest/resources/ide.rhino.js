@@ -2,7 +2,6 @@
 importClass(java.lang.System);
 importClass(java.util.Collections);
 
-importClass(com.intellij.diagnostic.DebugLogManager);
 importClass(com.intellij.ide.GeneralSettings);
 importClass(com.intellij.ide.impl.ProjectUtil);
 importClass(com.intellij.ide.plugins.PluginManagerCore);
@@ -14,19 +13,10 @@ importClass(com.intellij.openapi.progress.ProgressManager);
 
 // Do not run any of the methods on the UI thread.
 function Ide() {
-  this.configure = function (enableDebugLog) {
+  this.configure = function () {
     const settings = GeneralSettings.getInstance();
     settings.setConfirmExit(false);
     settings.setShowTipsOnStartup(false);
-
-    const logCategories = new LinkedList();
-    if (enableDebugLog) {
-      logCategories.add(new DebugLogManager.Category('com.virtuslab', DebugLogManager.DebugLogLevel.DEBUG))
-    }
-
-    // `applyCategories` is non-persistent (so the categories don't stick for the future IDE runs), unlike `saveCategories`.
-    const debugLogManager = DebugLogManager.getInstance();
-    debugLogManager.applyCategories(logCategories);
   };
 
   this.soleOpenedProject = function () {

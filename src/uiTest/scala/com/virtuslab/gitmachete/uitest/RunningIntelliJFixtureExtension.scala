@@ -55,7 +55,7 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
     object ide {
       def configure(): Unit = {
-        runJs("ide.configure(/* enableDebugLog */ false)", codebase = initialCodebase)
+        runJs("ide.configure()", codebase = initialCodebase)
       }
 
       def closeOpenedProjects(): Unit = {
