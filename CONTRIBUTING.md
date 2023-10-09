@@ -296,9 +296,9 @@ We follow [Semantic versioning](https://semver.org/) for the plugin releases:
 
 ### Sample sequence of versions between releases
 
-After a release e.g. `1.0.3`, subsequent PRs merged to `develop` might change `PROSPECTIVE_RELEASE_VERSION`
+After a release e.g. `1.0.3`, subsequent PRs merged to `develop` might change `prospectiveReleaseVersion`
 in [version.gradle.kts](version.gradle.kts) in the following way:
-1. `1.0.4` (bugfix PR)  &mdash; the first PR merged to develop after the release must bump `PROSPECTIVE_RELEASE_VERSION` since of course the prospective release won't be `1.0.3` anymore
+1. `1.0.4` (bugfix PR)  &mdash; the first PR merged to develop after the release must bump `prospectiveReleaseVersion` since of course the prospective release won't be `1.0.3` anymore
 1. `1.0.4` (bugfix PR)  &mdash; even if a new set of patch-level changes has been added on the PR, the released version is still going to be `1.0.4` (not `1.0.5`)
 1. `1.1.0` (feature PR) &mdash; since we've just added a new feature, the new release won't be a PATCH-level anymore, but MINOR-level one
 1. `1.1.0` (bugfix PR)  &mdash; even if a new feature has been added on the PR, the released version is still going to be `1.1.0` (not `1.2.0`)

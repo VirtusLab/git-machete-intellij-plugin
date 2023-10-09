@@ -96,7 +96,7 @@ public abstract class BaseHookExecutor {
       log().debug("Stdout of ${name} hook is '${strippedStdout}'");
       log().debug("Stderr of ${name} hook is '${strippedStderr}'");
     } catch (IOException | InterruptedException e) {
-      val message = "An error occurred while running ${name} hook (${hookFilePath})for ${argsToString}; aborting";
+      val message = "An error occurred while running ${name} hook (${hookFilePath}) for ${argsToString}; aborting";
       log().error(message, e);
       throw new GitMacheteException(message
           + (strippedStdout != null && !strippedStdout.isBlank() ? NL + "stdout:" + NL + strippedStdout : "")
