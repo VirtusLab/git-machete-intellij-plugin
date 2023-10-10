@@ -13,6 +13,7 @@ import org.gradle.kotlin.dsl.*
 import org.jetbrains.intellij.IntelliJPlugin
 import org.jetbrains.intellij.IntelliJPluginExtension
 import org.jetbrains.intellij.tasks.ClasspathIndexCleanupTask
+import org.jetbrains.intellij.tasks.InitializeIntelliJPluginTask
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
@@ -48,13 +49,18 @@ fun Project.addIntellijToCompileClasspath(withGit4Idea: Boolean) {
   tasksAfter.addAll(tasks)
   tasksAfter.removeAll(tasksBefore)
   // For the frontend subprojects we only use gradle-intellij-plugin to provide dependencies,
-  // but don't want the associated tasks to be available; they should only be available in the root project.
+  // but don't want most of the associated tasks to be available; they should only be available in the root project.
   tasksAfter.forEach { it.enabled = false }
-  // The only task (as of gradle-intellij-plugin v1.7.0, at least) that needs to be enabled
-  // in all IntelliJ-aware modules is `classpathIndexCleanup`, to avoid caching issues caused by `classpath.index` file
-  // showing up in build/classes/ and build/resources/ directories.
+  // This task needs to be enabled in all IntelliJ-aware modules to avoid caching issues
+  // caused by `classpath.index` file showing up in build/classes/ and build/resources/ directories.
   // See https://github.com/JetBrains/gradle-intellij-plugin/issues/1039 for details.
   tasks.withType<ClasspathIndexCleanupTask> { enabled = true }
+  // This task needs to be enabled in all IntelliJ-aware modules to populate
+  // `build/tmp/initializeIntelliJPlugin/coroutines-javaagent.jar` file which is then required by test tasks.
+  // See https://github.com/JetBrains/gradle-intellij-plugin/commit/a759cecfe7e68aa0360e25586cb2e2ed2f517b16
+  // -> Ctrl+F createCoroutinesJavaAgentFile
+  // and https://github.com/VirtusLab/git-machete-intellij-plugin/issues/1743.
+  tasks.withType<InitializeIntelliJPluginTask> { enabled = true }
 
   configure<CheckerFrameworkExtension> {
     // Technically, UI thread handling errors can happen outside of the (mostly frontend) modules that depend on IntelliJ,
