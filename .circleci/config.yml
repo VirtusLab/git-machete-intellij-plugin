@@ -267,7 +267,7 @@ jobs:
             tr '\n' ',' |
             sed 's/,$//' |
             sed 's/,/, /g'
-          labels: intellij-support
+          labels: "intellij range"
 
       - run:
           # These updates don't seem to be supported by dependabot as of August 2023,
