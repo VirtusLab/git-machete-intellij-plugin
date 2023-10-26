@@ -7,7 +7,6 @@ junit-api = "org.junit.jupiter:junit-jupiter-api:5.10.0"
 pluginPackages-checkerFramework = "org.checkerframework:checkerframework-gradle-plugin:0.6.30"
 pluginPackages-grgit = "org.ajoberstar.grgit:grgit-gradle:5.2.1"
 pluginPackages-jetbrains-changelog = "org.jetbrains.intellij.plugins:gradle-changelog-plugin:2.1.2"
-# TODO (#1743): bump gradle-intellij-plugin (1.16.0 failing at backend:impl:test)
 pluginPackages-jetbrains-intellij = "org.jetbrains.intellij.plugins:gradle-intellij-plugin:1.16.0"
 pluginPackages-jetbrains-kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.21"
 pluginPackages-spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.22.0"
