@@ -267,7 +267,7 @@ jobs:
             tr '\n' ',' |
             sed 's/,$//' |
             sed 's/,/, /g'
-          labels: intellij-support
+          labels: "intellij range"
 
       - run:
           # These updates don't seem to be supported by dependabot as of August 2023,
@@ -276,8 +276,6 @@ jobs:
           # language=sh
           command: |
             latest_gradle_version=$(curl -fsSL https://services.gradle.org/versions/current | jq -r .version)
-            # TODO (#1744): bump Gradle wrapper (8.4 fails the configuration phase)
-            if [[ $latest_gradle_version == 8.4 ]]; then exit 0; fi
             ./gradlew wrapper --gradle-version=$latest_gradle_version  # this only updates gradle-wrapper.properties
             ./gradlew dependencies  # to actually pull the new wrapper script/jar
             echo "$latest_gradle_version" > /tmp/gradle-version

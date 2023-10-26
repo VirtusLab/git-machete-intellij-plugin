@@ -311,7 +311,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         // (not all snapshots of all repositories!).
         // 2. The unmanaged branch notification works on the same snapshot as the one selected in Git Machete panel.
         // Hence, we must assure that the current branch changed belongs to the same repository as the given snapshot.
-        // TODO (#1542): A handling of all repositories (not only selected) is a subject to of improvement.
+        // TODO (#1542): Handling of all repositories (not only selected) is a subject to improvement.
         if (snapshot != null && snapshot.getMainGitDirectoryPath().equals(mainGitDirectory)) {
           val entry = snapshot.getBranchLayout().getEntryByName(repositoryCurrentBranchName);
           if (entry == null) {
