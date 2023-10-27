@@ -1,5 +1,7 @@
 # Changelog
 
+## v4.1.1
+
 ## v4.1.0
 - Added: support for IntelliJ 2023.3.
 
