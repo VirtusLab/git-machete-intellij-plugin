@@ -1,5 +1,5 @@
 [versions]
-checker = "3.39.0"
+checker = "3.40.0"
 junitJupiter = "5.10.0"
 
 [libraries]
