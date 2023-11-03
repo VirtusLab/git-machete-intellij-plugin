@@ -18,7 +18,7 @@ junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref 
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junitJupiter" }
 junit-platform-launcher = "org.junit.platform:junit-platform-launcher:1.10.0"
 lombok = "org.projectlombok:lombok:1.18.30"
-mockito = "org.mockito:mockito-junit-jupiter:5.6.0"
+mockito = "org.mockito:mockito-junit-jupiter:5.7.0"
 slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
 slf4j-mock = "org.simplify4u:slf4j-mock:2.3.0"
 slf4j-simple = "org.slf4j:slf4j-simple:1.7.36"
