@@ -60,7 +60,8 @@ public abstract class BaseProjectDependentAction extends DumbAwareAction impleme
   @Override
   @UIEffect
   public final void update(AnActionEvent anActionEvent) {
-    super.update(anActionEvent);
+    // Not calling `super.update()` as `com.intellij.openapi.actionSystem.AnAction.update`
+    // is empty and marked as `@ApiStatus.OverrideOnly`.
 
     isUpdateInProgressOnUIThread = true;
 
