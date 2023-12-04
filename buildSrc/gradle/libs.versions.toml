@@ -9,7 +9,7 @@ pluginPackages-grgit = "org.ajoberstar.grgit:grgit-gradle:5.2.1"
 pluginPackages-jetbrains-changelog = "org.jetbrains.intellij.plugins:gradle-changelog-plugin:2.1.2"
 pluginPackages-jetbrains-intellij = "org.jetbrains.intellij.plugins:gradle-intellij-plugin:1.16.0"
 pluginPackages-jetbrains-kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.21"
-pluginPackages-spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.23.2"
+pluginPackages-spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.23.3"
 
 [plugins]
 taskTree = "com.dorongold.task-tree:2.1.1"
