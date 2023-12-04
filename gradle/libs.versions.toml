@@ -5,7 +5,7 @@ junitJupiter = "5.10.1"
 [libraries]
 # Libraries
 apacheCommonsText = "org.apache.commons:commons-text:1.11.0"
-archunit = "com.tngtech.archunit:archunit:1.2.0"
+archunit = "com.tngtech.archunit:archunit:1.2.1"
 betterStrings = "com.antkorwin:better-strings:0.5"
 checker = { module = "org.checkerframework:checker", version.ref = "checker" }
 checker-qual = { module = "org.checkerframework:checker-qual", version.ref = "checker" }
