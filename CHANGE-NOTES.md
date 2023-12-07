@@ -1,6 +1,7 @@
 # Changelog
 
 ## v4.1.1
+- Fixed: visual regression since 2023.3: branches and commits were squeezed too tightly vertically
 
 ## v4.1.0
 - Added: support for IntelliJ 2023.3.

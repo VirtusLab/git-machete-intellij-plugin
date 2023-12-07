@@ -168,6 +168,9 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     subscribeToGitRepositoryFilesChanges();
     subscribeToSelectedGitRepositoryChange();
     subscribeToMacheteFileChange();
+
+    // This is necessary since 2023.3, see https://github.com/VirtusLab/git-machete-intellij-plugin/issues/1784
+    getRowHeight();
   }
 
   /**
