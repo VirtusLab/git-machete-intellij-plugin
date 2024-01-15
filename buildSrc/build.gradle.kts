@@ -67,9 +67,8 @@ project.tasks.withType<KotlinCompile> {
 apply<SpotlessPlugin>()
 configure<SpotlessExtension> {
   val ktlintEditorConfig = mapOf(
-    "ktlint_standard_no-wildcard-imports" to "disabled",
-    "ktlint_standard_filename" to "disabled",
     "indent_size" to 2,
+    "ktlint_standard_no-wildcard-imports" to "disabled",
   )
 
   kotlin {
