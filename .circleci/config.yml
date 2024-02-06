@@ -80,6 +80,16 @@ jobs:
           name: Check formatting
           command: ./gradlew spotlessCheck
       - run:
+          name: Publish org.jetbrains.grammarkit Gradle plugin snapshot locally
+          # language=sh
+          command: |
+            cd ..
+            git clone https://github.com/JetBrains/gradle-grammar-kit-plugin.git -b v2022.3.2.1
+            cd gradle-grammar-kit-plugin
+            sed -i 's/version = .*/version = 2022.3.2.1-1-SNAPSHOT/' gradle.properties
+            sed -i 's/val requiredLibs = listOf(/&"opentelemetry"/' src/main/kotlin/org/jetbrains/grammarkit/GrammarKitPlugin.kt
+            ./gradlew publishToMavenLocal
+      - run:
           name: Compile production code
           # Given the RAM limits on CI (8GB), max-workers=7 cause OOMs.
           # Having 5 or 6 workers doesn't seem to decrease compilation time significantly, as compared to just 4.
