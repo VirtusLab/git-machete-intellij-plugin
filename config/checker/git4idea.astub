@@ -50,3 +50,8 @@ class GitUntrackedFilesHelper {
   static void notifyUntrackedFilesOverwrittenBy(Project project, VirtualFile root, Collection<String> relativePaths,
                                                 @Untainted String operation, @Tainted @Nullable String description);
 }
+
+class LocalChangesWouldBeOverwrittenHelper {
+  static void showErrorNotification(Project project, @Nullable String displayId,
+                                    VirtualFile root, String operationName, Collection<String> relativeFilePaths);
+}
