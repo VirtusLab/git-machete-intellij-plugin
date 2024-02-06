@@ -538,14 +538,6 @@ class MutableCollectionComboBoxModel<T> {
   T getSelected();
 }
 
-class GuiUtils {
-  @SafeEffect
-  void invokeLaterIfNeeded(@UI Runnable runnable, ModalityState modalityState);
-
-  @SafeEffect
-  void invokeLaterIfNeeded(@UI Runnable runnable, ModalityState modalityState, Condition expired);
-}
-
 class TextFieldWithAutoCompletionListProvider<T> {
   @SafeEffect
   String getCompletionPrefix(CompletionParameters parameters);
