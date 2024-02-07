@@ -1,9 +1,18 @@
 import com.virtuslab.gitmachete.buildsrc.*
 import org.checkerframework.gradle.plugin.CheckerFrameworkExtension
 import org.jetbrains.grammarkit.tasks.*
+import org.jetbrains.intellij.tasks.SetupDependenciesTask
 
 plugins {
   alias(libs.plugins.jetbrains.grammarkit)
+}
+
+// TODO (JetBrains/gradle-grammar-kit-plugin#168): remove this workaround once a patched version (2024.1?) of grammarkit plugin is released
+tasks {
+  withType<GenerateParserTask> {
+    val setupDependenciesTask = findByPath(":setupDependencies") as SetupDependenciesTask
+    classpath(setupDependenciesTask.idea.map { idea -> idea.classes.resolve("lib/opentelemetry.jar") })
+  }
 }
 
 dependencies {
