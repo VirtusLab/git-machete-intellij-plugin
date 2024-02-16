@@ -54,6 +54,9 @@ public interface IGitCoreRepository {
   String deriveBisectedBranch() throws GitCoreException;
 
   @UIThreadUnsafe
+  boolean isAncestor(IGitCoreCommit presumedAncestor, IGitCoreCommit presumedDescendant) throws GitCoreException;
+
+  @UIThreadUnsafe
   boolean isAncestorOrEqual(IGitCoreCommit presumedAncestor, IGitCoreCommit presumedDescendant) throws GitCoreException;
 
   /** <i>Any</i> merge base, as in, in the rare case of criss-cross histories there might be <b>multiple merge bases</b>.

@@ -1,1 +1,1 @@
-git-machete version 3.17.0
+git-machete version 3.23.2

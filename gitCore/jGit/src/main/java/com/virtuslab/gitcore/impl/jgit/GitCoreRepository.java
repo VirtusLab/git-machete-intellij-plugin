@@ -543,6 +543,16 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
   @Override
   @UIThreadUnsafe
+  public boolean isAncestor(IGitCoreCommit presumedAncestor, IGitCoreCommit presumedDescendant) throws GitCoreException {
+    if (presumedAncestor.equals(presumedDescendant)) {
+      LOG.debug("presumedAncestor is equal to presumedDescendant");
+      return false;
+    }
+    return isAncestorOrEqual(presumedAncestor, presumedDescendant);
+  }
+
+  @Override
+  @UIThreadUnsafe
   public boolean isAncestorOrEqual(IGitCoreCommit presumedAncestor, IGitCoreCommit presumedDescendant) throws GitCoreException {
     LOG.debug(() -> "Entering: presumedAncestor = ${presumedAncestor.getHash().getHashString()}, " +
         "presumedDescendant = ${presumedDescendant.getHash().getHashString()}");

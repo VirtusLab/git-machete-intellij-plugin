@@ -316,6 +316,22 @@ public class CreateGitMacheteRepositoryAux extends Aux {
           return commonAncestor != null
               ? ForkPointCommitOfManagedBranch.fallbackToParent(commonAncestor)
               : parentAgnosticForkPoint;
+        } else {
+          var improvedForkPoint = parentAgnosticForkPoint;
+          for (val uniqueContainingBranch : parentAgnosticForkPoint.getUniqueBranchesContainingInReflog()) {
+            val containingBranchPointedCommit = gitCoreRepository.parseRevision(uniqueContainingBranch.getFullName());
+            if (containingBranchPointedCommit == null) {
+              continue;
+            }
+            val commonAncestor = gitCoreRepository.deriveAnyMergeBase(pointedCommit, containingBranchPointedCommit);
+            if (commonAncestor == null) {
+              continue;
+            }
+            if (gitCoreRepository.isAncestor(improvedForkPoint.getCoreCommit(), commonAncestor)) {
+              improvedForkPoint = ForkPointCommitOfManagedBranch.inferred(commonAncestor, List.of(uniqueContainingBranch));
+            }
+          }
+          return improvedForkPoint;
         }
       } else {
         val commonAncestor = gitCoreRepository.deriveAnyMergeBase(parentPointedCommit, pointedCommit);
