@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.backend.impl;
 
 import java.lang.ref.SoftReference;
 import java.nio.file.Path;
+import java.util.function.Supplier;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.serviceContainer.NonInjectable;
@@ -21,7 +22,7 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
 
-  private final IDependencyResolver dependencyResolver;
+  private final Supplier<IGitCoreRepositoryFactory> gitCoreRepositoryFactorySupplier;
 
   private static Map<Tuple2<Path, Path>, SoftReference<GitMacheteRepository>> gitMacheteRepositoryCache = HashMap.empty();
 
@@ -30,8 +31,8 @@ public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
   }
 
   @NonInjectable // so that the parameter-less constructor is used for IntelliJ Service instantiation instead
-  public GitMacheteRepositoryCache(IDependencyResolver dependencyResolver) {
-    this.dependencyResolver = dependencyResolver;
+  public GitMacheteRepositoryCache(Supplier<IGitCoreRepositoryFactory> gitCoreRepositoryFactorySupplier) {
+    this.gitCoreRepositoryFactorySupplier = gitCoreRepositoryFactorySupplier;
   }
 
   @Override
@@ -60,7 +61,7 @@ public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
   private IGitCoreRepository createGitCoreRepository(Path rootDirectoryPath, Path mainGitDirectoryPath,
       Path worktreeGitDirectoryPath) throws GitMacheteException {
     try {
-      val gitCoreRepositoryFactory = dependencyResolver.getGitCoreRepositoryFactory();
+      val gitCoreRepositoryFactory = gitCoreRepositoryFactorySupplier.get();
       return gitCoreRepositoryFactory.create(rootDirectoryPath, mainGitDirectoryPath, worktreeGitDirectoryPath);
     } catch (GitCoreException e) {
       throw new GitMacheteException("Can't create an ${IGitCoreRepository.class.getSimpleName()} instance " +

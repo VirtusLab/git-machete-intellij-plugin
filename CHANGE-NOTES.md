@@ -2,6 +2,7 @@
 
 ## v4.2.0
 - Added: support for IntelliJ 2024.1.
+- Fixed: corner cases in determining fork point for a branch.
 
 ## v4.1.1
 - Fixed: visual regression since 2023.3: branches and commits were squeezed too tightly vertically
