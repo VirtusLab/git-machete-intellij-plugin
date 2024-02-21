@@ -1,18 +1,9 @@
 import com.virtuslab.gitmachete.buildsrc.*
 import org.checkerframework.gradle.plugin.CheckerFrameworkExtension
 import org.jetbrains.grammarkit.tasks.*
-import org.jetbrains.intellij.tasks.SetupDependenciesTask
 
 plugins {
   alias(libs.plugins.jetbrains.grammarkit)
-}
-
-// TODO (JetBrains/gradle-grammar-kit-plugin#168): remove this workaround once a patched version (2024.1?) of grammarkit plugin is released
-tasks {
-  withType<GenerateParserTask> {
-    val setupDependenciesTask = findByPath(":setupDependencies") as SetupDependenciesTask
-    classpath(setupDependenciesTask.idea.map { idea -> idea.classes.resolve("lib/opentelemetry.jar") })
-  }
 }
 
 dependencies {
@@ -45,7 +36,7 @@ sourceSets["main"].java { srcDir(additionalSourceDirs) }
 val generateMacheteParser =
   tasks.withType<GenerateParserTask> {
     sourceFile.set(file("$grammarSourcesRoot/Machete.bnf"))
-    targetRoot.set(generatedParserJavaSourcesRoot)
+    targetRootOutputDir.set(file(generatedParserJavaSourcesRoot))
     pathToParser.set("/$grammarJavaPackagePath/MacheteGeneratedParser.java")
     pathToPsiRoot.set("/$grammarJavaPackagePath/")
     purgeOldFiles.set(false)
@@ -56,8 +47,7 @@ val generateMacheteLexer =
     dependsOn(generateMacheteParser)
 
     sourceFile.set(file("$grammarSourcesRoot/Machete.flex"))
-    targetDir.set("$generatedLexerJavaSourcesRoot/$grammarJavaPackagePath/")
-    targetClass.set("MacheteGeneratedLexer")
+    targetOutputDir.set(file("$generatedLexerJavaSourcesRoot/$grammarJavaPackagePath/"))
     purgeOldFiles.set(false)
   }
 
