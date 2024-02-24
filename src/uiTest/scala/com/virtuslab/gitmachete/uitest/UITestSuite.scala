@@ -287,10 +287,9 @@ class UITestSuite extends TestGitRepository(SETUP_WITH_SINGLE_REMOTE) {
     // squashNonCurrentBranch
     project.squashSelected("hotfix/add-trigger")
     project.acceptSquash()
+    Thread.sleep(1000) // to prevent #1079, mostly happening locally (rather on CI)
 
     managedBranchesAndCommits = project.refreshModelAndGetManagedBranchesAndCommits()
-    // TODO (#1079): figure out why once in ~100 test runs this squash does not take effect
-    //  (i.e. hotfix/add-trigger still has two unique commits)
     assertEquals(
       Seq(
         "develop",
