@@ -94,8 +94,7 @@ jobs:
       - when:
           condition:
             matches:
-#              pattern: "^(.*ide(-)?probe.*)$"
-              pattern: ".*/9009.*"
+              pattern: "^(.*ide(-)?probe.*)$"
               value: << pipeline.git.branch >>
           steps:
             - run:
@@ -119,7 +118,7 @@ jobs:
                   # hence `master` serves as a "logical develop" where all PRs are merged and wait to be included in a release.
                   # Of course, this repository/branch can be modified at will here in code during the development,
                   # to pull in snapshots of in-development branches from forks.
-                  git clone https://github.com/PawelLipski/ide-probe.git -b fix/user-plugin-dir
+                  git clone https://github.com/VirtusLab/ide-probe.git -b master
                   cd ide-probe/
                   sbt api_2_13/publishM2 driver_2_13/publishM2 junit-driver_2_13/publishM2 robot-driver_2_13/publishM2 probe-plugin_2_13/publishM2
 
