@@ -37,7 +37,7 @@ fun Project.configureUiTests() {
       val buildPlugin = tasks.findByPath(":buildPlugin")!!
       dependsOn(buildPlugin)
       environment("IDEPROBE_INTELLIJ_PLUGIN_URI", buildPlugin.outputs.files.first().path)
-      environment("IDEPROBE_INTELLIJ_VERSION_BUILD", version)
+      environment("IDEPROBE_INTELLIJ_VERSION_BUILD", version.removeSuffix("-EAP-SNAPSHOT"))
 
       if (!isCI) {
         outputs.upToDateWhen { false }
