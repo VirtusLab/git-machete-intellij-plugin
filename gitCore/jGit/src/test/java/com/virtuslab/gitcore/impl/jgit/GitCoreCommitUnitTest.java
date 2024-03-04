@@ -1,4 +1,4 @@
-package com.virtuslab.gitcore.impl.jgit.unit;
+package com.virtuslab.gitcore.impl.jgit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -8,9 +8,7 @@ import lombok.val;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.jupiter.api.Test;
 
-import com.virtuslab.gitcore.impl.jgit.GitCoreCommit;
-
-public class GitCoreCommitTest {
+public class GitCoreCommitUnitTest {
 
   private static final String rawCommitData = """
       tree b8518260a35f740dbaa8161feda53017ab8c8be4

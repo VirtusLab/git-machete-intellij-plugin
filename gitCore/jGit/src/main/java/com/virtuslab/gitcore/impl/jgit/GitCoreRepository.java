@@ -25,6 +25,7 @@ import lombok.ToString;
 import lombok.val;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.common.aliasing.qual.Unique;
+import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
@@ -142,9 +143,9 @@ public final class GitCoreRepository implements IGitCoreRepository {
     }
   }
 
-  // Public only for the sake of tests, not a part of the interface
+  // Visible only for the sake of tests, not a part of the interface
   @UIThreadUnsafe
-  public boolean isBranchPresent(String branchFullName) {
+  boolean isBranchPresent(String branchFullName) {
     // If '/' characters exist in the branch name, then loop-based testing is needed in order to avoid
     // possible IDE errors, which could appear in scenarios similar to the one explained below.
     // - If a branch 'foo' exists locally (which means that .git/refs/heads/foo file exists in the repository)
@@ -166,11 +167,11 @@ public final class GitCoreRepository implements IGitCoreRepository {
     // So, the cause of the loop-based testing below is to avoid such IDE errors.
 
     val segments = List.of(branchFullName.split("/"));
-    // loop-based test below checks if there is a branch that has a name equal to a part of the `branchFullName` -
-    // - without the last segment (last part of the path). If such a branch exists, `isBranchPresent` should return
-    // false. Reasoning: if branch 'foo' exists, then for sure branch 'foo/bar' does not exist in the same directory.
-    // Starting with `numOfSegmentsToUse = 3` as 3 is the least number that can contain
-    // the branch name (for `refs/heads/<branch_name>`)
+    // A loop-based test below checks if there is a branch that has a name equal to a part of the `branchFullName` -
+    // - without the last segment (last part of the path). If such a branch exists, `isBranchPresent` should return false.
+    // Reasoning: if branch 'foo' exists, then for sure branch 'foo/bar' does not exist in the same directory.
+    // Starting with `numOfSegmentsToUse = 3` as 3 is the lowest number of segments that can correspond
+    // to a branch name (for `refs/heads/<branch_name>`)
     for (int numOfSegmentsToUse = 3; numOfSegmentsToUse < segments.size(); numOfSegmentsToUse++) {
       val testedPrefix = segments.take(numOfSegmentsToUse).mkString("/");
       try {
@@ -178,12 +179,16 @@ public final class GitCoreRepository implements IGitCoreRepository {
         if (objectId != null) {
           return false;
         }
-      } catch (IOException ignored) {}
+      } catch (IOException ignored) {
+        // See https://github.com/VirtusLab/git-machete-intellij-plugin/issues/1298
+      } catch (RevisionSyntaxException ignored) {
+        // See https://github.com/VirtusLab/git-machete-intellij-plugin/issues/1826
+      }
     }
 
     try {
       return jgitRepoForMainGitDir.resolve(branchFullName) != null;
-    } catch (IOException e) {
+    } catch (IOException | RevisionSyntaxException e) {
       return false;
     }
   }
@@ -221,6 +226,10 @@ public final class GitCoreRepository implements IGitCoreRepository {
       return jgitRepoForMainGitDir.resolve(revision);
     } catch (IOException e) {
       throw new GitCoreException(e);
+    } catch (RevisionSyntaxException e) {
+      // See https://github.com/VirtusLab/git-machete-intellij-plugin/issues/1826
+      LOG.warn("convertRevisionToObjectId failed on invalid revision syntax", e);
+      return null;
     }
   }
 

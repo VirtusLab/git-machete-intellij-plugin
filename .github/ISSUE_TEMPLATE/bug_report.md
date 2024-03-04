@@ -27,11 +27,13 @@ to the list under `Help` -> `Diagnostic Tools` -> `Debug Log Settings`.<br/>
 Then reproduce a bug and attach the logs to the issue.<br/>
 To find IntelliJ log file, go to `Help` -> `Show Log in Files`.
 
-Consider placing the logs within the `details` (aka "spoiler") tags as the may be very extensive.
+Consider placing the logs within the `details` (aka "spoiler") tags to make them collapsible in the issue.
 
 <details>
 <summary>Logs</summary>
+<pre>
 Logs go here
+</pre>
 </details> -->
 
 ## (optional) Screenshots

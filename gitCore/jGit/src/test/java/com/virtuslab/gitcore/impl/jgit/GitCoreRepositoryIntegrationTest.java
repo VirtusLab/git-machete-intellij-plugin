@@ -1,4 +1,4 @@
-package com.virtuslab.gitcore.impl.jgit.integration;
+package com.virtuslab.gitcore.impl.jgit;
 
 import static com.virtuslab.gitmachete.testcommon.SetupScripts.SETUP_WITH_SINGLE_REMOTE;
 import static com.virtuslab.gitmachete.testcommon.TestFileUtils.cleanUpDir;
@@ -17,10 +17,9 @@ import org.junit.jupiter.api.Test;
 import org.simplify4u.slf4jmock.LoggerMock;
 import org.slf4j.Logger;
 
-import com.virtuslab.gitcore.impl.jgit.GitCoreRepository;
 import com.virtuslab.gitmachete.testcommon.TestGitRepository;
 
-public class GitCoreRepositoryTest {
+public class GitCoreRepositoryIntegrationTest {
 
   private TestGitRepository repo;
   private GitCoreRepository gitCoreRepository;
@@ -41,7 +40,7 @@ public class GitCoreRepositoryTest {
     // No exception should be thrown, just a null returned.
     assertNull(gitCoreRepository.parseRevision("0".repeat(40)));
 
-    // Deliberately done in the test and in not an @After method, so that the directory is retained in case of test failure.
+    // Deliberately done in the test and not in an @AfterEach method, so that the directory is retained in case of test failure.
     cleanUpDir(repo.parentDirectoryPath);
   }
 
@@ -62,11 +61,23 @@ public class GitCoreRepositoryTest {
     // In IntelliJ, however, the situation is different, as IntelliJ provides an SLF4J implementation
     // which opens an error notification for each `LOG.error(String, Throwable)` (but not `LOG.error(String)`) call.
     // In this particular case, we want to avoid an `LOG.error(String, Throwable)` call in FileSnapshot c'tor
-    // ending up in an user-visible, confusing error notification.
+    // ending up in a user-visible, confusing error notification.
     // See the issue and PR #1304 for more details.
     verify(logger, never()).error(anyString(), any(Throwable.class));
 
-    // Deliberately done in the test and in not an @After method, so that the directory is retained in case of test failure.
+    // Deliberately done in the test and not in an @AfterEach method, so that the directory is retained in case of test failure.
+    cleanUpDir(repo.parentDirectoryPath);
+  }
+
+  @Test
+  @SneakyThrows
+  public void shouldCorrectlyHandleSyntacticallyInvalidGitRefs() {
+    assertFalse(gitCoreRepository.isBranchPresent("refs/heads/./foo"));
+    assertFalse(gitCoreRepository.isBranchPresent("refs/heads/."));
+    assertNull(gitCoreRepository.parseRevision("refs/remotes/./foo"));
+    assertNull(gitCoreRepository.parseRevision("refs/remotes/."));
+
+    // Deliberately done in the test and not in an @AfterEach method, so that the directory is retained in case of test failure.
     cleanUpDir(repo.parentDirectoryPath);
   }
 }

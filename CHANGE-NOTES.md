@@ -3,6 +3,7 @@
 ## v4.2.0
 - Added: support for IntelliJ 2024.1.
 - Fixed: corner cases in determining fork point for a branch.
+- Fixed: plugin crashing on `RevisionSyntaxException` when remote of a branch is set to `.` in git config (reported by @alexeyr-ci).
 
 ## v4.1.1
 - Fixed: visual regression since 2023.3: branches and commits were squeezed too tightly vertically
