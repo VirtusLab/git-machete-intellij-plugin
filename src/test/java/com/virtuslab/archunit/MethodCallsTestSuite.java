@@ -2,6 +2,7 @@ package com.virtuslab.archunit;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.*;
 
+import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.*;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
@@ -11,6 +12,29 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.jupiter.api.Test;
 
 public class MethodCallsTestSuite extends BaseArchUnitTestSuite {
+
+  @Test
+  public void methods_calling_a_method_throwing_RevisionSyntaxException_should_catch_it_explicitly() {
+    codeUnits().that(new DescribedPredicate<JavaCodeUnit>("call a code unit throwing JGit RevisionSyntaxException") {
+
+      @Override
+      public boolean test(JavaCodeUnit codeUnit) {
+        return codeUnit.getCallsFromSelf().stream().anyMatch(
+            call -> call.getTarget().getThrowsClause().containsType(org.eclipse.jgit.errors.RevisionSyntaxException.class));
+      }
+    })
+        .should(new ArchCondition<JavaCodeUnit>("catch this exception explicitly") {
+          @Override
+          public void check(JavaCodeUnit codeUnit, ConditionEvents events) {
+            if (codeUnit.getTryCatchBlocks().stream().noneMatch(block -> block.getCaughtThrowables().stream()
+                .anyMatch(javaClass -> javaClass.isEquivalentTo(org.eclipse.jgit.errors.RevisionSyntaxException.class)))) {
+              events.add(SimpleConditionEvent.violated(codeUnit,
+                  "code unit ${codeUnit.getFullName()} does not catch RevisionSyntaxException; see issue #1826"));
+            }
+          }
+        })
+        .check(productionClasses);
+  }
 
   @Test
   public void overridden_onUpdate_methods_should_call_super_onUpdate() {
