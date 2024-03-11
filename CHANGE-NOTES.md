@@ -1,5 +1,7 @@
 # Changelog
 
+## v4.2.1
+
 ## v4.2.0
 - Added: support for IntelliJ 2024.1.
 - Fixed: corner cases in determining fork point for a branch.
