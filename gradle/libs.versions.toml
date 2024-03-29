@@ -9,7 +9,7 @@ archunit = "com.tngtech.archunit:archunit:1.2.1"
 betterStrings = "com.antkorwin:better-strings:0.5"
 checker = { module = "org.checkerframework:checker", version.ref = "checker" }
 checker-qual = { module = "org.checkerframework:checker-qual", version.ref = "checker" }
-commonsIO = "commons-io:commons-io:2.15.1"
+commonsIO = "commons-io:commons-io:2.16.0"
 ideProbe-robotDriver = "org.virtuslab.ideprobe:robot-driver_2.13:0.53.0"
 jetbrains-annotations = "org.jetbrains:annotations:24.1.0"
 jgit = "org.eclipse.jgit:org.eclipse.jgit:6.9.0.202403050737-r"
