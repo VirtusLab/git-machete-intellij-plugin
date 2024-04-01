@@ -29,4 +29,4 @@ vavr = "io.vavr:vavr:0.10.4"
 # see https://docs.gradle.org/current/samples/sample_convention_plugins.html#things_to_note.
 [plugins]
 jetbrains-grammarkit = "org.jetbrains.grammarkit:2022.3.2.2"
-taskTree = "com.dorongold.task-tree:2.1.1"
+taskTree = "com.dorongold.task-tree:3.0.0"
