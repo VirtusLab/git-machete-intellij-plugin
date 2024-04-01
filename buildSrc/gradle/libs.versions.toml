@@ -12,4 +12,4 @@ pluginPackages-jetbrains-kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6
 pluginPackages-spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.25.0"
 
 [plugins]
-taskTree = "com.dorongold.task-tree:2.1.1"
+taskTree = "com.dorongold.task-tree:3.0.0"
