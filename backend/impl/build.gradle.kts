@@ -11,7 +11,6 @@ dependencies {
   testImplementation(project(":gitCore:jGit"))
 }
 
-addIntellijToCompileClasspath(withGit4Idea = false)
 commonsIO()
 junit()
 junitParams()

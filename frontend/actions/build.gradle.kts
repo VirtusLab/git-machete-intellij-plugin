@@ -9,7 +9,6 @@ dependencies {
   implementation(project(":frontend:ui:api"))
 }
 
-addIntellijToCompileClasspath(withGit4Idea = true)
 apacheCommonsText()
 applyKotlinConfig()
 lombok()

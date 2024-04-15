@@ -61,6 +61,18 @@ fun Project.applyAliasingChecker() {
   }
 }
 
+fun Project.applyGuiEffectChecker() {
+  // GuiEffectChecker is enabled regardless of `CI` env var/`runAllCheckers` Gradle project property.
+  // As for now, we only apply this checker in frontend modules.
+  // Technically, UI thread handling errors can happen outside them as well,
+  // but the risk is minuscule and not worth the extra computational burden in every single build.
+  // This might change, however, if/when Checker Framework adds @Heavyweight annotation
+  // (https://github.com/typetools/checker-framework/issues/3253).
+  configure<CheckerFrameworkExtension> {
+    checkers.add("org.checkerframework.checker.guieffect.GuiEffectChecker")
+  }
+}
+
 fun Project.applyI18nFormatterAndTaintingCheckers() {
   // I18nFormatterChecker and TaintingChecker, like GuiEffectChecker and NullnessChecker, are enabled
   // regardless of `CI` env var/`runAllCheckers` Gradle project property.

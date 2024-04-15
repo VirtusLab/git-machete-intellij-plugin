@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.backend.integration;
 import java.io.FileInputStream;
 
 import lombok.SneakyThrows;
+import lombok.val;
 
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
@@ -16,8 +17,7 @@ import com.virtuslab.gitmachete.testcommon.TestGitRepository;
 
 class BaseIntegrationTestSuite {
   protected static final IGitCoreRepositoryFactory gitCoreRepositoryFactory = new GitCoreRepositoryFactory();
-  protected static final IGitMacheteRepositoryCache gitMacheteRepositoryCache = new GitMacheteRepositoryCache(
-      () -> gitCoreRepositoryFactory);
+  protected static final IGitMacheteRepositoryCache gitMacheteRepositoryCache = new GitMacheteRepositoryCache();
   protected static final IBranchLayoutReader branchLayoutReader = new BranchLayoutReader();
 
   protected TestGitRepository repo;
@@ -27,8 +27,15 @@ class BaseIntegrationTestSuite {
   @SneakyThrows
   public void setUp(String scriptName) {
     repo = new TestGitRepository(scriptName);
+    val injector = new IGitMacheteRepositoryCache.Injector() {
+      @Override
+      @SuppressWarnings("unchecked")
+      public <T> T inject(Class<T> clazz) {
+        return (T) gitCoreRepositoryFactory;
+      }
+    };
     gitMacheteRepository = gitMacheteRepositoryCache.getInstance(repo.rootDirectoryPath, repo.mainGitDirectoryPath,
-        repo.worktreeGitDirectoryPath);
+        repo.worktreeGitDirectoryPath, injector);
     branchLayout = branchLayoutReader.read(new FileInputStream(repo.mainGitDirectoryPath.resolve("machete").toFile()));
   }
 }

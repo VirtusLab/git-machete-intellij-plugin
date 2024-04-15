@@ -8,6 +8,7 @@ import kotlin.reflect.full.memberProperties
 // See https://www.jetbrains.com/intellij-repository/releases/ -> Ctrl+F .idea
 data class IntellijVersions(
   val earliestSupportedMajor: String,
+  val earliestSupportedMajorKotlinVersion: String,
   val latestMinorsOfOldSupportedMajors: List<String>,
   val latestStable: String,
   val eapOfLatestSupportedMajor: String?,
@@ -19,13 +20,16 @@ data class IntellijVersions(
       // When this value is updated, remember to update:
       // 1. the minimum required IDEA version in README.md,
       // 2. version of Gradle Kotlin plugin in buildSrc/gradle/libs.versions.toml
-      // Note that after bumping `earliestSupportedMajor`from A.B to C.D (C.D is later)
+      // Note that after bumping `earliestSupportedMajor` from A.B to C.D (C.D is later)
       // the released plugin versions supporting A.B remain available in JetBrains Marketplace.
       // Dropping a support for an IntelliJ version is less painful then,
       // since most likely some plugin version will still be downloadable (however not the latest).
       // Marking a release version as hidden is a way to forbid its download
       // (see https://plugins.jetbrains.com/plugin/14221-git-machete/versions).
       val earliestSupportedMajor: String = intellijVersionsProperties.getProperty("earliestSupportedMajor")
+      // Every time `earliestSupportedMajor` is bumped, this should be bumped to the Kotlin version
+      // listed for `earliestSupportedMajor` in https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#kotlin-standard-library
+      val earliestSupportedMajorKotlinVersion: String = intellijVersionsProperties.getProperty("earliestSupportedMajorKotlinVersion")
 
       // Most recent minor versions of all major releases between earliest supported (incl.)
       // and latest stable (excl.), used for binary compatibility checks and UI tests
@@ -39,7 +43,9 @@ data class IntellijVersions(
       // EAP-CANDIDATE-SNAPSHOTs apparently canNOT be used for either binary compatibility checks or UI tests.
       // Generally, see https://www.jetbrains.com/intellij-repository/snapshots/ -> Ctrl+F .idea
       // Use `null` if the latest supported major has a stable release (and not just EAPs).
-      val eapOfLatestSupportedMajor: String? = intellijVersionsProperties.getPropertyOrNullIfEmpty("eapOfLatestSupportedMajor")
+      val eapOfLatestSupportedMajor: String? =
+        intellijVersionsProperties.getPropertyOrNullIfEmpty("eapOfLatestSupportedMajor")
+          ?.replace("-EAP-(CANDIDATE-)?SNAPSHOT".toRegex(), "")
 
       val latestSupportedMajor: String = if (eapOfLatestSupportedMajor != null) {
         IntellijVersionHelper.buildNumberToMajorVersion(eapOfLatestSupportedMajor)
@@ -53,6 +59,7 @@ data class IntellijVersions(
 
       return IntellijVersions(
         earliestSupportedMajor = earliestSupportedMajor,
+        earliestSupportedMajorKotlinVersion = earliestSupportedMajorKotlinVersion,
         latestMinorsOfOldSupportedMajors = latestMinorsOfOldSupportedMajors,
         latestStable = latestStable,
         eapOfLatestSupportedMajor = eapOfLatestSupportedMajor,
@@ -96,6 +103,7 @@ data class IntellijVersions(
     val p = Properties()
     p.setProperty("eapOfLatestSupportedMajor", eapOfLatestSupportedMajor ?: "")
     p.setProperty("earliestSupportedMajor", earliestSupportedMajor)
+    p.setProperty("earliestSupportedMajorKotlinVersion", earliestSupportedMajorKotlinVersion)
     p.setProperty("latestMinorsOfOldSupportedMajors", latestMinorsOfOldSupportedMajors.joinToString(separator = ","))
     p.setProperty("latestStable", latestStable)
     return p

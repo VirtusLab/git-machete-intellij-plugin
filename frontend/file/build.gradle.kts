@@ -13,7 +13,6 @@ dependencies {
   implementation(project(":frontend:resourcebundles"))
 }
 
-addIntellijToCompileClasspath(withGit4Idea = true)
 lombok()
 slf4jLambdaApi()
 vavr()

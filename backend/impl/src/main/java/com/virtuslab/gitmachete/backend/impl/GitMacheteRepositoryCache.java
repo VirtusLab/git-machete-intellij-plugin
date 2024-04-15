@@ -2,10 +2,7 @@ package com.virtuslab.gitmachete.backend.impl;
 
 import java.lang.ref.SoftReference;
 import java.nio.file.Path;
-import java.util.function.Supplier;
 
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.serviceContainer.NonInjectable;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
@@ -22,23 +19,12 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
 
-  private final Supplier<IGitCoreRepositoryFactory> gitCoreRepositoryFactorySupplier;
-
   private static Map<Tuple2<Path, Path>, SoftReference<GitMacheteRepository>> gitMacheteRepositoryCache = HashMap.empty();
-
-  public GitMacheteRepositoryCache() {
-    this(() -> ApplicationManager.getApplication().getService(IGitCoreRepositoryFactory.class));
-  }
-
-  @NonInjectable // so that the parameter-less constructor is used for IntelliJ Service instantiation instead
-  public GitMacheteRepositoryCache(Supplier<IGitCoreRepositoryFactory> gitCoreRepositoryFactorySupplier) {
-    this.gitCoreRepositoryFactorySupplier = gitCoreRepositoryFactorySupplier;
-  }
 
   @Override
   @UIThreadUnsafe
   public IGitMacheteRepository getInstance(Path rootDirectoryPath, Path mainGitDirectoryPath,
-      Path worktreeGitDirectoryPath)
+      Path worktreeGitDirectoryPath, Injector injector)
       throws GitMacheteException {
     val key = Tuple.of(rootDirectoryPath, worktreeGitDirectoryPath);
     val valueReference = gitMacheteRepositoryCache.get(key).getOrNull();
@@ -50,7 +36,8 @@ public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
       }
     }
 
-    val gitCoreRepository = createGitCoreRepository(rootDirectoryPath, mainGitDirectoryPath, worktreeGitDirectoryPath);
+    val gitCoreRepository = createGitCoreRepository(rootDirectoryPath, mainGitDirectoryPath, worktreeGitDirectoryPath,
+        injector);
     val newValue = new GitMacheteRepository(gitCoreRepository);
     gitMacheteRepositoryCache = gitMacheteRepositoryCache.put(key, new SoftReference<>(newValue));
 
@@ -59,9 +46,9 @@ public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
 
   @UIThreadUnsafe
   private IGitCoreRepository createGitCoreRepository(Path rootDirectoryPath, Path mainGitDirectoryPath,
-      Path worktreeGitDirectoryPath) throws GitMacheteException {
+      Path worktreeGitDirectoryPath, Injector injector) throws GitMacheteException {
     try {
-      val gitCoreRepositoryFactory = gitCoreRepositoryFactorySupplier.get();
+      val gitCoreRepositoryFactory = injector.inject(IGitCoreRepositoryFactory.class);
       return gitCoreRepositoryFactory.create(rootDirectoryPath, mainGitDirectoryPath, worktreeGitDirectoryPath);
     } catch (GitCoreException e) {
       throw new GitMacheteException("Can't create an ${IGitCoreRepository.class.getSimpleName()} instance " +

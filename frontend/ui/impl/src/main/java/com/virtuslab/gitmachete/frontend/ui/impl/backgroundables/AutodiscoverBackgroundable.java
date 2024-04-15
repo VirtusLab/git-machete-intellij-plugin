@@ -62,7 +62,7 @@ public abstract class AutodiscoverBackgroundable extends Task.Backgroundable {
 
     try {
       repository = ApplicationManager.getApplication().getService(IGitMacheteRepositoryCache.class)
-          .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath);
+          .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath, ApplicationManager.getApplication()::getService);
     } catch (GitMacheteException e) {
       VcsNotifier.getInstance(project)
           .notifyError(

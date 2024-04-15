@@ -140,7 +140,7 @@ jobs:
           destination: .
       - run:
           name: Verify binary compatibility with supported IntelliJ versions
-          command: ./gradlew runPluginVerifier
+          command: ./gradlew verifyPlugin
 
       - run:
           name: Run UI tests against an EAP of the latest supported major IntelliJ version (if applicable)
