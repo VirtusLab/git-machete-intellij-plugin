@@ -1,7 +1,7 @@
 build/
 *.class
 *.crt
-/.DS_Store/
+.DS_Store/
 **/.gradle/
 /gradlew.bat
 /*.hprof

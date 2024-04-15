@@ -107,7 +107,7 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
       try {
         BranchLayout branchLayout = readBranchLayout(macheteFilePath);
         IGitMacheteRepository gitMacheteRepository = gitMacheteRepositoryCache.getInstance(rootDirectoryPath,
-            mainGitDirectoryPath, worktreeGitDirectoryPath);
+            mainGitDirectoryPath, worktreeGitDirectoryPath, ApplicationManager.getApplication()::getService);
         gitMacheteRepositoryConsumer.accept(gitMacheteRepository);
         return gitMacheteRepository.createSnapshotForLayout(branchLayout);
       } catch (MacheteFileReaderException e) {

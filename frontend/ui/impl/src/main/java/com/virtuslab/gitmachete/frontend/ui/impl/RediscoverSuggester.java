@@ -138,7 +138,8 @@ public class RediscoverSuggester {
 
     try {
       val discoverRunResult = ApplicationManager.getApplication().getService(IGitMacheteRepositoryCache.class)
-          .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath).discoverLayoutAndCreateSnapshot();
+          .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath, ApplicationManager.getApplication()::getService)
+          .discoverLayoutAndCreateSnapshot();
 
       val currentBranchLayout = ReadAction
           .<BranchLayout, BranchLayoutException>compute(

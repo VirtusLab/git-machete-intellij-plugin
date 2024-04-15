@@ -7,8 +7,8 @@ junit-api = "org.junit.jupiter:junit-jupiter-api:5.10.2"
 pluginPackages-checkerFramework = "org.checkerframework:checkerframework-gradle-plugin:0.6.40"
 pluginPackages-grgit = "org.ajoberstar.grgit:grgit-gradle:5.2.2"
 pluginPackages-jetbrains-changelog = "org.jetbrains.intellij.plugins:gradle-changelog-plugin:2.2.0"
-pluginPackages-jetbrains-intellij = "org.jetbrains.intellij.plugins:gradle-intellij-plugin:1.17.4"
-pluginPackages-jetbrains-kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.21"
+#pluginPackages-jetbrains-intellij = "org.jetbrains.intellij.platform:intellij-platform-gradle-plugin:2.0.0-beta6"
+pluginPackages-jetbrains-kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.22"
 pluginPackages-spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.25.0"
 
 [plugins]

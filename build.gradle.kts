@@ -1,12 +1,15 @@
 
 import com.virtuslab.gitmachete.buildsrc.*
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Base64
 
 plugins {
   checkstyle
   `java-library`
   scala
+  alias(libs.plugins.jetbrains.intellij)
   alias(libs.plugins.taskTree)
 }
 
@@ -27,9 +30,8 @@ val intellijVersions by extra(
   ),
 )
 
-fun String.fromBase64(): String {
-  return String(Base64.getDecoder().decode(this))
-}
+fun String.fromBase64(): String = String(Base64.getDecoder().decode(this))
+
 val pluginSignCertificateChain: String? by extra(System.getenv("PLUGIN_SIGN_CERT_CHAIN_BASE64")?.fromBase64())
 val pluginSignPrivateKey: String? by extra(System.getenv("PLUGIN_SIGN_PRIVATE_KEY_BASE64")?.fromBase64())
 val pluginSignPrivateKeyPass: String? by extra(System.getenv("PLUGIN_SIGN_PRIVATE_KEY_PASS"))
@@ -153,6 +155,14 @@ allprojects {
   // (and also between JGit&co.'s slf4j-api and Intellij's slf4j-api), we need to exclude the former
   // from ALL dependencies.
   configurations.runtimeClasspath { exclude(group = "org.slf4j", module = "slf4j-api") }
+
+  tasks.withType<KotlinCompile>().configureEach {
+    val kotlinLanguageVersion = intellijVersions.earliestSupportedMajorKotlinVersion
+    kotlinOptions {
+      apiVersion = kotlinLanguageVersion
+      languageVersion = kotlinLanguageVersion
+    }
+  }
 }
 
 subprojects {
@@ -170,6 +180,34 @@ subprojects {
   // which is suboptimal.
   // Let's use full name like frontend-ui-api.jar instead.
   base.archivesName.set(path.replaceFirst(":", "").replace(":", "-"))
+
+  if (path.startsWith(":frontend:") && path != ":frontend:resourcebundles") {
+    apply(plugin = "org.jetbrains.intellij.platform.base")
+
+    applyGuiEffectChecker()
+
+    repositories {
+      mavenCentral()
+      intellijPlatform {
+        defaultRepositories()
+        jetbrainsRuntime()
+      }
+    }
+    dependencies {
+      intellijPlatform {
+        intellijIdeaCommunity(intellijVersions.buildTarget)
+        bundledPlugin("Git4Idea")
+      }
+    }
+    intellijPlatform {
+      // It only affects searchability of plugin-specific settings (which we don't provide so far).
+      // Actions remain searchable anyway.
+      // TODO (#270): to be re-enabled (at least in CI) once we provide custom settings
+      buildSearchableOptions = false
+
+      instrumentCode = false
+    }
+  }
 }
 
 // Root project config
@@ -177,6 +215,74 @@ subprojects {
 group = "com.virtuslab"
 
 configureVersionFromGit()
+
+repositories {
+  mavenCentral()
+  intellijPlatform {
+    defaultRepositories()
+    jetbrainsRuntime()
+  }
+}
+
+intellijPlatform {
+  buildSearchableOptions = false
+  instrumentCode = false
+
+  pluginConfiguration {
+    name = "git-machete"
+    // Note that the first line of the description should be self-contained since it is placed into embeddable card:
+    // see e.g. https://plugins.jetbrains.com/search?search=git%20machete
+    description = file("$rootDir/DESCRIPTION.html").readText()
+    ideaVersion {
+      // `sinceBuild` is exclusive when we are using `*` in version but inclusive when without `*`
+      sinceBuild = IntellijVersionHelper.versionToBuildNumber(intellijVersions.earliestSupportedMajor)
+      // In `untilBuild` situation is inverted: it's inclusive when using `*` but exclusive when without `*`
+      untilBuild = IntellijVersionHelper.versionToBuildNumber(intellijVersions.latestSupportedMajor) + ".*"
+    }
+  }
+
+  signing {
+    certificateChain = pluginSignCertificateChain?.trimIndent()
+    privateKey = pluginSignPrivateKey?.trimIndent()
+    password = pluginSignPrivateKeyPass
+  }
+
+  publishing {
+    token = jetbrainsMarketplaceToken
+  }
+
+  verifyPlugin {
+    ides {
+      val maybeEap = listOfNotNull(intellijVersions.eapOfLatestSupportedMajor)
+      val ideVersions = intellijVersions.latestMinorsOfOldSupportedMajors + intellijVersions.latestStable + maybeEap
+//      ide(IntelliJPlatformType.IntellijIdeaCommunity, "2022.3")
+//      ide(IntelliJPlatformType.IntellijIdeaCommunity, "2023.1")
+//      ide(IntelliJPlatformType.IntellijIdeaCommunity, "2023.2")
+//      ide(IntelliJPlatformType.IntellijIdeaCommunity, "2023.3")
+//      ide(IntelliJPlatformType.IntellijIdeaCommunity, "2024.1")
+      for (version in ideVersions) {
+        ide(IntelliJPlatformType.IntellijIdeaCommunity, version)
+      }
+//      select {
+//        types = listOf(IntelliJPlatformType.IntellijIdeaCommunity)
+//        channels = listOf(ProductRelease.Channel.RELEASE)
+//        sinceBuild = IntellijVersionHelper.versionToBuildNumber(intellijVersions.earliestSupportedMajor)
+// //        sinceBuild = IntellijVersionHelper.versionToBuildNumber(intellijVersions.latestSupportedMajor)
+//        untilBuild = IntellijVersionHelper.versionToBuildNumber(intellijVersions.earliestSupportedMajor) + ".*"
+// //        untilBuild = IntellijVersionHelper.versionToBuildNumber(intellijVersions.latestSupportedMajor) + ".*"
+//      }
+    }
+  }
+}
+
+dependencies {
+  intellijPlatform {
+    intellijIdeaCommunity(intellijVersions.buildTarget)
+    bundledPlugin("Git4Idea")
+    pluginVerifier()
+    zipSigner()
+  }
+}
 
 configureIntellijPlugin()
 
@@ -188,7 +294,7 @@ val uiTestRuntimeOnly: Configuration by configurations.getting { extendsFrom(con
 configureUiTests()
 dependencies {
   uiTestImplementation(testFixtures(project(":testCommon")))
-  // implementation("org.scala-lang:scala-library:2.13.10")  // uncomment in case of IntelliJ loading error
+  compileOnly("org.scala-lang:scala-library:2.13.10") // only needed to prevent IntelliJ loading error
 }
 
 applyKotlinConfig()

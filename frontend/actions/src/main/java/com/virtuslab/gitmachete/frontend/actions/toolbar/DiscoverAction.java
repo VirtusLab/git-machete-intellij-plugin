@@ -85,7 +85,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
       @UIThreadUnsafe
       protected void doRun(ProgressIndicator indicator) {
         val repoSnapshot = ApplicationManager.getApplication().getService(IGitMacheteRepositoryCache.class)
-            .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath)
+            .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath, ApplicationManager.getApplication()::getService)
             .discoverLayoutAndCreateSnapshot();
 
         ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> GraphTableDialog.Companion.of(
