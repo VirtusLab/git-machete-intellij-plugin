@@ -4,7 +4,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.dsl.builder.bindSelected
 import com.intellij.ui.dsl.builder.panel
-import com.virtuslab.gitmachete.frontend.actions.compat.rowCompat
 import com.virtuslab.gitmachete.frontend.defs.GitConfigKeys.DELETE_LOCAL_BRANCH_ON_SLIDE_OUT
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.fmt
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
@@ -38,7 +37,7 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branc
 
   override fun createCenterPanel() = panel {
     indent {
-      rowCompat {
+      row {
         if (branchName.escapeHtml4() != branchName) {
           label(
             fmt(
@@ -59,7 +58,7 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branc
           )
         }
       }
-      rowCompat {
+      row {
         label(
           fmt(
             getString(
@@ -69,7 +68,7 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branc
         )
       }
     }
-    rowCompat {
+    row {
       button(
         getString(
           "action.GitMachete.BaseSlideOutAction.deletion-suggestion-dialog.delete-text",
@@ -98,7 +97,7 @@ class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branc
       }
         .applyToComponent { mnemonic = KeyEvent.VK_C }
     }
-    rowCompat {
+    row {
       checkBox(
         fmt(
           getString(
