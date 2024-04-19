@@ -10,7 +10,6 @@ import com.intellij.ui.dsl.builder.*
 import com.intellij.ui.layout.ValidationInfoBuilder
 import com.intellij.util.textCompletion.TextFieldWithCompletion
 import com.virtuslab.gitmachete.frontend.actions.common.BranchNamesCompletion
-import com.virtuslab.gitmachete.frontend.actions.compat.rowCompat
 import com.virtuslab.gitmachete.frontend.actions.dialogs.GitNewBranchDialogCompat.WHEN_TEXT_FIELD_TEXT_CHANGED
 import com.virtuslab.gitmachete.frontend.actions.dialogs.GitNewBranchDialogCompat.conflictsWithLocalBranchDirectory
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
@@ -76,7 +75,7 @@ class MyGitNewBranchDialog @JvmOverloads constructor(
   override fun createCenterPanel() = panel {
     val overwriteCheckbox = JCheckBox(getString("string.GitMachete.MyGitNewBranchDialog.overwrite-checkbox"))
 
-    rowCompat {
+    row {
       cell(
         TextFieldWithCompletion(
           project,
@@ -102,7 +101,7 @@ class MyGitNewBranchDialog @JvmOverloads constructor(
         .validationOnApply(validateBranchName(/* onApply */ true, overwriteCheckbox))
         .validationOnInput(validateBranchName(/* onApply */ false, overwriteCheckbox))
     }
-    rowCompat {
+    row {
       if (showCheckOutOption) {
         checkBox(getString("string.GitMachete.MyGitNewBranchDialog.checkout-checkbox"))
           .bindSelected(::checkout)
