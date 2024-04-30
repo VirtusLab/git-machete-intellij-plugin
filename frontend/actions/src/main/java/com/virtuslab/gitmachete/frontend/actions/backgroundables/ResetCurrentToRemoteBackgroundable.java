@@ -4,6 +4,7 @@ import static com.virtuslab.gitmachete.frontend.actions.base.BaseResetToRemoteAc
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getRootDirectory;
+import static git4idea.GitNotificationIdsHolder.LOCAL_CHANGES_DETECTED;
 import static git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector.Operation.RESET;
 
 import com.intellij.dvcs.DvcsUtil;
@@ -72,7 +73,7 @@ public class ResetCurrentToRemoteBackgroundable extends SideEffectingBackgrounda
 
         } else if (localChangesDetector.wasMessageDetected()) {
           LocalChangesWouldBeOverwrittenHelper.showErrorNotification(project,
-              /* displayId */ null,
+              LOCAL_CHANGES_DETECTED,
               gitRepository.getRoot(),
               /* operationName */ "Reset",
               localChangesDetector.getRelativeFilePaths());

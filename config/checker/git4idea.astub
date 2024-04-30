@@ -47,11 +47,7 @@ interface GitRepositoryChangeListener {
 package git4idea.util;
 
 class GitUntrackedFilesHelper {
+  // For some reason, Nullness Checker doesn't see org.jetbrains.annotations.Nullable annotation on description argument here.
   static void notifyUntrackedFilesOverwrittenBy(Project project, VirtualFile root, Collection<String> relativePaths,
                                                 @Untainted String operation, @Tainted @Nullable String description);
-}
-
-class LocalChangesWouldBeOverwrittenHelper {
-  static void showErrorNotification(Project project, @Nullable String displayId,
-                                    VirtualFile root, String operationName, Collection<String> relativeFilePaths);
 }

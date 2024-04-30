@@ -152,7 +152,7 @@ class NotificationAction {
 }
 
 class NotificationGroup {
-  Notification createNotification(@Tainted String title, @Tainted String content, NotificationType type, @Nullable NotificationListener listener);
+  Notification createNotification(@Tainted String title, @Tainted String content, NotificationType type, NotificationListener listener);
 
   Notification createNotification(@Tainted String title, @Tainted String content, NotificationType type);
 }
@@ -378,6 +378,7 @@ package com.intellij.openapi.vcs;
 // Experimentally verified that these methods can be called from outside UI thread.
 @AlwaysSafe
 class VcsNotifier {
+  // For some reason, Nullness Checker doesn't see org.jetbrains.annotations.Nullable annotations on displayId arguments here.
   Notification notifyError(@Nullable String displayId, @Tainted String title, @Tainted String message);
   Notification notifySuccess(@Nullable String displayId, @Tainted String title, @Tainted String message);
   Notification notifyWeakError(@Nullable String displayId, @Tainted String title, @Tainted String message);
@@ -417,13 +418,11 @@ package com.intellij.openapi.vcs.history;
 package com.intellij.openapi.vfs;
 
 class VirtualFile {
-  @NonNull VirtualFile createChildData(@Nullable Object requestor, String name);
-
-  void delete(@Nullable Object requestor);
+  @NonNull VirtualFile createChildData(Object requestor, String name);
 
   @Nullable VirtualFile getParent();
 
-  OutputStream getOutputStream(@Nullable Object requestor);
+  OutputStream getOutputStream(Object requestor);
 }
 
 class VfsUtilCore {
@@ -449,7 +448,7 @@ interface BulkFileListener {
 @UIPackage package com.intellij.openapi.wm;
 
 interface ToolWindow {
-  void activate(@Nullable @UI Runnable runnable);
+  void activate(@UI Runnable runnable);
 
   @SafeEffect
   @Nullable ContentManager getContentManagerIfCreated();
@@ -680,7 +679,7 @@ class UIUtil {
 package com.intellij.vcs.log.graph.api.elements;
 
 class GraphEdge {
-  GraphEdge(@NonNegative Integer upNodeIndex, @NonNegative Integer downNodeIndex, @Nullable Integer targetId, GraphEdgeType type);
+  GraphEdge(@NonNegative Integer upNodeIndex, @NonNegative Integer downNodeIndex, Integer targetId, GraphEdgeType type);
 
   GraphEdge createNormalEdge(@NonNegative int nodeIndex1, @NonNegative int nodeIndex2, GraphEdgeType type);
 }

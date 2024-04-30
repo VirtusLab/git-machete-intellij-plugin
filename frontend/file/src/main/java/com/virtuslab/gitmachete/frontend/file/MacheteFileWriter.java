@@ -10,7 +10,6 @@ import io.vavr.collection.List;
 import lombok.CustomLog;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
@@ -35,7 +34,7 @@ public final class MacheteFileWriter {
       IBranchLayoutWriter branchLayoutWriter,
       BranchLayout branchLayout,
       boolean backupOldFile,
-      @Nullable Object requestor) throws IOException {
+      Object requestor) throws IOException {
     LOG.debug(() -> "Writing branch layout to (${path}), branchLayout = ${branchLayout}, backupOldFile = ${backupOldFile}");
 
     val parentPath = path.getParent();

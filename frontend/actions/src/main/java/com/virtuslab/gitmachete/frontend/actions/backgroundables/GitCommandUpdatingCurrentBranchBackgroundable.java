@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
 import static com.intellij.notification.NotificationType.INFORMATION;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
+import static git4idea.GitNotificationIdsHolder.LOCAL_CHANGES_DETECTED;
 import static git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector.Operation.MERGE;
 import static git4idea.update.GitUpdateSessionKt.getBodyForUpdateNotification;
 import static git4idea.update.GitUpdateSessionKt.getTitleForUpdateNotification;
@@ -168,7 +169,7 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Side
 
     } else if (localChangesDetector.wasMessageDetected()) {
       LocalChangesWouldBeOverwrittenHelper.showErrorNotification(project,
-          /* displayId */ null,
+          LOCAL_CHANGES_DETECTED,
           gitRepository.getRoot(),
           getOperationName(),
           localChangesDetector.getRelativeFilePaths());

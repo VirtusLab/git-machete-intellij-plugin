@@ -2,6 +2,8 @@
 
 ## v4.2.1
 
+- Fixed: plugin crashing on `NullPointerException` when a warning about overwriting uncommitted files was going to be displayed
+
 ## v4.2.0
 - Added: support for IntelliJ 2024.1.
 - Fixed: corner cases in determining fork point for a branch.

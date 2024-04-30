@@ -7,5 +7,6 @@ class Constructor<T> {
 }
 
 class Method {
+  // The first param may be null in case of static method calls.
   Object invoke(@Nullable Object obj, Object... args);
 }
