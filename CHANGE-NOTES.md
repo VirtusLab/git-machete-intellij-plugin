@@ -1,5 +1,7 @@
 # Changelog
 
+## v4.2.2
+
 ## v4.2.1
 
 - Fixed: plugin crashing on `NullPointerException` when a warning about overwriting uncommitted files was going to be displayed
