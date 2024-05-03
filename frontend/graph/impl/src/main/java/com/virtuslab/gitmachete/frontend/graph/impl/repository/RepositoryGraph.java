@@ -75,7 +75,7 @@ public class RepositoryGraph implements IRepositoryGraph {
    * @param itemIndex item index
    * @return list of visible edges in a given item index
    */
-  @SuppressWarnings({"lowerbound:return", "value:return"})
+  @SuppressWarnings("allcheckers:type.arguments.not.inferred")
   public List<Tuple2<GraphEdge, @NonNegative Integer>> getVisibleEdgesWithPositions(@NonNegative int itemIndex) {
     assert itemIndex < positionsOfVisibleEdges.size() : "Bad itemIndex: " + itemIndex;
 
@@ -97,7 +97,7 @@ public class RepositoryGraph implements IRepositoryGraph {
       // (The first condition is obvious. The second can be easily proved by contradiction.
       // Suppose that the last node, at index n has a visible edge. Any visible edge has some (branch) node
       // that it leads to, hence there must exist some node at index k > n being a target to the visible edge.
-      // But n is the index of the last node. Contradiction. )
+      // But n is the index of the last node. Contradiction.)
       assert upNodeIndex >= 0
           && downNodeIndex < positionsOfVisibleEdges.size() : "upNodeIndex or downNodeIndex has wrong value";
 

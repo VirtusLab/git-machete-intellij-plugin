@@ -35,7 +35,7 @@ public class CheckoutFirstChildAction extends BaseCheckoutAction
     if (currentBranch != null) {
       val childBranches = currentBranch.getChildren();
       if (childBranches.nonEmpty()) {
-        @SuppressWarnings("allcheckers:assignment") val targetBranch = childBranches.get(0);
+        val targetBranch = childBranches.get(0);
         return targetBranch.getName();
       }
     }

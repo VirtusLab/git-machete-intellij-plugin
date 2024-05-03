@@ -89,7 +89,7 @@ public class Aux {
     LOG.debug("Derived the map of branches containing given commit in reflog:");
 
     LOG.debug(() -> result.toList().map(kv -> {
-      @SuppressWarnings("nullness:dereference.of.nullable") val values = kv._2.mkString(", ");
+      val values = kv._2.mkString(", ");
       return kv._1 + " -> " + values;
     })
         .sorted().mkString(System.lineSeparator()));

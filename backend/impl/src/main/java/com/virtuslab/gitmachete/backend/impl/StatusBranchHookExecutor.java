@@ -59,7 +59,7 @@ public final class StatusBranchHookExecutor extends BaseHookExecutor {
     // According to machete-status-branch hook spec (`git machete help hooks`),
     // the hook should receive `ASCII_ONLY=true` in its environment if only ASCII characters are expected in the output
     // (so that the hook knows not to output any ANSI escape codes etc.).
-    val environment = HashMap.of("ASCII_ONLY", "true");
+    HashMap<String, String> environment = HashMap.of("ASCII_ONLY", "true");
 
     val result = executeHook(EXECUTION_TIMEOUT_SECONDS, OnExecutionTimeout.RETURN_NULL, environment, branchName);
 
