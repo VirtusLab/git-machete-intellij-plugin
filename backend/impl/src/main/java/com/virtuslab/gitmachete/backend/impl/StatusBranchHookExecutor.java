@@ -96,7 +96,7 @@ public final class StatusBranchHookExecutor extends BaseHookExecutor {
       // fall back to not using the contents of the hookFile.
     }
 
-    val key = Tuple.of(branchName, pointedCommit.getHash(), hookContentMD5Hash);
+    Tuple3<String, String, String> key = Tuple.of(branchName, pointedCommit.getHash(), hookContentMD5Hash);
     return hookOutputByBranchNameCommitHashAndHookHash.computeIfAbsent(key,
         k -> Try.of(() -> executeHookFor(k._1)).toOption()).getOrNull();
   }

@@ -129,7 +129,8 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
 
   private BranchLayout readBranchLayout(Path path) throws MacheteFileReaderException {
     try {
-      return ReadAction.compute(() -> MacheteFileReader.readBranchLayout(path, branchLayoutReader));
+      return ReadAction
+          .<BranchLayout, BranchLayoutException>compute(() -> MacheteFileReader.readBranchLayout(path, branchLayoutReader));
     } catch (BranchLayoutException e) {
       @Positive Integer errorLine = e.getErrorLine();
       throw new MacheteFileReaderException("Error occurred while parsing machete file" +

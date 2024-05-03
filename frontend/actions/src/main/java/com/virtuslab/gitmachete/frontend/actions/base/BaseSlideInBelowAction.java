@@ -17,12 +17,14 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitRemoteBranch;
 import git4idea.branch.GitNewBranchOptions;
+import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.ui.branch.GitBranchCheckoutOperation;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
+import lombok.Value;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
@@ -233,16 +235,22 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
     }
   }
 
+  @Value
+  static class RemoteAndBranch {
+    GitRemote remote;
+    GitRemoteBranch branch;
+  }
+
   private static @Nullable GitRemoteBranch getGitRemoteBranch(GitRepository gitRepository, String branchName) {
 
     val remotesWithBranch = List.ofAll(gitRepository.getRemotes())
-        .flatMap(r -> {
-          val remoteBranchName = "${r.getName()}/${branchName}";
+        .<RemoteAndBranch>flatMap(r -> {
+          val remoteBranchName = r.getName() + "/" + branchName;
           GitRemoteBranch remoteBranch = gitRepository.getBranches().findRemoteBranch(remoteBranchName);
-          return remoteBranch != null ? Option.some(Tuple.of(r, remoteBranch)) : Option.none();
+          return remoteBranch != null ? Option.some(new RemoteAndBranch(r, remoteBranch)) : Option.none();
         })
         // Note: false < true. Hence, the pair with origin will be first (head) if exists.
-        .sortBy(t -> !t._1().getName().equals("origin"));
+        .sortBy(t -> !t.remote.getName().equals("origin"));
 
     if (remotesWithBranch.isEmpty()) {
       return null;
@@ -252,9 +260,9 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
     if (remotesWithBranch.size() > 1) {
       val title = getString("action.GitMachete.BaseSlideInBelowAction.notification.title.multiple-remotes");
       val message = getString("action.GitMachete.BaseSlideInBelowAction.notification.message.multiple-remotes")
-          .fmt(chosen._2().getName(), chosen._1().getName());
+          .fmt(chosen.branch.getName(), chosen.remote.getName());
       VcsNotifier.getInstance(gitRepository.getProject()).notifyInfo(/* displayId */ null, title, message);
     }
-    return chosen._2();
+    return chosen.branch;
   }
 }

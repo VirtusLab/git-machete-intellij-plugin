@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 
 import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Seq;
@@ -391,7 +392,7 @@ public class CreateGitMacheteRepositoryAux extends Aux {
       throws GitCoreException {
     LOG.debug(() -> "Entering: branch = '${branch.getFullName()}'");
 
-    val forkPointAndContainingBranches = gitCoreRepository
+    Tuple2<IGitCoreCommit, Seq<IBranchReference>> forkPointAndContainingBranches = gitCoreRepository
         .ancestorsOf(branch.getPointedCommit())
         .map(commit -> {
           Seq<IBranchReference> containingBranches = deriveBranchesContainingGivenCommitInReflog()

@@ -119,7 +119,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
   private boolean isBranchNameRepeated(IBranchLayoutReader branchLayoutReader, PsiFile file, String branchName) {
     BranchLayout branchLayout;
     try {
-      branchLayout = ReadAction.compute(
+      branchLayout = ReadAction.<BranchLayout, BranchLayoutException>compute(
           () -> MacheteFileReader.readBranchLayout(Path.of(file.getVirtualFile().getPath()), branchLayoutReader));
     } catch (BranchLayoutException e) { // might appear if branchLayout has inconsistent indentation characters or file is inaccessible
       return false;
@@ -130,7 +130,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
   private @Nullable String getParentBranchName(IBranchLayoutReader branchLayoutReader, PsiFile file, String branchName) {
     BranchLayout branchLayout;
     try {
-      branchLayout = ReadAction.compute(
+      branchLayout = ReadAction.<BranchLayout, BranchLayoutException>compute(
           () -> MacheteFileReader.readBranchLayout(Path.of(file.getVirtualFile().getPath()), branchLayoutReader));
     } catch (BranchLayoutException e) { // might appear if branchLayout has inconsistent indentation characters or file is inaccessible
       return null;

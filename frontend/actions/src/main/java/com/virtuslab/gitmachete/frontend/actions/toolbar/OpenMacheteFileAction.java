@@ -9,16 +9,18 @@ import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.WriteAction;
+import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.vcs.VcsNotifier;
+import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.config.GitVcsSettings;
 import git4idea.repo.GitRepository;
-import io.vavr.control.Try;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
@@ -58,12 +60,17 @@ public class OpenMacheteFileAction extends BaseProjectDependentAction {
       return;
     }
 
-    val macheteFile = WriteAction.compute(() -> Try
-        .of(() -> GitVfsUtils.getMacheteFile(repo))
-        .onFailure(e -> VcsNotifier.getInstance(project).notifyWeakError(/* displayId */ null,
+    @SuppressWarnings("IllegalCatch") ThrowableComputable<@Nullable VirtualFile, RuntimeException> virtualFileRuntimeExceptionThrowableComputable = () -> {
+      try {
+        return GitVfsUtils.getMacheteFile(repo);
+      } catch (Throwable e) {
+        VcsNotifier.getInstance(project).notifyWeakError(/* displayId */ null,
             /* title */ "",
-            /* message */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.cannot-open"))))
-        .getOrNull();
+            /* message */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.cannot-open"));
+        return null;
+      }
+    };
+    VirtualFile macheteFile = WriteAction.compute(virtualFileRuntimeExceptionThrowableComputable);
 
     if (macheteFile == null) {
       val errorWithDiscover = VcsNotifier.STANDARD_NOTIFICATION.createNotification(
@@ -72,9 +79,9 @@ public class OpenMacheteFileAction extends BaseProjectDependentAction {
               .fmt(gitDir.getPath()),
           NotificationType.ERROR);
       // Note there is no `.expire()` call, so the action remains available as long as the notification.
-      // It is troublesome to track the notification and cover all cases when it shall be expired.
-      // However, the discover action does not any changes directly; a dialog appears with options to accept or cancel.
-      // Hence, there is no much harm in leaving this notification without the expiration.
+      // It is troublesome to track the notification and cover all cases when it becomes expired.
+      // However, the discover action does not perform any changes directly; a dialog appears with options to accept or cancel.
+      // Hence, there isn't much harm in leaving this notification without the expiration.
       errorWithDiscover.addAction(NotificationAction
           .createSimple(getString("action.GitMachete.DiscoverAction.GitMacheteToolbar.text"),
               () -> ActionManager.getInstance().getAction(DiscoverAction.class.getSimpleName())

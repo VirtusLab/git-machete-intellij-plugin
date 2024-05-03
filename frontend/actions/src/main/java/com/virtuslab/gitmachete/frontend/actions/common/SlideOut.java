@@ -1,6 +1,5 @@
 package com.virtuslab.gitmachete.frontend.actions.common;
 
-import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.blockingRunWriteActionOnUIThread;
 import static com.virtuslab.gitmachete.frontend.defs.GitConfigKeys.DELETE_LOCAL_BRANCH_ON_SLIDE_OUT;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
@@ -35,6 +34,7 @@ import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.SideEffectingBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.DeleteBranchOnSlideOutSuggestionDialog;
 import com.virtuslab.gitmachete.frontend.actions.hooks.PostSlideOutHookExecutor;
+import com.virtuslab.gitmachete.frontend.common.WriteActionUtils;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
@@ -151,7 +151,7 @@ public class SlideOut {
     // Let's execute the write action in a blocking way, in order to prevent branch deletion from running concurrently.
     // If branch deletion completes before the new branch layout is saved, we might end up with an issue like
     // https://github.com/VirtusLab/git-machete-intellij-plugin/issues/971.
-    blockingRunWriteActionOnUIThread(() -> {
+    WriteActionUtils.<RuntimeException>blockingRunWriteActionOnUIThread(() -> {
       try {
         val macheteFilePath = getMacheteFilePath(gitRepository);
         val branchLayoutWriter = ApplicationManager.getApplication().getService(IBranchLayoutWriter.class);

@@ -21,6 +21,7 @@ import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
+import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutReader;
 import com.virtuslab.gitmachete.backend.api.GitMacheteException;
@@ -118,7 +119,8 @@ public class RediscoverSuggester {
     val localBranches = gitRepository.getBranches().getLocalBranches();
     try {
       val branchLayout = ReadAction
-          .compute(() -> MacheteFileReader.readBranchLayout(macheteFilePath, branchLayoutReader));
+          .<BranchLayout, BranchLayoutException>compute(
+              () -> MacheteFileReader.readBranchLayout(macheteFilePath, branchLayoutReader));
       val localBranchNames = List.ofAll(localBranches)
           .map(GitReference::getName);
 
@@ -139,7 +141,8 @@ public class RediscoverSuggester {
           .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath).discoverLayoutAndCreateSnapshot();
 
       val currentBranchLayout = ReadAction
-          .compute(() -> MacheteFileReader.readBranchLayout(macheteFilePath, branchLayoutReader));
+          .<BranchLayout, BranchLayoutException>compute(
+              () -> MacheteFileReader.readBranchLayout(macheteFilePath, branchLayoutReader));
 
       val discoveredBranchLayout = discoverRunResult.getBranchLayout();
 

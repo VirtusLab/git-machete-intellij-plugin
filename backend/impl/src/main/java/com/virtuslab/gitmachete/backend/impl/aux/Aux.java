@@ -16,6 +16,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitcore.api.GitCoreException;
 import com.virtuslab.gitcore.api.IGitCoreBranchSnapshot;
+import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreCommitHash;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
 import com.virtuslab.gitcore.api.IGitCoreReflogEntry;
@@ -57,7 +58,7 @@ public class Aux {
 
     LOG.debug("Getting reflogs of remote branches");
 
-    List<Tuple2<IGitCoreLocalBranchSnapshot, IGitCoreRemoteBranchSnapshot>> remoteTrackingBranches = localBranches
+    @SuppressWarnings("nullness:assignment") List<Tuple2<IGitCoreLocalBranchSnapshot, IGitCoreRemoteBranchSnapshot>> remoteTrackingBranches = localBranches
         .flatMap(localBranch -> Option.of(localBranch.getRemoteTrackingBranch())
             .map(remoteTrackingBranch -> Tuple.of(localBranch, remoteTrackingBranch)));
 
@@ -178,7 +179,7 @@ public class Aux {
     LOG.debug(() -> "Branch(es) eligible for becoming the parent of ${localBranchName}: " +
         "${eligibleLocalBranchNames.mkString(\", \")}");
 
-    val commitAndContainingBranches = gitCoreRepository
+    Tuple2<IGitCoreCommit, Seq<ILocalBranchReference>> commitAndContainingBranches = gitCoreRepository
         .ancestorsOf(localBranch.getPointedCommit())
         .map(commit -> {
           Seq<ILocalBranchReference> eligibleContainingBranches = deriveBranchesContainingGivenCommitInReflog()

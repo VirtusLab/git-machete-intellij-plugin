@@ -1,7 +1,6 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
 import static com.intellij.openapi.application.ModalityState.NON_MODAL;
-import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.blockingRunWriteActionOnUIThread;
 import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
 import static com.virtuslab.gitmachete.frontend.defs.ActionIds.OPEN_MACHETE_FILE;
 import static com.virtuslab.gitmachete.frontend.file.MacheteFileUtils.isMacheteFileSelected;
@@ -66,6 +65,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.NullGitMacheteRepositorySnapshot;
+import com.virtuslab.gitmachete.frontend.common.WriteActionUtils;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.defs.FileTypeIds;
@@ -436,7 +436,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     }
 
     val finalNewBranchLayout = newBranchLayout;
-    blockingRunWriteActionOnUIThread(() -> {
+    WriteActionUtils.<RuntimeException>blockingRunWriteActionOnUIThread(() -> {
       try {
         Path macheteFilePath = gitRepository.getMacheteFilePath();
         LOG.info("Writing new branch layout into ${macheteFilePath}");
