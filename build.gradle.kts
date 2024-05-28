@@ -188,7 +188,7 @@ val uiTestRuntimeOnly: Configuration by configurations.getting { extendsFrom(con
 configureUiTests()
 dependencies {
   uiTestImplementation(testFixtures(project(":testCommon")))
-  // implementation("org.scala-lang:scala-library:2.13.10")  // uncomment in case of IntelliJ loading error
+  compileOnly("org.scala-lang:scala-library:2.13.10") // only needed to prevent IntelliJ loading error
 }
 
 applyKotlinConfig()

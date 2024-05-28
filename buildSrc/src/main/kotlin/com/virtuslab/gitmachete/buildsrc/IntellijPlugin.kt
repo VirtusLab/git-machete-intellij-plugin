@@ -163,7 +163,8 @@ fun Project.configureIntellijPlugin() {
 
     // In `untilBuild` situation is inverted: it's inclusive when using `*` but exclusive when without `*`
     untilBuild.set(
-      IntellijVersionHelper.versionToBuildNumber(intellijVersions.latestSupportedMajor) + ".*",
+      "242.*",
+      // IntellijVersionHelper.versionToBuildNumber(intellijVersions.latestSupportedMajor) + ".*",
     )
 
     // Note that the first line of the description should be self-contained since it is placed into embeddable card:
