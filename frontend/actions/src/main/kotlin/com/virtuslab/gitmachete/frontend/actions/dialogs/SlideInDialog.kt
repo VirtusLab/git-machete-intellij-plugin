@@ -203,6 +203,7 @@ class SlideInDialog(
             "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.placeholder",
           ),
         )
+        @Suppress("DEPRECATION")
         setUI(DarculaComboBoxUI(/* arc */ 0f, Insets(1, 0, 1, 0), /* paintArrowButton */false))
         addDocumentListener(
           object : DocumentListener {
