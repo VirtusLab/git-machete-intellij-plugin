@@ -28,7 +28,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.util.Objects;
 
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -129,30 +128,28 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
       val repositoryOperation = gitMacheteRepositorySnapshot.getOngoingRepositoryOperation();
 
       if (repositoryOperation.getOperationType() != OngoingRepositoryOperationType.NO_OPERATION) {
-        SimpleTextAttributes attributes = SimpleTextAttributes.ERROR_ATTRIBUTES;
-        val maybeOperationsBaseBranchName = repositoryOperation.getBaseBranchName();
+        String ongoingOperationName = null;
 
+        val maybeOperationsBaseBranchName = repositoryOperation.getBaseBranchName();
         if (maybeOperationsBaseBranchName != null
-            && Objects.equals(maybeOperationsBaseBranchName, graphItem.getValue())) {
-          val ongoingOperationName = switch (repositoryOperation.getOperationType()) {
+            && maybeOperationsBaseBranchName.equals(graphItem.getValue())) {
+          ongoingOperationName = switch (repositoryOperation.getOperationType()) {
             case BISECTING -> getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.bisecting");
             case REBASING -> getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.rebasing");
-            default -> "";
+            default -> null;
           };
-
-          append(ongoingOperationName + CELL_TEXT_FRAGMENTS_SPACING, attributes);
-
         } else if (graphItem.asBranchItem().isCurrentBranch()) {
-          val ongoingOperationName = switch (repositoryOperation.getOperationType()) {
+          ongoingOperationName = switch (repositoryOperation.getOperationType()) {
             case CHERRY_PICKING -> getString(
                 "string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.cherry-picking");
             case MERGING -> getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.merging");
             case REVERTING -> getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.reverting");
             case APPLYING -> getString("string.GitMachete.BranchOrCommitCellRendererComponent.ongoing-operation.applying");
-            default -> "";
+            default -> null;
           };
-
-          append(ongoingOperationName + CELL_TEXT_FRAGMENTS_SPACING, attributes);
+        }
+        if (ongoingOperationName != null) {
+          append(ongoingOperationName + CELL_TEXT_FRAGMENTS_SPACING, SimpleTextAttributes.ERROR_ATTRIBUTES);
         }
       }
     }
