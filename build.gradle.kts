@@ -253,24 +253,8 @@ intellijPlatform {
 
   verifyPlugin {
     ides {
-      val maybeEap = listOfNotNull(intellijVersions.eapOfLatestSupportedMajor)
-      val ideVersions = intellijVersions.latestMinorsOfOldSupportedMajors + intellijVersions.latestStable + maybeEap
-//      ide(IntelliJPlatformType.IntellijIdeaCommunity, "2022.3")
-//      ide(IntelliJPlatformType.IntellijIdeaCommunity, "2023.1")
-//      ide(IntelliJPlatformType.IntellijIdeaCommunity, "2023.2")
-//      ide(IntelliJPlatformType.IntellijIdeaCommunity, "2023.3")
-//      ide(IntelliJPlatformType.IntellijIdeaCommunity, "2024.1")
-      for (version in ideVersions) {
-        ide(IntelliJPlatformType.IntellijIdeaCommunity, version)
-      }
-//      select {
-//        types = listOf(IntelliJPlatformType.IntellijIdeaCommunity)
-//        channels = listOf(ProductRelease.Channel.RELEASE)
-//        sinceBuild = IntellijVersionHelper.versionToBuildNumber(intellijVersions.earliestSupportedMajor)
-// //        sinceBuild = IntellijVersionHelper.versionToBuildNumber(intellijVersions.latestSupportedMajor)
-//        untilBuild = IntellijVersionHelper.versionToBuildNumber(intellijVersions.earliestSupportedMajor) + ".*"
-// //        untilBuild = IntellijVersionHelper.versionToBuildNumber(intellijVersions.latestSupportedMajor) + ".*"
-//      }
+      // TODO (JetBrains/intellij-platform-gradle-plugin#1637): provide all versions
+      ide(IntelliJPlatformType.IntellijIdeaCommunity, intellijVersions.latestMinorsOfOldSupportedMajors[0]!!)
     }
   }
 }
