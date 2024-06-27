@@ -2,6 +2,7 @@
 import com.virtuslab.gitmachete.buildsrc.*
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
+import org.jetbrains.intellij.platform.gradle.tasks.CustomRunIdeTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Base64
 
@@ -29,6 +30,7 @@ val intellijVersions by extra(
     overrideBuildTarget = project.properties["overrideBuildTarget"] as String?,
   ),
 )
+val overrideRunTarget = project.properties["overrideRunTarget"] as String?
 
 fun String.fromBase64(): String = String(Base64.getDecoder().decode(this))
 
@@ -229,7 +231,7 @@ intellijPlatform {
   instrumentCode = false
 
   pluginConfiguration {
-    name = "git-machete"
+    name = "Git Machete"
     // Note that the first line of the description should be self-contained since it is placed into embeddable card:
     // see e.g. https://plugins.jetbrains.com/search?search=git%20machete
     description = file("$rootDir/DESCRIPTION.html").readText()
@@ -273,6 +275,10 @@ intellijPlatform {
 //      }
     }
   }
+}
+
+val runSelectedVersionIde by tasks.registering(CustomRunIdeTask::class) {
+  version = overrideRunTarget
 }
 
 dependencies {

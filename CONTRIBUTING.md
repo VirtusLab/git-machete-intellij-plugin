@@ -141,9 +141,13 @@ execute `:runIde` Gradle task (`Gradle panel > Tasks > intellij > runIde` or `./
 
 It's possible to use a different version of IDE than the automatically chosen one (see [IntelliJVersions](buildSrc/src/main/kotlin/com/virtuslab/gitmachete/buildsrc/IntellijVersions.kt))
 for building the plugin and running the IDE:
-use a project property `overrideBuildTarget` e.g. `./gradlew runIde -PoverrideBuildTarget=2022.1.4`.
+use project property `overrideBuildTarget` e.g. `./gradlew runIde -PoverrideBuildTarget=2023.1.6`.
 
-To watch the logs of this IntelliJ instance, run `tail -f build/idea-sandbox/system/log/idea.log`.
+To just use different version for **running** the IDE (but not building),
+use project property `overrideRunTarget` and `runSelectedVersionIde` task,
+e.g. `./gradlew runIde -PoverrideRunTarget=2023.1.6`.
+
+To watch the logs of this IntelliJ instance, run `tail -f build/idea-sandbox/<VERSION>/system/log/idea.log`.
 
 ### Debug
 
