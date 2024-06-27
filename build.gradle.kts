@@ -187,7 +187,7 @@ subprojects {
   // the effective jar name will be something like api.jar, api_1.jar, api_2.jar etc.,
   // which is suboptimal.
   // Let's use full name like frontend-ui-api.jar instead.
-  base.archivesName.set(path.replaceFirst(":", "").replace(":", "-"))
+  // base.archivesName.set(path.replaceFirst(":", "").replace(":", "-"))
 
   if (path.startsWith(":frontend:") && path != ":frontend:resourcebundles") {
     apply(plugin = "org.jetbrains.intellij.platform.base")
