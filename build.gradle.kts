@@ -2,7 +2,6 @@
 import com.virtuslab.gitmachete.buildsrc.*
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.changelog.Changelog
-import org.jetbrains.changelog.ChangelogPluginExtension
 import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 import org.jetbrains.intellij.platform.gradle.tasks.CustomRunIdeTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -234,14 +233,12 @@ repositories {
 // This task should not be used - we don't use the "Unreleased" section anymore
 project.gradle.startParameter.excludedTaskNames.add("patchChangeLog")
 
-configure<ChangelogPluginExtension> {
+changelog {
   val prospectiveReleaseVersion: String by extra
   version.set("v$prospectiveReleaseVersion")
   headerParserRegex.set(Regex("""v\d+\.\d+\.\d+"""))
   path.set("${project.projectDir}/CHANGE-NOTES.md")
 }
-
-val changelog = extensions.getByType(ChangelogPluginExtension::class.java)
 
 val verifyVersionTask = tasks.register("verifyChangeLogVersion") {
   doLast {
