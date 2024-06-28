@@ -1,6 +1,6 @@
 [versions]
 checker = "3.44.0"
-junitJupiter = "5.10.2"
+junitJupiter = "5.10.3"
 
 [libraries]
 # Libraries
