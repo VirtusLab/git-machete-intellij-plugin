@@ -1,15 +1,20 @@
 
 import com.virtuslab.gitmachete.buildsrc.*
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.jetbrains.changelog.Changelog
+import org.jetbrains.changelog.ChangelogPluginExtension
 import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 import org.jetbrains.intellij.platform.gradle.tasks.CustomRunIdeTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Base64
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
 
 plugins {
   checkstyle
   `java-library`
   scala
+  alias(libs.plugins.jetbrains.changelog)
   alias(libs.plugins.jetbrains.intellij)
   alias(libs.plugins.taskTree)
 }
@@ -226,6 +231,124 @@ repositories {
   }
 }
 
+// This task should not be used - we don't use the "Unreleased" section anymore
+project.gradle.startParameter.excludedTaskNames.add("patchChangeLog")
+
+configure<ChangelogPluginExtension> {
+  val prospectiveReleaseVersion: String by extra
+  version.set("v$prospectiveReleaseVersion")
+  headerParserRegex.set(Regex("""v\d+\.\d+\.\d+"""))
+  path.set("${project.projectDir}/CHANGE-NOTES.md")
+}
+
+val changelog = extensions.getByType(ChangelogPluginExtension::class.java)
+
+val verifyVersionTask = tasks.register("verifyChangeLogVersion") {
+  doLast {
+    val prospectiveVersionSection = changelog.version.get()
+    val latestVersionSection = changelog.getLatest()
+
+    if (prospectiveVersionSection != latestVersionSection.version) {
+      throw Exception(
+        "$prospectiveVersionSection is not the latest in CHANGE-NOTES.md, " +
+          "update the file or change the prospective version in version.gradle.kts",
+      )
+    }
+  }
+}
+
+val verifyContentsTask = tasks.register("verifyChangeLogContents") {
+  doLast {
+    val prospectiveVersionSection = changelog.get(changelog.version.get())
+
+    val renderItemStr = changelog.renderItem(prospectiveVersionSection)
+    if (renderItemStr.isBlank()) {
+      throw Exception("${prospectiveVersionSection.version} section is empty, update CHANGE-NOTES.md")
+    }
+
+    val listingElements = renderItemStr.split(System.lineSeparator()).drop(1)
+    for (line in listingElements) {
+      if (line.isNotBlank() && !line.startsWith("- ") && !line.startsWith("  ")) {
+        throw Exception(
+          "Update formatting in CHANGE-NOTES.md ${prospectiveVersionSection.version} section:" +
+            "${System.lineSeparator()}$line",
+        )
+      }
+    }
+  }
+}
+
+tasks.register("verifyChangeLog") {
+  dependsOn(verifyVersionTask, verifyContentsTask)
+}
+
+tasks.register("printPluginZipPath") {
+  doLast {
+    val buildPlugin = tasks.findByPath(":buildPlugin")!!
+    println(buildPlugin.outputs.files.first().path)
+  }
+}
+
+tasks.register("printSignedPluginZipPath") {
+  // Required to prevent https://github.com/VirtusLab/git-machete-intellij-plugin/issues/1358
+  dependsOn(":buildPlugin")
+
+  doLast {
+    val signPlugin = tasks.findByPath(":signPlugin")!!
+    println(signPlugin.outputs.files.first().path)
+  }
+}
+
+val verifyPluginZipTask = tasks.register("verifyPluginZip") {
+  val buildPlugin = tasks.findByPath(":buildPlugin")!!
+  dependsOn(buildPlugin)
+
+  doLast {
+    val pluginZipPath = buildPlugin.outputs.files.first().path
+    val jarsInPluginZip = ZipFile(pluginZipPath).use { zf ->
+      zf.stream()
+        .map(ZipEntry::getName)
+        .map { it.removePrefix("git-machete-intellij-plugin/").removePrefix("lib/").removeSuffix(".jar") }
+        .filter { it.isNotEmpty() }
+        .toList()
+    }
+
+    for (proj in subprojects) {
+      val projJar = proj.path.replaceFirst(":", "").replace(":", "-")
+      val javaExtension = proj.extensions.getByType<JavaPluginExtension>()
+      if (javaExtension.sourceSets["main"].allSource.srcDirs.any { it?.exists() ?: false }) {
+        check(projJar in jarsInPluginZip) {
+          "$projJar.jar was expected in plugin zip ($pluginZipPath) but was NOT found"
+        }
+      } else {
+        check(projJar !in jarsInPluginZip) {
+          "$projJar.jar was NOT expected in plugin zip ($pluginZipPath) but was found"
+        }
+      }
+    }
+
+    val expectedLibs = listOf("org.eclipse.jgit", "slf4j-lambda-core", "vavr", "vavr-match")
+    for (expectedLib in expectedLibs) {
+      val libRegexStr = "^" + expectedLib.replace(".", "\\.") + "-[0-9.]+.*$"
+      check(jarsInPluginZip.any { it.matches(libRegexStr.toRegex()) }) {
+        "A jar for $expectedLib was expected in plugin zip ($pluginZipPath) but was NOT found"
+      }
+    }
+
+    val forbiddenLibPrefixes = listOf("ide-probe", "idea", "kotlin", "lombok", "remote-robot", "scala", "slf4j")
+    for (jar in jarsInPluginZip) {
+      check(forbiddenLibPrefixes.none { jar.startsWith(it) } || expectedLibs.any { jar.startsWith(it) }) {
+        "$jar.jar was NOT expected in plugin zip ($pluginZipPath) but was found"
+      }
+    }
+  }
+}
+
+tasks.named<Zip>("buildPlugin") {
+  dependsOn(verifyVersionTask)
+  finalizedBy(verifyPluginZipTask)
+}
+
 intellijPlatform {
   buildSearchableOptions = false
   instrumentCode = false
@@ -235,6 +358,12 @@ intellijPlatform {
     // Note that the first line of the description should be self-contained since it is placed into embeddable card:
     // see e.g. https://plugins.jetbrains.com/search?search=git%20machete
     description = file("$rootDir/DESCRIPTION.html").readText()
+
+    val changelogItem = changelog.getOrNull(changelog.version.get())
+    if (changelogItem != null) {
+      changeNotes = changelog.renderItem(changelogItem, Changelog.OutputType.HTML)
+    }
+
     ideaVersion {
       // `sinceBuild` is exclusive when we are using `*` in version but inclusive when without `*`
       sinceBuild = IntellijVersionHelper.versionToBuildNumber(intellijVersions.earliestSupportedMajor)
@@ -289,8 +418,6 @@ dependencies {
     zipSigner()
   }
 }
-
-configureIntellijPlugin()
 
 val uiTest = sourceSets.create("uiTest")
 val uiTestImplementation: Configuration by configurations.getting { extendsFrom(configurations.testImplementation.get()) }

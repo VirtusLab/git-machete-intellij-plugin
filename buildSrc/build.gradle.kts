@@ -33,7 +33,7 @@ dependencies {
   implementation(libs.jsoup)
   implementation(libs.pluginPackages.checkerFramework)
   implementation(libs.pluginPackages.grgit)
-  implementation(libs.pluginPackages.jetbrains.changelog)
+  // implementation(libs.pluginPackages.jetbrains.changelog)
   // implementation(libs.pluginPackages.jetbrains.intellij)
   implementation(libs.pluginPackages.jetbrains.kotlin)
   implementation(libs.pluginPackages.spotless)
