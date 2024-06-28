@@ -3,7 +3,9 @@ import com.virtuslab.gitmachete.buildsrc.*
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
+import org.jetbrains.intellij.platform.gradle.tasks.BuildPluginTask
 import org.jetbrains.intellij.platform.gradle.tasks.CustomRunIdeTask
+import org.jetbrains.intellij.platform.gradle.tasks.SignPluginTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Base64
 import java.util.zip.ZipEntry
@@ -281,8 +283,8 @@ tasks.register("verifyChangeLog") {
 
 tasks.register("printPluginZipPath") {
   doLast {
-    val buildPlugin = tasks.findByPath(":buildPlugin")!!
-    println(buildPlugin.outputs.files.first().path)
+    val buildPlugin = tasks.findByPath(":buildPlugin")!! as BuildPluginTask
+    println(buildPlugin.archiveFile.get().asFile.path)
   }
 }
 
@@ -291,17 +293,17 @@ tasks.register("printSignedPluginZipPath") {
   dependsOn(":buildPlugin")
 
   doLast {
-    val signPlugin = tasks.findByPath(":signPlugin")!!
-    println(signPlugin.outputs.files.first().path)
+    val signPlugin = tasks.findByPath(":signPlugin")!! as SignPluginTask
+    println(signPlugin.archiveFile.get().asFile.path)
   }
 }
 
 val verifyPluginZipTask = tasks.register("verifyPluginZip") {
-  val buildPlugin = tasks.findByPath(":buildPlugin")!!
+  val buildPlugin = tasks.findByPath(":buildPlugin")!! as BuildPluginTask
   dependsOn(buildPlugin)
 
   doLast {
-    val pluginZipPath = buildPlugin.outputs.files.first().path
+    val pluginZipPath = buildPlugin.archiveFile.get().asFile.path
     val jarsInPluginZip = ZipFile(pluginZipPath).use { zf ->
       zf.stream()
         .map(ZipEntry::getName)
@@ -381,16 +383,18 @@ intellijPlatform {
 
   verifyPlugin {
     ides {
-      val maybeEap = listOfNotNull(intellijVersions.eapOfLatestSupportedMajor)
-      val ideVersions = intellijVersions.latestMinorsOfOldSupportedMajors + intellijVersions.latestStable + maybeEap
+      // TODO (JetBrains/intellij-platform-gradle-plugin#1637): verify against all supported major versions
+      ide(IntelliJPlatformType.IntellijIdeaCommunity, intellijVersions.earliestSupportedMajor)
+//      val maybeEap = listOfNotNull(intellijVersions.eapOfLatestSupportedMajor)
+//      val ideVersions = intellijVersions.latestMinorsOfOldSupportedMajors + intellijVersions.latestStable + maybeEap
+//      for (version in ideVersions) {
+//        ide(IntelliJPlatformType.IntellijIdeaCommunity, version)
+//      }
 //      ide(IntelliJPlatformType.IntellijIdeaCommunity, "2022.3")
 //      ide(IntelliJPlatformType.IntellijIdeaCommunity, "2023.1")
 //      ide(IntelliJPlatformType.IntellijIdeaCommunity, "2023.2")
 //      ide(IntelliJPlatformType.IntellijIdeaCommunity, "2023.3")
 //      ide(IntelliJPlatformType.IntellijIdeaCommunity, "2024.1")
-      for (version in ideVersions) {
-        ide(IntelliJPlatformType.IntellijIdeaCommunity, version)
-      }
 //      select {
 //        types = listOf(IntelliJPlatformType.IntellijIdeaCommunity)
 //        channels = listOf(ProductRelease.Channel.RELEASE)
