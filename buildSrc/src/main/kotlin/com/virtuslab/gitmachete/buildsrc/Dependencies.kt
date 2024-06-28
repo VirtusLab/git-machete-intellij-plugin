@@ -33,51 +33,6 @@ fun Project.applyKotlinConfig() {
   }
 }
 
-// fun Project.addIntellijToCompileClasspath(withGit4Idea: Boolean) {
-//  val tasksBefore = mutableListOf<Task>()
-//  tasksBefore.addAll(tasks)
-//
-//  apply<IntelliJPlugin>()
-//
-//  val tasksAfter = mutableListOf<Task>()
-//  tasksAfter.addAll(tasks)
-//  tasksAfter.removeAll(tasksBefore)
-//  // For the frontend subprojects we only use gradle-intellij-plugin to provide dependencies,
-//  // but don't want most of the associated tasks to be available; they should only be available in the root project.
-//  tasksAfter.forEach { it.enabled = false }
-//  // This task needs to be enabled in all IntelliJ-aware modules to avoid caching issues
-//  // caused by `classpath.index` file showing up in build/classes/ and build/resources/ directories.
-//  // See https://github.com/JetBrains/gradle-intellij-plugin/issues/1039 for details.
-//  tasks.withType<ClasspathIndexCleanupTask> { enabled = true }
-//  // This task needs to be enabled in all IntelliJ-aware modules to populate
-//  // `build/tmp/initializeIntelliJPlugin/coroutines-javaagent.jar` file which is then required by test tasks.
-//  // See https://github.com/JetBrains/gradle-intellij-plugin/commit/a759cecfe7e68aa0360e25586cb2e2ed2f517b16
-//  // -> Ctrl+F createCoroutinesJavaAgentFile
-//  // and https://github.com/VirtusLab/git-machete-intellij-plugin/issues/1743.
-//  tasks.withType<InitializeIntelliJPluginTask> { enabled = true }
-//
-//  configure<CheckerFrameworkExtension> {
-//    // Technically, UI thread handling errors can happen outside of the (mostly frontend) modules that depend on IntelliJ,
-//    // but the risk is minuscule and not worth the extra computational burden in every single build.
-//    // This might change, however, if/when Checker Framework adds @Heavyweight annotation
-//    // (https://github.com/typetools/checker-framework/issues/3253).
-//    checkers.add("org.checkerframework.checker.guieffect.GuiEffectChecker")
-//  }
-//
-//  val intellijVersions: IntellijVersions by rootProject.extra
-//  configure<IntelliJPluginExtension> {
-//    version.set(intellijVersions.buildTarget)
-//    // No need to instrument Java classes with nullability assertions, we've got this covered much
-//    // better by Checker (and we don't plan to expose any part of the plugin as an API for other plugins).
-//    instrumentCode.set(false)
-//    if (withGit4Idea) {
-//      // Let's use the plugin *id* which remained unchanged in the 2022.2->2022.3 update
-//      // (which changed the plugin *folder name* from `git4idea` to `vcs-git`; `plugins` property apparently accepts both folder names and ids).
-//      plugins.set(listOf("Git4Idea"))
-//    }
-//  }
-// }
-
 // See https://melix.github.io/blog/2021/03/version-catalogs-faq.html#_but_how_can_i_use_the_catalog_in_plugins_defined_in_buildsrc
 private fun Project.versionCatalog(): VersionCatalog {
   return this.rootProject.extensions.getByType<VersionCatalogsExtension>().named("libs")

@@ -289,12 +289,13 @@ tasks.register("printPluginZipPath") {
 }
 
 tasks.register("printSignedPluginZipPath") {
-  // Required to prevent https://github.com/VirtusLab/git-machete-intellij-plugin/issues/1358
+  // Querying the mapped value of map(task ':signPlugin' property 'archiveFile')
+  // before task ':buildPlugin' has completed is not supported
   dependsOn(":buildPlugin")
 
   doLast {
     val signPlugin = tasks.findByPath(":signPlugin")!! as SignPluginTask
-    println(signPlugin.archiveFile.get().asFile.path)
+    println(signPlugin.signedArchiveFile.get().asFile.path)
   }
 }
 
@@ -383,7 +384,7 @@ intellijPlatform {
 
   verifyPlugin {
     ides {
-      // TODO (JetBrains/intellij-platform-gradle-plugin#1637): verify against all supported major versions
+      // TODO (JetBrains/intellij-platform-gradle-plugin#1658): verify against all supported major versions
       ide(IntelliJPlatformType.IntellijIdeaCommunity, intellijVersions.earliestSupportedMajor)
 //      val maybeEap = listOfNotNull(intellijVersions.eapOfLatestSupportedMajor)
 //      val ideVersions = intellijVersions.latestMinorsOfOldSupportedMajors + intellijVersions.latestStable + maybeEap
