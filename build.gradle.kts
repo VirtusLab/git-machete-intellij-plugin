@@ -4,7 +4,6 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 import org.jetbrains.intellij.platform.gradle.tasks.BuildPluginTask
-import org.jetbrains.intellij.platform.gradle.tasks.CustomRunIdeTask
 import org.jetbrains.intellij.platform.gradle.tasks.SignPluginTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Base64
@@ -190,7 +189,7 @@ subprojects {
   base.archivesName.set(path.replaceFirst(":", "").replace(":", "-"))
 
   if (path.startsWith(":frontend:") && path != ":frontend:resourcebundles") {
-    apply(plugin = "org.jetbrains.intellij.platform.base")
+    apply(plugin = "org.jetbrains.intellij.platform.module")
 
     applyGuiEffectChecker()
 
@@ -406,10 +405,6 @@ intellijPlatform {
 //      }
     }
   }
-}
-
-val runSelectedVersionIde by tasks.registering(CustomRunIdeTask::class) {
-  version = overrideRunTarget
 }
 
 dependencies {
