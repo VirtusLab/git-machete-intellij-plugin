@@ -20,8 +20,8 @@ data class IntellijVersions(
       // When this value is updated, remember to update:
       // 1. the minimum required IDEA version in README.md,
       // 2. version of Gradle Kotlin plugin in buildSrc/gradle/libs.versions.toml
-      // Note that after bumping `earliestSupportedMajor` from A.B to C.D (C.D is later)
-      // the released plugin versions supporting A.B remain available in JetBrains Marketplace.
+      // Note that after bumping `earliestSupportedMajor` from AAAA.B to CCCC.D (CCCC.D is later)
+      // the released plugin versions supporting AAAA.B remain available in JetBrains Marketplace.
       // Dropping a support for an IntelliJ version is less painful then,
       // since most likely some plugin version will still be downloadable (however not the latest).
       // Marking a release version as hidden is a way to forbid its download
@@ -31,7 +31,7 @@ data class IntellijVersions(
       // listed for `earliestSupportedMajor` in https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#kotlin-standard-library
       val earliestSupportedMajorKotlinVersion: String = intellijVersionsProperties.getProperty("earliestSupportedMajorKotlinVersion")
 
-      // Most recent minor versions of all major releases between earliest supported (incl.)
+      // Most recent minor versions of all major releases between the earliest supported (incl.)
       // and latest stable (excl.), used for binary compatibility checks and UI tests
       val latestMinorsOfOldSupportedMajors: List<String> = intellijVersionsProperties.getProperty("latestMinorsOfOldSupportedMajors").split(",")
 

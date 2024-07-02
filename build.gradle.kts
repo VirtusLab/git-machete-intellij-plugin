@@ -4,7 +4,6 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 import org.jetbrains.intellij.platform.gradle.tasks.BuildPluginTask
-import org.jetbrains.intellij.platform.gradle.tasks.CustomRunIdeTask
 import org.jetbrains.intellij.platform.gradle.tasks.SignPluginTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Base64
@@ -36,7 +35,6 @@ val intellijVersions by extra(
     overrideBuildTarget = project.properties["overrideBuildTarget"] as String?,
   ),
 )
-val overrideRunTarget = project.properties["overrideRunTarget"] as String?
 
 fun String.fromBase64(): String = String(Base64.getDecoder().decode(this))
 
@@ -190,7 +188,7 @@ subprojects {
   base.archivesName.set(path.replaceFirst(":", "").replace(":", "-"))
 
   if (path.startsWith(":frontend:") && path != ":frontend:resourcebundles") {
-    apply(plugin = "org.jetbrains.intellij.platform.base")
+    apply(plugin = "org.jetbrains.intellij.platform.module")
 
     applyGuiEffectChecker()
 
@@ -408,10 +406,6 @@ intellijPlatform {
   }
 }
 
-val runSelectedVersionIde by tasks.registering(CustomRunIdeTask::class) {
-  version = overrideRunTarget
-}
-
 dependencies {
   intellijPlatform {
     intellijIdeaCommunity(intellijVersions.buildTarget)
@@ -447,4 +441,10 @@ vavr("test")
 // to access constant pools of classes.
 tasks.withType<Test> {
   jvmArgs(getFlagsForAddExports("jdk.internal.reflect", module = "java.base"))
+}
+
+// TODO (JetBrains/intellij-platform-gradle-plugin#1675): workaround to prevent race condition on .../.intellijPlatform/coroutines-javaagent.jar
+tasks.withType<Test> {
+  dependsOn(":frontend:graph:initializeIntellijPlatformPlugin")
+  dependsOn(":frontend:ui:initializeIntellijPlatformPlugin")
 }
