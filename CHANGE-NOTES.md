@@ -2,6 +2,8 @@
 
 ## v5.0.1
 
+- Improved: performance of loading repositories with long git histories and a lot of red-edge branches
+
 ## v5.0.0
 - Added support for IntelliJ 2024.2.
 - Dropped support for IntelliJ 2022.2.
