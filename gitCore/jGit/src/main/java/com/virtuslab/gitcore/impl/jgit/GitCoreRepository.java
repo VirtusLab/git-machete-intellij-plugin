@@ -53,6 +53,12 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 @CustomLog
 @ToString(onlyExplicitlyIncluded = true)
 public final class GitCoreRepository implements IGitCoreRepository {
+  /**
+   * Let's avoid loading too many commits when trying to find fork point.
+   * It's unlikely that anyone will have that many unique commits on a branch.
+   */
+  private static final int MAX_ANCESTOR_COMMIT_COUNT = 100;
+
   @Getter
   @ToString.Include
   private final Path rootDirectoryPath;
@@ -643,6 +649,6 @@ public final class GitCoreRepository implements IGitCoreRepository {
       throw new GitCoreException(e);
     }
 
-    return Stream.ofAll(walk).map(GitCoreCommit::new);
+    return Stream.ofAll(walk).take(MAX_ANCESTOR_COMMIT_COUNT).map(GitCoreCommit::new);
   }
 }

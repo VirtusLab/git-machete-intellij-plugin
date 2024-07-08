@@ -72,7 +72,6 @@ ln -s ../../scripts/run-pre-build-checks .git/hooks/pre-commit
 
 #### Windows
 **The hooks do not work on Windows** (however, their execution seems to be possible theoretically).
-This is because one may not be emulating bash environment in any way or doing it in some specific way.
 
 #### macOS
 Some hooks use `grep`. The macOS version of `grep` (FreeBSD) differs from GNU `grep`.
