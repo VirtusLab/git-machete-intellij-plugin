@@ -3,6 +3,7 @@
 ## v5.0.1
 
 - Improved: performance of loading repositories with long git histories and a lot of red-edge branches
+- Fixed: `Class initialization must not depend on services` error on IntelliJ 2024.2 EAP (reported by @fan-tom)
 
 ## v5.0.0
 - Added support for IntelliJ 2024.2.

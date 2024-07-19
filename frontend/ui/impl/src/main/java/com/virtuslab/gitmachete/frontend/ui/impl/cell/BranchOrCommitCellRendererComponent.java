@@ -68,9 +68,6 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
   private static final String CELL_TEXT_FRAGMENTS_SPACING = "   ";
   private static final String HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW = "\u2794";
 
-  private static final IGraphCellPainterFactory graphCellPainterFactoryInstance = ApplicationManager.getApplication()
-      .getService(IGraphCellPainterFactory.class);
-
   private final JTable graphTable;
   private final BufferedImage graphImage;
   private final MyTableCellRenderer myTableCellRenderer;
@@ -104,7 +101,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
     }
     this.graphImage = getGraphImage(graphTable, maxGraphNodePositionInRow);
     Graphics2D g2 = graphImage.createGraphics();
-    val graphCellPainter = graphCellPainterFactoryInstance.create(table);
+    val graphCellPainter = ApplicationManager.getApplication().getService(IGraphCellPainterFactory.class).create(table);
     graphCellPainter.draw(g2, renderParts);
 
     this.myTableCellRenderer = new MyTableCellRenderer();

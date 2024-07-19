@@ -7,6 +7,9 @@ import static com.tngtech.archunit.core.domain.properties.HasOwner.Predicates.Wi
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
+import com.tngtech.archunit.base.DescribedPredicate;
+import com.tngtech.archunit.core.domain.JavaMethodCall;
+import lombok.val;
 import org.junit.jupiter.api.Test;
 
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositorySnapshot;
@@ -22,6 +25,24 @@ public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
             com.intellij.openapi.actionSystem.DataKey.class)
         .because("getRequiredData can fail in the runtime if the requested DataKey is missing; " +
             "use AnActionEvent#getData instead")
+        .check(productionClasses);
+  }
+
+  @Test
+  public void no_classes_should_call_Application_getService_from_static_initializer() {
+    noClasses()
+        .should()
+        .callMethodWhere(new DescribedPredicate<JavaMethodCall>("Application#getService is called from static initializer") {
+          @Override
+          public boolean test(JavaMethodCall javaMethodCall) {
+            val target = javaMethodCall.getTarget();
+            val origin = javaMethodCall.getOrigin();
+            return target.getOwner().isEquivalentTo(com.intellij.openapi.application.Application.class)
+                && target.getName().equals("getService")
+                && origin.getName().equals("<clinit>");
+          }
+        })
+        .because("class initialization must not depend on services since IntelliJ 2024.2")
         .check(productionClasses);
   }
 
