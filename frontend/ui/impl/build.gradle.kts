@@ -10,16 +10,6 @@ dependencies {
   implementation(project(":frontend:ui:api"))
 }
 
-// TODO (JetBrains/intellij-platform-gradle-plugin#1675): workaround to prevent race condition on .../.intellijPlatform/coroutines-javaagent.jar
-tasks.withType<Test> {
-  dependsOn(":initializeIntellijPlatformPlugin")
-  dependsOn(":frontend:actions:initializeIntellijPlatformPlugin")
-  dependsOn(":frontend:graph:initializeIntellijPlatformPlugin")
-  dependsOn(":frontend:graph:impl:initializeIntellijPlatformPlugin")
-  dependsOn(":frontend:ui:initializeIntellijPlatformPlugin")
-  dependsOn(":frontend:ui:impl:initializeIntellijPlatformPlugin")
-}
-
 apacheCommonsText()
 junit()
 junitPlatformLauncher()

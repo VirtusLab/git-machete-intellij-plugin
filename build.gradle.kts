@@ -442,9 +442,3 @@ vavr("test")
 tasks.withType<Test> {
   jvmArgs(getFlagsForAddExports("jdk.internal.reflect", module = "java.base"))
 }
-
-// TODO (JetBrains/intellij-platform-gradle-plugin#1675): workaround to prevent race condition on .../.intellijPlatform/coroutines-javaagent.jar
-tasks.withType<Test> {
-  dependsOn(":frontend:graph:initializeIntellijPlatformPlugin")
-  dependsOn(":frontend:ui:initializeIntellijPlatformPlugin")
-}
