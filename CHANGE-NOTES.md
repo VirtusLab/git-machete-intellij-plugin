@@ -1,5 +1,7 @@
 # Changelog
 
+## v5.0.2
+
 ## v5.0.1
 
 - Improved: performance of loading repositories with long git histories and a lot of red-edge branches
