@@ -30,5 +30,5 @@ vavr = "io.vavr:vavr:0.10.4"
 [plugins]
 jetbrains-changelog = "org.jetbrains.changelog:2.2.1"
 jetbrains-grammarkit = "org.jetbrains.grammarkit:2022.3.2.2"
-jetbrains-intellij = "org.jetbrains.intellij.platform:2.0.0-rc1"
+jetbrains-intellij = "org.jetbrains.intellij.platform:2.0.0-rc2"
 taskTree = "com.dorongold.task-tree:4.0.0"
