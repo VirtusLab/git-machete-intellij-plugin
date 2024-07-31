@@ -2,7 +2,6 @@
 import com.virtuslab.gitmachete.buildsrc.*
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.changelog.Changelog
-import org.jetbrains.intellij.platform.gradle.IntelliJPlatformType
 import org.jetbrains.intellij.platform.gradle.tasks.BuildPluginTask
 import org.jetbrains.intellij.platform.gradle.tasks.SignPluginTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -380,28 +379,15 @@ intellijPlatform {
     token = jetbrainsMarketplaceToken
   }
 
-  verifyPlugin {
+  pluginVerification {
     ides {
-      // TODO (JetBrains/intellij-platform-gradle-plugin#1658): verify against all supported major versions
-      ide(IntelliJPlatformType.IntellijIdeaCommunity, intellijVersions.earliestSupportedMajor)
-//      val maybeEap = listOfNotNull(intellijVersions.eapOfLatestSupportedMajor)
-//      val ideVersions = intellijVersions.latestMinorsOfOldSupportedMajors + intellijVersions.latestStable + maybeEap
-//      for (version in ideVersions) {
-//        ide(IntelliJPlatformType.IntellijIdeaCommunity, version)
-//      }
-//      ide(IntelliJPlatformType.IntellijIdeaCommunity, "2022.3")
-//      ide(IntelliJPlatformType.IntellijIdeaCommunity, "2023.1")
-//      ide(IntelliJPlatformType.IntellijIdeaCommunity, "2023.2")
-//      ide(IntelliJPlatformType.IntellijIdeaCommunity, "2023.3")
-//      ide(IntelliJPlatformType.IntellijIdeaCommunity, "2024.1")
-//      select {
-//        types = listOf(IntelliJPlatformType.IntellijIdeaCommunity)
-//        channels = listOf(ProductRelease.Channel.RELEASE)
-//        sinceBuild = IntellijVersionHelper.versionToBuildNumber(intellijVersions.earliestSupportedMajor)
-// //        sinceBuild = IntellijVersionHelper.versionToBuildNumber(intellijVersions.latestSupportedMajor)
-//        untilBuild = IntellijVersionHelper.versionToBuildNumber(intellijVersions.earliestSupportedMajor) + ".*"
-// //        untilBuild = IntellijVersionHelper.versionToBuildNumber(intellijVersions.latestSupportedMajor) + ".*"
-//      }
+      // This could also be handled by `recommended()` DSL,
+      // but with this explicit approach, the IDE versions used for verification
+      // are fully controlled by repository contents (intellij-versions.properties),
+      // so the builds are more reproducible in this respect.
+      val maybeEap = listOfNotNull(intellijVersions.eapOfLatestSupportedMajor)
+      val ideVersions = intellijVersions.latestMinorsOfOldSupportedMajors + intellijVersions.latestStable + maybeEap
+      ides(ideVersions)
     }
   }
 }
