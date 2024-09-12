@@ -79,7 +79,8 @@ class EnhancedGraphTableMouseAdapter extends MouseAdapter {
 
       e.consume();
       DataContext dataContext = DataManager.getInstance().getDataContext(graphTable);
-      val actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.CONTEXT_MENU, new Presentation(), dataContext);
+      @SuppressWarnings("removal") val actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.CONTEXT_MENU,
+          new Presentation(), dataContext);
       actionManager.getAction(CHECK_OUT_SELECTED).actionPerformed(actionEvent);
     }
   }

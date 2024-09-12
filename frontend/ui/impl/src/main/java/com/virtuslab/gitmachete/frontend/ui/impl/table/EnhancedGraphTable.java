@@ -499,7 +499,9 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
   private AnActionEvent createAnActionEvent() {
     val dataContext = DataManager.getInstance().getDataContext(this);
-    return AnActionEvent.createFromDataContext(ActionPlaces.VCS_NOTIFICATION, new Presentation(), dataContext);
+    @SuppressWarnings("removal") val event = AnActionEvent.createFromDataContext(ActionPlaces.VCS_NOTIFICATION,
+        new Presentation(), dataContext);
+    return event;
   }
 
   @Override

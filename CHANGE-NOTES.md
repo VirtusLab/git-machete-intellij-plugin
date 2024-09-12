@@ -3,7 +3,6 @@
 ## v5.0.2
 
 ## v5.0.1
-
 - Improved: performance of loading repositories with long git histories and a lot of red-edge branches
 - Fixed: `Class initialization must not depend on services` error on IntelliJ 2024.2 EAP (reported by @fan-tom)
 
@@ -14,7 +13,6 @@
   The change in the range of supported IntelliJ versions will only affect the new plugin releases, starting from this one.
 
 ## v4.2.1
-
 - Fixed: plugin crashing on `NullPointerException` when a warning about overwriting uncommitted files was going to be displayed
 
 ## v4.2.0

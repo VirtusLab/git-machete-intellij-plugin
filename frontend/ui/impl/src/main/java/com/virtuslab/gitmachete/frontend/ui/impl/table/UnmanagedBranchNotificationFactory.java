@@ -77,6 +77,7 @@ public class UnmanagedBranchNotificationFactory {
             () -> {
               val dataContext = new DataContext() {
                 @Override
+                @SuppressWarnings("removal")
                 public @Nullable Object getData(String dataId) {
                   return Match(dataId).of(
                       typeSafeCase(DataKeys.GIT_MACHETE_REPOSITORY_SNAPSHOT, gitMacheteRepositorySnapshot),
@@ -86,7 +87,8 @@ public class UnmanagedBranchNotificationFactory {
                       Case($(), (Object) null));
                 }
               };
-              val actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.VCS_NOTIFICATION, new Presentation(),
+              @SuppressWarnings("removal") val actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.VCS_NOTIFICATION,
+                  new Presentation(),
                   dataContext);
               ActionManager.getInstance().getAction(SLIDE_IN_UNMANAGED_BELOW).actionPerformed(actionEvent);
               notification.expire();
@@ -121,11 +123,13 @@ public class UnmanagedBranchNotificationFactory {
         getString("action.GitMachete.OpenMacheteFileAction.description"), () -> {
           val dataContext = new DataContext() {
             @Override
+            @SuppressWarnings("removal")
             public @Nullable Object getData(String dataId) {
               return dataId.equals(CommonDataKeys.PROJECT.getName()) ? project : null;
             }
           };
-          val actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.VCS_NOTIFICATION, new Presentation(), dataContext);
+          @SuppressWarnings("removal") val actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.VCS_NOTIFICATION,
+              new Presentation(), dataContext);
           ActionManager.getInstance().getAction(OPEN_MACHETE_FILE).actionPerformed(actionEvent);
         });
   }
