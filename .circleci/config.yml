@@ -8,6 +8,41 @@ executors:
     resource_class: large
 
 commands:
+  restore_gradle_cache:
+    steps:
+      - restore_cache:
+          # Adding `-v<N>` suffix to enable easy cache invalidation when needed:
+          # just change to `-v<N+1>` (remember to also update `save_cache` key).
+          keys:
+            # First, try finding a cache entry with the same set of libraries
+            # that also comes from the same branch (so as to make the best use of Gradle compilation cache).
+            - gradle-deps-v12-{{ checksum "gradle/libs.versions.toml" }}-{{ .Branch }}
+            # If the above key is not found, try finding a cache entry with the same set of libraries
+            # coming from another branch (Gradle compilation cache might then be less useful).
+            - gradle-deps-v12-{{ checksum "gradle/libs.versions.toml" }}-
+            # As a last resort, take any available cache entry.
+            - gradle-deps-v12-
+
+  collect_ui_test_artifacts:
+    steps:
+      - name: Collect artifacts when an exception occurs
+        # language=sh
+        command: |
+          if ! ( [ -d ~/.ideprobe-uitests/artifacts ] && [ -n "$(ls -A ~/.ideprobe-uitests/artifacts)" ] ); then exit 0; fi
+          for f in $(ls -d ~/.ideprobe-uitests/artifacts/*/) ; do cd  $f ; zip -r "../$(basename ${f}).zip" . ; done
+          mkdir -p ~/artifacts
+          find ~/.ideprobe-uitests/artifacts -name '*.zip' | xargs cp --target-directory ~/artifacts
+          for f in $(find ~/.ideprobe-uitests/idea-logs/intellij-instance-*/logs/idea.log) ; do
+            target="~/artifacts/$(echo $f | sed 's/.*\/\(intellij-instance-.*\)\/logs\/idea.log/\1.log/')"
+            eval "cp $f $target"
+          done
+        when: on_fail
+      - store_artifacts:
+          path: ~/artifacts
+          destination: .
+      - store_test_results:
+          path: build/test-results/
+
   reconfigure_origin_remote:
     steps:
       - run:
@@ -60,18 +95,7 @@ jobs:
       - run:
           name: Run pre-build checks
           command: ./scripts/run-pre-build-checks
-      - restore_cache:
-          # Adding `-v<N>` suffix to enable easy cache invalidation when needed:
-          # just change to `-v<N+1>` (remember to also update `save_cache` key).
-          keys:
-            # First, try finding a cache entry with the same set of libraries
-            # that also comes from the same branch (so as to make the best use of Gradle compilation cache).
-            - gradle-deps-v12-{{ checksum "gradle/libs.versions.toml" }}-{{ .Branch }}
-            # If the above key is not found, try finding a cache entry with the same set of libraries
-            # coming from another branch (Gradle compilation cache might then be less useful).
-            - gradle-deps-v12-{{ checksum "gradle/libs.versions.toml" }}-
-            # As a last resort, take any available cache entry.
-            - gradle-deps-v12-
+      - restore_gradle_cache
       - run:
           name: Start Gradle daemon
           command: ./gradlew
@@ -128,6 +152,15 @@ jobs:
       - run:
           name: Run unit & integration tests
           command: ./gradlew test
+      # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
+      - store_test_results:
+          path: branchLayout/impl/build/test-results/test/
+      - store_test_results:
+          path: backend/impl/build/test-results/test/
+      - store_test_results:
+          path: frontend/base/build/test-results/test/
+      - store_test_results:
+          path: build/test-results/
 
       - run:
           name: Build plugin artifact
@@ -141,53 +174,6 @@ jobs:
       - run:
           name: Verify binary compatibility with supported IntelliJ versions
           command: ./gradlew verifyPlugin
-
-      - run:
-          name: Run UI tests against an EAP of the latest supported major IntelliJ version (if applicable)
-          command: ./gradlew -PvirtualDisplay -Pagainst=eapOfLatestSupportedMajor uiTest
-      - run:
-          name: Run UI tests against the latest stable IntelliJ version
-          command: ./gradlew -PvirtualDisplay -Pagainst=latestStable uiTest
-      - when:
-          condition:
-            # Practice shows that the risk of UI tests failing on `latestMinorsOfOldSupportedMajors`
-            # once both binary compatibility checks and UI tests for latest versions passed is close to zero.
-            # Hence, to speed up the builds, we only run them for develop/master/hotfix/release branches and not on PRs.
-            # Also, we run on branches related to ide-probe or UI tests, as indicated by their name.
-            matches:
-              pattern: "^(develop|hotfix/.+|.*ide(-)?probe.*|master|release/.+|.*ui(-)?test.*)$"
-              value: << pipeline.git.branch >>
-          steps:
-            - run:
-                name: Run UI tests against earlier supported major IntelliJ versions
-                command: ./gradlew -PvirtualDisplay -Pagainst=latestMinorsOfOldSupportedMajors uiTest
-      - run:
-          name: Collect artifacts when an exception occurs
-          # language=sh
-          command: |
-            if ! ( [ -d ~/.ideprobe-uitests/artifacts ] && [ -n "$(ls -A ~/.ideprobe-uitests/artifacts)" ] ); then exit 0; fi
-            for f in $(ls -d ~/.ideprobe-uitests/artifacts/*/) ; do cd  $f ; zip -r "../$(basename ${f}).zip" . ; done
-            mkdir -p ~/artifacts
-            find ~/.ideprobe-uitests/artifacts -name '*.zip' | xargs cp --target-directory ~/artifacts
-            for f in $(find ~/.ideprobe-uitests/idea-logs/intellij-instance-*/logs/idea.log) ; do
-              target="~/artifacts/$(echo $f | sed 's/.*\/\(intellij-instance-.*\)\/logs\/idea.log/\1.log/')"
-              eval "cp $f $target"
-            done
-          when: on_fail
-      - store_artifacts:
-          path: ~/artifacts
-          destination: .
-
-      # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
-      - store_test_results:
-          path: branchLayout/impl/build/test-results/test/
-      - store_test_results:
-          path: backend/impl/build/test-results/test/
-      - store_test_results:
-          path: frontend/base/build/test-results/test/
-      - store_test_results:
-          # This includes the test results of both "regular" tests and UI tests for the top-level project.
-          path: build/test-results/
 
       - when:
           condition:
@@ -242,7 +228,30 @@ jobs:
                     --notes "$change_notes"
                   scripts/close-github-milestone "$milestone_title"
 
-  checkForUpdates:
+  ui-tests-recent:
+    executor: docker_executor
+    steps:
+      - checkout
+      - restore_gradle_cache
+      - run:
+          name: Run UI tests against an EAP of the latest supported major IntelliJ version (if applicable)
+          command: ./gradlew -PvirtualDisplay -Pagainst=eapOfLatestSupportedMajor uiTest
+      - run:
+          name: Run UI tests against the latest stable IntelliJ version
+          command: ./gradlew -PvirtualDisplay -Pagainst=latestStable uiTest
+      - collect_ui_test_artifacts
+
+  ui-tests-earlier:
+    executor: docker_executor
+    steps:
+      - checkout
+      - restore_gradle_cache
+      - run:
+          name: Run UI tests against earlier supported major IntelliJ versions
+          command: ./gradlew -PvirtualDisplay -Pagainst=latestMinorsOfOldSupportedMajors uiTest
+      - collect_ui_test_artifacts
+
+  check-for-updates:
     executor: docker_executor
     steps:
       - checkout
@@ -296,7 +305,24 @@ workflows:
   build:
     jobs:
       - build
-  checkForUpdates:
+      # There's a 1-hour time limit on a job execution, so let's split the UI tests into 2 separate jobs
+      - ui-tests-recent
+      # Practice shows that the risk of UI tests failing on `latestMinorsOfOldSupportedMajors`
+      # once both binary compatibility checks and UI tests for latest versions passed is close to zero.
+      # Hence, to speed up the builds, we only run them for develop/master/hotfix/release branches and not on PRs.
+      # Also, we run on branches related to ide-probe or UI tests, as indicated by their name.
+      - ui-tests-earlier:
+          filters:
+            branches:
+              only:
+                - "/.*(ci|deploy|dry-run|publish|release).*/"
+                - "develop"
+                - "/hotfix.*/"
+                - "/.*ide(-)?probe.*/"
+                - "master"
+                - "/release.*/"
+                - "/.*ui(-)?test.*/"
+  check-for-updates:
     triggers:
       - schedule:
           cron: "0 0 * * *"  # everyday at midnight UTC
@@ -305,4 +331,4 @@ workflows:
               only:
                 - develop
     jobs:
-      - checkForUpdates
+      - check-for-updates
