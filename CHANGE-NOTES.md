@@ -1,14 +1,15 @@
 # Changelog
 
-## v5.0.2
+## v5.1.0
+- Added: support for IntelliJ 2024.3.
 
 ## v5.0.1
 - Improved: performance of loading repositories with long git histories and a lot of red-edge branches
 - Fixed: `Class initialization must not depend on services` error on IntelliJ 2024.2 EAP (reported by @fan-tom)
 
 ## v5.0.0
-- Added support for IntelliJ 2024.2.
-- Dropped support for IntelliJ 2022.2.
+- Added: support for IntelliJ 2024.2.
+- Dropped: support for IntelliJ 2022.2.
   Note that the versions of this plugin published so far will remain available for download in IntelliJ 2022.2 indefinitely.
   The change in the range of supported IntelliJ versions will only affect the new plugin releases, starting from this one.
 
