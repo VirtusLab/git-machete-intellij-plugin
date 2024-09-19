@@ -203,14 +203,6 @@ class UITestSuite extends TestGitRepository(SETUP_WITH_SINGLE_REMOTE) {
     )
   }
 
-  @Test def syncToParentByMergeAction(): Unit = {
-
-    // syncSelectedToParentByMerge
-    project.openGitMacheteTab()
-    project.syncSelectedToParentByMerge("call-ws")
-    project.assertSyncToParentStatus("call-ws", "InSync")
-  }
-
   @Test def pullBranch(): Unit = {
 
     // pullCurrentBranch
@@ -227,6 +219,11 @@ class UITestSuite extends TestGitRepository(SETUP_WITH_SINGLE_REMOTE) {
     project.pullSelected("update-icons")
     project.assertLocalAndRemoteBranchesAreEqual("update-icons")
     project.assertNoUncommittedChanges()
+
+    // syncSelectedToParentByMerge
+    project.openGitMacheteTab()
+    project.syncSelectedToParentByMerge("call-ws")
+    project.assertSyncToParentStatus("call-ws", "InSync")
   }
 
   @Test def resetBranchToRemote(): Unit = {
