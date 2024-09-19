@@ -25,18 +25,19 @@ commands:
 
   collect_ui_test_artifacts:
     steps:
-      - name: Collect artifacts when an exception occurs
-        # language=sh
-        command: |
-          if ! ( [ -d ~/.ideprobe-uitests/artifacts ] && [ -n "$(ls -A ~/.ideprobe-uitests/artifacts)" ] ); then exit 0; fi
-          for f in $(ls -d ~/.ideprobe-uitests/artifacts/*/) ; do cd  $f ; zip -r "../$(basename ${f}).zip" . ; done
-          mkdir -p ~/artifacts
-          find ~/.ideprobe-uitests/artifacts -name '*.zip' | xargs cp --target-directory ~/artifacts
-          for f in $(find ~/.ideprobe-uitests/idea-logs/intellij-instance-*/logs/idea.log) ; do
-            target="~/artifacts/$(echo $f | sed 's/.*\/\(intellij-instance-.*\)\/logs\/idea.log/\1.log/')"
-            eval "cp $f $target"
-          done
-        when: on_fail
+      - run:
+          name: Collect artifacts when an exception occurs
+          # language=sh
+          command: |
+            if ! ( [ -d ~/.ideprobe-uitests/artifacts ] && [ -n "$(ls -A ~/.ideprobe-uitests/artifacts)" ] ); then exit 0; fi
+            for f in $(ls -d ~/.ideprobe-uitests/artifacts/*/) ; do cd  $f ; zip -r "../$(basename ${f}).zip" . ; done
+            mkdir -p ~/artifacts
+            find ~/.ideprobe-uitests/artifacts -name '*.zip' | xargs cp --target-directory ~/artifacts
+            for f in $(find ~/.ideprobe-uitests/idea-logs/intellij-instance-*/logs/idea.log) ; do
+              target="~/artifacts/$(echo $f | sed 's/.*\/\(intellij-instance-.*\)\/logs\/idea.log/\1.log/')"
+              eval "cp $f $target"
+            done
+          when: on_fail
       - store_artifacts:
           path: ~/artifacts
           destination: .
@@ -244,12 +245,27 @@ jobs:
   ui-tests-earlier:
     executor: docker_executor
     steps:
-      - checkout
-      - restore_gradle_cache
-      - run:
-          name: Run UI tests against earlier supported major IntelliJ versions
-          command: ./gradlew -PvirtualDisplay -Pagainst=latestMinorsOfOldSupportedMajors uiTest
-      - collect_ui_test_artifacts
+      - when:
+          # Note that the condition needs to be put on the steps (instead of the entire job)
+          # for the sake of branch protection rules in GitHub, which require a specific set of checks to pass.
+          # If `ui-tests-earlier` wasn't placed in the required checks, then the entire job would be mostly pointless;
+          # if the condition was on a job instead, then the check wouldn't be satisfied outside the selected branches
+          # where ui-tests-earlier were executed.
+          condition:
+            # Practice shows that the risk of UI tests failing on `latestMinorsOfOldSupportedMajors`
+            # once both binary compatibility checks and UI tests for latest versions passed is close to zero.
+            # Hence, to speed up the builds, we only run them for develop/master/hotfix/release branches and not on PRs.
+            # Also, we run on branches related to ide-probe or UI tests, as indicated by their name.
+            matches:
+              pattern: "^(develop|hotfix/.+|.*ide(-)?probe.*|master|release/.+|.*ui(-)?test.*)$"
+              value: << pipeline.git.branch >>
+          steps:
+            - checkout
+            - restore_gradle_cache
+            - run:
+                name: Run UI tests against earlier supported major IntelliJ versions
+                command: ./gradlew -PvirtualDisplay -Pagainst=latestMinorsOfOldSupportedMajors uiTest
+            - collect_ui_test_artifacts
 
   check-for-updates:
     executor: docker_executor
@@ -302,26 +318,12 @@ jobs:
 
 workflows:
   version: 2
-  build:
+  build-and-ui-tests:
     jobs:
       - build
       # There's a 1-hour time limit on a job execution, so let's split the UI tests into 2 separate jobs
       - ui-tests-recent
-      # Practice shows that the risk of UI tests failing on `latestMinorsOfOldSupportedMajors`
-      # once both binary compatibility checks and UI tests for latest versions passed is close to zero.
-      # Hence, to speed up the builds, we only run them for develop/master/hotfix/release branches and not on PRs.
-      # Also, we run on branches related to ide-probe or UI tests, as indicated by their name.
-      - ui-tests-earlier:
-          filters:
-            branches:
-              only:
-                - "/.*(ci|deploy|dry-run|publish|release).*/"
-                - "develop"
-                - "/hotfix.*/"
-                - "/.*ide(-)?probe.*/"
-                - "master"
-                - "/release.*/"
-                - "/.*ui(-)?test.*/"
+      - ui-tests-earlier
   check-for-updates:
     triggers:
       - schedule:
