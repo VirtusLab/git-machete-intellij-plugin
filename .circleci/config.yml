@@ -196,39 +196,6 @@ jobs:
                 paths: [ ~/.gradle/ ]
                 key: gradle-deps-v12-{{ checksum "gradle/libs.versions.toml" }}-{{ .Branch }}
 
-      - when:
-          condition:
-            equal: [ master, << pipeline.git.branch >> ]
-          steps:
-            - run:
-                # Publishing should be the first step since if it fails, we should NOT proceed with opening backport PR/GitHub release, etc.
-                name: Publish plugin to Jetbrains Marketplace
-                command: ./gradlew publishPlugin
-            - reconfigure_origin_remote
-            - run:
-                name: Push git tag
-                # language=sh
-                command: |
-                  source scripts/utils.sh
-                  tag=v$(extract_version_from_current_wd)
-                  git tag "$tag"
-                  git push origin "$tag"
-            - run:
-                name: Create GitHub release & close milestone
-                # Implicit usage of ${GITHUB_TOKEN} by gh
-                # language=sh
-                command: |
-                  source scripts/utils.sh
-                  milestone_title=v$(extract_version_from_current_wd)
-                  tag=$milestone_title
-                  change_notes=$(./gradlew getChangelog --no-header -q)
-                  gh release create \
-                    $tag \
-                    "$(./gradlew -q printSignedPluginZipPath)" \
-                    --title "$tag" \
-                    --notes "$change_notes"
-                  scripts/close-github-milestone "$milestone_title"
-
   ui-tests-recent:
     executor: docker_executor
     steps:
@@ -245,12 +212,14 @@ jobs:
   ui-tests-earlier:
     executor: docker_executor
     steps:
+      - run: echo  # there always needs to be at least one step left once conditions are evaluated
       - when:
           # Note that the condition needs to be put on the steps (instead of the entire job)
           # for the sake of branch protection rules in GitHub, which require a specific set of checks to pass.
           # If `ui-tests-earlier` wasn't placed in the required checks, then the entire job would be mostly pointless;
           # if the condition was on a job instead, then the check wouldn't be satisfied outside the selected branches
           # where ui-tests-earlier were executed.
+          # Similarly, `ui-tests-earlier` job is a prerequisite of `publish` job.
           condition:
             # Practice shows that the risk of UI tests failing on `latestMinorsOfOldSupportedMajors`
             # once both binary compatibility checks and UI tests for latest versions passed is close to zero.
@@ -266,6 +235,46 @@ jobs:
                 name: Run UI tests against earlier supported major IntelliJ versions
                 command: ./gradlew -PvirtualDisplay -Pagainst=latestMinorsOfOldSupportedMajors uiTest
             - collect_ui_test_artifacts
+
+  publish-plugin:
+    executor: docker_executor
+    steps:
+      - checkout
+      - restore_gradle_cache
+      - run:
+          # Publishing should be the first step since if it fails, we should NOT proceed with opening GitHub release etc.
+          name: Publish plugin to Jetbrains Marketplace
+          command: ./gradlew publishPlugin
+      - reconfigure_origin_remote
+      - run:
+          name: Push git tag
+          # language=sh
+          command: |
+            source scripts/utils.sh
+            tag=v$(extract_version_from_current_wd)
+            git tag "$tag"
+            git push origin "$tag"
+      - run:
+          name: Create GitHub release
+          # Implicit usage of ${GITHUB_TOKEN} by gh
+          # language=sh
+          command: |
+            source scripts/utils.sh
+            tag=v$(extract_version_from_current_wd)
+            change_notes=$(./gradlew getChangelog --no-header -q)
+            gh release create \
+              $tag \
+              "$(./gradlew -q printSignedPluginZipPath)" \
+              --title "$tag" \
+              --notes "$change_notes"
+      - run:
+          name: Close GitHub milestone
+          # Implicit usage of ${GITHUB_TOKEN} by gh
+          # language=sh
+          command: |
+            source scripts/utils.sh
+            milestone=v$(extract_version_from_current_wd)
+            scripts/close-github-milestone "$milestone"
 
   check-for-updates:
     executor: docker_executor
@@ -324,6 +333,15 @@ workflows:
       # There's a 1-hour time limit on a job execution, so let's split the UI tests into 2 separate jobs
       - ui-tests-recent
       - ui-tests-earlier
+      - publish-plugin:
+          requires:
+            - build
+            - ui-tests-recent
+            - ui-tests-earlier
+          filters:
+            branches:
+              only:
+                - master
   check-for-updates:
     triggers:
       - schedule:

@@ -1,5 +1,7 @@
 # Changelog
 
+## v5.1.1
+
 ## v5.1.0
 - Added: support for IntelliJ 2024.3.
 
