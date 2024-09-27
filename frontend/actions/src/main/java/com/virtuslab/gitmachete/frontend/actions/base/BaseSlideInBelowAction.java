@@ -5,7 +5,6 @@ import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.creat
 import static com.virtuslab.gitmachete.frontend.actions.common.ActionUtils.getQuotedStringOrCurrent;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
-import static git4idea.ui.branch.GitBranchPopupActions.RemoteBranchActions.CheckoutRemoteBranchAction.checkoutRemoteBranch;
 import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
 
 import java.lang.reflect.InvocationTargetException;
@@ -20,6 +19,7 @@ import git4idea.branch.GitNewBranchOptions;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.ui.branch.GitBranchCheckoutOperation;
+import git4idea.ui.branch.GitBranchPopupActions.RemoteBranchActions;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.List;
@@ -158,10 +158,10 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
   // The UI thread-unsafe calls are actually happening within Runnable lambdas
   // which are going to be executed outside of UI thread.
   @IgnoreUIThreadUnsafeCalls({
-      "git4idea.ui.branch.GitBranchCheckoutOperation.perform" +
-          "(java.lang.String, git4idea.branch.GitNewBranchOptions)",
-      "git4idea.ui.branch.GitBranchPopupActions$RemoteBranchActions$CheckoutRemoteBranchAction.checkoutRemoteBranch" +
-          "(com.intellij.openapi.project.Project, java.util.List, java.lang.String)"
+      "git4idea.ui.branch.GitBranchCheckoutOperation" +
+          ".perform(java.lang.String, git4idea.branch.GitNewBranchOptions)",
+      "git4idea.ui.branch.GitBranchPopupActions$RemoteBranchActions$CheckoutRemoteBranchAction" +
+          ".checkoutRemoteBranch(com.intellij.openapi.project.Project, java.util.List, java.lang.String)"
   })
   Tuple2<@Nullable String, Runnable> getBranchNameAndPreSlideInRunnable(
       GitRepository gitRepository,
@@ -220,7 +220,15 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
       });
 
     } else if (options.shouldCheckout()) {
-      return Tuple.of(branchName, () -> checkoutRemoteBranch(project, repositories, remoteBranch.getName()));
+      return Tuple.of(branchName, new Runnable() {
+        @Override
+        @SuppressWarnings("removal")
+        @IgnoreUIThreadUnsafeCalls("git4idea.ui.branch.GitBranchPopupActions$RemoteBranchActions$CheckoutRemoteBranchAction" +
+            ".checkoutRemoteBranch(com.intellij.openapi.project.Project, java.util.List, java.lang.String)")
+        public void run() {
+          RemoteBranchActions.CheckoutRemoteBranchAction.checkoutRemoteBranch(project, repositories, remoteBranch.getName());
+        }
+      });
 
     } else {
       val refspec = createRefspec("refs/remotes/${remoteBranch.getName()}",
