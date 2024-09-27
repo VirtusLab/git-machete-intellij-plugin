@@ -8,6 +8,7 @@ import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.BranchLayoutEntry;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.actions.common.SlideInOptions;
+import com.virtuslab.gitmachete.frontend.actions.common.UiThreadUnsafeRunnable;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
@@ -20,7 +21,7 @@ public class SlideInRootBackgroundable extends BaseSlideInBackgroundable {
       BranchLayout branchLayout,
       IBranchLayoutWriter branchLayoutWriter,
       BaseEnhancedGraphTable graphTable,
-      Runnable preSlideInRunnable,
+      UiThreadUnsafeRunnable preSlideInRunnable,
       SlideInOptions slideInOptions) {
     super(gitRepository, branchLayout, branchLayoutWriter, graphTable, preSlideInRunnable, slideInOptions);
   }

@@ -53,7 +53,7 @@ public class SlideInUnmanagedBelowAction extends BaseGitMacheteRepositoryReadyAc
 
     val slideInOptions = new SlideInOptions(unmanagedBranch, /* shouldReattach */ false, /* customAnnotation */ "");
 
-    Runnable preSlideInRunnable = () -> {};
+    UiThreadUnsafeRunnable preSlideInRunnable = () -> {};
 
     val parentEntry = parentName != null ? branchLayout.getEntryByName(parentName) : null;
     val entryAlreadyExistsBelowGivenParent = parentEntry != null

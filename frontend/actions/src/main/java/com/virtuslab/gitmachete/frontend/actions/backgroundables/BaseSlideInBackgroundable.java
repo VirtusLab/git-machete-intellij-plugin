@@ -21,6 +21,7 @@ import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.BranchLayoutEntry;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.actions.common.SlideInOptions;
+import com.virtuslab.gitmachete.frontend.actions.common.UiThreadUnsafeRunnable;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
@@ -35,7 +36,7 @@ public abstract class BaseSlideInBackgroundable extends SideEffectingBackgrounda
   private final BranchLayout branchLayout;
   private final IBranchLayoutWriter branchLayoutWriter;
   private final BaseEnhancedGraphTable graphTable;
-  private final Runnable preSlideInRunnable;
+  private final UiThreadUnsafeRunnable preSlideInRunnable;
   protected final SlideInOptions slideInOptions;
 
   public BaseSlideInBackgroundable(
@@ -43,7 +44,7 @@ public abstract class BaseSlideInBackgroundable extends SideEffectingBackgrounda
       BranchLayout branchLayout,
       IBranchLayoutWriter branchLayoutWriter,
       BaseEnhancedGraphTable graphTable,
-      Runnable preSlideInRunnable,
+      UiThreadUnsafeRunnable preSlideInRunnable,
       SlideInOptions slideInOptions) {
     super(gitRepository.getProject(), getNonHtmlString("action.GitMachete.BaseSlideInBackgroundable.task-title"), "slide-in");
     this.gitRepository = gitRepository;

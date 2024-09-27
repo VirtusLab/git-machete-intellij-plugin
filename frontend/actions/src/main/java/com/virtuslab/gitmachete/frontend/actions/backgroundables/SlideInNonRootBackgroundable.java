@@ -15,6 +15,7 @@ import com.virtuslab.branchlayout.api.EntryDoesNotExistException;
 import com.virtuslab.branchlayout.api.EntryIsDescendantOfException;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.actions.common.SlideInOptions;
+import com.virtuslab.gitmachete.frontend.actions.common.UiThreadUnsafeRunnable;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
@@ -29,7 +30,7 @@ public class SlideInNonRootBackgroundable extends BaseSlideInBackgroundable {
       BranchLayout branchLayout,
       IBranchLayoutWriter branchLayoutWriter,
       BaseEnhancedGraphTable graphTable,
-      Runnable preSlideInRunnable,
+      UiThreadUnsafeRunnable preSlideInRunnable,
       SlideInOptions slideInOptions,
       String parentName) {
     super(gitRepository, branchLayout, branchLayoutWriter, graphTable, preSlideInRunnable, slideInOptions);

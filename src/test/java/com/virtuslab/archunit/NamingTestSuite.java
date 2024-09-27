@@ -17,11 +17,11 @@ public class NamingTestSuite extends BaseArchUnitTestSuite {
 
   @Test
   public void interface_names_should_start_with_I() {
-    // Checking for @Target seems the best available way to identify annotations
     classes()
         .that().areInterfaces()
         .and().resideOutsideOfPackage("com.virtuslab.gitmachete.frontend.file.grammar")
-        .and().areNotAnnotatedWith(java.lang.annotation.Target.class)
+        .and().areNotAnnotations()
+        .and().haveSimpleNameNotEndingWith("Runnable")
         .should().haveSimpleNameStartingWith("I")
         .check(productionClasses);
   }

@@ -34,12 +34,13 @@ import com.virtuslab.branchlayout.api.BranchLayoutEntry;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.FetchBackgroundable;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.SlideInNonRootBackgroundable;
+import com.virtuslab.gitmachete.frontend.actions.common.UiThreadUnsafeRunnable;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.MyGitNewBranchDialog;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.SlideInDialog;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.async.ContinuesInBackground;
-import com.virtuslab.qual.guieffect.IgnoreUIThreadUnsafeCalls;
+import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod(GitMacheteBundle.class)
 public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryReadyAction
@@ -113,11 +114,12 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
       return;
     }
 
-    Runnable preSlideInRunnable = () -> {};
+    UiThreadUnsafeRunnable preSlideInRunnable = () -> {};
     val localBranch = gitRepository.getBranches().findLocalBranch(slideInOptionsName);
 
     if (localBranch == null) {
-      Tuple2<@Nullable String, Runnable> branchNameAndPreSlideInRunnable = getBranchNameAndPreSlideInRunnable(gitRepository,
+      Tuple2<@Nullable String, UiThreadUnsafeRunnable> branchNameAndPreSlideInRunnable = getBranchNameAndPreSlideInRunnable(
+          gitRepository,
           parentName, slideInOptionsName);
 
       preSlideInRunnable = branchNameAndPreSlideInRunnable._2();
@@ -155,15 +157,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
   }
 
   @ContinuesInBackground
-  // The UI thread-unsafe calls are actually happening within Runnable lambdas
-  // which are going to be executed outside of UI thread.
-  @IgnoreUIThreadUnsafeCalls({
-      "git4idea.ui.branch.GitBranchCheckoutOperation" +
-          ".perform(java.lang.String, git4idea.branch.GitNewBranchOptions)",
-      "git4idea.ui.branch.GitBranchPopupActions$RemoteBranchActions$CheckoutRemoteBranchAction" +
-          ".checkoutRemoteBranch(com.intellij.openapi.project.Project, java.util.List, java.lang.String)"
-  })
-  Tuple2<@Nullable String, Runnable> getBranchNameAndPreSlideInRunnable(
+  private Tuple2<@Nullable String, UiThreadUnsafeRunnable> getBranchNameAndPreSlideInRunnable(
       GitRepository gitRepository,
       String startPoint,
       String initialName) {
@@ -220,19 +214,18 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
       });
 
     } else if (options.shouldCheckout()) {
-      return Tuple.of(branchName, new Runnable() {
-        @Override
+      return Tuple.of(branchName, new UiThreadUnsafeRunnable() {
+        @UIThreadUnsafe
         @SuppressWarnings("removal")
-        @IgnoreUIThreadUnsafeCalls("git4idea.ui.branch.GitBranchPopupActions$RemoteBranchActions$CheckoutRemoteBranchAction" +
-            ".checkoutRemoteBranch(com.intellij.openapi.project.Project, java.util.List, java.lang.String)")
+        @Override
         public void run() {
           RemoteBranchActions.CheckoutRemoteBranchAction.checkoutRemoteBranch(project, repositories, remoteBranch.getName());
         }
       });
 
     } else {
-      val refspec = createRefspec("refs/remotes/${remoteBranch.getName()}",
-          "refs/heads/${branchName}", /* allowNonFastForward */ false);
+      val refspec = createRefspec("refs/remotes/" + remoteBranch.getName(),
+          "refs/heads/" + branchName, /* allowNonFastForward */ false);
       return Tuple.of(branchName, () -> new FetchBackgroundable(
           gitRepository,
           LOCAL_REPOSITORY_NAME,
