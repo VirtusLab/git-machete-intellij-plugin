@@ -7,12 +7,14 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitRemoteBranch;
 import git4idea.branch.GitNewBranchOptions;
@@ -157,6 +159,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
   }
 
   @ContinuesInBackground
+  @SuppressWarnings("KotlinInternalInJava")
   private Tuple2<@Nullable String, UiThreadUnsafeRunnable> getBranchNameAndPreSlideInRunnable(
       GitRepository gitRepository,
       String startPoint,
@@ -188,7 +191,26 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
 
     if (remoteBranch == null) {
       return Tuple.of(branchName, () -> {
-        val gitBranchCheckoutOperation = new GitBranchCheckoutOperation(project, Collections.singletonList(gitRepository));
+        // TODO (#1938): replace with a non-reflective call once 2024.2 is no longer supported
+        Constructor constructor;
+        try {
+          // Since 243.19420.21-EAP-SNAPSHOT
+          constructor = GitBranchCheckoutOperation.class.getConstructor(Project.class, java.util.Collection.class);
+        } catch (NoSuchMethodException e) {
+          try {
+            // Before 243.19420.21-EAP-SNAPSHOT
+            constructor = GitBranchCheckoutOperation.class.getConstructor(Project.class, java.util.List.class);
+          } catch (NoSuchMethodException e1) {
+            throw new RuntimeException(e1);
+          }
+        }
+        GitBranchCheckoutOperation gitBranchCheckoutOperation;
+        try {
+          gitBranchCheckoutOperation = (GitBranchCheckoutOperation) constructor.newInstance(project,
+              Collections.singletonList(gitRepository));
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+          throw new RuntimeException(e);
+        }
         val git4IdeaOptions = options.toGit4IdeaOptions();
         try {
           // Since 233.10527.20-EAP-SNAPSHOT
@@ -202,8 +224,8 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
             throw new RuntimeException(e);
           }
         } catch (NoSuchMethodException e) {
-          // Before 233.10527.20-EAP-SNAPSHOT
           try {
+            // Before 233.10527.20-EAP-SNAPSHOT
             Method perform = GitBranchCheckoutOperation.class.getDeclaredMethod("perform", String.class,
                 GitNewBranchOptions.class);
             perform.invoke(gitBranchCheckoutOperation, startPoint, git4IdeaOptions);

@@ -1,6 +1,7 @@
 # Changelog
 
 ## v5.1.1
+- Fixed: compatibility issues with latest 2024.3 EAPs
 
 ## v5.1.0
 - Added: support for IntelliJ 2024.3.
