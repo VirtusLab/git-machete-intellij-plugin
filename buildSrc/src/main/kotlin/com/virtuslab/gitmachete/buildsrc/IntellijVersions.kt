@@ -43,9 +43,7 @@ data class IntellijVersions(
       // EAP-CANDIDATE-SNAPSHOTs apparently canNOT be used for either binary compatibility checks or UI tests.
       // Generally, see https://www.jetbrains.com/intellij-repository/snapshots/ -> Ctrl+F .idea
       // Use `null` if the latest supported major has a stable release (and not just EAPs).
-      val eapOfLatestSupportedMajor: String? =
-        intellijVersionsProperties.getPropertyOrNullIfEmpty("eapOfLatestSupportedMajor")
-          ?.replace("-EAP-(CANDIDATE-)?SNAPSHOT".toRegex(), "")
+      val eapOfLatestSupportedMajor: String? = intellijVersionsProperties.getPropertyOrNullIfEmpty("eapOfLatestSupportedMajor")
 
       val latestSupportedMajor: String = if (eapOfLatestSupportedMajor != null) {
         IntellijVersionHelper.buildNumberToMajorVersion(eapOfLatestSupportedMajor)
@@ -55,7 +53,9 @@ data class IntellijVersions(
 
       // This allows to change the target IntelliJ version
       // by using a project property 'overrideBuildTarget' while running tasks like runIde
-      val buildTarget: String = overrideBuildTarget ?: eapOfLatestSupportedMajor ?: latestStable
+      val buildTarget: String = overrideBuildTarget
+        ?: eapOfLatestSupportedMajor?.replace("-EAP-(CANDIDATE-)?SNAPSHOT".toRegex(), "")
+        ?: latestStable
 
       return IntellijVersions(
         earliestSupportedMajor = earliestSupportedMajor,

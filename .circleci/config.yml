@@ -50,6 +50,7 @@ commands:
           name: Reconfigure origin remote to https
           # language=sh
           command: git remote set-url origin https://${GITHUB_TOKEN}@github.com/VirtusLab/git-machete-intellij-plugin.git
+
   create_pull_request_if_files_changed:
     parameters:
       branch_name_prefix:
