@@ -75,7 +75,7 @@ function Project(underlyingProject) {
       sleep();
     } while (toolWindow === null && ++i < 50);
     if (toolWindow === null) {
-      throw new IlegalStateException("Waiting for condition timed out");
+      throw new IlegalStateException("Waiting for " + toolWindowId + " tool window timed out");
     }
 
     // The method is NOT meant to be executed on the UI thread,
@@ -83,7 +83,15 @@ function Project(underlyingProject) {
     ApplicationManager.getApplication().invokeAndWait(() => {
       toolWindow.activate(() => {});
       const contentManager = toolWindow.getContentManager();
-      const tab = contentManager.findContent(tabName);
+      let tab, i = 0;
+      do {
+        // It can (very rarely) happen that the tab isn't instantly available.
+        tab = contentManager.findContent(tabName);
+        sleep();
+      } while (tab === null && ++i < 10);
+      if (tab === null) {
+        throw new IlegalStateException("Waiting for " + tabName + " tab timed out");
+      }
       contentManager.setSelectedContent(tab);
     });
   };
