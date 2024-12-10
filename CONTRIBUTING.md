@@ -115,8 +115,8 @@ To build the project, run `./gradlew build`. Please note that for the initial bu
 
 Currently, quite generous maximum heap size options are applied for Gradle's Java compilation tasks (search for `-Xmx` in [build.gradle.kts](build.gradle.kts)). <br/>
 To overwrite them, use `compileJavaJvmArgs` Gradle project property
-(e.g. `./gradlew -PcompileJavaJvmArgs='-Xmx2g -XX:+HeapDumpOnOutOfMemoryError' build`,
-or equivalently with an env var: `ORG_GRADLE_PROJECT_compileJavaJvmArgs='-Xmx2g -XX:+HeapDumpOnOutOfMemoryError' ./gradlew build`).
+(e.g. `./gradlew -PcompileJavaJvmArgs='-Xmx10g -XX:+HeapDumpOnOutOfMemoryError' build`,
+or equivalently with an env var: `ORG_GRADLE_PROJECT_compileJavaJvmArgs='-Xmx10g -XX:+HeapDumpOnOutOfMemoryError' ./gradlew build`).
 
 Local (non-CI) builds by default skip most of [Checker Framework's](https://checkerframework.org/manual/) checkers to speed up Java compilation.<br/>
 To make local builds more aligned with CI builds (at the expense of ~2x longer compilation from scratch),
