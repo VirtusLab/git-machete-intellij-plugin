@@ -2,10 +2,10 @@ version: 2.1
 
 executors:
   docker_executor:
+    resource_class: large
     docker:
       - image: 'gitmachete/intellij-plugin-ci:11.0.0'
     working_directory: ~/git-machete-intellij-plugin
-    resource_class: large
 
 commands:
   restore_gradle_cache:
@@ -107,15 +107,13 @@ jobs:
           command: ./gradlew spotlessCheck
       - run:
           name: Compile production code
-          # Given the RAM limits on CI (8GB), max-workers=7 cause OOMs.
-          # Having 5 or 6 workers doesn't seem to decrease compilation time significantly, as compared to just 4.
-          command: ./gradlew --max-workers=4 classes
+          command: ./gradlew classes
       - run:
           name: Run static code analyzer
           command: ./gradlew --warn checkstyleMain checkstyleTestFixtures
       - run:
           name: Check Javadoc correctness
-          command: ./gradlew --max-workers=4 javadoc
+          command: ./gradlew javadoc
 
       - when:
           condition:
