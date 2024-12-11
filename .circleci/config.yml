@@ -175,7 +175,7 @@ jobs:
           destination: .
       - run:
           name: Verify binary compatibility with supported IntelliJ versions
-          command: ./gradlew verifyPlugin
+          command: ./gradlew --max-workers=2 verifyPlugin
 
       - when:
           condition:
