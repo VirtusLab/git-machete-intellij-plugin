@@ -81,10 +81,7 @@ allprojects {
     )
 
     options.isFork = true
-    options.forkOptions.jvmArgs?.addAll(
-      compileJavaJvmArgs
-        ?: (if (isCI) listOf() else listOf("-Xmx6G", "-XX:+HeapDumpOnOutOfMemoryError")),
-    )
+    options.forkOptions.jvmArgs?.addAll(compileJavaJvmArgs ?: listOf())
     // Required for better-strings to work under Java 17: https://github.com/antkorwin/better-strings/issues/21
     options.forkOptions.jvmArgs?.addAll(
       getFlagsForAddExports(
