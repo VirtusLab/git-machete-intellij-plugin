@@ -41,7 +41,6 @@ val pluginSignCertificateChain: String? by extra(System.getenv("PLUGIN_SIGN_CERT
 val pluginSignPrivateKey: String? by extra(System.getenv("PLUGIN_SIGN_PRIVATE_KEY_BASE64")?.fromBase64())
 val pluginSignPrivateKeyPass: String? by extra(System.getenv("PLUGIN_SIGN_PRIVATE_KEY_PASS"))
 
-val compileJavaJvmArgs: List<String>? by extra((project.properties["compileJavaJvmArgs"] as String?)?.split(" "))
 val shouldRunAllCheckers: Boolean by extra(isCI || project.hasProperty("runAllCheckers"))
 
 tasks.register<UpdateIntellijVersions>("updateIntellijVersions")
@@ -81,7 +80,6 @@ allprojects {
     )
 
     options.isFork = true
-    options.forkOptions.jvmArgs?.addAll(compileJavaJvmArgs ?: listOf())
     // Required for better-strings to work under Java 17: https://github.com/antkorwin/better-strings/issues/21
     options.forkOptions.jvmArgs?.addAll(
       getFlagsForAddExports(

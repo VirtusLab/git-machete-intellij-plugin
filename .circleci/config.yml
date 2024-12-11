@@ -6,9 +6,9 @@ executors:
     docker:
       - image: 'gitmachete/intellij-plugin-ci:11.0.0'
     working_directory: ~/git-machete-intellij-plugin
-    environment:
+    #environment:
       # Necessary to prevent CI crashes (at the slight expense of performance)
-      GRADLE_OPTS: '-Dorg.gradle.daemon=false'
+      #GRADLE_OPTS: '-Dorg.gradle.daemon=false'
 
 commands:
   restore_gradle_cache:
