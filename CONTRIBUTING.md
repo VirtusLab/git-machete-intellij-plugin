@@ -189,6 +189,7 @@ environment variable `IDEPROBE_PATHS_BASE` to the directory to which the user wh
 ```shell
 ./gradlew --stop  # to avoid conflicts on Gradle's internal lock files
 docker run --rm -e UID=$(id -u) -e GID=$(id -g) \
+      --platform linux/amd64 \
       -v "$PWD":/home/docker/git-machete-intellij-plugin \
       -v ~/.gradle:/home/docker/.gradle \
       -v ~/.pluginVerifier:/home/docker/.pluginVerifier \
