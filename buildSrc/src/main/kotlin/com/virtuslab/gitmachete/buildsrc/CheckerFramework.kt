@@ -107,7 +107,7 @@ fun Project.applySubtypingChecker() {
       val mainSourceSet = javaPlugin.sourceSets["main"]
       val qualClassDir = mainSourceSet.output.classesDirs.asPath
 
-      extraJavacArgs.add("-ASubtypingChecker_qualDirs=$qualClassDir")
+      extraJavacArgs.add("-AqualDirs=$qualClassDir")
     }
   }
 }

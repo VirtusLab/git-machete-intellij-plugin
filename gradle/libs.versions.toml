@@ -1,5 +1,5 @@
 [versions]
-checker = "3.47.0"
+checker = "3.48.3"
 junitJupiter = "5.10.3"
 
 [libraries]
@@ -22,7 +22,7 @@ mockito = "org.mockito:mockito-junit-jupiter:5.14.2"
 slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
 slf4j-mock = "org.simplify4u:slf4j-mock:2.3.0"
 slf4j-simple = "org.slf4j:slf4j-simple:1.7.36"
-vavr = "io.vavr:vavr:0.10.5"
+vavr = "io.vavr:vavr:0.10.4"
 
 # Note that certain plugins are also pulled in via buildSrc,
 # where they aren't really `apply`-ed as plugins, but rather added to classpath as plugin packages;
