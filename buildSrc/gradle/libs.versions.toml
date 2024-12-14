@@ -1,11 +1,11 @@
 [libraries]
-jsoup = "org.jsoup:jsoup:1.18.1"
-junit-api = "org.junit.jupiter:junit-jupiter-api:5.10.3"
+jsoup = "org.jsoup:jsoup:1.18.3"
+junit-api = "org.junit.jupiter:junit-jupiter-api:5.11.3"
 # Plugin packages
-# This way of applying the plugins was needed for the build-related code in buildSrc/src/main/,
+# This way of applying the plugins is needed for the build-related code in buildSrc/src/main/,
 # see https://docs.gradle.org/current/samples/sample_convention_plugins.html#things_to_note.
-pluginPackages-checkerFramework = "org.checkerframework:checkerframework-gradle-plugin:0.6.42"
-pluginPackages-grgit = "org.ajoberstar.grgit:grgit-gradle:5.2.2"
+pluginPackages-checkerFramework = "org.checkerframework:checkerframework-gradle-plugin:0.6.47"
+pluginPackages-grgit = "org.ajoberstar.grgit:grgit-gradle:5.3.0"
 pluginPackages-jetbrains-kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.22"
 pluginPackages-spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.25.0"
 
