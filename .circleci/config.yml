@@ -1,15 +1,28 @@
 version: 2.1
 
 executors:
-  docker_executor:
-    # https://circleci.com/docs/using-docker/#x86
-    # https://circleci.com/pricing/
+  ubuntu_executor:
+    machine:
+      # https://circleci.com/developer/images?imageType=machine
+      image: ubuntu-2204:2024.01.1
     resource_class: large
-    docker:
-      - image: 'gitmachete/intellij-plugin-ci:11.0.0'
     working_directory: ~/git-machete-intellij-plugin
 
 commands:
+  install_github_cli:
+    steps:
+      - run:
+          name: Install GitHub CLI
+          # language=sh
+          command: |
+            # Install the latest version of GitHub CLI
+            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+              | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+              | sudo tee /etc/apt/sources.list.d/github-cli.list
+            sudo apt-get update
+            sudo apt-get install gh -y
+
   restore_gradle_cache:
     steps:
       - restore_cache:
@@ -93,12 +106,22 @@ commands:
 
 jobs:
   build:
-    executor: docker_executor
+    executor: ubuntu_executor
     steps:
       - checkout
+      - install_github_cli
+      - run:
+          name: Install other dependencies for pre-build checks
+          # language=sh
+          command: |
+            sudo apt-get update
+            sudo apt-get install shellcheck -y
+            npm install --global remark-cli remark-lint-no-dead-urls remark-validate-links
+            remark --help
       - run:
           name: Run pre-build checks
           command: ./scripts/run-pre-build-checks
+
       - restore_gradle_cache
       - run:
           name: Start Gradle daemon
@@ -198,7 +221,7 @@ jobs:
                 key: gradle-deps-v12-{{ checksum "gradle/libs.versions.toml" }}-{{ .Branch }}
 
   ui-tests-recent:
-    executor: docker_executor
+    executor: ubuntu_executor
     steps:
       - checkout
       - restore_gradle_cache
@@ -211,7 +234,7 @@ jobs:
       - collect_ui_test_artifacts
 
   ui-tests-earlier:
-    executor: docker_executor
+    executor: ubuntu_executor
     steps:
       - run: echo  # there always needs to be at least one step left once conditions are evaluated
       - when:
@@ -227,7 +250,7 @@ jobs:
             # Hence, to speed up the builds, we only run them for develop/master/hotfix/release branches and not on PRs.
             # Also, we run on branches related to ide-probe or UI tests, as indicated by their name.
             matches:
-              pattern: "^(develop|hotfix/.+|.*ide(-)?probe.*|master|release/.+|.*ui(-)?test.*)$"
+              pattern: "^(.+/ci-.+|develop|hotfix/.+|.*ide(-)?probe.*|master|release/.+|.*ui(-)?test.*)$"
               value: << pipeline.git.branch >>
           steps:
             - checkout
@@ -238,7 +261,7 @@ jobs:
             - collect_ui_test_artifacts
 
   publish-plugin:
-    executor: docker_executor
+    executor: ubuntu_executor
     steps:
       - checkout
       - restore_gradle_cache
@@ -247,6 +270,7 @@ jobs:
           name: Publish plugin to Jetbrains Marketplace
           command: ./gradlew publishPlugin
       - reconfigure_origin_remote
+      - install_github_cli
       - run:
           name: Push git tag
           # language=sh
@@ -278,7 +302,7 @@ jobs:
             scripts/close-github-milestone "$milestone"
 
   check-for-updates:
-    executor: docker_executor
+    executor: ubuntu_executor
     steps:
       - checkout
       - run:
