@@ -18,7 +18,7 @@ fun Project.configureVersionFromGit() {
     // More precisely, "soon-to-happen-in-this-pipeline release version" in case of master builds
     version = prospectiveReleaseVersion
   } else if (!file(".git").exists()) {
-    // To make sure it's safe for Docker image builds where .git folder is unavailable
+    // To make sure it's safe for runs where .git folder is unavailable
     version = "$prospectiveReleaseVersion-SNAPSHOT"
   } else {
     val maybeSnapshot = if (ciBranch == "develop") "" else "-SNAPSHOT"

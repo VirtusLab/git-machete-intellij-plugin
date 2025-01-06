@@ -179,26 +179,10 @@ To regenerate the CLI outputs:
 See [Robot plugin](https://github.com/JetBrains/intellij-ui-test-robot)
 and [a preso on testing UI of IntelliJ Plugins](https://slides.com/plipski/intellij-plugin-ui-testing) for more details.
 
-#### macOS
+#### macOS and Xvfb mode
 
 It is not possible to run `uiTest` Gradle task in display mode `Xvfb` on macOS systems directly via `./gradlew`.
-You can run UI tests inside Docker container (based on `gitmachete/intellij-plugin-ci` image) or using a Linux virtual machine.
-Sample configuration for launching docker container is shown below. Environment variables `UID` and `GID` placed into the container will be the user and group identifiers
-of the files created inside it. In example below, current working directory navigates to top-level directory of the project. When starting the container we should care about setting
-environment variable `IDEPROBE_PATHS_BASE` to the directory to which the user whose `UID` and `GID` was passed to the container has access to (e.g. user's home directory).
-```shell
-./gradlew --stop  # to avoid conflicts on Gradle's internal lock files
-docker run --rm -e UID=$(id -u) -e GID=$(id -g) \
-      --platform linux/amd64 \
-      -v "$PWD":/home/docker/git-machete-intellij-plugin \
-      -v ~/.gradle:/home/docker/.gradle \
-      -v ~/.pluginVerifier:/home/docker/.pluginVerifier \
-      -v /tmp/ide-probe/cache:/tmp/ide-probe/cache \
-      -w /home/docker/git-machete-intellij-plugin \
-      gitmachete/intellij-plugin-ci \
-      ./gradlew -PvirtualDisplay uiTest
-```
-
+You can run UI tests using a Linux virtual machine.
 
 ## Generate and/or install snapshot build of the plugin
 
@@ -261,21 +245,6 @@ So far created UI conventions:
 * Add `…` (ellipsis, `\u2026`)  at the end of an action name if it is not executed immediately after clicking e.g. `Sync to Parent by Rebase…` (after this operation the interactive rebase window opens)
 * Toolbar name texts of a **toolbar** actions that refer to a branch should indicate the branch under action with the word `Current`.
   On the other hand, **context-menu** actions text names should be kept short (**no** `This`/`Selected`).
-
-
-## Rebuild the CI base image
-
-To push the rebuilt image, you need write access to [`gitmachete` organization on Docker Hub](https://hub.docker.com/orgs/gitmachete).
-`Dockerfile` together with the necessary `entrypoint.sh` exists under `docker` folder in project root directory.
-```shell
-cd docker/
-version=...  # determine the image version using Semantic Versioning rules
-docker build -t gitmachete/intellij-plugin-ci:$version -t gitmachete/intellij-plugin-ci:latest .
-docker push gitmachete/intellij-plugin-ci:$version
-docker push gitmachete/intellij-plugin-ci:latest
-```
-
-Then, update `executors.docker_executor.docker[0].image` in [.circleci/config.yml](.circleci/config.yml).
 
 
 ## Versioning
