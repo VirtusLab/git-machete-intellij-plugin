@@ -1,6 +1,7 @@
 # Changelog
 
 ## v5.1.2
+- Fixed: don't suggest deleting slid-out branch when it has children (to make work easier for the fork point algorithm)
 
 ## v5.1.1
 - Fixed: compatibility issues with latest 2024.3 EAPs

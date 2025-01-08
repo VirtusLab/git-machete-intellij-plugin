@@ -69,13 +69,31 @@ public class SlideOut {
 
   @ContinuesInBackground
   public void run(@UI Runnable doInUIThreadWhenReady) {
-    val slideOutBranchIsCurrent = branchToSlideOutName.equals(gitRepository.getCurrentBranchName());
-    if (slideOutBranchIsCurrent) {
-      LOG.debug("Skipping (optional) local branch deletion because it is equal to current branch");
+    val branchToSlideOutIsCurrent = branchToSlideOutName.equals(gitRepository.getCurrentBranchName());
+    val branchToSlideOut = branchLayout.getEntryByName(branchToSlideOutName);
+    if (branchToSlideOut == null) {
+      // Unlikely, let's handle this case to calm down Checker Framework.
+      return;
+    }
+    // If a branch has children in machete layout,
+    // it's better to NOT delete it so that fork points for the children are still computed correctly.
+    // See the point on "too many commits taken into rebase" in https://github.com/VirtusLab/git-machete#faq
+    val branchToSlideOutHasChildren = branchToSlideOut.getChildren().nonEmpty();
+    if (branchToSlideOutIsCurrent) {
+      LOG.debug("Skipping (optional) local branch deletion because it is current branch");
       slideOutBranchAndRunPostSlideOutHookIfPresent(() -> {
         VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
             /* title */ "",
-            getString("action.GitMachete.SlideOut.notification.title.slide-out-success.of-current.HTML").fmt(
+            getString("action.GitMachete.SlideOut.notification.title.slide-out-success.is-current.HTML").fmt(
+                branchToSlideOutName));
+        ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, doInUIThreadWhenReady);
+      });
+    } else if (branchToSlideOutHasChildren) {
+      LOG.debug("Skipping (optional) local branch deletion because it has children");
+      slideOutBranchAndRunPostSlideOutHookIfPresent(() -> {
+        VcsNotifier.getInstance(project).notifySuccess(/* displayId */ null,
+            /* title */ "",
+            getString("action.GitMachete.SlideOut.notification.title.slide-out-success.has-children.HTML").fmt(
                 branchToSlideOutName));
         ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, doInUIThreadWhenReady);
       });

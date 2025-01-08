@@ -225,6 +225,10 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         }
       }
 
+      def doesBranchExist(branch: String): Boolean = {
+        callJs[java.lang.Boolean](s"project.doesBranchExist('$branch')")
+      }
+
       def getCurrentBranchName(): String = {
         callJs[String]("project.getCurrentBranchName()")
       }
@@ -295,10 +299,6 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
 
       def refreshModelAndGetRowCount(): Int = {
         callJs("project.refreshGraphTableModel().getRowCount()")
-      }
-
-      def rejectBranchDeletionOnSlideOut(): Unit = doAndAwait {
-        runJs("project.rejectBranchDeletionOnSlideOut()")
       }
 
       def resetCurrentToRemote(): Unit = doAndAwait {

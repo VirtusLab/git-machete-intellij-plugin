@@ -571,6 +571,10 @@ function Project(underlyingProject) {
     return hash.asString();
   };
 
+  this.doesBranchExist = function (branchName) {
+    return this.getHashOfCommitPointedByBranch(branchName) != null;
+  }
+
   this.getSyncToParentStatus = function (child) {
     const snapshot = getGraphTable().getGitMacheteRepositorySnapshot();
     const managedBranch = snapshot.getManagedBranchByName(child);

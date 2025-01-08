@@ -2,7 +2,14 @@ package com.virtuslab.gitmachete.uitest
 
 import com.virtuslab.gitmachete.testcommon.SetupScripts.SETUP_WITH_SINGLE_REMOTE
 import com.virtuslab.gitmachete.testcommon.TestGitRepository
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.{
+  assertEquals,
+  assertFalse,
+  assertNotEquals,
+  assertNotNull,
+  assertNull,
+  assertTrue
+}
 import org.junit.jupiter.api.extension.{ExtendWith, ExtensionContext, TestWatcher}
 import org.junit.jupiter.api.{AfterEach, BeforeEach, Test}
 import org.virtuslab.ideprobe.Extensions._
@@ -108,15 +115,19 @@ class UITestSuite extends TestGitRepository(SETUP_WITH_SINGLE_REMOTE) {
 
     // Let's slide out a root branch now
     project.slideOutSelected("develop")
-    project.acceptBranchDeletionOnSlideOut()
+    // There shouldn't be a branch deletion dialog as `develop` has children (so it will be slid out but not deleted)
+    assertTrue(project.doesBranchExist("develop"))
     branchAndCommitRowsCount = project.refreshModelAndGetRowCount()
     // 6 branch rows (`develop` is no longer there) + 7 commit rows
     // (1 commit of `allow-ownership-link` and 3 commits of `call-ws` are all gone)
     assertEquals(13, branchAndCommitRowsCount)
 
     project.checkoutBranch("master")
+    assertTrue(project.doesBranchExist("call-ws"))
     project.slideOutSelected("call-ws")
-    project.rejectBranchDeletionOnSlideOut()
+    project.acceptBranchDeletionOnSlideOut()
+    assertFalse(project.doesBranchExist("call-ws"))
+
     val managedBranchesAfterSlideOut = project.refreshModelAndGetManagedBranches()
     // Non-existent branches should be skipped while causing no error (only a low-severity notification).
     assertEquals(
