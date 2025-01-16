@@ -1,5 +1,8 @@
 # Changelog
 
+## v5.2.0
+- Added: support for IntelliJ 2025.1.
+
 ## v5.1.2
 - Fixed: don't suggest deleting slid-out branch when it has children (to make work easier for the fork point algorithm)
 
