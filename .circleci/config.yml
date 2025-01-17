@@ -80,6 +80,7 @@ commands:
       labels:  # comma-separated
         type: string
     steps:
+      - install_github_cli
       - run:
           name: Create a pull request if project files changed
           # language=sh
