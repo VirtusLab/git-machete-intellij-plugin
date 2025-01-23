@@ -19,6 +19,7 @@ import git4idea.repo.GitRepository
 import git4idea.validators.*
 import io.vavr.collection.List
 import javax.swing.JCheckBox
+import kotlin.reflect.full.primaryConstructor
 
 data class MyGitNewBranchOptions @JvmOverloads constructor(
   val name: String,
@@ -26,7 +27,18 @@ data class MyGitNewBranchOptions @JvmOverloads constructor(
   @get:JvmName("shouldReset") val reset: Boolean = false,
   @get:JvmName("shouldKeepRemoteTrackingInfo") val keepTracking: Boolean = true,
 ) {
-  fun toGit4IdeaOptions(): GitNewBranchOptions = GitNewBranchOptions(name, checkout, reset, !keepTracking)
+
+  fun toGit4IdeaOptions(): GitNewBranchOptions {
+    // TODO (#1974): replace with a non-reflective call once 2024.3 is no longer supported
+    val constructor = GitNewBranchOptions::class.primaryConstructor!!
+    if (constructor.parameters.size == 4) {
+      // Before 251.17181.16-EAP-SNAPSHOT
+      return constructor.call(name, checkout, reset, !keepTracking)
+    } else {
+      // Since 251.17181.16-EAP-SNAPSHOT
+      return constructor.call(name, checkout, reset, !keepTracking, emptyList<GitRepository>())
+    }
+  }
 }
 
 /**
