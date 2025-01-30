@@ -1,5 +1,7 @@
 # Changelog
 
+## v5.2.1
+
 ## v5.2.0
 - Added: support for IntelliJ 2025.1.
 
