@@ -211,8 +211,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
           throw new RuntimeException(e);
         }
-        val git4IdeaOptions = options.toGit4IdeaOptions();
-        gitBranchCheckoutOperation.perform(startPoint, git4IdeaOptions, /* callInAwtLater */ null);
+        gitBranchCheckoutOperation.perform(startPoint, options.toGit4IdeaOptions(), /* callInAwtLater */ null);
       });
 
     } else if (options.shouldCheckout()) {

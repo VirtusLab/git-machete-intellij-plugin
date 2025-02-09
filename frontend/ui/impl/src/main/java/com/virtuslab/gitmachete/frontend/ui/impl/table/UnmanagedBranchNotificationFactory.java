@@ -89,6 +89,7 @@ public class UnmanagedBranchNotificationFactory {
         .createSimple(
             title,
             () -> {
+              // TODO (#1982): replace with CustomizedDataContext.withSnapshot(..., new DataSnapshotProvider() { ... })
               val dataContext = CustomizedDataContext.withProvider(DataManager.getInstance().getDataContext(), provider);
               @SuppressWarnings("removal") val actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.VCS_NOTIFICATION,
                   new Presentation(), dataContext);
@@ -130,6 +131,7 @@ public class UnmanagedBranchNotificationFactory {
     };
     return NotificationAction.createSimple(
         getString("action.GitMachete.OpenMacheteFileAction.description"), () -> {
+          // TODO (#1982): replace with CustomizedDataContext.withSnapshot(..., new DataSnapshotProvider() { ... })
           val dataContext = CustomizedDataContext.withProvider(DataManager.getInstance().getDataContext(), provider);
           @SuppressWarnings("removal") val actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.VCS_NOTIFICATION,
               new Presentation(), dataContext);
