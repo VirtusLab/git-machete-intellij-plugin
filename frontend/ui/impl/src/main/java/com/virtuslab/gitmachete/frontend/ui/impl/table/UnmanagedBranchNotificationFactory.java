@@ -13,6 +13,7 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.CustomizedDataContext;
+import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.DataSink;
 import com.intellij.openapi.actionSystem.DataSnapshotProvider;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -22,6 +23,12 @@ import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
+import static io.vavr.API.$;
+import static io.vavr.API.Case;
+import static io.vavr.API.Match;
+import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
@@ -70,21 +77,22 @@ public class UnmanagedBranchNotificationFactory {
         : getString("action.GitMachete.EnhancedGraphTable.unmanaged-branch-notification.action.slide-in")
             .fmt(inferredParent.getName());
     val nullableInferredParentName = inferredParent != null ? inferredParent.getName() : null;
-    val snapshot = new DataSnapshotProvider() {
+    val provider = new DataProvider() {
       @Override
-      public void dataSnapshot(DataSink dataSink) {
-        dataSink.set(CommonDataKeys.PROJECT, project);
-        dataSink.set(DataKeys.GIT_MACHETE_REPOSITORY_SNAPSHOT, gitMacheteRepositorySnapshot);
-        dataSink.set(DataKeys.SELECTED_BRANCH_NAME, nullableInferredParentName);
-        dataSink.set(DataKeys.UNMANAGED_BRANCH_NAME, branchName);
-        dataSink.set(CommonDataKeys.PROJECT, project);
+      public @Nullable Object getData(String dataId) {
+        return Match(dataId).of(
+                typeSafeCase(DataKeys.GIT_MACHETE_REPOSITORY_SNAPSHOT, gitMacheteRepositorySnapshot),
+                typeSafeCase(DataKeys.SELECTED_BRANCH_NAME, nullableInferredParentName),
+                typeSafeCase(DataKeys.UNMANAGED_BRANCH_NAME, branchName),
+                typeSafeCase(CommonDataKeys.PROJECT, project),
+                Case($(), (Object) null));
       }
     };
     return NotificationAction
         .createSimple(
             title,
             () -> {
-              val dataContext = CustomizedDataContext.withSnapshot(DataManager.getInstance().getDataContext(), snapshot);
+              val dataContext = CustomizedDataContext.withProvider(DataManager.getInstance().getDataContext(), provider);
               @SuppressWarnings("removal") val actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.VCS_NOTIFICATION,
                   new Presentation(), dataContext);
               ActionManager.getInstance().getAction(SLIDE_IN_UNMANAGED_BELOW).actionPerformed(actionEvent);
@@ -116,15 +124,15 @@ public class UnmanagedBranchNotificationFactory {
   }
 
   private NotificationAction getOpenMacheteFileAction() {
-    val snapshot = new DataSnapshotProvider() {
+    val provider = new DataProvider() {
       @Override
-      public void dataSnapshot(DataSink dataSink) {
-        dataSink.set(CommonDataKeys.PROJECT, project);
+      public @Nullable Object getData(String dataId) {
+        return dataId.equals(CommonDataKeys.PROJECT.getName()) ? project : null;
       }
     };
     return NotificationAction.createSimple(
         getString("action.GitMachete.OpenMacheteFileAction.description"), () -> {
-          val dataContext = CustomizedDataContext.withSnapshot(DataManager.getInstance().getDataContext(), snapshot);
+          val dataContext = CustomizedDataContext.withProvider(DataManager.getInstance().getDataContext(), provider);
           @SuppressWarnings("removal") val actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.VCS_NOTIFICATION,
               new Presentation(), dataContext);
           ActionManager.getInstance().getAction(OPEN_MACHETE_FILE).actionPerformed(actionEvent);
