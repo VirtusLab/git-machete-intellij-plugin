@@ -22,7 +22,6 @@ import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.jetbrains.annotations.NotNull;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
@@ -73,7 +72,7 @@ public class UnmanagedBranchNotificationFactory {
     val nullableInferredParentName = inferredParent != null ? inferredParent.getName() : null;
     val snapshot = new DataSnapshotProvider() {
       @Override
-      public void dataSnapshot(@NotNull DataSink dataSink) {
+      public void dataSnapshot(DataSink dataSink) {
         dataSink.set(CommonDataKeys.PROJECT, project);
         dataSink.set(DataKeys.GIT_MACHETE_REPOSITORY_SNAPSHOT, gitMacheteRepositorySnapshot);
         dataSink.set(DataKeys.SELECTED_BRANCH_NAME, nullableInferredParentName);
@@ -119,7 +118,7 @@ public class UnmanagedBranchNotificationFactory {
   private NotificationAction getOpenMacheteFileAction() {
     val snapshot = new DataSnapshotProvider() {
       @Override
-      public void dataSnapshot(@NotNull DataSink dataSink) {
+      public void dataSnapshot(DataSink dataSink) {
         dataSink.set(CommonDataKeys.PROJECT, project);
       }
     };
