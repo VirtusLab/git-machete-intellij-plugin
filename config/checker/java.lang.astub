@@ -1,9 +1,10 @@
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 package java.lang.reflect;
 
 class Constructor<T> {
-  T newInstance(@Nullable Object... initargs);
+  @NonNull T newInstance(@Nullable Object... initargs);
 }
 
 class Method {

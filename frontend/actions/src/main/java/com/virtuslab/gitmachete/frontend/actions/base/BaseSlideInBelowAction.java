@@ -9,7 +9,6 @@ import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Collections;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -17,7 +16,6 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitRemoteBranch;
-import git4idea.branch.GitNewBranchOptions;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.ui.branch.GitBranchCheckoutOperation;
