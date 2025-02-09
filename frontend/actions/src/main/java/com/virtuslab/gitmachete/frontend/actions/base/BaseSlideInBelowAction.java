@@ -212,27 +212,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
           throw new RuntimeException(e);
         }
         val git4IdeaOptions = options.toGit4IdeaOptions();
-        try {
-          // Since 233.10527.20-EAP-SNAPSHOT
-          Method perform = GitBranchCheckoutOperation.class.getDeclaredMethod("perform", String.class,
-              GitNewBranchOptions.class, Runnable.class);
-          try {
-            // TODO (#1755): replace with a non-reflective call once 2023.2 is no longer supported
-            @SuppressWarnings("nullness:argument") val ignore = perform.invoke(gitBranchCheckoutOperation, startPoint,
-                git4IdeaOptions, /* callInAwtLater */ null);
-          } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-          }
-        } catch (NoSuchMethodException e) {
-          try {
-            // Before 233.10527.20-EAP-SNAPSHOT
-            Method perform = GitBranchCheckoutOperation.class.getDeclaredMethod("perform", String.class,
-                GitNewBranchOptions.class);
-            perform.invoke(gitBranchCheckoutOperation, startPoint, git4IdeaOptions);
-          } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e1) {
-            throw new RuntimeException(e1);
-          }
-        }
+        gitBranchCheckoutOperation.perform(startPoint, git4IdeaOptions, /* callInAwtLater */ null);
       });
 
     } else if (options.shouldCheckout()) {

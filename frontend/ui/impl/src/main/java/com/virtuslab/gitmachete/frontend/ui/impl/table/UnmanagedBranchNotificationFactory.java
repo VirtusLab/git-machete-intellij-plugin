@@ -1,9 +1,13 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
+import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
 import static com.virtuslab.gitmachete.frontend.defs.ActionIds.OPEN_MACHETE_FILE;
 import static com.virtuslab.gitmachete.frontend.defs.ActionIds.SLIDE_IN_UNMANAGED_BELOW;
 import static com.virtuslab.gitmachete.frontend.defs.PropertiesComponentKeys.SHOW_UNMANAGED_BRANCH_NOTIFICATION;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
+import static io.vavr.API.$;
+import static io.vavr.API.Case;
+import static io.vavr.API.Match;
 
 import com.intellij.ide.DataManager;
 import com.intellij.ide.util.PropertiesComponent;
@@ -14,8 +18,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.CustomizedDataContext;
 import com.intellij.openapi.actionSystem.DataProvider;
-import com.intellij.openapi.actionSystem.DataSink;
-import com.intellij.openapi.actionSystem.DataSnapshotProvider;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import lombok.RequiredArgsConstructor;
@@ -23,12 +25,6 @@ import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import static io.vavr.API.$;
-import static io.vavr.API.Case;
-import static io.vavr.API.Match;
-import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
 
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
@@ -71,6 +67,7 @@ public class UnmanagedBranchNotificationFactory {
     return PropertiesComponent.getInstance(project).getBoolean(propertyKey, /* defaultValue */ true);
   }
 
+  @SuppressWarnings("removal")
   private NotificationAction getSlideInAction(Notification notification) {
     val title = inferredParent == null
         ? getString("action.GitMachete.EnhancedGraphTable.unmanaged-branch-notification.action.slide-in-as-root")
@@ -81,11 +78,11 @@ public class UnmanagedBranchNotificationFactory {
       @Override
       public @Nullable Object getData(String dataId) {
         return Match(dataId).of(
-                typeSafeCase(DataKeys.GIT_MACHETE_REPOSITORY_SNAPSHOT, gitMacheteRepositorySnapshot),
-                typeSafeCase(DataKeys.SELECTED_BRANCH_NAME, nullableInferredParentName),
-                typeSafeCase(DataKeys.UNMANAGED_BRANCH_NAME, branchName),
-                typeSafeCase(CommonDataKeys.PROJECT, project),
-                Case($(), (Object) null));
+            typeSafeCase(DataKeys.GIT_MACHETE_REPOSITORY_SNAPSHOT, gitMacheteRepositorySnapshot),
+            typeSafeCase(DataKeys.SELECTED_BRANCH_NAME, nullableInferredParentName),
+            typeSafeCase(DataKeys.UNMANAGED_BRANCH_NAME, branchName),
+            typeSafeCase(CommonDataKeys.PROJECT, project),
+            Case($(), (Object) null));
       }
     };
     return NotificationAction
@@ -123,6 +120,7 @@ public class UnmanagedBranchNotificationFactory {
             });
   }
 
+  @SuppressWarnings("removal")
   private NotificationAction getOpenMacheteFileAction() {
     val provider = new DataProvider() {
       @Override
