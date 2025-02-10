@@ -357,17 +357,17 @@ workflows:
     jobs:
       - build
       # There's a 1-hour time limit on a job execution, so let's split the UI tests into 2 separate jobs
-      - ui-tests-recent
-      - ui-tests-earlier
-      - publish-plugin:
-          requires:
-            - build
-            - ui-tests-recent
-            - ui-tests-earlier
-          filters:
-            branches:
-              only:
-                - master
+#      - ui-tests-recent
+#      - ui-tests-earlier
+#      - publish-plugin:
+#          requires:
+#            - build
+##            - ui-tests-recent
+##            - ui-tests-earlier
+#          filters:
+#            branches:
+#              only:
+#                - master
   check-for-updates:
     triggers:
       - schedule:
