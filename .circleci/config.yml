@@ -110,71 +110,71 @@ jobs:
     executor: ubuntu_executor
     steps:
       - checkout
-#      - install_github_cli
-#      - run:
-#          name: Install other dependencies for pre-build checks
-#          # language=sh
-#          command: |
-#            sudo apt-get update
-#            sudo apt-get install shellcheck -y
-#            npm install --global remark-cli remark-lint-no-dead-urls remark-validate-links
-#            remark --help
-#      - run:
-#          name: Run pre-build checks
-#          command: ./scripts/run-pre-build-checks
-#
+      - install_github_cli
+      - run:
+          name: Install other dependencies for pre-build checks
+          # language=sh
+          command: |
+            sudo apt-get update
+            sudo apt-get install shellcheck -y
+            npm install --global remark-cli remark-lint-no-dead-urls remark-validate-links
+            remark --help
+      - run:
+          name: Run pre-build checks
+          command: ./scripts/run-pre-build-checks
+
       - restore_gradle_cache
-#      - run:
-#          name: Start Gradle daemon
-#          command: ./gradlew
-#
-#      - run:
-#          name: Check formatting
-#          command: ./gradlew spotlessCheck
-#      - run:
-#          name: Compile production code
-#          command: ./gradlew classes
-#      - run:
-#          name: Run static code analyzer
-#          command: ./gradlew --warn checkstyleMain checkstyleTestFixtures
-#      - run:
-#          name: Check Javadoc correctness
-#          command: ./gradlew javadoc
-#
-#      - when:
-#          condition:
-#            matches:
-#              pattern: "^(.*ide(-)?probe.*)$"
-#              value: << pipeline.git.branch >>
-#          steps:
-#            - run:
-#                name: Install sbt
-#                # language=sh
-#                command: |
-#                  apt update
-#                  apt-get install apt-transport-https gnupg -yqq
-#                  echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | tee /etc/apt/sources.list.d/sbt.list
-#                  echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | tee /etc/apt/sources.list.d/sbt_old.list
-#                  curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/scalasbt-release.gpg --import
-#                  chmod 644 /etc/apt/trusted.gpg.d/scalasbt-release.gpg
-#                  apt-get update
-#                  apt-get install sbt
-#            - run:
-#                name: Publish ide-probe snapshots locally
-#                # language=sh
-#                command: |
-#                  cd ..
-#                  # Let's use the latest `master` commit by default. Note that ide-probe has no `develop` branch,
-#                  # hence `master` serves as a "logical develop" where all PRs are merged and wait to be included in a release.
-#                  # Of course, this repository/branch can be modified at will here in code during the development,
-#                  # to pull in snapshots of in-development branches from forks.
-#                  git clone https://github.com/VirtusLab/ide-probe.git -b master
-#                  cd ide-probe/
-#                  sbt api_2_13/publishM2 driver_2_13/publishM2 junit-driver_2_13/publishM2 robot-driver_2_13/publishM2 probe-plugin_2_13/publishM2
-#
-#      - run:
-#          name: Compile tests
-#          command: ./gradlew testClasses
+      - run:
+          name: Start Gradle daemon
+          command: ./gradlew
+
+      - run:
+          name: Check formatting
+          command: ./gradlew spotlessCheck
+      - run:
+          name: Compile production code
+          command: ./gradlew classes
+      - run:
+          name: Run static code analyzer
+          command: ./gradlew --warn checkstyleMain checkstyleTestFixtures
+      - run:
+          name: Check Javadoc correctness
+          command: ./gradlew javadoc
+
+      - when:
+          condition:
+            matches:
+              pattern: "^(.*ide(-)?probe.*)$"
+              value: << pipeline.git.branch >>
+          steps:
+            - run:
+                name: Install sbt
+                # language=sh
+                command: |
+                  apt update
+                  apt-get install apt-transport-https gnupg -yqq
+                  echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | tee /etc/apt/sources.list.d/sbt.list
+                  echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | tee /etc/apt/sources.list.d/sbt_old.list
+                  curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/scalasbt-release.gpg --import
+                  chmod 644 /etc/apt/trusted.gpg.d/scalasbt-release.gpg
+                  apt-get update
+                  apt-get install sbt
+            - run:
+                name: Publish ide-probe snapshots locally
+                # language=sh
+                command: |
+                  cd ..
+                  # Let's use the latest `master` commit by default. Note that ide-probe has no `develop` branch,
+                  # hence `master` serves as a "logical develop" where all PRs are merged and wait to be included in a release.
+                  # Of course, this repository/branch can be modified at will here in code during the development,
+                  # to pull in snapshots of in-development branches from forks.
+                  git clone https://github.com/VirtusLab/ide-probe.git -b master
+                  cd ide-probe/
+                  sbt api_2_13/publishM2 driver_2_13/publishM2 junit-driver_2_13/publishM2 robot-driver_2_13/publishM2 probe-plugin_2_13/publishM2
+
+      - run:
+          name: Compile tests
+          command: ./gradlew testClasses
       - run:
           name: Run unit & integration tests
           command: ./gradlew test
@@ -188,38 +188,38 @@ jobs:
       - store_test_results:
           path: build/test-results/
 
-#      - run:
-#          name: Build plugin artifact
-#          command: ./gradlew buildPlugin
-#      - run:
-#          name: Sign plugin artifact
-#          command: ./gradlew signPlugin
-#      - store_artifacts:
-#          path: build/distributions/
-#          destination: .
-#      - run:
-#          name: Verify binary compatibility with supported IntelliJ versions
-#          command: ./gradlew verifyPlugin
-#
-#      - when:
-#          condition:
-#            not:
-#              equal: [ master, << pipeline.git.branch >> ]
-#          steps:
-#            - run:
-#                name: Remove IntelliJ artifacts to reduce cache size
-#                # language=sh
-#                command: |
-#                  du -h -d1 ~/.gradle/caches/modules-2/files-2.1/ | sort -h
-#                  echo '---------'
-#                  rm -rf ~/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/
-#                  rm -rf ~/.gradle/caches/modules-2/files-2.1/idea/
-#                  rm -rf ~/.gradle/caches/.tmp/
-#                  rm -rf ~/.gradle/caches/*/transforms/
-#                  du -h -d3 ~/.gradle/ | sort -h
-#            - save_cache:
-#                paths: [ ~/.gradle/ ]
-#                key: gradle-deps-v12-{{ checksum "gradle/libs.versions.toml" }}-{{ .Branch }}
+      - run:
+          name: Build plugin artifact
+          command: ./gradlew buildPlugin
+      - run:
+          name: Sign plugin artifact
+          command: ./gradlew signPlugin
+      - store_artifacts:
+          path: build/distributions/
+          destination: .
+      - run:
+          name: Verify binary compatibility with supported IntelliJ versions
+          command: ./gradlew verifyPlugin
+
+      - when:
+          condition:
+            not:
+              equal: [ master, << pipeline.git.branch >> ]
+          steps:
+            - run:
+                name: Remove IntelliJ artifacts to reduce cache size
+                # language=sh
+                command: |
+                  du -h -d1 ~/.gradle/caches/modules-2/files-2.1/ | sort -h
+                  echo '---------'
+                  rm -rf ~/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/
+                  rm -rf ~/.gradle/caches/modules-2/files-2.1/idea/
+                  rm -rf ~/.gradle/caches/.tmp/
+                  rm -rf ~/.gradle/caches/*/transforms/
+                  du -h -d3 ~/.gradle/ | sort -h
+            - save_cache:
+                paths: [ ~/.gradle/ ]
+                key: gradle-deps-v12-{{ checksum "gradle/libs.versions.toml" }}-{{ .Branch }}
 
   ui-tests-recent:
     executor: ubuntu_executor
@@ -357,17 +357,17 @@ workflows:
     jobs:
       - build
       # There's a 1-hour time limit on a job execution, so let's split the UI tests into 2 separate jobs
-#      - ui-tests-recent
-#      - ui-tests-earlier
-#      - publish-plugin:
-#          requires:
-#            - build
-##            - ui-tests-recent
-##            - ui-tests-earlier
-#          filters:
-#            branches:
-#              only:
-#                - master
+      - ui-tests-recent
+      - ui-tests-earlier
+      - publish-plugin:
+          requires:
+            - build
+            - ui-tests-recent
+            - ui-tests-earlier
+          filters:
+            branches:
+              only:
+                - master
   check-for-updates:
     triggers:
       - schedule:
