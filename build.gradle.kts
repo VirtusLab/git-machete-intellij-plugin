@@ -18,9 +18,7 @@ plugins {
   alias(libs.plugins.taskTree)
 }
 
-fun getFlagsForAddExports(vararg packages: String, module: String): List<String> {
-  return packages.toList().map { "--add-exports=$module/$it=ALL-UNNAMED" }
-}
+fun getFlagsForAddExports(vararg packages: String, module: String): List<String> = packages.toList().map { "--add-exports=$module/$it=ALL-UNNAMED" }
 
 val targetJavaVersion: JavaVersion by extra(JavaVersion.VERSION_17)
 
@@ -404,7 +402,7 @@ val uiTestRuntimeOnly: Configuration by configurations.getting { extendsFrom(con
 configureUiTests()
 dependencies {
   uiTestImplementation(testFixtures(project(":testCommon")))
-  compileOnly("org.scala-lang:scala-library:2.13.14") // only needed to prevent IntelliJ loading error
+  compileOnly(libs.scalaLibrary) // only needed to prevent IntelliJ loading error
 }
 
 applyKotlinConfig()

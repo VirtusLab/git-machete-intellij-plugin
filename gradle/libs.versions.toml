@@ -19,6 +19,7 @@ junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref 
 junit-platform-launcher = "org.junit.platform:junit-platform-launcher:1.11.3"
 lombok = "org.projectlombok:lombok:1.18.36"
 mockito = "org.mockito:mockito-junit-jupiter:5.14.2"
+scalaLibrary = "org.scala-lang:scala-library:2.13.16"
 slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
 slf4j-mock = "org.simplify4u:slf4j-mock:2.3.0"
 slf4j-simple = "org.slf4j:slf4j-simple:1.7.36"
