@@ -49,11 +49,13 @@ open class UpdateIntellijVersions : DefaultTask() {
     return null
   }
 
-  private fun findReleaseNewerThan(version: String): String? = findFirstMatchingVersionNewerThan(
-    linksToIntellijReleases,
-    Regex("""(?<=ideaIC-)(\d+\.)+\d+(?=.pom)"""),
-    version,
-  )
+  private fun findReleaseNewerThan(version: String): String? {
+    return findFirstMatchingVersionNewerThan(
+      linksToIntellijReleases,
+      Regex("""(?<=ideaIC-)(\d+\.)+\d+(?=.pom)"""),
+      version,
+    )
+  }
 
   private fun findLatestMinorOfVersion(versionNumber: String): String {
     val major = versionToMajorVersion(versionNumber)
@@ -65,11 +67,13 @@ open class UpdateIntellijVersions : DefaultTask() {
     ) ?: versionNumber
   }
 
-  private fun findEapWithBuildNumberHigherThan(buildNumber: String): String? = findFirstMatchingVersionNewerThan(
-    linksToIntellijSnapshots,
-    Regex("""(?<=ideaIC-)\d+\.\d+\.\d+(?=-EAP-SNAPSHOT\.pom)"""),
-    buildNumber,
-  )
+  private fun findEapWithBuildNumberHigherThan(buildNumber: String): String? {
+    return findFirstMatchingVersionNewerThan(
+      linksToIntellijSnapshots,
+      Regex("""(?<=ideaIC-)\d+\.\d+\.\d+(?=-EAP-SNAPSHOT\.pom)"""),
+      buildNumber,
+    )
+  }
 
   @TaskAction
   fun execute() {

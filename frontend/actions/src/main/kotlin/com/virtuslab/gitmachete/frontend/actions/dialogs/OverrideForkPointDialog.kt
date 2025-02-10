@@ -38,15 +38,16 @@ class OverrideForkPointDialog(
     super.init()
   }
 
-  fun showAndGetSelectedCommit() = if (showAndGet()) {
-    when (myOverrideOption) {
-      OverrideOption.PARENT -> parent.pointedCommit
-      OverrideOption.INFERRED -> branch.forkPoint
-      OverrideOption.CUSTOM -> customCommit
+  fun showAndGetSelectedCommit() =
+    if (showAndGet()) {
+      when (myOverrideOption) {
+        OverrideOption.PARENT -> parent.pointedCommit
+        OverrideOption.INFERRED -> branch.forkPoint
+        OverrideOption.CUSTOM -> customCommit
+      }
+    } else {
+      null
     }
-  } else {
-    null
-  }
 
   override fun createCenterPanel() = panel {
     row {

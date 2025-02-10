@@ -17,7 +17,8 @@ data class SlideOutOptions(
   @get:JvmName("shouldRemember") val remember: Boolean = false,
   @get:JvmName("shouldDelete") val delete: Boolean = false,
 )
-class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branchName: @Untainted String) : DialogWrapper(project, /* canBeParent */ true) {
+class DeleteBranchOnSlideOutSuggestionDialog(project: Project, private val branchName: @Untainted String) :
+  DialogWrapper(project, /* canBeParent */ true) {
 
   private var remember = false
   private var delete = false

@@ -43,7 +43,7 @@ tasks.withType<Test> {
 }
 
 project.tasks.withType<KotlinCompile> {
-  compilerOptions {
+  kotlinOptions {
     allWarningsAsErrors = true
   }
 }

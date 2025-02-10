@@ -58,7 +58,8 @@ class MyGitNewBranchDialog @JvmOverloads constructor(
   private val showKeepRemoteOption: Boolean = false,
   private val localConflictsAllowed: Boolean = false,
   private val operation: GitBranchOperationType = if (showCheckOutOption) GitBranchOperationType.CREATE else GitBranchOperationType.CHECKOUT,
-) : DialogWrapper(project, true) {
+) :
+  DialogWrapper(project, true) {
 
   companion object {
     private const val NAME_SEPARATOR = '/'
@@ -170,36 +171,37 @@ class MyGitNewBranchDialog @JvmOverloads constructor(
     return directories
   }
 
-  private fun validateBranchName(onApply: Boolean, overwriteCheckbox: JCheckBox): ValidationInfoBuilder.(TextFieldWithCompletion) -> ValidationInfo? = {
-    // Do not change Document inside DocumentListener callback
-    invokeLater {
-      it.cleanBranchNameAndAdjustCursorIfNeeded()
-    }
+  private fun validateBranchName(onApply: Boolean, overwriteCheckbox: JCheckBox): ValidationInfoBuilder.(TextFieldWithCompletion) -> ValidationInfo? =
+    {
+      // Do not change Document inside DocumentListener callback
+      invokeLater {
+        it.cleanBranchNameAndAdjustCursorIfNeeded()
+      }
 
-    val branchName = validator.cleanUpBranchName(it.text).trim()
-    val errorInfo = (if (onApply) checkRefNameEmptyOrHead(branchName) else null)
-      ?: conflictsWithRemoteBranch(repositories, branchName)
-      ?: conflictsWithLocalBranchDirectory(localBranchDirectories, branchName)
-    if (errorInfo != null) {
-      error(errorInfo.message)
-    } else {
-      val localBranchConflict = conflictsWithLocalBranch(repositories, branchName)
-      overwriteCheckbox.isEnabled = localBranchConflict != null
-
-      if (localBranchConflict == null || overwriteCheckbox.isSelected) {
-        null // no conflicts or ask to reset
-      } else if (localBranchConflict.warning && localConflictsAllowed) {
-        warning(HtmlBuilder().append(localBranchConflict.message + ".").br().append(operation.description).toString())
-      } else if (showResetOption) {
-        error(
-          HtmlBuilder().append(localBranchConflict.message + ".").br()
-            .append(getString("string.GitMachete.MyGitNewBranchDialog.overwrite-warning")).toString(),
-        )
+      val branchName = validator.cleanUpBranchName(it.text).trim()
+      val errorInfo = (if (onApply) checkRefNameEmptyOrHead(branchName) else null)
+        ?: conflictsWithRemoteBranch(repositories, branchName)
+        ?: conflictsWithLocalBranchDirectory(localBranchDirectories, branchName)
+      if (errorInfo != null) {
+        error(errorInfo.message)
       } else {
-        error(localBranchConflict.message)
+        val localBranchConflict = conflictsWithLocalBranch(repositories, branchName)
+        overwriteCheckbox.isEnabled = localBranchConflict != null
+
+        if (localBranchConflict == null || overwriteCheckbox.isSelected) {
+          null // no conflicts or ask to reset
+        } else if (localBranchConflict.warning && localConflictsAllowed) {
+          warning(HtmlBuilder().append(localBranchConflict.message + ".").br().append(operation.description).toString())
+        } else if (showResetOption) {
+          error(
+            HtmlBuilder().append(localBranchConflict.message + ".").br()
+              .append(getString("string.GitMachete.MyGitNewBranchDialog.overwrite-warning")).toString(),
+          )
+        } else {
+          error(localBranchConflict.message)
+        }
       }
     }
-  }
 
   private fun TextFieldWithCompletion.cleanBranchNameAndAdjustCursorIfNeeded() {
     if (isDisposed) return

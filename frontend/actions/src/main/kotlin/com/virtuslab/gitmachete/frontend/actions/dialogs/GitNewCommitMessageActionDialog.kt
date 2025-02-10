@@ -34,9 +34,10 @@ internal class GitNewCommitMessageActionDialog(
     show()
   }
 
-  override fun createCenterPanel() = JBUI.Panels.simplePanel(UIUtil.DEFAULT_HGAP, UIUtil.DEFAULT_VGAP)
-    .addToTop(JBLabel(dialogLabel))
-    .addToCenter(commitEditor)
+  override fun createCenterPanel() =
+    JBUI.Panels.simplePanel(UIUtil.DEFAULT_HGAP, UIUtil.DEFAULT_VGAP)
+      .addToTop(JBLabel(dialogLabel))
+      .addToCenter(commitEditor)
 
   override fun getPreferredFocusedComponent() = commitEditor.editorField
 

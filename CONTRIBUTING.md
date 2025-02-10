@@ -155,16 +155,6 @@ set `forceRunTests` project property: `./gradlew -PforceRunTests test`.
 To include test stdout/stderr in the output of tests (without enabling `--info` log level in Gradle, which leads to a lot of spam),
 set `printTestOutput` project property: `./gradlew -PprintTestOutput test`.
 
-## Upgrade dependencies
-
-For some reason, Dependabot stopped working in GitHub in this repository around July 2024 (see [issue #1961](https://github.com/VirtusLab/git-machete-intellij-plugin/issues/1961)).
-
-Until it's resolved, use
-```
-dependabot update gradle VirtusLab/git-machete-intellij-plugin
-dependabot update gradle VirtusLab/git-machete-intellij-plugin -d buildSrc
-```
-
 ### Regenerate pre-recorded CLI outputs
 
 See [`backend/impl/src/test/resources`](backend/impl/src/test/resources) and
