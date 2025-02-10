@@ -73,8 +73,7 @@ class SlideInDialog(
 
   override fun getPreferredFocusedComponent() = branchField
 
-  override fun doValidateAll(): List<ValidationInfo> =
-    listOf(::validateBranchName).mapNotNull { it() }
+  override fun doValidateAll(): List<ValidationInfo> = listOf(::validateBranchName).mapNotNull { it() }
 
   fun getSlideInOptions(): SlideInOptions {
     val branchName = branchField.getText().orEmpty().trim()
@@ -139,92 +138,84 @@ class SlideInDialog(
     branchField.selectAll()
   }
 
-  private fun createPanel() =
-    JPanel().apply {
-      layout = MigLayout(LayoutConstraint().insets("0").hideMode(3), AxisConstraint().grow())
+  private fun createPanel() = JPanel().apply {
+    layout = MigLayout(LayoutConstraint().insets("0").hideMode(3), AxisConstraint().grow())
 
-      add(innerPanel, ComponentConstraint().growX())
-    }
-
-  private fun createInnerPanel(): JPanel {
-    return JPanel().apply {
-      layout =
-        MigLayout(
-          LayoutConstraint().fillX().insets("0").gridGap("0", "0").noVisualPadding(),
-          AxisConstraint().grow(100f, 1),
-        )
-
-      add(
-        JLabel(
-          getString(
-            "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.label.parent",
-          ),
-        ),
-        ComponentConstraint().gapAfter("0").minWidth("${JBUI.scale(100)}px"),
-      )
-
-      add(
-        JLabel("<html><b>${escapeHtml4(parentName)}</b></html>"),
-        ComponentConstraint().minWidth("${JBUI.scale(300)}px").growX().wrap(),
-      )
-
-      add(
-        JLabel(
-          getString(
-            "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.label.branch-name",
-          ),
-        ),
-        ComponentConstraint().gapAfter("0").minWidth("${JBUI.scale(100)}px"),
-      )
-
-      add(branchField, ComponentConstraint().minWidth("${JBUI.scale(300)}px").growX().wrap())
-
-      add(
-        JLabel(
-          getString(
-            "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.label.custom-annotation",
-          ),
-        ),
-        ComponentConstraint().gapAfter("0").minWidth("${JBUI.scale(100)}px"),
-      )
-
-      add(customAnnotationField, ComponentConstraint().minWidth("${JBUI.scale(300)}px").growX().wrap())
-
-      add(reattachCheckbox)
-    }
+    add(innerPanel, ComponentConstraint().growX())
   }
 
-  private fun createBranchField(): ComboBoxWithAutoCompletion<String> =
-    ComboBoxWithAutoCompletion(MutableCollectionComboBoxModel(mutableListOf<String>()), project)
-      .apply {
-        prototypeDisplayValue = "origin/long-enough-branch-name"
-        setPlaceholder(
-          getString(
-            "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.placeholder",
-          ),
-        )
-        @Suppress("DEPRECATION")
-        setUI(DarculaComboBoxUI(/* arc */ 0f, Insets(1, 0, 1, 0), /* paintArrowButton */false))
-        addDocumentListener(
-          object : DocumentListener {
-            override fun documentChanged(event: DocumentEvent) {
-              startTrackingValidation()
-              branchToAnnotation[branchField.getText()]?.also {
-                customAnnotationField.text = it
-              }
-            }
-          },
-        )
-      }
+  private fun createInnerPanel(): JPanel = JPanel().apply {
+    layout =
+      MigLayout(
+        LayoutConstraint().fillX().insets("0").gridGap("0", "0").noVisualPadding(),
+        AxisConstraint().grow(100f, 1),
+      )
 
-  private fun isDescendantOf(presumedDescendantName: String): (BranchLayoutEntry) -> Boolean {
-    return fun(presumedAncestorEntry: BranchLayoutEntry): Boolean {
-      return if (presumedAncestorEntry.children.exists { it.name == presumedDescendantName }) {
-        true
-      } else {
-        presumedAncestorEntry.children.exists(isDescendantOf(presumedDescendantName))
-      }
+    add(
+      JLabel(
+        getString(
+          "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.label.parent",
+        ),
+      ),
+      ComponentConstraint().gapAfter("0").minWidth("${JBUI.scale(100)}px"),
+    )
+
+    add(
+      JLabel("<html><b>${escapeHtml4(parentName)}</b></html>"),
+      ComponentConstraint().minWidth("${JBUI.scale(300)}px").growX().wrap(),
+    )
+
+    add(
+      JLabel(
+        getString(
+          "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.label.branch-name",
+        ),
+      ),
+      ComponentConstraint().gapAfter("0").minWidth("${JBUI.scale(100)}px"),
+    )
+
+    add(branchField, ComponentConstraint().minWidth("${JBUI.scale(300)}px").growX().wrap())
+
+    add(
+      JLabel(
+        getString(
+          "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.label.custom-annotation",
+        ),
+      ),
+      ComponentConstraint().gapAfter("0").minWidth("${JBUI.scale(100)}px"),
+    )
+
+    add(customAnnotationField, ComponentConstraint().minWidth("${JBUI.scale(300)}px").growX().wrap())
+
+    add(reattachCheckbox)
+  }
+
+  private fun createBranchField(): ComboBoxWithAutoCompletion<String> = ComboBoxWithAutoCompletion(MutableCollectionComboBoxModel(mutableListOf<String>()), project)
+    .apply {
+      prototypeDisplayValue = "origin/long-enough-branch-name"
+      setPlaceholder(
+        getString(
+          "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.placeholder",
+        ),
+      )
+      @Suppress("DEPRECATION")
+      setUI(DarculaComboBoxUI(/* arc */ 0f, Insets(1, 0, 1, 0), /* paintArrowButton */false))
+      addDocumentListener(
+        object : DocumentListener {
+          override fun documentChanged(event: DocumentEvent) {
+            startTrackingValidation()
+            branchToAnnotation[branchField.getText()]?.also {
+              customAnnotationField.text = it
+            }
+          }
+        },
+      )
     }
+
+  private fun isDescendantOf(presumedDescendantName: String): (BranchLayoutEntry) -> Boolean = fun(presumedAncestorEntry: BranchLayoutEntry): Boolean = if (presumedAncestorEntry.children.exists { it.name == presumedDescendantName }) {
+    true
+  } else {
+    presumedAncestorEntry.children.exists(isDescendantOf(presumedDescendantName))
   }
 
   private fun rerender() {

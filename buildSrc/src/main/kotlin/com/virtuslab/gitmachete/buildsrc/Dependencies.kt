@@ -34,17 +34,11 @@ fun Project.applyKotlinConfig() {
 }
 
 // See https://melix.github.io/blog/2021/03/version-catalogs-faq.html#_but_how_can_i_use_the_catalog_in_plugins_defined_in_buildsrc
-private fun Project.versionCatalog(): VersionCatalog {
-  return this.rootProject.extensions.getByType<VersionCatalogsExtension>().named("libs")
-}
+private fun Project.versionCatalog(): VersionCatalog = this.rootProject.extensions.getByType<VersionCatalogsExtension>().named("libs")
 
-private fun Project.bundle(id: String): Provider<ExternalModuleDependencyBundle> {
-  return this.versionCatalog().findBundle(id).get()
-}
+private fun Project.bundle(id: String): Provider<ExternalModuleDependencyBundle> = this.versionCatalog().findBundle(id).get()
 
-private fun Project.lib(id: String): Provider<MinimalExternalModuleDependency> {
-  return this.versionCatalog().findLibrary(id).get()
-}
+private fun Project.lib(id: String): Provider<MinimalExternalModuleDependency> = this.versionCatalog().findLibrary(id).get()
 
 private infix fun String.camelConcat(other: String): String {
   if (this != "") {

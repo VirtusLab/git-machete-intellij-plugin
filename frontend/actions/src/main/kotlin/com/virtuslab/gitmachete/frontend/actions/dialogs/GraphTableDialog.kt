@@ -70,52 +70,48 @@ private constructor(
           )
         }
 
-    fun ofDemoRepository() =
-      ApplicationManager.getApplication().getService(ISimpleGraphTableProvider::class.java)
-        .deriveDemoInstance()
-        .let {
-          GraphTableDialog(
-            table = it,
-            repositorySnapshot = null,
-            dimension = JBDimension(/* width */ 850, /* height */ 250),
-            saveAction = null,
-            saveAndEditAction = null,
-            cancelButtonVisible = false,
-            windowTitle = "Git Machete Help",
-            okButtonText = "Close",
-          )
-        }
+    fun ofDemoRepository() = ApplicationManager.getApplication().getService(ISimpleGraphTableProvider::class.java)
+      .deriveDemoInstance()
+      .let {
+        GraphTableDialog(
+          table = it,
+          repositorySnapshot = null,
+          dimension = JBDimension(/* width */ 850, /* height */ 250),
+          saveAction = null,
+          saveAndEditAction = null,
+          cancelButtonVisible = false,
+          windowTitle = "Git Machete Help",
+          okButtonText = "Close",
+        )
+      }
   }
 
-  override fun createActions() =
-    if (cancelButtonVisible) {
-      arrayOf(getSaveAndEditAction(), okAction, cancelAction).filterNotNull().toTypedArray()
-    } else {
-      arrayOf(okAction)
-    }
+  override fun createActions() = if (cancelButtonVisible) {
+    arrayOf(getSaveAndEditAction(), okAction, cancelAction).filterNotNull().toTypedArray()
+  } else {
+    arrayOf(okAction)
+  }
 
-  private fun getSaveAndEditAction() =
-    if (saveAndEditAction == null) {
-      null
-    } else {
-      object :
-        AbstractAction(
-          getString(
-            "action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.save-and-edit-button-text",
-          ),
-        ) {
-        override fun actionPerformed(e: ActionEvent?) {
-          repositorySnapshot?.let { saveAndEditAction.accept(it) }
-          close(OK_EXIT_CODE)
-        }
+  private fun getSaveAndEditAction() = if (saveAndEditAction == null) {
+    null
+  } else {
+    object :
+      AbstractAction(
+        getString(
+          "action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.save-and-edit-button-text",
+        ),
+      ) {
+      override fun actionPerformed(e: ActionEvent?) {
+        repositorySnapshot?.let { saveAndEditAction.accept(it) }
+        close(OK_EXIT_CODE)
       }
     }
+  }
 
-  override fun createCenterPanel() =
-    JBUI.Panels.simplePanel(/* hgap */ 0, /* vgap */ 2).apply {
-      addToCenter(ScrollPaneFactory.createScrollPane(this@GraphTableDialog.table))
-      preferredSize = dimension
-    }
+  override fun createCenterPanel() = JBUI.Panels.simplePanel(/* hgap */ 0, /* vgap */ 2).apply {
+    addToCenter(ScrollPaneFactory.createScrollPane(this@GraphTableDialog.table))
+    preferredSize = dimension
+  }
 
   @Override
   override fun doOKAction() {

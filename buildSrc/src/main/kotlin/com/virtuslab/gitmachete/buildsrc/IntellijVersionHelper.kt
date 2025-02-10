@@ -1,17 +1,11 @@
 package com.virtuslab.gitmachete.buildsrc
 
 object IntellijVersionHelper {
-  fun buildNumberToMajorVersion(buildNumber: String): String {
-    return "20${buildNumber.substring(0, 2)}.${buildNumber.substring(2, 3)}"
-  }
+  fun buildNumberToMajorVersion(buildNumber: String): String = "20${buildNumber.substring(0, 2)}.${buildNumber.substring(2, 3)}"
 
-  fun versionToBuildNumber(version: String): String {
-    return version.substring(2, 6).filter { it != '.' }
-  }
+  fun versionToBuildNumber(version: String): String = version.substring(2, 6).filter { it != '.' }
 
-  fun versionToMajorVersion(version: String): String {
-    return version.substring(0, 6)
-  }
+  fun versionToMajorVersion(version: String): String = version.substring(0, 6)
 
   infix fun String.versionIsNewerThan(rhsVersion: String): Boolean {
     val lhsSplit = this.split('.')

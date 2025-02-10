@@ -188,28 +188,32 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
     val remoteBranch = getGitRemoteBranch(gitRepository, branchName);
 
     if (remoteBranch == null) {
-      return Tuple.of(branchName, () -> {
-        // TODO (#1938): replace with a non-reflective call once 2024.2 is no longer supported
-        Constructor constructor;
-        try {
-          // Since 243.19420.21-EAP-SNAPSHOT
-          constructor = GitBranchCheckoutOperation.class.getConstructor(Project.class, java.util.Collection.class);
-        } catch (NoSuchMethodException e) {
+      return Tuple.of(branchName, new UiThreadUnsafeRunnable() {
+        @UIThreadUnsafe
+        @Override
+        public void run() {
+          // TODO (#1938): replace with a non-reflective call once 2024.2 is no longer supported
+          Constructor constructor;
           try {
-            // Before 243.19420.21-EAP-SNAPSHOT
-            constructor = GitBranchCheckoutOperation.class.getConstructor(Project.class, java.util.List.class);
-          } catch (NoSuchMethodException e1) {
-            throw new RuntimeException(e1);
+            // Since 243.19420.21-EAP-SNAPSHOT
+            constructor = GitBranchCheckoutOperation.class.getConstructor(Project.class, java.util.Collection.class);
+          } catch (NoSuchMethodException e) {
+            try {
+              // Before 243.19420.21-EAP-SNAPSHOT
+              constructor = GitBranchCheckoutOperation.class.getConstructor(Project.class, java.util.List.class);
+            } catch (NoSuchMethodException e1) {
+              throw new RuntimeException(e1);
+            }
           }
+          GitBranchCheckoutOperation gitBranchCheckoutOperation;
+          try {
+            gitBranchCheckoutOperation = (GitBranchCheckoutOperation) constructor.newInstance(project,
+                Collections.singletonList(gitRepository));
+          } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+          }
+          gitBranchCheckoutOperation.perform(startPoint, options.toGit4IdeaOptions(), /* callInAwtLater */ null);
         }
-        GitBranchCheckoutOperation gitBranchCheckoutOperation;
-        try {
-          gitBranchCheckoutOperation = (GitBranchCheckoutOperation) constructor.newInstance(project,
-              Collections.singletonList(gitRepository));
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-          throw new RuntimeException(e);
-        }
-        gitBranchCheckoutOperation.perform(startPoint, options.toGit4IdeaOptions(), /* callInAwtLater */ null);
       });
 
     } else if (options.shouldCheckout()) {
