@@ -9,13 +9,15 @@ import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
 
+import com.intellij.ide.DataManager;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationAction;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.CustomizedDataContext;
+import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import lombok.RequiredArgsConstructor;
@@ -65,31 +67,32 @@ public class UnmanagedBranchNotificationFactory {
     return PropertiesComponent.getInstance(project).getBoolean(propertyKey, /* defaultValue */ true);
   }
 
+  @SuppressWarnings("removal")
   private NotificationAction getSlideInAction(Notification notification) {
     val title = inferredParent == null
         ? getString("action.GitMachete.EnhancedGraphTable.unmanaged-branch-notification.action.slide-in-as-root")
         : getString("action.GitMachete.EnhancedGraphTable.unmanaged-branch-notification.action.slide-in")
             .fmt(inferredParent.getName());
     val nullableInferredParentName = inferredParent != null ? inferredParent.getName() : null;
+    val provider = new DataProvider() {
+      @Override
+      public @Nullable Object getData(String dataId) {
+        return Match(dataId).of(
+            typeSafeCase(DataKeys.GIT_MACHETE_REPOSITORY_SNAPSHOT, gitMacheteRepositorySnapshot),
+            typeSafeCase(DataKeys.SELECTED_BRANCH_NAME, nullableInferredParentName),
+            typeSafeCase(DataKeys.UNMANAGED_BRANCH_NAME, branchName),
+            typeSafeCase(CommonDataKeys.PROJECT, project),
+            Case($(), (Object) null));
+      }
+    };
     return NotificationAction
         .createSimple(
             title,
             () -> {
-              val dataContext = new DataContext() {
-                @Override
-                @SuppressWarnings("removal")
-                public @Nullable Object getData(String dataId) {
-                  return Match(dataId).of(
-                      typeSafeCase(DataKeys.GIT_MACHETE_REPOSITORY_SNAPSHOT, gitMacheteRepositorySnapshot),
-                      typeSafeCase(DataKeys.SELECTED_BRANCH_NAME, nullableInferredParentName),
-                      typeSafeCase(DataKeys.UNMANAGED_BRANCH_NAME, branchName),
-                      typeSafeCase(CommonDataKeys.PROJECT, project),
-                      Case($(), (Object) null));
-                }
-              };
+              // TODO (#1982): replace with CustomizedDataContext.withSnapshot(..., new DataSnapshotProvider() { ... })
+              val dataContext = CustomizedDataContext.withProvider(DataManager.getInstance().getDataContext(), provider);
               @SuppressWarnings("removal") val actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.VCS_NOTIFICATION,
-                  new Presentation(),
-                  dataContext);
+                  new Presentation(), dataContext);
               ActionManager.getInstance().getAction(SLIDE_IN_UNMANAGED_BELOW).actionPerformed(actionEvent);
               notification.expire();
             });
@@ -118,16 +121,18 @@ public class UnmanagedBranchNotificationFactory {
             });
   }
 
+  @SuppressWarnings("removal")
   private NotificationAction getOpenMacheteFileAction() {
+    val provider = new DataProvider() {
+      @Override
+      public @Nullable Object getData(String dataId) {
+        return dataId.equals(CommonDataKeys.PROJECT.getName()) ? project : null;
+      }
+    };
     return NotificationAction.createSimple(
         getString("action.GitMachete.OpenMacheteFileAction.description"), () -> {
-          val dataContext = new DataContext() {
-            @Override
-            @SuppressWarnings("removal")
-            public @Nullable Object getData(String dataId) {
-              return dataId.equals(CommonDataKeys.PROJECT.getName()) ? project : null;
-            }
-          };
+          // TODO (#1982): replace with CustomizedDataContext.withSnapshot(..., new DataSnapshotProvider() { ... })
+          val dataContext = CustomizedDataContext.withProvider(DataManager.getInstance().getDataContext(), provider);
           @SuppressWarnings("removal") val actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.VCS_NOTIFICATION,
               new Presentation(), dataContext);
           ActionManager.getInstance().getAction(OPEN_MACHETE_FILE).actionPerformed(actionEvent);

@@ -9,7 +9,6 @@ import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Collections;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -17,7 +16,6 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitRemoteBranch;
-import git4idea.branch.GitNewBranchOptions;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.ui.branch.GitBranchCheckoutOperation;
@@ -190,48 +188,31 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
     val remoteBranch = getGitRemoteBranch(gitRepository, branchName);
 
     if (remoteBranch == null) {
-      return Tuple.of(branchName, () -> {
-        // TODO (#1938): replace with a non-reflective call once 2024.2 is no longer supported
-        Constructor constructor;
-        try {
-          // Since 243.19420.21-EAP-SNAPSHOT
-          constructor = GitBranchCheckoutOperation.class.getConstructor(Project.class, java.util.Collection.class);
-        } catch (NoSuchMethodException e) {
+      return Tuple.of(branchName, new UiThreadUnsafeRunnable() {
+        @UIThreadUnsafe
+        @Override
+        public void run() {
+          // TODO (#1938): replace with a non-reflective call once 2024.2 is no longer supported
+          Constructor constructor;
           try {
-            // Before 243.19420.21-EAP-SNAPSHOT
-            constructor = GitBranchCheckoutOperation.class.getConstructor(Project.class, java.util.List.class);
-          } catch (NoSuchMethodException e1) {
-            throw new RuntimeException(e1);
+            // Since 243.19420.21-EAP-SNAPSHOT
+            constructor = GitBranchCheckoutOperation.class.getConstructor(Project.class, java.util.Collection.class);
+          } catch (NoSuchMethodException e) {
+            try {
+              // Before 243.19420.21-EAP-SNAPSHOT
+              constructor = GitBranchCheckoutOperation.class.getConstructor(Project.class, java.util.List.class);
+            } catch (NoSuchMethodException e1) {
+              throw new RuntimeException(e1);
+            }
           }
-        }
-        GitBranchCheckoutOperation gitBranchCheckoutOperation;
-        try {
-          gitBranchCheckoutOperation = (GitBranchCheckoutOperation) constructor.newInstance(project,
-              Collections.singletonList(gitRepository));
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-          throw new RuntimeException(e);
-        }
-        val git4IdeaOptions = options.toGit4IdeaOptions();
-        try {
-          // Since 233.10527.20-EAP-SNAPSHOT
-          Method perform = GitBranchCheckoutOperation.class.getDeclaredMethod("perform", String.class,
-              GitNewBranchOptions.class, Runnable.class);
+          GitBranchCheckoutOperation gitBranchCheckoutOperation;
           try {
-            // TODO (#1755): replace with a non-reflective call once 2023.2 is no longer supported
-            @SuppressWarnings("nullness:argument") val ignore = perform.invoke(gitBranchCheckoutOperation, startPoint,
-                git4IdeaOptions, /* callInAwtLater */ null);
-          } catch (IllegalAccessException | InvocationTargetException e) {
+            gitBranchCheckoutOperation = (GitBranchCheckoutOperation) constructor.newInstance(project,
+                Collections.singletonList(gitRepository));
+          } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
           }
-        } catch (NoSuchMethodException e) {
-          try {
-            // Before 233.10527.20-EAP-SNAPSHOT
-            Method perform = GitBranchCheckoutOperation.class.getDeclaredMethod("perform", String.class,
-                GitNewBranchOptions.class);
-            perform.invoke(gitBranchCheckoutOperation, startPoint, git4IdeaOptions);
-          } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e1) {
-            throw new RuntimeException(e1);
-          }
+          gitBranchCheckoutOperation.perform(startPoint, options.toGit4IdeaOptions(), /* callInAwtLater */ null);
         }
       });
 

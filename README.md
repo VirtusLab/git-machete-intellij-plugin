@@ -28,7 +28,7 @@ even when **multiple branches** are present in the repository
 🎯 With this plugin, you can maintain **small, focused, easy-to-review pull requests** with little effort.
 
 ⚙ It is compatible with all JetBrains products (IntelliJ IDEA, PyCharm, Android Studio etc.).
-The latest plugin version is available for IDE versions from 2022.3 onwards. <br/>
+The latest plugin version is available for IDE versions from 2024.2 onwards. <br/>
 Earlier plugin versions (which might not have all the latest features & fixes)
 are available for earlier IDE versions as well, starting from as early as 2020.1.
 
