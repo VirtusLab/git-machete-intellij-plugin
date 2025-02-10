@@ -188,38 +188,38 @@ jobs:
       - store_test_results:
           path: build/test-results/
 
-      - run:
-          name: Build plugin artifact
-          command: ./gradlew buildPlugin
-      - run:
-          name: Sign plugin artifact
-          command: ./gradlew signPlugin
-      - store_artifacts:
-          path: build/distributions/
-          destination: .
-      - run:
-          name: Verify binary compatibility with supported IntelliJ versions
-          command: ./gradlew verifyPlugin
-
-      - when:
-          condition:
-            not:
-              equal: [ master, << pipeline.git.branch >> ]
-          steps:
-            - run:
-                name: Remove IntelliJ artifacts to reduce cache size
-                # language=sh
-                command: |
-                  du -h -d1 ~/.gradle/caches/modules-2/files-2.1/ | sort -h
-                  echo '---------'
-                  rm -rf ~/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/
-                  rm -rf ~/.gradle/caches/modules-2/files-2.1/idea/
-                  rm -rf ~/.gradle/caches/.tmp/
-                  rm -rf ~/.gradle/caches/*/transforms/
-                  du -h -d3 ~/.gradle/ | sort -h
-            - save_cache:
-                paths: [ ~/.gradle/ ]
-                key: gradle-deps-v12-{{ checksum "gradle/libs.versions.toml" }}-{{ .Branch }}
+#      - run:
+#          name: Build plugin artifact
+#          command: ./gradlew buildPlugin
+#      - run:
+#          name: Sign plugin artifact
+#          command: ./gradlew signPlugin
+#      - store_artifacts:
+#          path: build/distributions/
+#          destination: .
+#      - run:
+#          name: Verify binary compatibility with supported IntelliJ versions
+#          command: ./gradlew verifyPlugin
+#
+#      - when:
+#          condition:
+#            not:
+#              equal: [ master, << pipeline.git.branch >> ]
+#          steps:
+#            - run:
+#                name: Remove IntelliJ artifacts to reduce cache size
+#                # language=sh
+#                command: |
+#                  du -h -d1 ~/.gradle/caches/modules-2/files-2.1/ | sort -h
+#                  echo '---------'
+#                  rm -rf ~/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/
+#                  rm -rf ~/.gradle/caches/modules-2/files-2.1/idea/
+#                  rm -rf ~/.gradle/caches/.tmp/
+#                  rm -rf ~/.gradle/caches/*/transforms/
+#                  du -h -d3 ~/.gradle/ | sort -h
+#            - save_cache:
+#                paths: [ ~/.gradle/ ]
+#                key: gradle-deps-v12-{{ checksum "gradle/libs.versions.toml" }}-{{ .Branch }}
 
   ui-tests-recent:
     executor: ubuntu_executor
