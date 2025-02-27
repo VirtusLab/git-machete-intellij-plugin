@@ -4,7 +4,7 @@ executors:
   ubuntu_executor:
     machine:
       # https://circleci.com/developer/images?imageType=machine
-      image: ubuntu-2204:2024.01.1
+      image: ubuntu-2404:2024.11.1
     resource_class: large
     working_directory: ~/git-machete-intellij-plugin
 

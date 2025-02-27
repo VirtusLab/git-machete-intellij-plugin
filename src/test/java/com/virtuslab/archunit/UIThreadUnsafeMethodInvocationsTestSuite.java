@@ -136,6 +136,7 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
       "git4idea.repo.GitRepository.getRoot()",
       "git4idea.repo.GitRepository.getState()",
       "git4idea.repo.GitRepository.getVcs()",
+      "git4idea.repo.GitRepository.toString()",
       "git4idea.ui.ComboBoxWithAutoCompletion.<init>(javax.swing.ComboBoxModel, com.intellij.openapi.project.Project)",
       "git4idea.ui.ComboBoxWithAutoCompletion.addDocumentListener(com.intellij.openapi.editor.event.DocumentListener)",
       "git4idea.ui.ComboBoxWithAutoCompletion.getModel()",

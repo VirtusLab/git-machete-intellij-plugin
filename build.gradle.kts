@@ -20,7 +20,7 @@ plugins {
 
 fun getFlagsForAddExports(vararg packages: String, module: String): List<String> = packages.toList().map { "--add-exports=$module/$it=ALL-UNNAMED" }
 
-val targetJavaVersion: JavaVersion by extra(JavaVersion.VERSION_17)
+val targetJavaVersion: JavaVersion by extra(JavaVersion.VERSION_21)
 
 val ciBranch: String? by extra(System.getenv("CIRCLE_BRANCH"))
 val isCI: Boolean by extra(System.getenv("CI") == "true")
@@ -78,7 +78,7 @@ allprojects {
     )
 
     options.isFork = true
-    // Required for better-strings to work under Java 17: https://github.com/antkorwin/better-strings/issues/21
+    // Required for better-strings to work under Java 17+: https://github.com/antkorwin/better-strings/issues/21
     options.forkOptions.jvmArgs?.addAll(
       getFlagsForAddExports(
         "com.sun.tools.javac.api",
