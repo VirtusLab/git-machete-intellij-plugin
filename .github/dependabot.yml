@@ -10,6 +10,11 @@ updates:
     reviewers:
       - PawelLipski
     target-branch: develop
+    groups:
+      deps:
+        patterns:
+          # To lump all updated dependencies together into a single PR (instead of PR-per-dependency)
+          - "*"
     ignore:
       # slf4j-simple 2.0.0 isn't compatible with slf4j-api v1.x.y, which is still pulled in by our dependencies.
       # See https://www.slf4j.org/faq.html#changesInVersion200.
@@ -30,6 +35,11 @@ updates:
     reviewers:
       - PawelLipski
     target-branch: develop
+    groups:
+      deps:
+        patterns:
+          # To lump all updated dependencies together into a single PR (instead of PR-per-dependency)
+          - "*"
     ignore:
       # As per https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#kotlin-standard-library:
       # "If a plugin supports multiple platform versions, it must (...) target the lowest bundled stdlib version".
