@@ -8,6 +8,8 @@ import org.virtuslab.ideprobe.{IdeProbeFixture, ProbeDriver, RunningIntelliJFixt
 import org.virtuslab.ideprobe.Extensions._
 import org.virtuslab.ideprobe.robot.RobotPluginExtension
 
+import scala.annotation.tailrec
+
 trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdeProbeFixture =>
 
   private def loadScript(baseName: String) = {
@@ -27,12 +29,30 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
       probe.await()
     }
 
+    @tailrec
+    private def retryOnConnectException[T](times: Int)(block: => T): T = {
+      try {
+        block
+      } catch {
+        case e: java.net.ConnectException =>
+          if (times > 1) {
+            println(s"Retrying due to ${e.getMessage}...")
+            Thread.sleep(3000)
+            retryOnConnectException(times - 1)(block)
+          } else {
+            throw new RuntimeException("Retries failed", e)
+          }
+      }
+    }
+
     private def runJs(
         @Language("JavaScript") statement: String,
         codebase: String = commonCodebase
     ): Unit = {
       println(s"runJs: executing `$statement`")
-      probe.withRobot.robot.runJs(codebase + statement, /* runInEdt */ false)
+      retryOnConnectException(3) {
+        probe.withRobot.robot.runJs(codebase + statement, /* runInEdt */ false)
+      }
       println(s"runJs: executed `$statement`")
     }
 
@@ -41,7 +61,9 @@ trait RunningIntelliJFixtureExtension extends RobotPluginExtension { this: IdePr
         codebase: String = commonCodebase
     ): T = {
       println(s"callJs: evaluating `$expression`")
-      val result = probe.withRobot.robot.callJs[T](codebase + expression, /* runInEdt */ false)
+      val result = retryOnConnectException(3) {
+        probe.withRobot.robot.callJs[T](codebase + expression, /* runInEdt */ false)
+      }
 
       val representation = result match {
         case array: Array[Int]    => java.util.Arrays.toString(array)
