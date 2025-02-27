@@ -101,7 +101,9 @@ function Project(underlyingProject) {
     const toolWindow = toolWindowManager.getToolWindow(ToolWindowId.VCS);
     const contentManager = toolWindow.getContentManager();
     const tab = contentManager.findContent('Git Machete');
+    System.out.println("getGraphTable: tab = " + tab);
     const panel = tab.getComponent();
+    System.out.println("getGraphTable: panel = " + panel);
     return panel.getGraphTable();
   };
 
@@ -177,7 +179,9 @@ function Project(underlyingProject) {
   };
 
   const invokeActionAsync = function (actionName, actionPlace, data) {
+    System.out.println("invokeActionAndWait: actionName = " + actionName);
     const action = getActionByName(actionName);
+    System.out.println("invokeActionAndWait: action = " + action);
     const actionEvent = createActionEvent(actionPlace, data);
 
     ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL,
@@ -186,7 +190,9 @@ function Project(underlyingProject) {
   };
 
   const invokeActionAndWait = function (actionName, actionPlace, data) {
+    System.out.println("invokeActionAndWait: actionName = " + actionName);
     const action = getActionByName(actionName);
+    System.out.println("invokeActionAndWait: action = " + action);
     const actionEvent = createActionEvent(actionPlace, data);
 
     ApplicationManager.getApplication().invokeAndWait(() => action.actionPerformed(actionEvent));

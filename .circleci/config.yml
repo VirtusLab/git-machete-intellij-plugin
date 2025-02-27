@@ -251,7 +251,8 @@ jobs:
             # Hence, to speed up the builds, we only run them for develop/master/hotfix/release branches and not on PRs.
             # Also, we run on branches related to ide-probe or UI tests, as indicated by their name.
             matches:
-              pattern: "^(.+/ci-.+|develop|hotfix/.+|.*ide(-)?probe.*|master|release/.+|.*ui(-)?test.*)$"
+              #pattern: "^(.+/ci-.+|develop|hotfix/.+|.*ide(-)?probe.*|master|release/.+|.*ui(-)?test.*)$"
+              pattern: "^.*$"
               value: << pipeline.git.branch >>
           steps:
             - checkout
