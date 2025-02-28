@@ -1,6 +1,8 @@
 # Please see the documentation for all configuration options:
 # https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
 
+# Tip: in case of problems with Dependabot not running, first check https://github.com/VirtusLab/git-machete-intellij-plugin/settings/actions
+
 version: 2
 updates:
   - package-ecosystem: "gradle"

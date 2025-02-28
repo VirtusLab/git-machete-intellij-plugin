@@ -2,7 +2,6 @@ package com.virtuslab.gitmachete.buildsrc
 
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
-import org.gradle.api.artifacts.ExternalModuleDependencyBundle
 import org.gradle.api.artifacts.MinimalExternalModuleDependency
 import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.artifacts.VersionCatalogsExtension
@@ -35,8 +34,6 @@ fun Project.applyKotlinConfig() {
 
 // See https://melix.github.io/blog/2021/03/version-catalogs-faq.html#_but_how_can_i_use_the_catalog_in_plugins_defined_in_buildsrc
 private fun Project.versionCatalog(): VersionCatalog = this.rootProject.extensions.getByType<VersionCatalogsExtension>().named("libs")
-
-private fun Project.bundle(id: String): Provider<ExternalModuleDependencyBundle> = this.versionCatalog().findBundle(id).get()
 
 private fun Project.lib(id: String): Provider<MinimalExternalModuleDependency> = this.versionCatalog().findLibrary(id).get()
 
@@ -129,20 +126,13 @@ fun Project.junit() {
   junitApi("test")
   dependencies {
     "testRuntimeOnly"(lib("junit-engine"))
+    "testRuntimeOnly"(lib("junit-platform-launcher"))
   }
 }
 
 fun Project.junitParams() {
   dependencies {
     "testImplementation"(lib("junit-params"))
-  }
-}
-
-// This is apparently only required for subprojects that have IntelliJ on classpath.
-// This might be related to the fact that IntelliJ itself pulls in JUnit 4 (rather than JUnit 5).
-fun Project.junitPlatformLauncher() {
-  dependencies {
-    "testRuntimeOnly"(lib("junit-platform-launcher"))
   }
 }
 

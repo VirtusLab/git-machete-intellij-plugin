@@ -14,7 +14,6 @@ dependencies {
 commonsIO()
 junit()
 junitParams()
-junitPlatformLauncher()
 lombok()
 mockito()
 slf4jLambdaApi()

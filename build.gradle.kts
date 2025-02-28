@@ -412,7 +412,6 @@ checkerQual("test")
 ideProbe()
 jgit("test")
 junit()
-junitPlatformLauncher()
 lombok("test")
 vavr("test")
 
