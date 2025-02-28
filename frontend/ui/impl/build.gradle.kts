@@ -12,7 +12,6 @@ dependencies {
 
 apacheCommonsText()
 junit()
-junitPlatformLauncher()
 lombok()
 slf4jLambdaApi()
 vavr()
