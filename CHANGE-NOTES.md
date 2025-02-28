@@ -4,6 +4,7 @@
 - Dropped: support for IntelliJ 2022.3 to 2024.1.
   Note that the versions of this plugin published so far will remain available for download in IntelliJ 2022.3 - 2024.1 indefinitely.
   The change in the range of supported IntelliJ versions will only affect the new plugin releases, starting from this one.
+- Fixed: compatibility issues with the latest 2025.1 EAPs.
 
 ## v5.2.0
 - Added: support for IntelliJ 2025.1.
