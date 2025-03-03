@@ -1,5 +1,7 @@
 # Changelog
 
+## v6.0.1
+
 ## v6.0.0
 - Dropped: support for IntelliJ 2022.3 to 2024.1.
   Note that the versions of this plugin published so far will remain available for download in IntelliJ 2022.3 - 2024.1 indefinitely.
