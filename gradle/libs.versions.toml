@@ -12,7 +12,7 @@ checker-qual = { module = "org.checkerframework:checker-qual", version.ref = "ch
 commonsIO = "commons-io:commons-io:2.18.0"
 ideProbe-robotDriver = "org.virtuslab.ideprobe:robot-driver_2.13:0.53.0"
 jetbrains-annotations = "org.jetbrains:annotations:26.0.2"
-jgit = "org.eclipse.jgit:org.eclipse.jgit:7.1.0.202411261347-r"
+jgit = "org.eclipse.jgit:org.eclipse.jgit:7.2.0.202503040940-r"
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiter" }
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiter" }
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junitJupiter" }
@@ -31,5 +31,5 @@ vavr = "io.vavr:vavr:0.10.6"
 [plugins]
 jetbrains-changelog = "org.jetbrains.changelog:2.2.1"
 jetbrains-grammarkit = "org.jetbrains.grammarkit:2022.3.2.2"
-jetbrains-intellij = "org.jetbrains.intellij.platform:2.3.0"
+jetbrains-intellij = "org.jetbrains.intellij.platform:2.4.0"
 taskTree = "com.dorongold.task-tree:4.0.1"
