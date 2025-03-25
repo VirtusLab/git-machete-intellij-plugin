@@ -127,6 +127,9 @@ fun Project.junit() {
   dependencies {
     "testRuntimeOnly"(lib("junit-engine"))
     "testRuntimeOnly"(lib("junit-platform-launcher"))
+    // JUnit 4 is for some reason needed since intellij-platform-gradle-plugin v2.4.0
+    // (might change with future updates of this Gradle plugin)
+    "testRuntimeOnly"(lib("junit4"))
   }
 }
 
