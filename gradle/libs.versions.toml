@@ -18,7 +18,7 @@ junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "jun
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiter" }
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junitJupiter" }
 junit-platform-launcher = "org.junit.platform:junit-platform-launcher:1.12.1"
-lombok = "org.projectlombok:lombok:1.18.36"
+lombok = "org.projectlombok:lombok:1.18.38"
 mockito = "org.mockito:mockito-junit-jupiter:5.16.1"
 scalaLibrary = "org.scala-lang:scala-library:2.13.16"
 slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
