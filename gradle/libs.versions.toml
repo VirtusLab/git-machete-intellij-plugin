@@ -1,5 +1,5 @@
 [versions]
-checker = "3.49.1"
+checker = "3.49.2"
 junitJupiter = "5.12.1"
 
 [libraries]
@@ -19,7 +19,7 @@ junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref 
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junitJupiter" }
 junit-platform-launcher = "org.junit.platform:junit-platform-launcher:1.12.1"
 lombok = "org.projectlombok:lombok:1.18.38"
-mockito = "org.mockito:mockito-junit-jupiter:5.16.1"
+mockito = "org.mockito:mockito-junit-jupiter:5.17.0"
 scalaLibrary = "org.scala-lang:scala-library:2.13.16"
 slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
 slf4j-mock = "org.simplify4u:slf4j-mock:2.4.0"
