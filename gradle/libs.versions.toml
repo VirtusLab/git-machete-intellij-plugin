@@ -1,6 +1,6 @@
 [versions]
 checker = "3.49.1"
-junitJupiter = "5.12.1"
+junitJupiter = "5.12.2"
 
 [libraries]
 # Libraries
@@ -9,7 +9,7 @@ archunit = "com.tngtech.archunit:archunit:1.4.0"
 betterStrings = "com.antkorwin:better-strings:0.5"
 checker = { module = "org.checkerframework:checker", version.ref = "checker" }
 checker-qual = { module = "org.checkerframework:checker-qual", version.ref = "checker" }
-commonsIO = "commons-io:commons-io:2.18.0"
+commonsIO = "commons-io:commons-io:2.19.0"
 ideProbe-robotDriver = "org.virtuslab.ideprobe:robot-driver_2.13:0.53.0"
 jetbrains-annotations = "org.jetbrains:annotations:26.0.2"
 jgit = "org.eclipse.jgit:org.eclipse.jgit:7.2.0.202503040940-r"
@@ -17,7 +17,7 @@ junit4 = "junit:junit:4.13.2"
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiter" }
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiter" }
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junitJupiter" }
-junit-platform-launcher = "org.junit.platform:junit-platform-launcher:1.12.1"
+junit-platform-launcher = "org.junit.platform:junit-platform-launcher:1.12.2"
 lombok = "org.projectlombok:lombok:1.18.38"
 mockito = "org.mockito:mockito-junit-jupiter:5.17.0"
 scalaLibrary = "org.scala-lang:scala-library:2.13.16"
