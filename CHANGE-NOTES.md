@@ -1,6 +1,7 @@
 # Changelog
 
-## v6.0.1
+## v6.1.0
+- Added: support for IntelliJ 2025.2.
 
 ## v6.0.0
 - Dropped: support for IntelliJ 2022.3 to 2024.1.

@@ -8,5 +8,6 @@ build/
 /*.hprof.*/
 /.idea/
 /.intellijPlatform/
+*.log
 *.pem
 .sdkmanrc
