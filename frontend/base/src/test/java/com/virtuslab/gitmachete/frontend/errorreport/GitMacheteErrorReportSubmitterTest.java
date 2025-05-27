@@ -1,6 +1,6 @@
-package com.virtuslab.gitmachete.frontend.ui.impl.errorreport;
+package com.virtuslab.gitmachete.frontend.errorreport;
 
-import static com.virtuslab.gitmachete.frontend.ui.impl.errorreport.GitMacheteErrorReportSubmitter.MAX_GITHUB_URI_LENGTH;
+import static com.virtuslab.gitmachete.frontend.errorreport.GitMacheteErrorReportSubmitter.MAX_GITHUB_URI_LENGTH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

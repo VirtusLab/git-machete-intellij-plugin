@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.frontend.ui.impl.errorreport;
+package com.virtuslab.gitmachete.frontend.errorreport;
 
 class DummyPlatformInfoProvider extends PlatformInfoProvider {
   @Override

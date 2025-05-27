@@ -11,7 +11,6 @@ dependencies {
 }
 
 apacheCommonsText()
-junit()
 lombok()
 slf4jLambdaApi()
 vavr()
