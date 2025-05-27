@@ -46,7 +46,7 @@ public final class MacheteIcons {
   public static final Icon TRAVERSE = loadIcon("traverse");
 
   private static Icon loadIcon(String basename) {
-    return IconLoader.getIcon("/${basename}.svg", MacheteIcons.class);
+    return IconLoader.getIcon("/icons/${basename}.svg", MacheteIcons.class);
   }
 
 }
