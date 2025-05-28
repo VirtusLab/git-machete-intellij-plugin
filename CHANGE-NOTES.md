@@ -1,5 +1,7 @@
 # Changelog
 
+## v6.1.1
+
 ## v6.1.0
 - Added: support for IntelliJ 2025.2.
 
