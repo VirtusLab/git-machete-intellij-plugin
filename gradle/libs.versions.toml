@@ -1,6 +1,6 @@
 [versions]
 checker = "3.49.1"
-junitJupiter = "5.12.2"
+junitJupiter = "5.13.0"
 
 [libraries]
 # Libraries
@@ -17,7 +17,7 @@ junit4 = "junit:junit:4.13.2"
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiter" }
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiter" }
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junitJupiter" }
-junit-platform-launcher = "org.junit.platform:junit-platform-launcher:1.12.2"
+junit-platform-launcher = "org.junit.platform:junit-platform-launcher:1.13.0"
 lombok = "org.projectlombok:lombok:1.18.38"
 mockito = "org.mockito:mockito-junit-jupiter:5.18.0"
 scalaLibrary = "org.scala-lang:scala-library:2.13.16"
