@@ -30,10 +30,6 @@ updates:
       #   The `embedded-kotlin` and `kotlin-dsl` plugins rely on features of Kotlin `1.9.22`
       #   that might work differently than in the requested version `1.9.23`.
       - dependency-name: "org.jetbrains.kotlin:kotlin-gradle-plugin"
-      - dependency-name: "org.checkerframework:checker"
-        version: "3.49.2"
-      - dependency-name: "org.checkerframework:checker-qual"
-        version: "3.49.2"
   - package-ecosystem: "gradle"
     directory: "/buildSrc/"
     schedule:
