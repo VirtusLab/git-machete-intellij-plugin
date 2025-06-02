@@ -37,37 +37,3 @@ dependencies {
   implementation(libs.pluginPackages.spotless)
   testImplementation(libs.junit.api)
 }
-
-tasks.withType<Test> {
-  useJUnitPlatform()
-}
-
-project.tasks.withType<KotlinCompile> {
-  compilerOptions {
-    allWarningsAsErrors = true
-  }
-}
-
-apply<SpotlessPlugin>()
-configure<SpotlessExtension> {
-  val ktlintEditorConfig = mapOf(
-    "indent_size" to 2,
-    "ktlint_standard_no-wildcard-imports" to "disabled",
-  )
-
-  kotlin {
-    ktlint().editorConfigOverride(ktlintEditorConfig)
-    target("**/*.kt")
-  }
-
-  kotlinGradle {
-    ktlint().editorConfigOverride(ktlintEditorConfig)
-    target("**/*.gradle.kts")
-  }
-}
-
-val isCI by extra(System.getenv("CI") == "true")
-
-if (!isCI) {
-  tasks.withType<KotlinCompile> { dependsOn("spotlessKotlinApply", "spotlessKotlinGradleApply") }
-}

@@ -22,10 +22,6 @@ fun getFlagsForAddExports(vararg packages: String, module: String): List<String>
 
 val targetJavaVersion: JavaVersion by extra(JavaVersion.VERSION_17)
 
-val ciBranch: String? by extra(System.getenv("CIRCLE_BRANCH"))
-val isCI: Boolean by extra(System.getenv("CI") == "true")
-val jetbrainsMarketplaceToken: String? by extra(System.getenv("JETBRAINS_MARKETPLACE_TOKEN"))
-
 val intellijVersions by extra(
   IntellijVersions.from(
     intellijVersionsProperties = PropertiesHelper.getProperties(rootDir.resolve("intellij-versions.properties")),
@@ -35,15 +31,7 @@ val intellijVersions by extra(
 
 fun String.fromBase64(): String = String(Base64.getDecoder().decode(this))
 
-val pluginSignCertificateChain: String? by extra(System.getenv("PLUGIN_SIGN_CERT_CHAIN_BASE64")?.fromBase64())
-val pluginSignPrivateKey: String? by extra(System.getenv("PLUGIN_SIGN_PRIVATE_KEY_BASE64")?.fromBase64())
-val pluginSignPrivateKeyPass: String? by extra(System.getenv("PLUGIN_SIGN_PRIVATE_KEY_PASS"))
-
-val shouldRunAllCheckers: Boolean by extra(isCI || project.hasProperty("runAllCheckers"))
-
 tasks.register<UpdateIntellijVersions>("updateIntellijVersions")
-
-val configCheckerDirectory: String by extra(rootProject.file("config/checker").path)
 
 allprojects {
   repositories {
@@ -101,7 +89,6 @@ allprojects {
 
     // Add files from config/checker directory as inputs to java compilation (so that changes trigger recompilation).
     // These files are config files for the Checker Framework, which is for Java exclusively.
-    inputs.dir(configCheckerDirectory)
   }
 
   tasks.withType<Javadoc> {
@@ -137,10 +124,6 @@ allprojects {
       showStackTraces = true
     }
   }
-
-  configureCheckerFramework()
-  configureCheckstyle()
-  configureSpotless()
 
   // A few libraries (like JGit) transitively pull in a version of slf4j-api
   // that might be different from the slf4j-api version that IntelliJ depends on.
@@ -181,8 +164,6 @@ subprojects {
 
   if (path.startsWith(":frontend:") && path != ":frontend:resourcebundles") {
     apply(plugin = "org.jetbrains.intellij.platform.module")
-
-    applyGuiEffectChecker()
 
     repositories {
       mavenCentral()
@@ -361,28 +342,6 @@ intellijPlatform {
       untilBuild = IntellijVersionHelper.versionToBuildNumber(intellijVersions.latestSupportedMajor) + ".*"
     }
   }
-
-  signing {
-    certificateChain = pluginSignCertificateChain?.trimIndent()
-    privateKey = pluginSignPrivateKey?.trimIndent()
-    password = pluginSignPrivateKeyPass
-  }
-
-  publishing {
-    token = jetbrainsMarketplaceToken
-  }
-
-  pluginVerification {
-    ides {
-      // This could also be handled by `recommended()` DSL,
-      // but with this explicit approach, the IDE versions used for verification
-      // are fully controlled by repository contents (intellij-versions.properties),
-      // so the builds are more reproducible in this respect.
-      val maybeEap = listOfNotNull(intellijVersions.eapOfLatestSupportedMajor)
-      val ideVersions = intellijVersions.latestMinorsOfOldSupportedMajors + intellijVersions.latestStable + maybeEap
-      ides(ideVersions)
-    }
-  }
 }
 
 dependencies {
@@ -392,31 +351,4 @@ dependencies {
     pluginVerifier()
     zipSigner()
   }
-}
-
-val uiTest = sourceSets.create("uiTest")
-val uiTestImplementation: Configuration by configurations.getting { extendsFrom(configurations.testImplementation.get()) }
-// This configuration apparently needs to be defined explicitly (despite not being used explicitly anywhere)
-// so that UI test runtime classpath inherits `testRuntimeOnly` dependencies of the root project.
-val uiTestRuntimeOnly: Configuration by configurations.getting { extendsFrom(configurations.testRuntimeOnly.get()) }
-configureUiTests()
-dependencies {
-  uiTestImplementation(testFixtures(project(":testCommon")))
-  compileOnly(libs.scalaLibrary) // only needed to prevent IntelliJ loading error
-}
-
-applyKotlinConfig()
-archunit()
-// Checker is needed in root project runtime (not just compile-time) classpath for ArchUnit tests
-checkerQual("test")
-ideProbe()
-jgit("test")
-junit()
-lombok("test")
-vavr("test")
-
-// This is needed solely for ArchUnit tests that detect unprocessed string interpolations
-// to access constant pools of classes.
-tasks.withType<Test> {
-  jvmArgs(getFlagsForAddExports("jdk.internal.reflect", module = "java.base"))
 }

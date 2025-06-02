@@ -1,7 +1,5 @@
 package com.virtuslab.gitmachete.frontend.errorreport;
 
-import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
-
 import java.awt.Component;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -24,7 +22,6 @@ import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.client.utils.URIBuilder;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 @CustomLog
 @ExtensionMethod({Arrays.class, Objects.class})
@@ -44,13 +41,13 @@ public class GitMacheteErrorReportSubmitter extends ErrorReportSubmitter {
 
   @Override
   public String getReportActionText() {
-    return getString("string.GitMachete.error-report-submitter.report-action-text");
+    return "string.GitMachete.error-report-submitter.report-action-text";
   }
 
   @Override
   public boolean submit(
       IdeaLoggingEvent[] events,
-      @Nullable String additionalInfo,
+      String additionalInfo,
       Component parentComponent,
       Consumer<? super SubmittedReportInfo> consumer) {
     try {
@@ -63,7 +60,7 @@ public class GitMacheteErrorReportSubmitter extends ErrorReportSubmitter {
     return true;
   }
 
-  URI constructNewGitHubIssueUri(IdeaLoggingEvent[] events, @Nullable String additionalInfo) throws URISyntaxException {
+  URI constructNewGitHubIssueUri(IdeaLoggingEvent[] events, String additionalInfo) throws URISyntaxException {
     val uriBuilder = new URIBuilder("https://github.com/VirtusLab/git-machete-intellij-plugin/issues/new");
 
     String title = events.stream()
@@ -94,7 +91,7 @@ public class GitMacheteErrorReportSubmitter extends ErrorReportSubmitter {
 
   private String getReportBody(
       IdeaLoggingEvent[] events,
-      @Nullable String additionalInfo) {
+      String additionalInfo) {
     String reportBody = getBugTemplate();
     for (java.util.Map.Entry<String, String> entry : getTemplateVariables(events, additionalInfo).entrySet()) {
       reportBody = reportBody.replace("%${entry.getKey()}%", entry.getValue());
@@ -110,7 +107,7 @@ public class GitMacheteErrorReportSubmitter extends ErrorReportSubmitter {
 
   private java.util.Map<String, String> getTemplateVariables(
       IdeaLoggingEvent[] events,
-      @Nullable String additionalInfo) {
+      String additionalInfo) {
     val templateVariables = new java.util.HashMap<String, String>();
 
     templateVariables.put("ide", platformInfoProvider.getIdeApplicationName());

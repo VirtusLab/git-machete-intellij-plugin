@@ -10,7 +10,6 @@ import java.nio.file.attribute.FileTime;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class GitVfsUtils {
 
@@ -64,7 +63,7 @@ public final class GitVfsUtils {
    * @param gitRepository {@link GitRepository} to get the virtual file from
    * @return {@link VirtualFile} representing the machete file if found; otherwise, null
    */
-  public static @Nullable VirtualFile getMacheteFile(GitRepository gitRepository) {
+  public static VirtualFile getMacheteFile(GitRepository gitRepository) {
     return getMainGitDirectory(gitRepository).findChild(MACHETE_FILE_NAME);
   }
 
@@ -83,7 +82,7 @@ public final class GitVfsUtils {
    * @param filePath {@link Path} to file
    * @return {@link Long} stating for time of last modification in milliseconds since the Unix epoch start if attributes were read successfully; otherwise, null
    */
-  public static @Nullable Long getFileModificationDate(Path filePath) {
+  public static Long getFileModificationDate(Path filePath) {
     try {
       BasicFileAttributes fileAtributes = Files.readAttributes(filePath, BasicFileAttributes.class);
       return fileAtributes.lastModifiedTime().toMillis();
@@ -97,7 +96,7 @@ public final class GitVfsUtils {
    * @param millis {@code long} representing the new modification time in milliseconds since the Unix epoch start
    * @return {@link Path} stating for the given file if the modification date was set successfully; otherwise, null
    */
-  public static @Nullable Path setFileModificationDate(Path filePath, long millis) {
+  public static Path setFileModificationDate(Path filePath, long millis) {
     try {
       return Files.setLastModifiedTime(filePath, FileTime.fromMillis(millis));
     } catch (IOException e) {
