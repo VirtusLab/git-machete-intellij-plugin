@@ -4,10 +4,8 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
   `java-library`
-  alias(libs.plugins.jetbrains.intellij)
+  id("org.jetbrains.intellij.platform") version "2.6.0"
 }
-
-val targetJavaVersion: JavaVersion by extra(JavaVersion.VERSION_17)
 
 val intellijVersions by extra(
   IntellijVersions.from(
@@ -23,11 +21,6 @@ allprojects {
   }
 
   apply<JavaLibraryPlugin>()
-
-  java {
-    sourceCompatibility = targetJavaVersion
-    targetCompatibility = targetJavaVersion // redundant, added for clarity
-  }
 
   tasks.withType<Test> {
     useJUnitPlatform()
