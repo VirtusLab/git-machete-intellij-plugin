@@ -1,18 +1,10 @@
 
-import com.virtuslab.gitmachete.buildsrc.*
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
   `java-library`
   id("org.jetbrains.intellij.platform") version "2.6.0"
 }
-
-val intellijVersions by extra(
-  IntellijVersions.from(
-    intellijVersionsProperties = PropertiesHelper.getProperties(rootDir.resolve("intellij-versions.properties")),
-    overrideBuildTarget = project.properties["overrideBuildTarget"] as String?,
-  ),
-)
 
 allprojects {
   repositories {
@@ -45,7 +37,7 @@ subprojects {
     }
     dependencies {
       intellijPlatform {
-        intellijIdeaCommunity(intellijVersions.buildTarget)
+        intellijIdeaCommunity("252.18003.27")
         bundledPlugin("Git4Idea")
       }
     }
