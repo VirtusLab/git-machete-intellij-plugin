@@ -74,16 +74,7 @@ allprojects {
 
   tasks.withType<Test> {
     useJUnitPlatform()
-
-    if (project.properties["forceRunTests"] != null) {
-      outputs.upToDateWhen { false }
-    }
-
     testLogging {
-      if (project.properties["printTestOutput"] != null) {
-        showStandardStreams = true
-      }
-
       exceptionFormat = TestExceptionFormat.FULL
       showCauses = true
       showExceptions = true
@@ -130,8 +121,6 @@ subprojects {
 
 group = "com.virtuslab"
 
-configureVersionFromGit()
-
 repositories {
   mavenCentral()
   intellijPlatform {
@@ -141,9 +130,6 @@ repositories {
 }
 
 intellijPlatform {
-  buildSearchableOptions = false
-  instrumentCode = false
-
   pluginConfiguration {
     name = "Git Machete"
     // Note that the first line of the description should be self-contained since it is placed into embeddable card:
@@ -162,8 +148,5 @@ intellijPlatform {
 dependencies {
   intellijPlatform {
     intellijIdeaCommunity(intellijVersions.buildTarget)
-    bundledPlugin("Git4Idea")
-    pluginVerifier()
-    zipSigner()
   }
 }
