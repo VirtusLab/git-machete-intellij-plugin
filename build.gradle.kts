@@ -37,7 +37,8 @@ subprojects {
     }
     dependencies {
       intellijPlatform {
-        intellijIdeaCommunity("252.18003.27")
+        // 2025.1.1.1 - no problem
+        intellijIdeaCommunity("252.13776.59")
         bundledPlugin("Git4Idea")
       }
     }

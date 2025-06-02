@@ -1,5 +1,0 @@
-[libraries]
-# Plugin packages
-# This way of applying the plugins is needed for the build-related code in buildSrc/src/main/,
-# see https://docs.gradle.org/current/samples/sample_convention_plugins.html#things_to_note.
-pluginPackages-jetbrains-kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:2.0.21"
