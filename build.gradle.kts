@@ -10,8 +10,6 @@ plugins {
   alias(libs.plugins.jetbrains.intellij)
 }
 
-fun getFlagsForAddExports(vararg packages: String, module: String): List<String> = packages.toList().map { "--add-exports=$module/$it=ALL-UNNAMED" }
-
 val targetJavaVersion: JavaVersion by extra(JavaVersion.VERSION_17)
 
 val intellijVersions by extra(
@@ -45,17 +43,6 @@ allprojects {
     )
 
     options.isFork = true
-    // Required for better-strings to work under Java 17: https://github.com/antkorwin/better-strings/issues/21
-    options.forkOptions.jvmArgs?.addAll(
-      getFlagsForAddExports(
-        "com.sun.tools.javac.api",
-        "com.sun.tools.javac.code",
-        "com.sun.tools.javac.processing",
-        "com.sun.tools.javac.tree",
-        "com.sun.tools.javac.util",
-        module = "jdk.compiler",
-      ),
-    )
 
     // `sourceCompatibility` and `targetCompatibility` say nothing about the Java APIs available to the compiled code.
     // In fact, for X < Y it's perfectly possible to compile Java X code that uses Java Y APIs...
@@ -104,18 +91,6 @@ allprojects {
     }
   }
 
-  // A few libraries (like JGit) transitively pull in a version of slf4j-api
-  // that might be different from the slf4j-api version that IntelliJ depends on.
-  // SLF4J guarantees that the code compiled against a certain slf4j-api version will work with any
-  // other version of slf4j-api (http://www.slf4j.org/manual.html#compatibility).
-  // We rely on that guarantee: our plugin effectively uses whatever slf4j-api version is provided by IntelliJ.
-  // SLF4J does NOT guarantee, however, that slf4j-api version X will work with any slf4j
-  // implementation version Y for X != Y.
-  // To avoid a clash between JGit&co.'s slf4j-api and Intellij's slf4j implementation
-  // (and also between JGit&co.'s slf4j-api and Intellij's slf4j-api), we need to exclude the former
-  // from ALL dependencies.
-  configurations.runtimeClasspath { exclude(group = "org.slf4j", module = "slf4j-api") }
-
   tasks.withType<KotlinCompile>().configureEach {
     val kotlinLanguageVersion = intellijVersions.earliestSupportedMajorKotlinVersion
     kotlinOptions {
@@ -126,22 +101,6 @@ allprojects {
 }
 
 subprojects {
-  // This is necessary to make sure that `buildPlugin` task puts jars of all relevant subprojects
-  // into the final zip.
-  // No need to include near-empty (only with META-INF/MANIFEST.MF) jars
-  // for subprojects that don't have any production code.
-  if (sourceSets["main"].allSource.srcDirs.any { it?.exists() == true }) {
-    rootProject.dependencies { implementation(project) }
-  }
-
-  // By default, the jar name will be formed only from the last segment of subproject path.
-  // Since these last segments are NOT unique (there are many `api`s and `impl`s),
-  // the effective jar name will be something like api.jar, api_1.jar, api_2.jar etc.,
-  // which is suboptimal.
-  // Let's use full name like frontend-ui-api.jar instead.
-  base.archivesName.set(path.replaceFirst(":", "").replace(":", "-"))
-
-  if (path.startsWith(":frontend:") && path != ":frontend:resourcebundles") {
     apply(plugin = "org.jetbrains.intellij.platform.module")
 
     repositories {
@@ -165,7 +124,6 @@ subprojects {
 
       instrumentCode = false
     }
-  }
 }
 
 // Root project config
