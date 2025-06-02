@@ -1,21 +1,13 @@
 
 import com.virtuslab.gitmachete.buildsrc.*
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.jetbrains.changelog.Changelog
-import org.jetbrains.intellij.platform.gradle.tasks.BuildPluginTask
-import org.jetbrains.intellij.platform.gradle.tasks.SignPluginTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.util.Base64
-import java.util.zip.ZipEntry
-import java.util.zip.ZipFile
 
 plugins {
   checkstyle
   `java-library`
   scala
-  alias(libs.plugins.jetbrains.changelog)
   alias(libs.plugins.jetbrains.intellij)
-  alias(libs.plugins.taskTree)
 }
 
 fun getFlagsForAddExports(vararg packages: String, module: String): List<String> = packages.toList().map { "--add-exports=$module/$it=ALL-UNNAMED" }
@@ -28,10 +20,6 @@ val intellijVersions by extra(
     overrideBuildTarget = project.properties["overrideBuildTarget"] as String?,
   ),
 )
-
-fun String.fromBase64(): String = String(Base64.getDecoder().decode(this))
-
-tasks.register<UpdateIntellijVersions>("updateIntellijVersions")
 
 allprojects {
   repositories {
@@ -46,18 +34,9 @@ allprojects {
     targetCompatibility = targetJavaVersion // redundant, added for clarity
   }
 
-  // String interpolation support, see https://github.com/antkorwin/better-strings.
-  // This needs to be enabled in each subproject by default because there's going to be no warning
-  // if this annotation processor isn't run in any subproject (the strings will be just interpreted
-  // verbatim, without interpolation applied).
-  // Otherwise, we'd only capture an unprocessed interpolation in ArchUnit tests by analyzing constant pools of classes.
-  betterStrings()
-
   tasks.withType<JavaCompile> {
     options.compilerArgs.addAll(
       listOf(
-        // Enforce explicit `.toString()` call in code generated for string interpolations
-        "-AcallToStringExplicitlyInInterpolations",
         // Treat each compiler warning (esp. the ones coming from Checker Framework) as an error.
         "-Werror",
         // Warn of type-unsafe operations on generics.
@@ -203,123 +182,6 @@ repositories {
   }
 }
 
-// This task should not be used - we don't use the "Unreleased" section anymore
-project.gradle.startParameter.excludedTaskNames.add("patchChangeLog")
-
-changelog {
-  val prospectiveReleaseVersion: String by extra
-  version.set("v$prospectiveReleaseVersion")
-  headerParserRegex.set(Regex("""v\d+\.\d+\.\d+"""))
-  path.set("${project.projectDir}/CHANGE-NOTES.md")
-}
-
-val verifyVersionTask = tasks.register("verifyChangeLogVersion") {
-  doLast {
-    val prospectiveVersionSection = changelog.version.get()
-    val latestVersionSection = changelog.getLatest()
-
-    if (prospectiveVersionSection != latestVersionSection.version) {
-      throw Exception(
-        "$prospectiveVersionSection is not the latest in CHANGE-NOTES.md, " +
-          "update the file or change the prospective version in version.gradle.kts",
-      )
-    }
-  }
-}
-
-val verifyContentsTask = tasks.register("verifyChangeLogContents") {
-  doLast {
-    val prospectiveVersionSection = changelog.get(changelog.version.get())
-
-    val renderItemStr = changelog.renderItem(prospectiveVersionSection)
-    if (renderItemStr.isBlank()) {
-      throw Exception("${prospectiveVersionSection.version} section is empty, update CHANGE-NOTES.md")
-    }
-
-    val listingElements = renderItemStr.split(System.lineSeparator()).drop(1)
-    for (line in listingElements) {
-      if (line.isNotBlank() && !line.startsWith("- ") && !line.startsWith("  ")) {
-        throw Exception(
-          "Update formatting in CHANGE-NOTES.md ${prospectiveVersionSection.version} section:" +
-            "${System.lineSeparator()}$line",
-        )
-      }
-    }
-  }
-}
-
-tasks.register("verifyChangeLog") {
-  dependsOn(verifyVersionTask, verifyContentsTask)
-}
-
-tasks.register("printPluginZipPath") {
-  doLast {
-    val buildPlugin = tasks.findByPath(":buildPlugin")!! as BuildPluginTask
-    println(buildPlugin.archiveFile.get().asFile.path)
-  }
-}
-
-tasks.register("printSignedPluginZipPath") {
-  // Querying the mapped value of map(task ':signPlugin' property 'archiveFile')
-  // before task ':buildPlugin' has completed is not supported
-  dependsOn(":buildPlugin")
-
-  doLast {
-    val signPlugin = tasks.findByPath(":signPlugin")!! as SignPluginTask
-    println(signPlugin.signedArchiveFile.get().asFile.path)
-  }
-}
-
-val verifyPluginZipTask = tasks.register("verifyPluginZip") {
-  val buildPlugin = tasks.findByPath(":buildPlugin")!! as BuildPluginTask
-  dependsOn(buildPlugin)
-
-  doLast {
-    val pluginZipPath = buildPlugin.archiveFile.get().asFile.path
-    val jarsInPluginZip = ZipFile(pluginZipPath).use { zf ->
-      zf.stream()
-        .map(ZipEntry::getName)
-        .map { it.removePrefix("git-machete-intellij-plugin/").removePrefix("lib/").removeSuffix(".jar") }
-        .filter { it.isNotEmpty() }
-        .toList()
-    }
-
-    for (proj in subprojects) {
-      val projJar = proj.path.replaceFirst(":", "").replace(":", "-")
-      val javaExtension = proj.extensions.getByType<JavaPluginExtension>()
-      if (javaExtension.sourceSets["main"].allSource.srcDirs.any { it?.exists() ?: false }) {
-        check(projJar in jarsInPluginZip) {
-          "$projJar.jar was expected in plugin zip ($pluginZipPath) but was NOT found"
-        }
-      } else {
-        check(projJar !in jarsInPluginZip) {
-          "$projJar.jar was NOT expected in plugin zip ($pluginZipPath) but was found"
-        }
-      }
-    }
-
-    val expectedLibs = listOf("org.eclipse.jgit", "slf4j-lambda-core", "vavr", "vavr-match")
-    for (expectedLib in expectedLibs) {
-      val libRegexStr = "^" + expectedLib.replace(".", "\\.") + "-[0-9.]+.*$"
-      check(jarsInPluginZip.any { it.matches(libRegexStr.toRegex()) }) {
-        "A jar for $expectedLib was expected in plugin zip ($pluginZipPath) but was NOT found"
-      }
-    }
-
-    val forbiddenLibPrefixes = listOf("ide-probe", "idea", "kotlin", "lombok", "remote-robot", "scala", "slf4j")
-    for (jar in jarsInPluginZip) {
-      check(forbiddenLibPrefixes.none { jar.startsWith(it) } || expectedLibs.any { jar.startsWith(it) }) {
-        "$jar.jar was NOT expected in plugin zip ($pluginZipPath) but was found"
-      }
-    }
-  }
-}
-
-tasks.named<Zip>("buildPlugin") {
-  dependsOn(verifyVersionTask)
-  finalizedBy(verifyPluginZipTask)
-}
-
 intellijPlatform {
   buildSearchableOptions = false
   instrumentCode = false
@@ -329,11 +191,6 @@ intellijPlatform {
     // Note that the first line of the description should be self-contained since it is placed into embeddable card:
     // see e.g. https://plugins.jetbrains.com/search?search=git%20machete
     description = file("$rootDir/DESCRIPTION.html").readText()
-
-    val changelogItem = changelog.getOrNull(changelog.version.get())
-    if (changelogItem != null) {
-      changeNotes = changelog.renderItem(changelogItem, Changelog.OutputType.HTML)
-    }
 
     ideaVersion {
       // `sinceBuild` is exclusive when we are using `*` in version but inclusive when without `*`
