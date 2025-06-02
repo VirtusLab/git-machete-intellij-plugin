@@ -81,14 +81,6 @@ allprojects {
       showStackTraces = true
     }
   }
-
-  tasks.withType<KotlinCompile>().configureEach {
-    val kotlinLanguageVersion = intellijVersions.earliestSupportedMajorKotlinVersion
-    kotlinOptions {
-      apiVersion = kotlinLanguageVersion
-      languageVersion = kotlinLanguageVersion
-    }
-  }
 }
 
 subprojects {
