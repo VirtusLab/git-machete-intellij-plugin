@@ -1,7 +1,3 @@
-import com.diffplug.gradle.spotless.SpotlessExtension
-import com.diffplug.gradle.spotless.SpotlessPlugin
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 // Not worth using Gradle toolchains, they don't seem to work as expected for buildSrc (or are just hard to configure properly).
 // Let the developers install sdkman to switch Java versions instead.
 if (JavaVersion.current() != JavaVersion.VERSION_17) {
@@ -10,7 +6,6 @@ if (JavaVersion.current() != JavaVersion.VERSION_17) {
 
 plugins {
   `kotlin-dsl`
-  alias(libs.plugins.taskTree)
 }
 
 buildscript {
@@ -19,7 +14,6 @@ buildscript {
   }
   dependencies {
     classpath(libs.pluginPackages.jetbrains.kotlin)
-    classpath(libs.pluginPackages.spotless)
   }
 }
 

@@ -1,12 +1,9 @@
 
 import com.virtuslab.gitmachete.buildsrc.*
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-  checkstyle
   `java-library`
-  scala
   alias(libs.plugins.jetbrains.intellij)
 }
 
@@ -57,21 +54,6 @@ allprojects {
     // These files are config files for the Checker Framework, which is for Java exclusively.
   }
 
-  tasks.withType<Javadoc> {
-    // See JDK-8200363 (https://bugs.openjdk.java.net/browse/JDK-8200363) for information about the `-Xwerror` option:
-    // this is needed to make sure that javadoc always fails on warnings
-    // (esp. important on CI since javadoc there for some reason seems to never raise any errors otherwise).
-
-    // The '-quiet' as second argument is actually a hack around
-    // https://github.com/gradle/gradle/issues/2354:
-    // since the one-parameter `addStringOption` doesn't seem to work, we need to add an extra
-    // `-quiet`, which is added anyway by Gradle.
-    (options as StandardJavadocDocletOptions).addStringOption("Xwerror", "-quiet")
-    // Suppress `doclint` for `missing`; otherwise javadoc for every member would be required.
-    (options as StandardJavadocDocletOptions).addStringOption("Xdoclint:all,-missing", "-quiet")
-    options.quiet()
-  }
-
   tasks.withType<Test> {
     useJUnitPlatform()
     testLogging {
@@ -98,14 +80,6 @@ subprojects {
         intellijIdeaCommunity(intellijVersions.buildTarget)
         bundledPlugin("Git4Idea")
       }
-    }
-    intellijPlatform {
-      // It only affects searchability of plugin-specific settings (which we don't provide so far).
-      // Actions remain searchable anyway.
-      // TODO (#270): to be re-enabled (at least in CI) once we provide custom settings
-      buildSearchableOptions = false
-
-      instrumentCode = false
     }
 }
 
