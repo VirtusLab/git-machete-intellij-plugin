@@ -7,30 +7,7 @@ import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.*
-import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
-
-fun Project.applyKotlinConfig() {
-  apply<KotlinPluginWrapper>()
-
-  tasks.withType<KotlinCompile> {
-    kotlinOptions {
-      allWarningsAsErrors = true
-
-      // Suppress the warnings about different version of Kotlin used for compilation
-      // than bundled into the `buildTarget` version of IntelliJ.
-      // For compilation we use the Kotlin version from the earliest support IntelliJ,
-      // and as per https://kotlinlang.org/docs/components-stability.html,
-      // code compiled against an older version of kotlin-stdlib should work
-      // when a newer version of kotlin-stdlib is provided as a drop-in replacement.
-      freeCompilerArgs += listOf("-Xskip-metadata-version-check")
-
-      val targetJavaVersion: JavaVersion by rootProject.extra
-      jvmTarget = targetJavaVersion.toString()
-    }
-  }
-}
 
 // See https://melix.github.io/blog/2021/03/version-catalogs-faq.html#_but_how_can_i_use_the_catalog_in_plugins_defined_in_buildsrc
 private fun Project.versionCatalog(): VersionCatalog = this.rootProject.extensions.getByType<VersionCatalogsExtension>().named("libs")
@@ -102,20 +79,6 @@ fun Project.ideProbe() {
   }
 }
 
-fun Project.jetbrainsAnnotations() {
-  dependencies {
-    val annotations = lib("jetbrains.annotations")
-    "compileOnly"(annotations)
-    "testCompileOnly"(annotations)
-  }
-}
-
-fun Project.jgit(scopePrefix: String = "") {
-  dependencies {
-    (scopePrefix camelConcat "implementation")(lib("jgit"))
-  }
-}
-
 fun Project.junitApi(scopePrefix: String) {
   dependencies {
     (scopePrefix camelConcat "implementation")(lib("junit-api"))
@@ -133,12 +96,6 @@ fun Project.junit() {
   }
 }
 
-fun Project.junitParams() {
-  dependencies {
-    "testImplementation"(lib("junit-params"))
-  }
-}
-
 fun Project.lombok(scopePrefixes: List<String> = listOf("", "test")) {
   dependencies {
     val lombok = lib("lombok")
@@ -147,10 +104,6 @@ fun Project.lombok(scopePrefixes: List<String> = listOf("", "test")) {
       (scopePrefix camelConcat "annotationProcessor")(lombok)
     }
   }
-}
-
-fun Project.lombok(scopePrefix: String) {
-  lombok(listOf(scopePrefix))
 }
 
 fun Project.mockito() {
