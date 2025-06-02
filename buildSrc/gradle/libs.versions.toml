@@ -1,6 +1,6 @@
 [libraries]
 jsoup = "org.jsoup:jsoup:1.20.1"
-junit-api = "org.junit.jupiter:junit-jupiter-api:5.12.2"
+junit-api = "org.junit.jupiter:junit-jupiter-api:5.13.0"
 # Plugin packages
 # This way of applying the plugins is needed for the build-related code in buildSrc/src/main/,
 # see https://docs.gradle.org/current/samples/sample_convention_plugins.html#things_to_note.
