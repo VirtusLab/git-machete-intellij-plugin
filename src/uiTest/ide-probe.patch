@@ -1,0 +1,105 @@
+diff --git a/README.md b/README.md
+index 50ae186..269e480 100644
+--- a/README.md
++++ b/README.md
+@@ -126,8 +126,8 @@ E) specified programmatically
+
+ ```scala
+ IntelliJFixture(workspaceProvider = WorkspaceTemplate.fromFile(path))
+-  .withVersion(IntelliJVersion.release("2020.3", "202.8194.7"))
+-  .withPlugin(Plugin("org.intellij.scala", "2020.2.7"))
++  .withVersion(IntelliJVersion.release("2020.3", "203.8084.24"))
++  .withPlugin(Plugin("org.intellij.scala", "2020.2.49"))
+   .enableExtensions
+ ```
+
+diff --git a/build.sbt b/build.sbt
+index d50c656..de16efe 100644
+--- a/build.sbt
++++ b/build.sbt
+@@ -9,7 +9,8 @@ Global / onChangedBuildSource := ReloadOnSourceChanges
+ (publish / skip) := true
+
+ (ThisBuild / scalaVersion) := scala213
+-(ThisBuild / intellijBuild) := "202.8194.7"
++(ThisBuild / intellijBuild) := "" +
++  "203.8084.24"
+ (ThisBuild / bundleScalaLibrary) := true
+ // provide intellij version in case of the release version
+ val intellijVersion = None
+diff --git a/ci/update-intellij/src/main/scala/org.virtuslab.ideprobe/BumpIntelliJ.scala b/ci/update-intellij/src/main/scala/org.virtuslab.ideprobe/BumpIntelliJ.scala
+index 824c581..53a159b 100644
+--- a/ci/update-intellij/src/main/scala/org.virtuslab.ideprobe/BumpIntelliJ.scala
++++ b/ci/update-intellij/src/main/scala/org.virtuslab.ideprobe/BumpIntelliJ.scala
+@@ -2,7 +2,7 @@ package org.virtuslab.ideprobe
+
+ import java.io.File
+ import java.io.PrintWriter
+-import java.net.URL
++import java.net.URI
+ import java.nio.file.Files
+ import java.nio.file.StandardCopyOption.REPLACE_EXISTING
+
+@@ -53,7 +53,7 @@ object BumpIntelliJ extends App {
+         .replace(".pom", ".txt")
+         .replace("ideaIC", "BUILD")
+
+-    val newestStableBuildNumberFileURL = new URL(replaceIdeaICPomFileNameWithBuildTxt(newestStableReleasePomLink))
++    val newestStableBuildNumberFileURL = new URI(replaceIdeaICPomFileNameWithBuildTxt(newestStableReleasePomLink)).toURL
+     Source.fromURL(newestStableBuildNumberFileURL).mkString
+   }
+
+diff --git a/core/api/src/main/scala/org/virtuslab/ideprobe/ProbeExtensions.scala b/core/api/src/main/scala/org/virtuslab/ideprobe/ProbeExtensions.scala
+index 9cfbe3a..af61094 100644
+--- a/core/api/src/main/scala/org/virtuslab/ideprobe/ProbeExtensions.scala
++++ b/core/api/src/main/scala/org/virtuslab/ideprobe/ProbeExtensions.scala
+@@ -255,7 +255,7 @@ object ProbeExtensions {
+     override def visitFileFailed(file: Path, exc: IOException): FileVisitResult = {
+       exc match {
+         case NonFatal(e) =>
+-          val message = s"[${Thread.currentThread().getId}] Failure while deleting $root at file $file"
++          val message = s"[${Thread.currentThread().threadId}] Failure while deleting $root at file $file"
+           val exception = new IOException(message, e)
+           exception.printStackTrace()
+           FileVisitResult.CONTINUE
+@@ -269,7 +269,7 @@ object ProbeExtensions {
+         case Some(e) => Failure(e)
+       }
+       deleted.failed.foreach { case NonFatal(e) =>
+-        val message = s"[${Thread.currentThread().getId}] Failure while deleting $root at dir  $dir"
++        val message = s"[${Thread.currentThread().threadId}] Failure while deleting $root at dir  $dir"
+         val exception = new IOException(message, e)
+         exception.printStackTrace()
+       }
+diff --git a/core/driver/sources/src/test/resources/intellij/productInfo/product-info.json b/core/driver/sources/src/test/resources/intellij/productInfo/product-info.json
+index 27d5eb4..7cbb576 100644
+--- a/core/driver/sources/src/test/resources/intellij/productInfo/product-info.json
++++ b/core/driver/sources/src/test/resources/intellij/productInfo/product-info.json
+@@ -1,9 +1,9 @@
+ {
+   "name": "IntelliJ IDEA",
+-  "version": "2020.2.4",
+-  "buildNumber": "202.8194.7",
++  "version": "2020.3.4",
++  "buildNumber": "203.8084.24",
+   "productCode": "IC",
+-  "dataDirectoryName": "IdeaIC2020.2",
++  "dataDirectoryName": "IdeaIC2020.3",
+   "svgIconPath": "bin/idea.svg",
+   "launch": [
+     {
+diff --git a/core/driver/sources/src/test/scala/org/virtuslab/ideprobe/dependencies/IntelliJVersionResolverTest.scala b/core/driver/sources/src/test/scala/org/virtuslab/ideprobe/dependencies/IntelliJVersionResolverTest.scala
+index bac572a..1a41b59 100644
+--- a/core/driver/sources/src/test/scala/org/virtuslab/ideprobe/dependencies/IntelliJVersionResolverTest.scala
++++ b/core/driver/sources/src/test/scala/org/virtuslab/ideprobe/dependencies/IntelliJVersionResolverTest.scala
+@@ -14,8 +14,8 @@ final class IntelliJVersionResolverTest {
+
+     val IntelliJVersion(build, release, _) = IntelliJVersionResolver.version(resourcePath)
+
+-    val releaseVersion = "2020.2.4"
+-    val buildNumber = "202.8194.7"
++    val releaseVersion = "2020.3.4"
++    val buildNumber = "203.8084.24"
+
+     assertEquals(build, buildNumber)
+     assertEquals(Some(releaseVersion), release)
