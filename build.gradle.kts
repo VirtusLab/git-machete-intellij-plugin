@@ -2,6 +2,7 @@
 import com.virtuslab.gitmachete.buildsrc.*
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.changelog.Changelog
+import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.intellij.platform.gradle.tasks.BuildPluginTask
 import org.jetbrains.intellij.platform.gradle.tasks.SignPluginTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -419,4 +420,42 @@ vavr("test")
 // to access constant pools of classes.
 tasks.withType<Test> {
   jvmArgs(getFlagsForAddExports("jdk.internal.reflect", module = "java.base"))
+}
+
+sourceSets {
+  create("integrationTest") {
+    compileClasspath += sourceSets.main.get().output
+    runtimeClasspath += sourceSets.main.get().output
+  }
+}
+
+val integrationTestImplementation by configurations.getting {
+  extendsFrom(configurations.testImplementation.get())
+}
+
+dependencies {
+  integrationTestImplementation(testFixtures(project(":testCommon")))
+  integrationTestImplementation("org.junit.jupiter:junit-jupiter:5.13.0")
+  integrationTestImplementation("org.junit.platform:junit-platform-launcher:1.13.0")
+  integrationTestImplementation("org.kodein.di:kodein-di-jvm:7.20.2")
+  integrationTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.1")
+  integrationTestImplementation("com.intellij.remoterobot:remote-robot:0.11.23")
+  integrationTestImplementation("com.squareup.okhttp3:okhttp:4.12.0")
+}
+
+tasks.register<Test>("integrationTest") {
+  val integrationTestSourceSet = sourceSets.getByName("integrationTest")
+  testClassesDirs = integrationTestSourceSet.output.classesDirs
+  classpath = integrationTestSourceSet.runtimeClasspath
+  val buildPlugin = tasks.findByPath(":buildPlugin")!!
+  dependsOn(buildPlugin)
+  systemProperty("path.to.build.plugin", buildPlugin.outputs.files.first().path)
+  useJUnitPlatform()
+  jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
+}
+
+dependencies {
+  intellijPlatform {
+    testFramework(TestFrameworkType.Starter, configurationName = "integrationTestImplementation")
+  }
 }
