@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail -u
+
+self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
+source "$self_dir"/utils.sh
+
+script=src/uiTest/resources/project.rhino.js
+base_suite=src/uiTest/kotlin/com/virtuslab/gitmachete/uitest/BaseUITestSuite.kt
+
+public_declared=$(grep -Pio '(?<=this\.)[a-z]+(?= = function)' $script | sort -u)
+public_used=$(grep -Pio '(?<=project\.)[a-z]+' $base_suite | sort -u)
+
+public_unused=$(echo "$public_declared" | exclude <(echo "$public_used"))
+if [[ $public_unused ]]; then
+  echo "$public_unused"
+  die "The above public functions declared in $script are not used anywhere in $base_suite, consider removing or changing to a const (private function)"
+fi
+
+private_declared=$(grep -Pio '(?<=const )[a-z]+(?= = function)' $script | sort -u)
+private_used=$(grep -Pio '[a-z]+(?=\()' $script | sort -u)
+
+private_unused=$(echo "$private_declared" | exclude <(echo "$private_used"))
+if [[ $private_unused ]]; then
+  echo "$private_unused"
+  die "The above private functions declared in $script are not used within this script, consider removing"
+fi
+
+classes_imported=$(grep -Pio '(?<=^importClass\()[a-z.]+(?=\))' $script | sed 's/^.*\.//' | sort -u)
+classes_used=$(grep -v 'importClass' $script | grep -Po '(?<=[^a-zA-Z])[A-Z][a-zA-Z]+' | sort -u)
+
+classes_unused=$(echo "$classes_imported" | exclude <(echo "$classes_used"))
+if [[ $classes_unused ]]; then
+  echo "$classes_unused"
+  die "The above Java classes imported in $script are not used within this script, consider removing the imports"
+fi

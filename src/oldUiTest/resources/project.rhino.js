@@ -1,11 +1,11 @@
+importClass(java.lang.Class);
 importClass(java.lang.IllegalStateException);
 importClass(java.lang.System);
 importClass(java.lang.Thread);
 importClass(java.util.Arrays);
 importClass(java.util.stream.Collectors);
+importClass(java.util.stream.IntStream);
 
-importClass(com.intellij.ide.plugins.PluginManagerCore);
-importClass(com.intellij.ide.impl.ProjectUtil);
 importClass(com.intellij.ide.util.PropertiesComponent);
 importClass(com.intellij.openapi.actionSystem.ActionManager);
 importClass(com.intellij.openapi.actionSystem.ActionPlaces);
@@ -13,12 +13,22 @@ importClass(com.intellij.openapi.actionSystem.AnActionEvent);
 importClass(com.intellij.openapi.actionSystem.DataContext);
 importClass(com.intellij.openapi.actionSystem.Presentation);
 importClass(com.intellij.openapi.actionSystem.impl.ActionButton);
+importClass(com.intellij.openapi.actionSystem.impl.ActionToolbarImpl);
 importClass(com.intellij.openapi.application.ApplicationManager);
 importClass(com.intellij.openapi.application.ModalityState);
-importClass(com.intellij.openapi.extensions.PluginId);
 importClass(com.intellij.openapi.wm.ToolWindowId);
 importClass(com.intellij.openapi.wm.ToolWindowManager);
 importClass(com.intellij.util.ModalityUiUtil);
+
+importClass(org.assertj.swing.fixture.JComboBoxFixture);
+importClass(org.assertj.swing.fixture.JPanelFixture);
+importClass(org.assertj.swing.fixture.JTableFixture);
+importClass(org.assertj.swing.data.TableCell);
+
+
+let myClick = function (component, mouseButton) {
+  robot.click(component, mouseButton);
+};
 
 // Do not run any of the methods on the UI thread.
 function Project(underlyingProject) {
@@ -26,11 +36,29 @@ function Project(underlyingProject) {
   const pluginId = PluginId.getId('com.virtuslab.git-machete');
   const pluginClassLoader = PluginManagerCore.getPlugin(pluginId).getPluginClassLoader();
 
+  const prettyClick = function (component, mouseButton) {
+    robot.moveMouse(component);
+    // Wait for a while before clicking to allow the scenario spectator to see the button being clicked
+    sleep(500);
+    robot.click(component, mouseButton);
+  };
+
+  this.usePrettyClick = function () {
+    myClick = prettyClick;
+  };
+
   const sleep = function(ms) {
     if (ms === undefined) {
       ms = 100;
     }
     Thread.sleep(ms);
+  };
+
+  this.configure = function () {
+    // Let's disable VCS-related tooltips since they sometimes lead to an exception when closing the project.
+    const projectPropertiesComponent = PropertiesComponent.getInstance(underlyingProject);
+    projectPropertiesComponent.setValue('ASKED_ADD_EXTERNAL_FILES', true);
+    projectPropertiesComponent.setValue('ASKED_SHARE_PROJECT_CONFIGURATION_FILES', true);
   };
 
   // Tab & model management
@@ -82,7 +110,6 @@ function Project(underlyingProject) {
     if (snapshot != null) {
       return snapshot.getManagedBranches().map(b => b.getName()).toJavaArray(java.lang.String);
     } else {
-      // Array is already defined in JS, cannot be imported
       return java.lang.reflect.Array.newInstance(java.lang.String, 0);
     }
   };
@@ -100,7 +127,6 @@ function Project(underlyingProject) {
         return branchesAndCommits;
       }).toJavaArray(java.lang.String);
     } else {
-      // Array is already defined in JS, cannot be imported
       return java.lang.reflect.Array.newInstance(java.lang.String, 0);
     }
   };
@@ -171,12 +197,32 @@ function Project(underlyingProject) {
     findAndClickButton('Save');
   }
 
-  const acceptRebase = function () {
-    findAndClickButton('Start Rebasing');
+  this.acceptCreateNewBranch = function () {
+    findAndClickButton('Create');
+  };
+
+  this.acceptPush = function () {
+    findAndClickButton('Push');
+  };
+
+  this.acceptForcePush = function () {
+    findAndClickButton('Force Push');
   };
 
   this.acceptSquash = function () {
     findAndClickButton('OK');
+  };
+
+  this.acceptSlideIn = function () {
+    findAndClickButton('Slide In');
+  };
+
+  this.acceptRebase = function () {
+    findAndClickButton('Start Rebasing');
+  };
+
+  this.acceptResetToRemote = function () {
+    findAndClickButton('Reset');
   };
 
   this.acceptSuggestedBranchLayout = function () {
@@ -187,12 +233,123 @@ function Project(underlyingProject) {
     findAndClickButton('Slide Out & Delete Local Branch');
   };
 
-  this.pullCurrent = function () {
-    findAndClickToolbarButton('Pull Current Branch');
+  this.rejectBranchDeletionOnSlideOut = function () {
+    findAndClickButton('Slide Out & Keep Local Branch');
   };
 
-  this.toggleListingCommits = function () {
-    findAndClickToolbarButton('Toggle Listing Commits');
+  this.contextMenu = {
+    checkout: function () {
+      findAndClickContextMenuAction('Checkout');
+    },
+    checkoutAndSyncByRebase: function () {
+      findAndClickContextMenuAction('Checkout and Sync to Parent by Rebase\u2026');
+    },
+    syncByRebase: function () {
+      findAndClickContextMenuAction('Sync to Parent by Rebase\u2026');
+    },
+    checkoutAndSyncByMerge: function () {
+      findAndClickContextMenuAction('Checkout and Sync to Parent by Merge');
+    },
+    syncByMerge: function () {
+      findAndClickContextMenuAction('Sync to Parent by Merge');
+    },
+    overrideForkPoint: function () {
+      findAndClickContextMenuAction('Override Fork Point\u2026');
+    },
+    push: function () {
+      findAndClickContextMenuAction('Push\u2026');
+    },
+    pull: function () {
+      findAndClickContextMenuAction('Pull');
+    },
+    resetToRemote: function () {
+      findAndClickContextMenuAction('Reset to Remote');
+    },
+    fastForwardMerge: function () {
+      findAndClickContextMenuAction('Fast-forward Merge into Parent');
+    },
+    checkoutAndSquash: function () {
+      findAndClickContextMenuAction('Checkout and Squash\u2026');
+    },
+    slideIn: function () {
+      findAndClickContextMenuAction('Slide In Branch Below\u2026');
+    },
+    slideOut: function () {
+      findAndClickContextMenuAction('Slide Out');
+    },
+    showInGitLog: function () {
+      findAndClickContextMenuAction('Show in Git Log');
+    }
+  };
+
+  this.toolbar = {
+    syncByRebase: function () {
+      findAndClickToolbarButton('Sync Current Branch to Parent by Rebase\u2026');
+    },
+    squash: function () {
+      findAndClickToolbarButton('Squash Current Branch\u2026');
+    },
+    pull: function () {
+      findAndClickToolbarButton('Pull Current Branch');
+    },
+    resetToRemote: function () {
+      findAndClickToolbarButton('Reset Current Branch to Remote');
+    },
+    fastForwardMerge: function () {
+      findAndClickToolbarButton('Fast-forward Merge Current Branch into Parent');
+    },
+    discoverBranchLayout: function () {
+      findAndClickToolbarButton('Discover Branch Layout\u2026');
+    },
+    fetchAll: function () {
+      findAndClickToolbarButton('Fetch All Remotes');
+    },
+    toggleListingCommits: function () {
+      findAndClickToolbarButton('Toggle Listing Commits');
+    }
+  };
+
+  this.findTextFieldAndWrite = function (text, instant) {
+    const textField = getComponentByClass('com.intellij.ui.components.JBTextField');
+    if (instant) {
+      textField.setText(text);
+    } else {
+      for (let i = 0; i < text.length; i++) {
+        sleep();
+        let t = textField.getText() + text[i];
+        textField.setText(t);
+      }
+    }
+  };
+
+  this.findComboBoxAndSwitchRepo = function (idx) {
+    const comboBox = getComponentByClass('com.virtuslab.gitmachete.frontend.ui.impl.gitrepositoryselection.GitRepositoryComboBox');
+    let fixture = new JComboBoxFixture(robot, comboBox);
+    let newSelection = fixture.valueAt(idx);
+    fixture.selectItem(newSelection);
+  };
+
+  this.findCellAndRightClick = function (name) {
+    const graphTable = getComponentByClass('com.virtuslab.gitmachete.frontend.ui.impl.table.EnhancedGraphTable');
+    let fixture = new JTableFixture(robot, graphTable);
+    let contents = fixture.contents();
+
+    const getCellRow = function () {
+      const result = IntStream.range(0, contents.length)
+        .filter(idx => contents[idx][0].includes('text=' + name))
+        .toArray();
+      return result.length === 1 ? result[0] : null;
+    };
+
+    let cellRow = getCellRow();
+    let tableCell = TableCell.row(cellRow).column(0);
+    fixture.cell(tableCell).click(MouseButton.RIGHT_BUTTON);
+  };
+
+  this.moveMouseToTheMiddleAndWait = function (secondsToWait) {
+    const ideFrame = getIdeFrame();
+    robot.moveMouse(ideFrame);
+    sleep(1000 * secondsToWait);
   };
 
   const clickMouseInGraphTable = function () {
@@ -201,11 +358,20 @@ function Project(underlyingProject) {
     sleep();
   };
 
+  const getIdeFrame = function() {
+    return getComponentByClassAndPredicate(
+        /* className */ 'com.intellij.openapi.wm.impl.IdeFrameImpl',
+        // Using "contains" as in UITestSuite the project title is "machete-sandbox-worktree"
+        // but in UIScenarioSuite it's "machete-sandbox"
+        /* predicate */ component => component.getTitle().contains('machete-sandbox')
+    );
+  }
+
   const findAndClickButton = function (name) {
     const button = getComponentByClassAndPredicate('javax.swing.JButton',
         /* predicate */ component => name.equals(component.getText())
     );
-    robot.click(button, MouseButton.LEFT_BUTTON);
+    myClick(button, MouseButton.LEFT_BUTTON);
   };
 
   const findAndClickToolbarButton = function (name) {
@@ -229,13 +395,34 @@ function Project(underlyingProject) {
     if (button === null) {
       throw new IllegalStateException("Waiting for condition timed out");
     }
-    robot.click(button, MouseButton.LEFT_BUTTON);
+    myClick(button, MouseButton.LEFT_BUTTON);
+  };
+
+  const findAndClickContextMenuAction = function (name) {
+    const actionMenuItem = getComponentByClassAndPredicate('com.intellij.openapi.actionSystem.impl.ActionMenuItem',
+        /* predicate */ component => name.equals(component.getText())
+    );
+    myClick(actionMenuItem, MouseButton.LEFT_BUTTON);
+  };
+
+  this.findAndResizeIdeFrame = function () {
+    const ideFrame = getIdeFrame();
+    let ideFrameFixture = new FrameFixture(ideFrame);
+    let dimension = new Dimension(1024, 768);
+    ideFrameFixture.resizeTo(dimension);
+  };
+
+  const getComponentByClass = function (className) {
+    return getComponentByClassAndPredicate(
+        className,
+        /* predicate */ _ => true
+    );
   };
 
   /** Note that we're checking for the components that are exactly of the provided class, or of any subclass */
   const getComponentByClassAndPredicate = function (className, predicate) {
     const searchForComponent = function () {
-      const clazz = pluginClassLoader.loadClass(className);
+      const clazz = Class.forName(className);
       const result = robot.finder().findAll(component =>
         clazz.isInstance(component) && predicate(component)
       ).toArray();
@@ -291,18 +478,22 @@ function Project(underlyingProject) {
 
   this.syncSelectedToParentByRebase = function (branchName) {
     invokeActionAsync('GitMachete.SyncSelectedToParentByRebaseAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
-    acceptRebase()
+    this.acceptRebase()
   };
 
   this.syncCurrentToParentByRebase = function () {
     invokeActionAsync('GitMachete.SyncCurrentToParentByRebaseAction', ACTION_PLACE_CONTEXT_MENU, {});
-    acceptRebase()
+    this.acceptRebase()
   };
 
   this.syncSelectedToParentByMerge = function (branchName) {
     PropertiesComponent.getInstance(underlyingProject).setValue(SHOW_MERGE_WARNING, false, /* default value */ true);
 
     invokeActionAndWait('GitMachete.SyncSelectedToParentByMergeAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
+  };
+
+  this.syncCurrentToParentByMerge = function () {
+    invokeActionAndWait('GitMachete.SyncCurrentToParentByMergeAction', ACTION_PLACE_TOOLBAR, {});
   };
 
   this.squashSelected = function (branchName) {
@@ -390,10 +581,3 @@ function Project(underlyingProject) {
     return managedBranch.asNonRoot().getSyncToParentStatus().name();
   };
 }
-
-const openProjects = ProjectUtil.getOpenProjects();
-if (openProjects.length !== 1) {
-  throw new IlegalStateException("Expected exactly one open project, found " + openProjects.length + " instead: " + openProjects);
-}
-// See https://github.com/JetBrains/intellij-ui-test-robot#store-data-between-runjscalljs-requests
-global.put('project', new Project(openProjects[0]));

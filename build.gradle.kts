@@ -2,9 +2,11 @@
 import com.virtuslab.gitmachete.buildsrc.*
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.changelog.Changelog
+import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.intellij.platform.gradle.tasks.BuildPluginTask
 import org.jetbrains.intellij.platform.gradle.tasks.SignPluginTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.net.URI
 import java.util.Base64
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
@@ -394,14 +396,14 @@ dependencies {
   }
 }
 
-val uiTest = sourceSets.create("uiTest")
-val uiTestImplementation: Configuration by configurations.getting { extendsFrom(configurations.testImplementation.get()) }
+val oldUiTest = sourceSets.create("oldUiTest")
+val oldUiTestImplementation: Configuration by configurations.getting { extendsFrom(configurations.testImplementation.get()) }
 // This configuration apparently needs to be defined explicitly (despite not being used explicitly anywhere)
-// so that UI test runtime classpath inherits `testRuntimeOnly` dependencies of the root project.
-val uiTestRuntimeOnly: Configuration by configurations.getting { extendsFrom(configurations.testRuntimeOnly.get()) }
-configureUiTests()
+// so that old UI test runtime classpath inherits `testRuntimeOnly` dependencies of the root project.
+val oldUiTestRuntimeOnly: Configuration by configurations.getting { extendsFrom(configurations.testRuntimeOnly.get()) }
+configureOldUiTests()
 dependencies {
-  uiTestImplementation(testFixtures(project(":testCommon")))
+  oldUiTestImplementation(testFixtures(project(":testCommon")))
   compileOnly(libs.scalaLibrary) // only needed to prevent IntelliJ loading error
 }
 
@@ -419,4 +421,89 @@ vavr("test")
 // to access constant pools of classes.
 tasks.withType<Test> {
   jvmArgs(getFlagsForAddExports("jdk.internal.reflect", module = "java.base"))
+}
+
+val uiTest = sourceSets.create("uiTest") {
+  compileClasspath += sourceSets.main.get().output
+  runtimeClasspath += sourceSets.main.get().output
+}
+
+val uiTestImplementation by configurations.getting {
+  extendsFrom(configurations.testImplementation.get())
+}
+
+val uiTestRuntimeOnly by configurations.getting {
+  extendsFrom(configurations.testRuntimeOnly.get())
+}
+
+val robotServerPluginZip by configurations.creating
+
+repositories {
+  maven {
+    url = URI("https://packages.jetbrains.team/maven/p/ij/intellij-dependencies")
+  }
+}
+
+dependencies {
+  intellijPlatform {
+    testFramework(TestFrameworkType.Starter, configurationName = uiTestImplementation.name)
+  }
+
+  uiTestImplementation(testFixtures(project(":testCommon")))
+  uiTestImplementation(libs.junit.api)
+  uiTestImplementation(libs.kodein)
+  uiTestImplementation(libs.okhttp)
+  uiTestImplementation(libs.remoteRobot.client)
+
+  uiTestRuntimeOnly(libs.junit.platformLauncher)
+  uiTestRuntimeOnly(libs.kotlin.coroutines)
+
+  robotServerPluginZip(libs.remoteRobot.serverPlugin) {
+    artifact {
+      type = "zip"
+    }
+  }
+}
+
+val uiTestTargetVersions: List<String> =
+  if (project.properties["against"] != null) {
+    intellijVersions.resolveIntelliJVersions(project.properties["against"] as? String)
+  } else {
+    listOf(intellijVersions.buildTarget)
+  }
+
+uiTestTargetVersions.onEach { version ->
+  tasks.register<Test>("uiTest_$version") {
+    description = "Runs UI tests."
+    group = "verification"
+
+    systemProperty("intellij.version", version.replace("-EAP-SNAPSHOT", ""))
+
+    testClassesDirs = uiTest.output.classesDirs
+    classpath = configurations["uiTestRuntimeClasspath"] + uiTest.output
+
+    val buildPlugin = tasks.findByPath(":buildPlugin")!!
+    dependsOn(buildPlugin)
+    systemProperty("path.to.build.plugin", buildPlugin.outputs.files.singleFile.path)
+
+    dependsOn(robotServerPluginZip)
+    systemProperty("path.to.robot.server.plugin", robotServerPluginZip.singleFile.path)
+
+    if (!isCI) {
+      outputs.upToDateWhen { false }
+    }
+
+    val testFilter = project.properties["tests"]
+    if (testFilter != null) {
+      filter { includeTestsMatching("*.*$testFilter*") }
+    }
+
+    useJUnitPlatform()
+    jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
+    testLogging.showStandardStreams = true
+  }
+}
+
+tasks.register("uiTest") {
+  dependsOn(tasks.matching { task -> task.name.startsWith("uiTest_") })
 }

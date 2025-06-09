@@ -6,7 +6,7 @@ self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 self_name=$(basename -s .sh "$0")
 
 git ls-files \
-  ':!*.flex' ':!gradlew' ':!*.java' ':!*.kt' ':!*.md' \
-  ':!plugin-verifier.gradle' '!*.scala' ':!scripts/setup-multiroot-sandbox' \
-  ':!*.svg' ':!testCommon/src/test/resources/*.sh' ':!*.xml' \
+  ':!*.astub' ':!*.flex' ':!*.gif' ':!gradlew' ':!*.jar' ':!*.java' ':!*.kt' ':!*.md' ':!*.png' \
+  ':!plugin-verifier.gradle' ':!*.scala' ':!scripts/setup-multiroot-sandbox' \
+  ':!*.svg' ':!testCommon/src/testFixtures/resources/*.sh' ':!*.xml' \
    | xargs awk -f "$self_dir/$self_name.awk"

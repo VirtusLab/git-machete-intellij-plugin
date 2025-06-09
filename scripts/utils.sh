@@ -1,4 +1,8 @@
 
+function exclude() {
+  comm -23 /dev/stdin "$1"
+}
+
 function info() {
   green='\033[32m'
   endc='\033[0m'

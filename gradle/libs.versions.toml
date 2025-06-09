@@ -1,6 +1,7 @@
 [versions]
 checker = "3.49.4"
 junitJupiter = "5.13.2"
+remoteRobot = "0.11.23"
 
 [libraries]
 # Libraries
@@ -17,9 +18,14 @@ junit4 = "junit:junit:4.13.2"
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiter" }
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiter" }
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junitJupiter" }
-junit-platform-launcher = "org.junit.platform:junit-platform-launcher:1.13.2"
+junit-platformLauncher = "org.junit.platform:junit-platform-launcher:1.13.2"
+kodein = "org.kodein.di:kodein-di-jvm:7.20.2"
+kotlin-coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.1"
 lombok = "org.projectlombok:lombok:1.18.38"
 mockito = "org.mockito:mockito-junit-jupiter:5.18.0"
+okhttp = "com.squareup.okhttp3:okhttp:4.12.0"
+remoteRobot-client = { module = "com.intellij.remoterobot:remote-robot", version.ref = "remoteRobot" }
+remoteRobot-serverPlugin = { module = "com.intellij.remoterobot:robot-server-plugin", version.ref = "remoteRobot" }
 scalaLibrary = "org.scala-lang:scala-library:2.13.16"
 slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
 slf4j-mock = "org.simplify4u:slf4j-mock:2.4.0"

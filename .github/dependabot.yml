@@ -32,8 +32,6 @@ updates:
     directory: "/buildSrc/"
     schedule:
       interval: daily
-    reviewers:
-      - PawelLipski
     target-branch: develop
     groups:
       deps:

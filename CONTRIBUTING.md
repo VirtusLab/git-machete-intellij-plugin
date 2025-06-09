@@ -173,16 +173,11 @@ To regenerate the CLI outputs:
 ### Run UI tests
 
 ```shell
-./gradlew [-Pagainst=<e.g. 2021.2>] [-PvirtualDisplay] [-Ptests=<e.g. toggle>] uiTest
+./gradlew [-Pagainst=<e.g. 2021.2>] [-Ptests=<e.g. toggle>] uiTest
 ```
 
 See [Robot plugin](https://github.com/JetBrains/intellij-ui-test-robot)
-and [a preso on testing UI of IntelliJ Plugins](https://slides.com/plipski/intellij-plugin-ui-testing) for more details.
-
-#### macOS and Xvfb mode
-
-It is not possible to run `uiTest` Gradle task in display mode `Xvfb` on macOS systems directly via `./gradlew`.
-You can run UI tests using a Linux virtual machine.
+and docs on [UI testing](https://plugins.jetbrains.com/docs/intellij/integration-tests-ui.html) for more details.
 
 ## Generate and/or install snapshot build of the plugin
 

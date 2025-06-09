@@ -97,8 +97,8 @@ fun Project.ideProbe() {
   }
 
   dependencies {
-    "uiTestImplementation"(lib("ideProbe.robotDriver"))
-    "uiTestImplementation"(lib("jetbrains.annotations"))
+    "oldUiTestImplementation"(lib("ideProbe.robotDriver"))
+    "oldUiTestImplementation"(lib("jetbrains.annotations"))
   }
 }
 
@@ -126,7 +126,7 @@ fun Project.junit() {
   junitApi("test")
   dependencies {
     "testRuntimeOnly"(lib("junit-engine"))
-    "testRuntimeOnly"(lib("junit-platform-launcher"))
+    "testRuntimeOnly"(lib("junit-platformLauncher"))
     // JUnit 4 is for some reason needed since intellij-platform-gradle-plugin v2.4.0
     // (might change with future updates of this Gradle plugin)
     "testRuntimeOnly"(lib("junit4"))

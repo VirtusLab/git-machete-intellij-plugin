@@ -141,37 +141,6 @@ jobs:
           name: Check Javadoc correctness
           command: ./gradlew javadoc
 
-      - when:
-          condition:
-            matches:
-              pattern: "^(.*ide(-)?probe.*)$"
-              value: << pipeline.git.branch >>
-          steps:
-            - run:
-                name: Install sbt
-                # language=sh
-                command: |
-                  apt update
-                  apt-get install apt-transport-https gnupg -yqq
-                  echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | tee /etc/apt/sources.list.d/sbt.list
-                  echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | tee /etc/apt/sources.list.d/sbt_old.list
-                  curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/scalasbt-release.gpg --import
-                  chmod 644 /etc/apt/trusted.gpg.d/scalasbt-release.gpg
-                  apt-get update
-                  apt-get install sbt
-            - run:
-                name: Publish ide-probe snapshots locally
-                # language=sh
-                command: |
-                  cd ..
-                  # Let's use the latest `master` commit by default. Note that ide-probe has no `develop` branch,
-                  # hence `master` serves as a "logical develop" where all PRs are merged and wait to be included in a release.
-                  # Of course, this repository/branch can be modified at will here in code during the development,
-                  # to pull in snapshots of in-development branches from forks.
-                  git clone https://github.com/VirtusLab/ide-probe.git -b master
-                  cd ide-probe/
-                  sbt api_2_13/publishM2 driver_2_13/publishM2 junit-driver_2_13/publishM2 robot-driver_2_13/publishM2 probe-plugin_2_13/publishM2
-
       - run:
           name: Compile tests
           command: ./gradlew testClasses
@@ -232,7 +201,6 @@ jobs:
       - run:
           name: Run UI tests against the latest stable IntelliJ version
           command: ./gradlew -PvirtualDisplay -Pagainst=latestStable uiTest
-      - collect_ui_test_artifacts
 
   ui-tests-earlier:
     executor: ubuntu_executor
@@ -259,7 +227,19 @@ jobs:
             - run:
                 name: Run UI tests against earlier supported major IntelliJ versions
                 command: ./gradlew -PvirtualDisplay -Pagainst=latestMinorsOfOldSupportedMajors uiTest
-            - collect_ui_test_artifacts
+
+  old-ui-tests-recent:
+    executor: ubuntu_executor
+    steps:
+      - checkout
+      - restore_gradle_cache
+      - run:
+          name: Run old UI tests against an EAP of the latest supported major IntelliJ version (if applicable)
+          command: ./gradlew -PvirtualDisplay -Pagainst=eapOfLatestSupportedMajor oldUiTest
+      - run:
+          name: Run old UI tests against the latest stable IntelliJ version
+          command: ./gradlew -PvirtualDisplay -Pagainst=latestStable oldUiTest
+      - collect_ui_test_artifacts
 
   publish-plugin:
     executor: ubuntu_executor
@@ -357,11 +337,13 @@ workflows:
     jobs:
       - build
       # There's a 1-hour time limit on a job execution, so let's split the UI tests into 2 separate jobs
+      - old-ui-tests-recent
       - ui-tests-recent
       - ui-tests-earlier
       - publish-plugin:
           requires:
             - build
+            - old-ui-tests-recent
             - ui-tests-recent
             - ui-tests-earlier
           filters:

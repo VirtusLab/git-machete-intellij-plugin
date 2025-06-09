@@ -9,19 +9,18 @@ bundle=frontend/resourcebundles/src/main/resources/GitMacheteBundle.properties
 [[ -f $bundle ]] || die "Bundle file ($bundle) has been (re)moved"
 
 # Let's exclude the keys that are used by IntelliJ implicitly as action descriptions (see `<override-text>` tags in plugin.xml).
-all_expected_keys=$(
+all_declared_keys=$(
   grep --only-matching --perl-regexp '^[^= ]*(?==)' -- $bundle \
     | grep --extended-regexp --invert-match --line-regexp 'action\.GitMachete\.[A-Za-z]+\.(description|GitMachete(ContextMenu|Toolbar).text|text)' \
     | sort
 )
 
-all_found_keys=$(
-  git grep -h --only-matching --fixed-strings "$all_expected_keys" -- '*.java' '*.kt' ":!$bundle" \
+all_used_keys=$(
+  git grep -h --only-matching --fixed-strings "$all_declared_keys" -- '*.java' '*.kt' ":!$bundle" \
     | sort | uniq
 )
 
-# Print the lines present in the first output but missing from the second
-output=$(comm -23 <(echo "$all_expected_keys") <(echo "$all_found_keys"))
+output=$(echo "$all_declared_keys" | exclude <(echo "$all_used_keys"))
 
 if [[ $output ]]; then
   echo "$output"

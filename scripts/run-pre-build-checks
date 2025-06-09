@@ -12,8 +12,8 @@ failed=""
 function _() {
   script=$1
   option=${2-}
-  if [[ $option == "--skip-in-pre-commit-hook" ]] && [[ $0 == *.git/hooks/pre-commit ]]; then
-    echo "(skipping $script as we are running in a git pre-commit hook)" >&2
+  if [[ $option == "--ci-only" ]] && ! [[ ${CI-} ]]; then
+    echo "(skipping $script as we are running outside of CI)" >&2
     return
   fi
   echo "> $script" >&2
@@ -32,13 +32,14 @@ _ enforce-settings-gradle-match-directories
 _ enforce-shell-scripts-pass-shellcheck
 _ enforce-version-bump
 
-# This one is needed as a pull request check. So, it should NOT run within a git pre-commit hook.
-_ prohibit-direct-merges-to-master --skip-in-pre-commit-hook
+_ prohibit-direct-merges-to-master --ci-only
+_ prohibit-git-bang-without-colon
 _ prohibit-java-class-name-hardcode-in-strings
 _ prohibit-java-code-commented-out
 _ prohibit-java-lines-split-needlessly
 _ prohibit-java-unused-custom-log
 _ prohibit-javascript-unbounded-while-loops
+_ prohibit-javascript-unused-symbols
 _ prohibit-kotlin-undefined-property-keys
 _ prohibit-kotlin-unsafe-cast
 _ prohibit-non-ascii-characters
@@ -48,8 +49,8 @@ _ prohibit-trailing-whitespace
 
 _ validate-icons
 # This one needs to connect to the linked websites and can potentially run long,
-# let's skip it when this script is executed as git pre-commit hook.
-_ validate-markdown-links --skip-in-pre-commit-hook
+# let's skip it when this script is executed locally.
+_ validate-markdown-links --ci-only
 _ validate-markdown-values
 
 if [[ $failed ]]; then

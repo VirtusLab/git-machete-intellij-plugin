@@ -8,28 +8,28 @@ import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.provideDelegate
 import org.gradle.kotlin.dsl.register
 
-fun Project.configureUiTests() {
+fun Project.configureOldUiTests() {
   val isCI: Boolean by rootProject.extra
   val intellijVersions: IntellijVersions by rootProject.extra
 
   val sourceSets = extensions["sourceSets"] as? SourceSetContainer
-  val uiTest = sourceSets!!["uiTest"]
-  val uiTestsDir = "${System.getProperty("user.home")}/.ideprobe-uitests"
+  val oldUiTest = sourceSets!!["oldUiTest"]
+  val oldUiTestsDir = "${System.getProperty("user.home")}/.ideprobe-uitests"
 
-  val uiTestTargets: List<String> =
+  val oldUiTestTargets: List<String> =
     if (project.properties["against"] != null) {
       intellijVersions.resolveIntelliJVersions(project.properties["against"] as? String)
     } else {
       listOf(intellijVersions.buildTarget)
     }
 
-  uiTestTargets.onEach { version ->
-    tasks.register<Test>("uiTest_$version") {
-      description = "Runs UI tests."
+  oldUiTestTargets.onEach { version ->
+    tasks.register<Test>("oldUiTest_$version") {
+      description = "Runs old UI tests."
       group = "verification"
 
-      testClassesDirs = uiTest.output.classesDirs
-      classpath = configurations["uiTestRuntimeClasspath"] + uiTest.output
+      testClassesDirs = oldUiTest.output.classesDirs
+      classpath = configurations["oldUiTestRuntimeClasspath"] + oldUiTest.output
 
       val buildPlugin = tasks.findByPath(":buildPlugin")!!
       dependsOn(buildPlugin)
@@ -50,14 +50,14 @@ fun Project.configureUiTests() {
         environment("IDEPROBE_DISPLAY", "xvfb")
         environment(
           "IDEPROBE_PATHS_SCREENSHOTS",
-          "$uiTestsDir/artifacts/uiTest$version/screenshots",
+          "$oldUiTestsDir/artifacts/uiTest$version/screenshots",
         )
         if (isCI) {
-          environment("IDEPROBE_PATHS_BASE", uiTestsDir)
+          environment("IDEPROBE_PATHS_BASE", oldUiTestsDir)
         }
       }
 
-      environment("IDEPROBE_PATHS_LOG_EXPORT", "$uiTestsDir/idea-logs")
+      environment("IDEPROBE_PATHS_LOG_EXPORT", "$oldUiTestsDir/idea-logs")
 
       testLogging {
         showStandardStreams = true
@@ -65,7 +65,7 @@ fun Project.configureUiTests() {
     }
   }
 
-  tasks.register("uiTest") {
-    dependsOn(tasks.matching { task -> task.name.startsWith("uiTest_") })
+  tasks.register("oldUiTest") {
+    dependsOn(tasks.matching { task -> task.name.startsWith("oldUiTest_") })
   }
 }
