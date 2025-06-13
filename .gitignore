@@ -1,3 +1,4 @@
+/allure-results/
 build/
 *.class
 *.crt
@@ -9,5 +10,6 @@ build/
 /.idea/
 /.intellijPlatform/
 *.log
+/out/
 *.pem
 .sdkmanrc

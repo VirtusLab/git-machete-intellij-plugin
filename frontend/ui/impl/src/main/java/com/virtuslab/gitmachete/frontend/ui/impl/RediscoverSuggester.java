@@ -51,7 +51,7 @@ public class RediscoverSuggester {
   public void perform() {
     val macheteFilePath = gitRepository.getMacheteFilePath();
 
-    val lastModifiedTimeMillis = macheteFilePath.getFileModificationDate();
+    val lastModifiedTimeMillis = macheteFilePath.getFileModificationEpochMillis();
     if (lastModifiedTimeMillis == null) {
       LOG.warn("Cannot proceed with rediscover suggestion workflow - could not get file modification date");
       return;
@@ -87,9 +87,8 @@ public class RediscoverSuggester {
    *  It is used to state that the user has declined the suggestion, thus we should not ask again
    *  before {@link RediscoverSuggester#DAYS_AFTER_WHICH_TO_SUGGEST_DISCOVER} pass.
    */
-  @UIEffect
   private void refreshFileModificationDate(Path macheteFilePath) {
-    macheteFilePath.setFileModificationDate(System.currentTimeMillis());
+    macheteFilePath.setFileModificationEpochMillis(System.currentTimeMillis());
   }
 
   private long daysDiffTillNow(long lastModifiedTimeMillis) {

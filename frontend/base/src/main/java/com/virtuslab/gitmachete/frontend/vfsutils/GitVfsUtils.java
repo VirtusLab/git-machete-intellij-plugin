@@ -10,8 +10,10 @@ import java.nio.file.attribute.FileTime;
 import com.intellij.openapi.vfs.VirtualFile;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+@Slf4j
 public final class GitVfsUtils {
 
   private static final String MACHETE_FILE_NAME = "machete";
@@ -19,8 +21,7 @@ public final class GitVfsUtils {
   private GitVfsUtils() {}
 
   public static VirtualFile getMainGitDirectory(GitRepository gitRepository) {
-    VirtualFile vfGitDir = GitUtil.findGitDir(gitRepository.getRoot());
-    assert vfGitDir != null : "Can't get .git directory from repo root path ${gitRepository.getRoot()}";
+    VirtualFile vfGitDir = getWorktreeGitDirectory(gitRepository);
     // For worktrees, the format of .git dir path is:
     //   <repo-root>/.git/worktrees/<per-worktree-directory>
     // Let's detect if that's what `findGitDir` returned;
@@ -52,12 +53,8 @@ public final class GitVfsUtils {
     return Paths.get(vfGitDir.getPath());
   }
 
-  public static VirtualFile getRootDirectory(GitRepository gitRepository) {
-    return gitRepository.getRoot();
-  }
-
   public static Path getRootDirectoryPath(GitRepository gitRepository) {
-    return Paths.get(getRootDirectory(gitRepository).getPath());
+    return Paths.get(gitRepository.getRoot().getPath());
   }
 
   /**
@@ -79,29 +76,21 @@ public final class GitVfsUtils {
     return getMainGitDirectoryPath(gitRepository).resolve(MACHETE_FILE_NAME);
   }
 
-  /**
-   * @param filePath {@link Path} to file
-   * @return {@link Long} stating for time of last modification in milliseconds since the Unix epoch start if attributes were read successfully; otherwise, null
-   */
-  public static @Nullable Long getFileModificationDate(Path filePath) {
+  public static @Nullable Long getFileModificationEpochMillis(Path filePath) {
     try {
-      BasicFileAttributes fileAtributes = Files.readAttributes(filePath, BasicFileAttributes.class);
-      return fileAtributes.lastModifiedTime().toMillis();
+      BasicFileAttributes fileAttributes = Files.readAttributes(filePath, BasicFileAttributes.class);
+      return fileAttributes.lastModifiedTime().toMillis();
     } catch (IOException e) {
+      LOG.error("Failed to get modification date of ${filePath}", e);
       return null;
     }
   }
 
-  /**
-   * @param filePath {@link Path} to file
-   * @param millis {@code long} representing the new modification time in milliseconds since the Unix epoch start
-   * @return {@link Path} stating for the given file if the modification date was set successfully; otherwise, null
-   */
-  public static @Nullable Path setFileModificationDate(Path filePath, long millis) {
+  public static void setFileModificationEpochMillis(Path filePath, long epochMillis) {
     try {
-      return Files.setLastModifiedTime(filePath, FileTime.fromMillis(millis));
+      Files.setLastModifiedTime(filePath, FileTime.fromMillis(epochMillis));
     } catch (IOException e) {
-      return null;
+      LOG.error("Failed setting modification date on ${filePath}", e);
     }
   }
 }

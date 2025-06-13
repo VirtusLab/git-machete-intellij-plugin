@@ -21,7 +21,7 @@ private constructor(
   private val repositorySnapshot: IGitMacheteRepositorySnapshot?,
   private val dimension: JBDimension,
   private val saveAction: Consumer<IGitMacheteRepositorySnapshot>?,
-  private val saveAndEditAction: Consumer<IGitMacheteRepositorySnapshot>?,
+  private val saveAndOpenAction: Consumer<IGitMacheteRepositorySnapshot>?,
   private val cancelButtonVisible: Boolean,
   windowTitle: String,
   okButtonText: String,
@@ -78,7 +78,7 @@ private constructor(
           repositorySnapshot = null,
           dimension = JBDimension(/* width */ 850, /* height */ 250),
           saveAction = null,
-          saveAndEditAction = null,
+          saveAndOpenAction = null,
           cancelButtonVisible = false,
           windowTitle = "Git Machete Help",
           okButtonText = "Close",
@@ -92,7 +92,7 @@ private constructor(
     arrayOf(okAction)
   }
 
-  private fun getSaveAndEditAction() = if (saveAndEditAction == null) {
+  private fun getSaveAndEditAction() = if (saveAndOpenAction == null) {
     null
   } else {
     object :
@@ -102,7 +102,7 @@ private constructor(
         ),
       ) {
       override fun actionPerformed(e: ActionEvent?) {
-        repositorySnapshot?.let { saveAndEditAction.accept(it) }
+        repositorySnapshot?.let { saveAndOpenAction.accept(it) }
         close(OK_EXIT_CODE)
       }
     }

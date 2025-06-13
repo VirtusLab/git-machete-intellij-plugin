@@ -6,17 +6,14 @@ import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.blocking
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
-import java.nio.file.Path;
 import java.util.Objects;
-import java.util.function.Consumer;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vcs.VcsNotifier;
 import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ModalityUiUtil;
 import git4idea.repo.GitRepository;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
@@ -24,7 +21,6 @@ import lombok.CustomLog;
 import lombok.SneakyThrows;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
-import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
@@ -92,8 +88,8 @@ public class DiscoverAction extends BaseProjectDependentAction {
             repoSnapshot,
             /* windowTitle */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.title"),
             /* emptyTableText */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.empty-table-text"),
-            /* saveAction */ saveAndDoNotOpenMacheteFileSnapshotConsumer(gitRepository, branchLayoutWriter),
-            /* saveAndEditAction */ saveAndOpenMacheteFileSnapshotConsumer(gitRepository, branchLayoutWriter),
+            /* saveAction */ repo -> saveMacheteFile(repo, gitRepository, branchLayoutWriter, /* openAfterSave */ false),
+            /* saveAndOpenAction */ repo -> saveMacheteFile(repo, gitRepository, branchLayoutWriter, /* openAfterSave */ true),
             /* okButtonText */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.save-button-text"),
             /* cancelButtonVisible */ true,
             /* shouldDisplayActionToolTips */ false).show());
@@ -109,33 +105,19 @@ public class DiscoverAction extends BaseProjectDependentAction {
     }.queue();
   }
 
-  private Consumer<IGitMacheteRepositorySnapshot> saveAndDoNotOpenMacheteFileSnapshotConsumer(GitRepository gitRepository,
-      IBranchLayoutWriter branchLayoutWriter) {
-    return repositorySnapshot -> saveDiscoveredLayout(repositorySnapshot,
-        gitRepository.getMacheteFilePath(), gitRepository.getProject(), branchLayoutWriter, () -> {});
-  }
-
-  private Consumer<IGitMacheteRepositorySnapshot> saveAndOpenMacheteFileSnapshotConsumer(GitRepository gitRepository,
-      IBranchLayoutWriter branchLayoutWriter) {
-    return repositorySnapshot -> saveDiscoveredLayout(repositorySnapshot,
-        gitRepository.getMacheteFilePath(), gitRepository.getProject(),
-        branchLayoutWriter, () -> openMacheteFile(gitRepository));
-  }
-
-  private void saveDiscoveredLayout(IGitMacheteRepositorySnapshot repositorySnapshot,
-      Path macheteFilePath,
-      Project project,
-      IBranchLayoutWriter branchLayoutWriter,
-      @UI Runnable postWriteRunnable) {
+  private void saveMacheteFile(IGitMacheteRepositorySnapshot repositorySnapshot, GitRepository gitRepository,
+      IBranchLayoutWriter branchLayoutWriter, boolean openAfterSave) {
     val branchLayout = repositorySnapshot.getBranchLayout();
     blockingRunWriteActionOnUIThread(() -> MacheteFileWriter.writeBranchLayout(
-        macheteFilePath,
+        gitRepository.getMacheteFilePath(),
         branchLayoutWriter,
         branchLayout,
         /* backupOldLayout */ true,
         /* requestor */ this));
-    VfsUtil.markDirtyAndRefresh(/* async */ false, /* recursive */ true, /* reloadChildren */ false,
-        ProjectRootManager.getInstance(project).getContentRoots());
-    ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, postWriteRunnable);
+    VirtualFile macheteFile = gitRepository.getMacheteFile();
+    if (openAfterSave && macheteFile != null) {
+      VfsUtil.markDirtyAndRefresh(/* async */ false, /* recursive */ false, /* reloadChildren */ false, macheteFile);
+      ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> openMacheteFile(gitRepository));
+    }
   }
 }

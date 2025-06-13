@@ -1,6 +1,7 @@
 # Changelog
 
 ## v6.1.1
+- Fixed: sporadic freezes when discovering the branch layout (reported by @sf-canva, @SvetlanaVesna)
 
 ## v6.1.0
 - Added: support for IntelliJ 2025.2.

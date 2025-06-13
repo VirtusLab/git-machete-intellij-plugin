@@ -3,7 +3,6 @@ package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 import static com.virtuslab.gitmachete.frontend.actions.base.BaseResetToRemoteAction.VCS_NOTIFIER_TITLE;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
-import static com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils.getRootDirectory;
 import static git4idea.GitNotificationIdsHolder.LOCAL_CHANGES_DETECTED;
 import static git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector.Operation.RESET;
 
@@ -84,7 +83,7 @@ public class ResetCurrentToRemoteBackgroundable extends SideEffectingBackgrounda
               result.getErrorOutputAsHtmlString());
         }
 
-        val repositoryRoot = getRootDirectory(gitRepository);
+        val repositoryRoot = gitRepository.getRoot();
         GitRepositoryManager.getInstance(project).updateRepository(repositoryRoot);
         VfsUtil.markDirtyAndRefresh(/* async */ false, /* recursive */ true, /* reloadChildren */ false, repositoryRoot);
       }
