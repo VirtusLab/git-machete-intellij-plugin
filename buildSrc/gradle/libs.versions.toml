@@ -1,5 +1,5 @@
 [libraries]
-jsoup = "org.jsoup:jsoup:1.20.1"
+jsoup = "org.jsoup:jsoup:1.21.1"
 junit-api = "org.junit.jupiter:junit-jupiter-api:5.13.1"
 # Plugin packages
 # This way of applying the plugins is needed for the build-related code in buildSrc/src/main/,
