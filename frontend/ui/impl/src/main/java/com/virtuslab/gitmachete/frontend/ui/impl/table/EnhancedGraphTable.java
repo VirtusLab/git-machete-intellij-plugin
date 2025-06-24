@@ -446,11 +446,11 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
             finalNewBranchLayout,
             /* backupOldLayout */ true,
             /* requestor */ this);
-      } catch (IOException t) {
-        String exceptionMessage = t.getMessage();
+      } catch (IOException e) {
+        String exceptionMessage = e.getMessage();
         String errorMessage = "Error occurred while sliding out skipped branches" +
             (exceptionMessage == null ? "" : ": " + exceptionMessage);
-        LOG.error(errorMessage);
+        LOG.error(errorMessage, e);
         VcsNotifier.getInstance(project).notifyError(/* displayId */ null,
             getString("action.GitMachete.EnhancedGraphTable.branch-layout-write-failure"),
             exceptionMessage == null ? "" : exceptionMessage);

@@ -21,28 +21,8 @@ import io.vavr.collection.List
 import javax.swing.JCheckBox
 import kotlin.reflect.full.primaryConstructor
 
-data class MyGitNewBranchOptions @JvmOverloads constructor(
-  val name: String,
-  @get:JvmName("shouldCheckout") val checkout: Boolean = true,
-  @get:JvmName("shouldReset") val reset: Boolean = false,
-  @get:JvmName("shouldKeepRemoteTrackingInfo") val keepTracking: Boolean = true,
-) {
-
-  fun toGit4IdeaOptions(): GitNewBranchOptions {
-    // TODO (#1974): replace with a non-reflective call once 2024.3 is no longer supported
-    val constructor = GitNewBranchOptions::class.primaryConstructor!!
-    if (constructor.parameters.size == 4) {
-      // Before 251.17181.16-EAP-SNAPSHOT
-      return constructor.call(name, checkout, reset, !keepTracking)
-    } else {
-      // Since 251.17181.16-EAP-SNAPSHOT
-      return constructor.call(name, checkout, reset, !keepTracking, emptyList<GitRepository>())
-    }
-  }
-}
-
 /**
- * This class has been inspired by [git4idea.branch.GitNewBranchOptions].
+ * This class has been inspired by [git4idea.branch.GitNewBranchDialog].
  * The main reason is that we want to rename the checkbox "Set tracking branch"
  * (which is unclear) to "Rename tracking branch".
  *
@@ -62,11 +42,24 @@ class MyGitNewBranchDialog @JvmOverloads constructor(
 
   companion object {
     private const val NAME_SEPARATOR = '/'
+
+    fun createGit4IdeaOptions(name: String, checkout: Boolean, reset: Boolean, setTracking: Boolean): GitNewBranchOptions {
+      // TODO (#1974): replace with a non-reflective call once 2024.3 is no longer supported
+      val constructor = GitNewBranchOptions::class.primaryConstructor!!
+      return when (constructor.parameters.size) {
+        // Before 251.17181.16-EAP-SNAPSHOT
+        4 -> constructor.call(name, checkout, reset, setTracking)
+        // Between 251.17181.16-EAP-SNAPSHOT and certain 252-EAP-SNAPSHOT
+        5 -> constructor.call(name, checkout, reset, setTracking, emptyList<GitRepository>())
+        // Since certain 252-EAP-SNAPSHOT
+        else -> constructor.call(name, checkout, reset, setTracking, emptyList<GitRepository>(), /* unsetUpstream */ false)
+      }
+    }
   }
 
   private var checkout = true
   private var reset = false
-  private var remote = true
+  private var keepTracking = true
   private var branchName = initialName.orEmpty()
   private val validator = GitRefNameValidator.getInstance()
 
@@ -78,9 +71,14 @@ class MyGitNewBranchDialog @JvmOverloads constructor(
     init()
   }
 
-  fun showAndGetOptions(): MyGitNewBranchOptions? {
+  fun showAndGetOptions(): GitNewBranchOptions? {
     if (!showAndGet()) return null
-    return MyGitNewBranchOptions(validator.cleanUpBranchName(branchName).trim(), checkout, reset, remote)
+    return createGit4IdeaOptions(
+      name = validator.cleanUpBranchName(branchName).trim(),
+      checkout = checkout,
+      reset = reset,
+      setTracking = !keepTracking,
+    )
   }
 
   override fun createCenterPanel() = panel {
@@ -127,7 +125,7 @@ class MyGitNewBranchDialog @JvmOverloads constructor(
       }
       if (showKeepRemoteOption) {
         checkBox(getString("string.GitMachete.MyGitNewBranchDialog.keep-remote-checkbox"))
-          .bindSelected(::remote)
+          .bindSelected(::keepTracking)
           .applyToComponent {
             toolTipText = getString("string.GitMachete.MyGitNewBranchDialog.keep-remote-checkbox.tooltip.HTML")
           }

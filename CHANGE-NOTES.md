@@ -1,6 +1,7 @@
 # Changelog
 
 ## v6.1.2
+- Fixed: compatibility issues with the latest 2025.2 EAPs
 
 ## v6.1.1
 - Fixed: sporadic freezes when discovering the branch layout (reported by @sf-canva, @SvetlanaVesna)

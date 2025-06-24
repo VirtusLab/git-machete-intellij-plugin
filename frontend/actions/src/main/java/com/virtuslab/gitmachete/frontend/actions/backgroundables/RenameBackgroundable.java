@@ -13,6 +13,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.branch.GitBrancher;
+import git4idea.branch.GitNewBranchOptions;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommand;
 import git4idea.commands.GitCommandResult;
@@ -25,7 +26,6 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.readwrite.IBranchLayoutWriter;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
-import com.virtuslab.gitmachete.frontend.actions.dialogs.MyGitNewBranchOptions;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
 import com.virtuslab.gitmachete.frontend.ui.api.table.BaseEnhancedGraphTable;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
@@ -39,13 +39,13 @@ public class RenameBackgroundable extends SideEffectingBackgroundable {
   private final BaseEnhancedGraphTable graphTable;
   private final BranchLayout branchLayout;
   private final IManagedBranchSnapshot currentBranchSnapshot;
-  private final MyGitNewBranchOptions gitNewBranchOptions;
+  private final GitNewBranchOptions gitNewBranchOptions;
 
   public RenameBackgroundable(
       GitRepository gitRepository,
       BaseEnhancedGraphTable graphTable, BranchLayout branchLayout,
       IManagedBranchSnapshot currentBranchSnapshot,
-      MyGitNewBranchOptions gitNewBranchOptions) {
+      GitNewBranchOptions gitNewBranchOptions) {
     super(gitRepository.getProject(), getNonHtmlString("action.GitMachete.RenameBackgroundable.task-title"), "rename");
     this.gitRepository = gitRepository;
     this.graphTable = graphTable;
@@ -80,7 +80,7 @@ public class RenameBackgroundable extends SideEffectingBackgroundable {
     // Hence, we wait for the creation of the branch (with exponential backoff).
     waitForCreationOfLocalBranch(gitRepository, newBranchName);
 
-    if (!gitNewBranchOptions.shouldKeepRemoteTrackingInfo()) {
+    if (gitNewBranchOptions.shouldSetTracking()) {
       val remote = currentBranchSnapshot.getRemoteTrackingBranch();
       assert remote != null : "shouldSetTracking is true but the remote branch does not exist";
       handleSetTrackingBranch(remote.getRemoteName());
