@@ -9,8 +9,6 @@ updates:
     directory: "/"
     schedule:
       interval: daily
-    reviewers:
-      - PawelLipski
     target-branch: develop
     groups:
       deps:

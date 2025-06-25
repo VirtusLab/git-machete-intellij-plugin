@@ -1,5 +1,7 @@
 # Changelog
 
+## v6.1.3
+
 ## v6.1.2
 - Fixed: compatibility issues with the latest 2025.2 EAPs
 
