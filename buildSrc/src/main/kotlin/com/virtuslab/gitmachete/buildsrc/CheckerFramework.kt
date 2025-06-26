@@ -28,6 +28,13 @@ fun Project.configureCheckerFramework() {
         ),
       )
     }
+    val suppressedWarnings = listOf(
+      "allcheckers:annotation",
+      "allcheckers:type.anno.before.decl.anno",
+      "allcheckers:type.anno.before.modifier",
+      "allcheckers:type.checking.not.run",
+      "guieffect:effects.redundant.uitype",
+    )
     extraJavacArgs =
       mutableListOf(
         "-AassumeAssertionsAreEnabled",
@@ -44,7 +51,7 @@ fun Project.configureCheckerFramework() {
         // since for simplicity, we're providing the same set of stubs to Checker in each subproject
         // (`$rootDir/config/checker/`, which includes e.g. Vavr).
         "-AstubWarnIfNotFoundIgnoresClasses",
-        "-AsuppressWarnings=allcheckers:annotation,allcheckers:type.anno.before.decl.anno,allcheckers:type.anno.before.modifier,allcheckers:type.checking.not.run",
+        "-AsuppressWarnings=${suppressedWarnings.joinToString(",")}",
       )
 
     checker()

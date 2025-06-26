@@ -9,6 +9,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noMethods;
 import java.util.Arrays;
 
 import com.intellij.openapi.progress.Task;
+import com.intellij.util.concurrency.annotations.RequiresEdt;
 import com.tngtech.archunit.core.domain.AccessTarget;
 import com.tngtech.archunit.core.domain.JavaCodeUnit;
 import io.vavr.collection.List;
@@ -47,6 +48,16 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
         .areAnnotatedWith(UIThreadUnsafe.class)
         .should()
         .notBeAnnotatedWith(UIEffect.class)
+        .check(productionClasses);
+  }
+
+  @Test
+  public void code_units_with_requires_edt_should_only_be_called_from_ui_effect_code_units() {
+    noCodeUnits()
+        .that()
+        .areNotAnnotatedWith(UIEffect.class)
+        .should(callAnyCodeUnitsThat("are annotated with @RequiresEdt",
+            (codeUnit, calledCodeUnit) -> calledCodeUnit.isAnnotatedWith(RequiresEdt.class)))
         .check(productionClasses);
   }
 
@@ -144,6 +155,7 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
       "git4idea.ui.ComboBoxWithAutoCompletion.setPrototypeDisplayValue(java.lang.Object)",
       "git4idea.ui.ComboBoxWithAutoCompletion.setUI(javax.swing.plaf.ComboBoxUI)",
       "git4idea.ui.branch.GitBranchCheckoutOperation.<init>(com.intellij.openapi.project.Project, java.util.Collection)",
+      "git4idea.ui.branch.GitBranchPopupActions$RemoteBranchActions$CheckoutRemoteBranchAction.checkoutRemoteBranch(com.intellij.openapi.project.Project, java.util.List, java.lang.String)",
       "git4idea.validators.GitBranchValidatorKt.checkRefName(java.lang.String)",
       "git4idea.validators.GitBranchValidatorKt.checkRefNameEmptyOrHead(java.lang.String)",
       "git4idea.validators.GitBranchValidatorKt.conflictsWithLocalBranch(java.util.Collection, java.lang.String)",

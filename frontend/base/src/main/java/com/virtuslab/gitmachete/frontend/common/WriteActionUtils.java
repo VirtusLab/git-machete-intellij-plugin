@@ -5,6 +5,7 @@ import com.intellij.openapi.application.WriteAction;
 import com.intellij.util.ThrowableRunnable;
 import lombok.SneakyThrows;
 import org.checkerframework.checker.guieffect.qual.UI;
+import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 public final class WriteActionUtils {
 
@@ -16,13 +17,13 @@ public final class WriteActionUtils {
   }
 
   private static <E extends Throwable> @UI Runnable getWriteActionRunnable(@UI ThrowableRunnable<E> action) {
-    return new Runnable() {
+    return new @UI Runnable() {
       @Override
       @SneakyThrows
+      @UIEffect
       public void run() {
         WriteAction.run(action);
       }
     };
   }
-
 }

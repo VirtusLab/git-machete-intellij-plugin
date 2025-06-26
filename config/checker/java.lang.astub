@@ -1,5 +1,15 @@
+import org.checkerframework.checker.guieffect.qual.PolyUIEffect;
+import org.checkerframework.checker.guieffect.qual.PolyUIType;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+
+package java.lang;
+
+@PolyUIType
+interface Runnable {
+  @PolyUIEffect
+  void run();
+}
 
 package java.lang.reflect;
 

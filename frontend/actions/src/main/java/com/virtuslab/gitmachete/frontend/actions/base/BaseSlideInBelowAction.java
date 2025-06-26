@@ -27,6 +27,7 @@ import io.vavr.control.Option;
 import lombok.Value;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
+import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -119,8 +120,7 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
 
     if (localBranch == null) {
       Tuple2<@Nullable String, UiThreadUnsafeRunnable> branchNameAndPreSlideInRunnable = getBranchNameAndPreSlideInRunnable(
-          gitRepository,
-          parentName, slideInOptionsName);
+          gitRepository, parentName, slideInOptionsName);
 
       preSlideInRunnable = branchNameAndPreSlideInRunnable._2();
       val branchName = branchNameAndPreSlideInRunnable._1();
@@ -197,14 +197,14 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
       });
 
     } else if (options.shouldCheckout()) {
-      return Tuple.of(branchName, new UiThreadUnsafeRunnable() {
-        @UIThreadUnsafe
-        @SuppressWarnings("removal")
+      return Tuple.of(branchName, () -> ApplicationManager.getApplication().invokeAndWait(new @UI Runnable() {
         @Override
+        @SuppressWarnings("removal")
+        @UIEffect
         public void run() {
           RemoteBranchActions.CheckoutRemoteBranchAction.checkoutRemoteBranch(project, repositories, remoteBranch.getName());
         }
-      });
+      }));
 
     } else {
       val refspec = createRefspec("refs/remotes/" + remoteBranch.getName(),

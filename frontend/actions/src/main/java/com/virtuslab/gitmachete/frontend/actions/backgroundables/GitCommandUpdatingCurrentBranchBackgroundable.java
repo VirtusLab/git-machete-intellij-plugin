@@ -40,8 +40,9 @@ import git4idea.update.GitUpdatedRanges;
 import git4idea.util.GitUntrackedFilesHelper;
 import git4idea.util.LocalChangesWouldBeOverwrittenHelper;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
-import lombok.experimental.ExtensionMethod;
 import lombok.val;
+import org.checkerframework.checker.guieffect.qual.UI;
+import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.tainting.qual.Untainted;
@@ -49,7 +50,6 @@ import org.checkerframework.checker.tainting.qual.Untainted;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
-@ExtensionMethod(GitMacheteBundle.class)
 public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends SideEffectingBackgroundable {
 
   protected final GitRepository gitRepository;
@@ -184,8 +184,9 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Side
     } else {
       VcsNotifier.getInstance(project).notifyError(
           /* displayId */ null,
-          getString("action.GitMachete.GitCommandUpdatingCurrentBranchBackgroundable.notification.title.update-fail")
-              .fmt(getOperationName()),
+          GitMacheteBundle.fmt(
+              getString("action.GitMachete.GitCommandUpdatingCurrentBranchBackgroundable.notification.title.update-fail"),
+              getOperationName()),
           result.getErrorOutputAsJoinedString());
       gitRepository.update();
     }
@@ -193,23 +194,28 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Side
 
   @UIThreadUnsafe
   private void showUpdates(GitRevisionNumber currentRev, Label beforeLabel) {
+    String operationName = GitCommandUpdatingCurrentBranchBackgroundable.this.getOperationName();
     try {
       UpdatedFiles files = UpdatedFiles.create();
 
       val collector = new MergeChangeCollector(project, gitRepository, currentRev);
       collector.collect(files);
 
-      ModalityUiUtil.invokeLaterIfNeeded(ModalityState.defaultModalityState(), () -> {
-        val manager = ProjectLevelVcsManagerEx.getInstanceEx(project);
-        val tree = manager.showUpdateProjectInfo(files, getOperationName(), ActionInfo.UPDATE, /* canceled */ false);
-        if (tree != null) {
-          tree.setBefore(beforeLabel);
-          tree.setAfter(LocalHistory.getInstance().putSystemLabel(project, /* name */ "After update"));
-          ViewUpdateInfoNotification.focusUpdateInfoTree(project, tree);
+      ModalityUiUtil.invokeLaterIfNeeded(ModalityState.defaultModalityState(), new @UI Runnable() {
+        @Override
+        @UIEffect
+        public void run() {
+          val manager = ProjectLevelVcsManagerEx.getInstanceEx(project);
+          val tree = manager.showUpdateProjectInfo(files, operationName, ActionInfo.UPDATE, /* canceled */ false);
+          if (tree != null) {
+            tree.setBefore(beforeLabel);
+            tree.setAfter(LocalHistory.getInstance().putSystemLabel(project, /* name */ "After update"));
+            ViewUpdateInfoNotification.focusUpdateInfoTree(project, tree);
+          }
         }
       });
     } catch (VcsException e) {
-      GitVcs.getInstance(project).showErrors(java.util.Collections.singletonList(e), getOperationName());
+      GitVcs.getInstance(project).showErrors(java.util.Collections.singletonList(e), operationName);
     }
   }
 }
