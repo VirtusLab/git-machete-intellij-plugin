@@ -1,5 +1,7 @@
 # Changelog
 
+## v6.1.4
+
 ## v6.1.3
 - Fixed: `Access is allowed from Event Dispatch Thread` error when checking out a branch from remote branch (reported by @CLOVIS-AI)
 
