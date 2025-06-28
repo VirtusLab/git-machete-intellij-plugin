@@ -38,27 +38,6 @@ commands:
             # As a last resort, take any available cache entry.
             - gradle-deps-v12-
 
-  collect_ui_test_artifacts:
-    steps:
-      - run:
-          name: Collect artifacts when an exception occurs
-          # language=sh
-          command: |
-            if ! ( [ -d ~/.ideprobe-uitests/artifacts ] && [ -n "$(ls -A ~/.ideprobe-uitests/artifacts)" ] ); then exit 0; fi
-            for f in $(ls -d ~/.ideprobe-uitests/artifacts/*/) ; do cd  $f ; zip -r "../$(basename ${f}).zip" . ; done
-            mkdir -p ~/artifacts
-            find ~/.ideprobe-uitests/artifacts -name '*.zip' | xargs cp --target-directory ~/artifacts
-            for f in $(find ~/.ideprobe-uitests/idea-logs/intellij-instance-*/logs/idea.log) ; do
-              target="~/artifacts/$(echo $f | sed 's/.*\/\(intellij-instance-.*\)\/logs\/idea.log/\1.log/')"
-              eval "cp $f $target"
-            done
-          when: on_fail
-      - store_artifacts:
-          path: ~/artifacts
-          destination: .
-      - store_test_results:
-          path: build/test-results/
-
   reconfigure_origin_remote:
     steps:
       - run:
@@ -219,9 +198,9 @@ jobs:
             # Practice shows that the risk of UI tests failing on `latestMinorsOfOldSupportedMajors`
             # once both binary compatibility checks and UI tests for latest versions passed is close to zero.
             # Hence, to speed up the builds, we only run them for develop/master/hotfix/release branches and not on PRs.
-            # Also, we run on branches related to ide-probe or UI tests, as indicated by their name.
+            # Also, we run on branches related to UI tests, as indicated by their name.
             matches:
-              pattern: "^(.+/ci-.+|develop|hotfix/.+|.*ide(-)?probe.*|master|release/.+|.*ui(-)?test.*)$"
+              pattern: "^(.+/ci-.+|develop|hotfix/.+|master|release/.+|.*ui(-)?test.*)$"
               value: << pipeline.git.branch >>
           steps:
             - checkout
@@ -231,19 +210,6 @@ jobs:
                 command: ./gradlew -PvirtualDisplay -Pagainst=latestMinorsOfOldSupportedMajors uiTest
             - store_test_results:
                 path: build/test-results/
-
-  old-ui-tests-recent:
-    executor: ubuntu_executor
-    steps:
-      - checkout
-      - restore_gradle_cache
-      - run:
-          name: Run old UI tests against an EAP of the latest supported major IntelliJ version (if applicable)
-          command: ./gradlew -PvirtualDisplay -Pagainst=eapOfLatestSupportedMajor oldUiTest
-      - run:
-          name: Run old UI tests against the latest stable IntelliJ version
-          command: ./gradlew -PvirtualDisplay -Pagainst=latestStable oldUiTest
-      - collect_ui_test_artifacts
 
   publish-plugin:
     executor: ubuntu_executor
@@ -341,13 +307,11 @@ workflows:
     jobs:
       - build
       # There's a 1-hour time limit on a job execution, so let's split the UI tests into 2 separate jobs
-      - old-ui-tests-recent
       - ui-tests-recent
       - ui-tests-earlier
       - publish-plugin:
           requires:
             - build
-            - old-ui-tests-recent
             - ui-tests-recent
             - ui-tests-earlier
           filters:

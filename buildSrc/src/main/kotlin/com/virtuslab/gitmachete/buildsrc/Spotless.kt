@@ -5,7 +5,6 @@ import com.diffplug.gradle.spotless.SpotlessPlugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.compile.AbstractCompile
 import org.gradle.api.tasks.compile.JavaCompile
-import org.gradle.api.tasks.scala.ScalaCompile
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -40,8 +39,6 @@ fun Project.configureSpotless() {
       ktlint().editorConfigOverride(ktlintEditorConfig)
       target("**/*.gradle.kts")
     }
-
-    scala { scalafmt("3.5.9").configFile("$rootDir/scalafmt.conf") }
   }
 
   val isCI: Boolean by rootProject.extra
@@ -51,7 +48,6 @@ fun Project.configureSpotless() {
       withType<AbstractCompile> { dependsOn("spotlessKotlinGradleApply") }
       withType<JavaCompile> { dependsOn("spotlessJavaApply") }
       withType<KotlinCompile> { dependsOn("spotlessKotlinApply") }
-      withType<ScalaCompile> { dependsOn("spotlessScalaApply") }
     }
   }
 }

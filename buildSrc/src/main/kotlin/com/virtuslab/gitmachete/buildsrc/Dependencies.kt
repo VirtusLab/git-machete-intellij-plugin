@@ -9,7 +9,6 @@ import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.net.URI
 
 fun Project.applyKotlinConfig() {
   apply<KotlinPluginWrapper>()
@@ -85,20 +84,6 @@ fun Project.checkerQual(scopePrefix: String = "") {
 fun Project.commonsIO(scopePrefix: String = "") {
   dependencies {
     (scopePrefix camelConcat "implementation")(lib("commonsIO"))
-  }
-}
-
-fun Project.ideProbe() {
-  repositories {
-    // Needed for com.intellij.remoterobot:remote-robot
-    maven {
-      url = URI("https://packages.jetbrains.team/maven/p/ij/intellij-dependencies")
-    }
-  }
-
-  dependencies {
-    "oldUiTestImplementation"(lib("ideProbe.robotDriver"))
-    "oldUiTestImplementation"(lib("jetbrains.annotations"))
   }
 }
 

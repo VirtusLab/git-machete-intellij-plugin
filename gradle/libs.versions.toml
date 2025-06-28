@@ -11,7 +11,6 @@ betterStrings = "com.antkorwin:better-strings:0.5"
 checker = { module = "org.checkerframework:checker", version.ref = "checker" }
 checker-qual = { module = "org.checkerframework:checker-qual", version.ref = "checker" }
 commonsIO = "commons-io:commons-io:2.19.0"
-ideProbe-robotDriver = "org.virtuslab.ideprobe:robot-driver_2.13:0.53.0"
 jetbrains-annotations = "org.jetbrains:annotations:26.0.2"
 jgit = "org.eclipse.jgit:org.eclipse.jgit:7.3.0.202506031305-r"
 junit4 = "junit:junit:4.13.2"
@@ -26,7 +25,6 @@ mockito = "org.mockito:mockito-junit-jupiter:5.18.0"
 okhttp = "com.squareup.okhttp3:okhttp:5.0.0"
 remoteRobot-client = { module = "com.intellij.remoterobot:remote-robot", version.ref = "remoteRobot" }
 remoteRobot-serverPlugin = { module = "com.intellij.remoterobot:robot-server-plugin", version.ref = "remoteRobot" }
-scalaLibrary = "org.scala-lang:scala-library:2.13.16"
 slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
 slf4j-mock = "org.simplify4u:slf4j-mock:2.4.0"
 slf4j-simple = "org.slf4j:slf4j-simple:1.7.36"
