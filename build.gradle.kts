@@ -14,7 +14,6 @@ import java.util.zip.ZipFile
 plugins {
   checkstyle
   `java-library`
-  scala
   alias(libs.plugins.jetbrains.changelog)
   alias(libs.plugins.jetbrains.intellij)
   alias(libs.plugins.taskTree)
@@ -327,7 +326,7 @@ val verifyPluginZipTask = tasks.register("verifyPluginZip") {
       }
     }
 
-    val forbiddenLibPrefixes = listOf("ide-probe", "idea", "kotlin", "lombok", "remote-robot", "scala", "slf4j")
+    val forbiddenLibPrefixes = listOf("idea", "kotlin", "lombok", "remote-robot", "slf4j")
     for (jar in jarsInPluginZip) {
       check(forbiddenLibPrefixes.none { jar.startsWith(it) } || expectedLibs.any { jar.startsWith(it) }) {
         "$jar.jar was NOT expected in plugin zip ($pluginZipPath) but was found"
@@ -396,22 +395,10 @@ dependencies {
   }
 }
 
-val oldUiTest = sourceSets.create("oldUiTest")
-val oldUiTestImplementation: Configuration by configurations.getting { extendsFrom(configurations.testImplementation.get()) }
-// This configuration apparently needs to be defined explicitly (despite not being used explicitly anywhere)
-// so that old UI test runtime classpath inherits `testRuntimeOnly` dependencies of the root project.
-val oldUiTestRuntimeOnly: Configuration by configurations.getting { extendsFrom(configurations.testRuntimeOnly.get()) }
-configureOldUiTests()
-dependencies {
-  oldUiTestImplementation(testFixtures(project(":testCommon")))
-  compileOnly(libs.scalaLibrary) // only needed to prevent IntelliJ loading error
-}
-
 applyKotlinConfig()
 archunit()
 // Checker is needed in root project runtime (not just compile-time) classpath for ArchUnit tests
 checkerQual("test")
-ideProbe()
 jgit("test")
 junit()
 lombok("test")
