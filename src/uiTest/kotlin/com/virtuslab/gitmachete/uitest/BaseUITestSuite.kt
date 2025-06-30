@@ -51,7 +51,7 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
   }
 
   val intelliJVersion = System.getProperty("intellij.version")
-  private val robot = RemoteRobot("http://127.0.0.1:8580")
+  val robot = RemoteRobot("http://127.0.0.1:8580")
 
   val macheteFilePath: Path =
     mainGitDirectoryPath.resolve("machete")
@@ -122,7 +122,7 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
     waitForIndicators(1.minutes)
   }
 
-  private fun Driver.waitForProject(attempts: Int) {
+  fun Driver.waitForProject(attempts: Int) {
     var attemptsLeft = attempts
     while (!isProjectOpened() && attemptsLeft > 0) {
       Thread.sleep(3000)
@@ -133,7 +133,7 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
     }
   }
 
-  private fun <T> retryOnConnectException(attempts: Int, block: () -> T): T = try {
+  fun <T> retryOnConnectException(attempts: Int, block: () -> T): T = try {
     block()
   } catch (e: java.net.ConnectException) {
     if (attempts > 1) {
