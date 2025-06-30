@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.uitest
 
 import com.intellij.driver.client.Driver
+import com.intellij.driver.sdk.isProjectOpened
 import com.intellij.driver.sdk.waitForIndicators
 import com.intellij.ide.starter.ci.CIServer
 import com.intellij.ide.starter.ci.NoCIServer
@@ -91,14 +92,18 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
         .installPluginFromPath(File(pathToBuildPlugin).toPath())
         .installPluginFromPath(File(pathToRobotServerPlugin).toPath())
     }.runIdeWithDriver().useDriverAndCloseIde {
+      println("waiting for project to open...")
+      waitForProject(3)
+
       println("rhino project initializing...")
+      val rhinoProject = this.javaClass.getResource("/project.rhino.js")!!.readText()
       retryOnConnectException(3) {
-        val rhinoProject = this.javaClass.getResource("/project.rhino.js")!!.readText()
         robot.runJs(rhinoProject, runInEdt = false)
       }
       println("rhino project initialized")
-      waitForIndicators(1.minutes)
+
       println("waiting for indicators...")
+      waitForIndicators(1.minutes)
       block()
     }
   }
@@ -117,13 +122,24 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
     waitForIndicators(1.minutes)
   }
 
-  private fun <T> retryOnConnectException(times: Int, block: () -> T): T = try {
+  private fun Driver.waitForProject(attempts: Int) {
+    var attemptsLeft = attempts
+    while (!isProjectOpened() && attemptsLeft > 0) {
+      Thread.sleep(3000)
+      attemptsLeft--
+    }
+    if (!isProjectOpened()) {
+      throw IllegalStateException("Project has still not been opened, aborting")
+    }
+  }
+
+  private fun <T> retryOnConnectException(attempts: Int, block: () -> T): T = try {
     block()
   } catch (e: java.net.ConnectException) {
-    if (times > 1) {
+    if (attempts > 1) {
       println("Retrying due to ${e.message}...")
       Thread.sleep(3000)
-      retryOnConnectException(times - 1, block)
+      retryOnConnectException(attempts - 1, block)
     } else {
       throw RuntimeException("Retries failed", e)
     }

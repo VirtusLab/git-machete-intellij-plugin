@@ -393,7 +393,7 @@ function Project(underlyingProject) {
 
 const openProjects = ProjectUtil.getOpenProjects();
 if (openProjects.length !== 1) {
-  throw new IlegalStateException("Expected exactly one open project, found " + openProjects.length + " instead: " + openProjects);
+  throw new IllegalStateException("Expected exactly one open project, found " + openProjects.length + " instead: " + openProjects);
 }
 // See https://github.com/JetBrains/intellij-ui-test-robot#store-data-between-runjscalljs-requests
 global.put('project', new Project(openProjects[0]));
