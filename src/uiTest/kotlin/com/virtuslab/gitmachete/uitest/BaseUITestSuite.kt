@@ -6,13 +6,12 @@ import com.intellij.driver.sdk.waitForIndicators
 import com.intellij.ide.starter.ci.CIServer
 import com.intellij.ide.starter.ci.NoCIServer
 import com.intellij.ide.starter.di.di
+import com.intellij.ide.starter.driver.engine.BackgroundRun
 import com.intellij.ide.starter.driver.engine.runIdeWithDriver
 import com.intellij.ide.starter.ide.IdeProductProvider
-import com.intellij.ide.starter.junit5.displayName
 import com.intellij.ide.starter.models.TestCase
 import com.intellij.ide.starter.plugins.PluginConfigurator
-import com.intellij.ide.starter.project.LocalProjectInfo
-import com.intellij.ide.starter.runner.CurrentTestMethod
+import com.intellij.ide.starter.project.ProjectInfoSpec
 import com.intellij.ide.starter.runner.Starter
 import com.intellij.remoterobot.RemoteRobot
 import com.virtuslab.gitmachete.testcommon.SetupScripts
@@ -27,128 +26,109 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.attribute.PosixFilePermission.*
-import kotlin.jvm.javaClass
 import kotlin.time.Duration.Companion.minutes
 
 abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGLE_REMOTE) {
+  companion object {
+    val robot = RemoteRobot("http://127.0.0.1:8580")
+    private val intelliJVersion = System.getProperty("intellij.version")
 
-  init {
-    di = DI {
-      extend(di)
-      bindSingleton<CIServer>(overrides = true) {
-        object : CIServer by NoCIServer {
-          override fun reportTestFailure(
-            testName: String,
-            message: String,
-            details: String,
-            linkToLogs: String?,
-          ) {
-            fail { "$testName fails: $message. \n$details" }
+    fun <T> retryOnConnectException(attempts: Int, block: () -> T): T = try {
+      block()
+    } catch (e: java.net.ConnectException) {
+      if (attempts > 1) {
+        println("Retrying due to ${e.message}...")
+        Thread.sleep(3000)
+        retryOnConnectException(attempts - 1, block)
+      } else {
+        throw RuntimeException("Retries failed", e)
+      }
+    }
+
+    fun Driver.waitForProject() {
+      println("Waiting for project to open...")
+      var attemptsLeft = 3
+      while (!isProjectOpened() && attemptsLeft > 0) {
+        Thread.sleep(3000)
+        attemptsLeft--
+      }
+      if (!isProjectOpened()) {
+        throw IllegalStateException("Project has still not been opened, aborting")
+      }
+
+      println("Waiting for indicators...")
+      waitForIndicators(1.minutes)
+      println("Project opened")
+    }
+
+    private fun testCase(projectInfo: ProjectInfoSpec): TestCase<ProjectInfoSpec> {
+      val testCase = TestCase(IdeProductProvider.IC, projectInfo)
+      return if (intelliJVersion.matches("20[0-9][0-9]\\.[0-9].*".toRegex())) {
+        testCase.withVersion(intelliJVersion)
+      } else {
+        testCase.withBuildNumber(intelliJVersion)
+      }
+    }
+
+    fun startIde(projectInfo: ProjectInfoSpec): BackgroundRun {
+      di = DI {
+        extend(di)
+        bindSingleton<CIServer>(overrides = true) {
+          object : CIServer by NoCIServer {
+            override fun reportTestFailure(
+              testName: String,
+              message: String,
+              details: String,
+              linkToLogs: String?,
+            ) {
+              fail { "$testName fails: $message. \n$details" }
+            }
           }
         }
       }
-    }
-  }
 
-  val intelliJVersion = System.getProperty("intellij.version")
-  private val robot = RemoteRobot("http://127.0.0.1:8580")
+      println("IDE instance starting...")
+      val ideStarter = Starter.newContext(
+        testName = "UI test",
+        testCase = testCase(projectInfo),
+      ).skipIndicesInitialization().apply {
+        val pathToBuildPlugin = System.getProperty("path.to.build.plugin")
+        val pathToRobotServerPlugin = System.getProperty("path.to.robot.server.plugin")
+        PluginConfigurator(this)
+          .installPluginFromPath(File(pathToBuildPlugin).toPath())
+          .installPluginFromPath(File(pathToRobotServerPlugin).toPath())
+      }
+      val backgroundRun = ideStarter.runIdeWithDriver { }
+      println("IDE instance started")
 
-  val macheteFilePath: Path =
-    mainGitDirectoryPath.resolve("machete")
-
-  val machetePreRebaseHookPath: Path =
-    mainGitDirectoryPath.resolve("hooks").resolve("machete-pre-rebase")
-
-  val machetePreRebaseHookOutputPath: Path =
-    rootDirectoryPath.resolve("machete-pre-rebase-hook-executed")
-
-  val machetePostSlideOutHookPath: Path =
-    mainGitDirectoryPath.resolve("hooks").resolve("machete-post-slide-out")
-  val machetePostSlideOutHookOutputPath: Path =
-    rootDirectoryPath.resolve("machete-post-slide-out-hook-executed")
-
-  @BeforeEach
-  fun beforeEach() {
-    println("IntelliJ build number is $intelliJVersion")
-  }
-
-  private fun testCase(): TestCase<LocalProjectInfo> {
-    val testCase = TestCase(IdeProductProvider.IC, projectInfo = LocalProjectInfo(rootDirectoryPath))
-    return if (intelliJVersion.matches("20[0-9][0-9]\\.[0-9].*".toRegex())) {
-      testCase.withVersion(intelliJVersion)
-    } else {
-      testCase.withBuildNumber(intelliJVersion)
-    }
-  }
-
-  fun uiTest(block: Driver.() -> Unit) {
-    Starter.newContext(
-      testName = CurrentTestMethod.displayName(),
-      testCase = testCase(),
-    ).skipIndicesInitialization().apply {
-      val pathToBuildPlugin = System.getProperty("path.to.build.plugin")
-      val pathToRobotServerPlugin = System.getProperty("path.to.robot.server.plugin")
-      PluginConfigurator(this)
-        .installPluginFromPath(File(pathToBuildPlugin).toPath())
-        .installPluginFromPath(File(pathToRobotServerPlugin).toPath())
-    }.runIdeWithDriver().useDriverAndCloseIde {
-      println("waiting for project to open...")
-      waitForProject(3)
-
-      println("rhino project initializing...")
-      val rhinoProject = this.javaClass.getResource("/project.rhino.js")!!.readText()
+      println("Rhino project initializing...")
+      val rhinoProject = this::class.java.getResource("/project.rhino.js")!!.readText()
       retryOnConnectException(3) {
         robot.runJs(rhinoProject, runInEdt = false)
       }
-      println("rhino project initialized")
+      println("Rhino project initialized")
 
-      println("waiting for indicators...")
-      waitForIndicators(1.minutes)
-      block()
+      return backgroundRun
     }
   }
 
-  fun Path.makeExecutable() {
-    val attributes = Files.getPosixFilePermissions(this)
-    attributes.add(OWNER_EXECUTE)
-    attributes.add(GROUP_EXECUTE)
-    attributes.add(OTHERS_EXECUTE)
-    Files.setPosixFilePermissions(this, attributes)
+  @BeforeEach
+  fun printIntelliJVersion() {
+    println("Using IntelliJ $intelliJVersion")
   }
 
-  private fun Driver.doAndAwait(action: () -> Unit) {
+  abstract fun driver(): Driver
+
+  private fun doAndAwait(action: () -> Unit) {
     action()
-    println("waiting for indicators...")
-    waitForIndicators(1.minutes)
-  }
-
-  private fun Driver.waitForProject(attempts: Int) {
-    var attemptsLeft = attempts
-    while (!isProjectOpened() && attemptsLeft > 0) {
-      Thread.sleep(3000)
-      attemptsLeft--
-    }
-    if (!isProjectOpened()) {
-      throw IllegalStateException("Project has still not been opened, aborting")
-    }
-  }
-
-  private fun <T> retryOnConnectException(attempts: Int, block: () -> T): T = try {
-    block()
-  } catch (e: java.net.ConnectException) {
-    if (attempts > 1) {
-      println("Retrying due to ${e.message}...")
-      Thread.sleep(3000)
-      retryOnConnectException(attempts - 1, block)
-    } else {
-      throw RuntimeException("Retries failed", e)
-    }
+    println("Waiting for indicators...")
+    driver().waitForIndicators(1.minutes)
   }
 
   private fun runJs(@Language("JavaScript") statement: String) {
     println("runJs: executing `$statement`")
     retryOnConnectException(3) {
-      robot.runJs("const project = global.get('project');\n" + statement, runInEdt = false)
+      robot.runJs("const project = global.get('getSoleOpenProject')(); " + statement, runInEdt = false)
     }
     println("runJs: executed `$statement`")
   }
@@ -156,7 +136,7 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
   private fun <T : java.io.Serializable> callJs(@Language("JavaScript") expression: String): T {
     println("callJs: evaluating `$expression`")
     val result = retryOnConnectException(3) {
-      robot.callJs<T>("const project = global.get('project');\n" + expression, runInEdt = false)
+      robot.callJs<T>("const project = global.get('getSoleOpenProject')(); " + expression, runInEdt = false)
     }
     val representation = when (result) {
       is IntArray -> result.contentToString()
@@ -192,30 +172,52 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
   fun getHashOfCommitPointedByBranch(branch: String): String = callJs("project.getHashOfCommitPointedByBranch('$branch')")
   fun getSyncToParentStatus(child: String): String = callJs("project.getSyncToParentStatus('$child')")
 
-  fun Driver.acceptBranchDeletionOnSlideOut() = doAndAwait { runJs("project.acceptBranchDeletionOnSlideOut()") }
-  fun Driver.acceptSquash() = doAndAwait { runJs("project.acceptSquash()") }
-  fun Driver.acceptSuggestedBranchLayout() = doAndAwait { runJs("project.acceptSuggestedBranchLayout()") }
-  fun Driver.checkoutBranch(branch: String) = doAndAwait { runJs("project.checkoutBranch('$branch')") }
-  fun Driver.checkoutFirstChildBranch() = doAndAwait { runJs("project.checkoutFirstChildBranch()") }
-  fun Driver.checkoutNextBranch() = doAndAwait { runJs("project.checkoutNextBranch()") }
-  fun Driver.checkoutParentBranch() = doAndAwait { runJs("project.checkoutParentBranch()") }
-  fun Driver.checkoutPreviousBranch() = doAndAwait { runJs("project.checkoutPreviousBranch()") }
-  fun Driver.discoverBranchLayout() = doAndAwait { runJs("project.discoverBranchLayout()") }
-  fun Driver.fastForwardMergeCurrentToParent() = doAndAwait { runJs("project.fastForwardMergeCurrentToParent()") }
-  fun Driver.fastForwardMergeSelectedToParent(branch: String) = doAndAwait { runJs("project.fastForwardMergeSelectedToParent('$branch')") }
-  fun Driver.openGitMacheteTab() = runJs("project.openGitMacheteTab()")
-  fun Driver.pullCurrent() = doAndAwait { runJs("project.pullCurrent()") }
-  fun Driver.pullSelected(branch: String) = doAndAwait { runJs("project.pullSelected('$branch')") }
-  fun Driver.refreshModelAndGetManagedBranches(): Array<String> = callJs("project.refreshGraphTableModel(); project.getManagedBranches()")
-  fun Driver.refreshModelAndGetManagedBranchesAndCommits(): Array<String> = callJs("project.refreshGraphTableModel(); project.getManagedBranchesAndCommits()")
-  fun Driver.refreshModelAndGetRowCount(): Int = callJs("project.refreshGraphTableModel().getRowCount()")
-  fun Driver.resetCurrentToRemote() = doAndAwait { runJs("project.resetCurrentToRemote()") }
-  fun Driver.resetToRemote(branch: String) = doAndAwait { runJs("project.resetToRemote('$branch')") }
-  fun Driver.slideOutSelected(branch: String) = runJs("project.slideOutSelected('$branch')")
-  fun Driver.squashCurrent() = doAndAwait { runJs("project.squashCurrent()") }
-  fun Driver.squashSelected(branch: String) = doAndAwait { runJs("project.squashSelected('$branch')") }
-  fun Driver.syncCurrentToParentByRebase() = doAndAwait { runJs("project.syncCurrentToParentByRebase()") }
-  fun Driver.syncSelectedToParentByMerge(branch: String) = doAndAwait { runJs("project.syncSelectedToParentByMerge('$branch')") }
-  fun Driver.syncSelectedToParentByRebase(branch: String) = doAndAwait { runJs("project.syncSelectedToParentByRebase('$branch')") }
-  fun Driver.toggleListingCommits() = doAndAwait { runJs("project.toggleListingCommits()") }
+  fun acceptBranchDeletionOnSlideOut() = doAndAwait { runJs("project.acceptBranchDeletionOnSlideOut()") }
+  fun acceptSquash() = doAndAwait { runJs("project.acceptSquash()") }
+  fun acceptSuggestedBranchLayout() = doAndAwait { runJs("project.acceptSuggestedBranchLayout()") }
+  fun checkoutBranch(branch: String) = doAndAwait { runJs("project.checkoutBranch('$branch')") }
+  fun checkoutFirstChildBranch() = doAndAwait { runJs("project.checkoutFirstChildBranch()") }
+  fun checkoutNextBranch() = doAndAwait { runJs("project.checkoutNextBranch()") }
+  fun checkoutParentBranch() = doAndAwait { runJs("project.checkoutParentBranch()") }
+  fun checkoutPreviousBranch() = doAndAwait { runJs("project.checkoutPreviousBranch()") }
+  fun discoverBranchLayout() = doAndAwait { runJs("project.discoverBranchLayout()") }
+  fun fastForwardMergeCurrentToParent() = doAndAwait { runJs("project.fastForwardMergeCurrentToParent()") }
+  fun fastForwardMergeSelectedToParent(branch: String) = doAndAwait { runJs("project.fastForwardMergeSelectedToParent('$branch')") }
+  fun openGitMacheteTab() = runJs("project.openGitMacheteTab()")
+  fun pullCurrent() = doAndAwait { runJs("project.pullCurrent()") }
+  fun pullSelected(branch: String) = doAndAwait { runJs("project.pullSelected('$branch')") }
+  fun refreshModelAndGetManagedBranches(): Array<String> = callJs("project.refreshGraphTableModel(); project.getManagedBranches()")
+  fun refreshModelAndGetManagedBranchesAndCommits(): Array<String> = callJs("project.refreshGraphTableModel(); project.getManagedBranchesAndCommits()")
+  fun refreshModelAndGetRowCount(): Int = callJs("project.refreshGraphTableModel().getRowCount()")
+  fun resetCurrentToRemote() = doAndAwait { runJs("project.resetCurrentToRemote()") }
+  fun resetToRemote(branch: String) = doAndAwait { runJs("project.resetToRemote('$branch')") }
+  fun slideOutSelected(branch: String) = runJs("project.slideOutSelected('$branch')")
+  fun squashCurrent() = doAndAwait { runJs("project.squashCurrent()") }
+  fun squashSelected(branch: String) = doAndAwait { runJs("project.squashSelected('$branch')") }
+  fun syncCurrentToParentByRebase() = doAndAwait { runJs("project.syncCurrentToParentByRebase()") }
+  fun syncSelectedToParentByMerge(branch: String) = doAndAwait { runJs("project.syncSelectedToParentByMerge('$branch')") }
+  fun syncSelectedToParentByRebase(branch: String) = doAndAwait { runJs("project.syncSelectedToParentByRebase('$branch')") }
+  fun toggleListingCommits() = doAndAwait { runJs("project.toggleListingCommits()") }
+
+  val macheteFilePath: Path =
+    mainGitDirectoryPath.resolve("machete")
+
+  val machetePreRebaseHookPath: Path =
+    mainGitDirectoryPath.resolve("hooks").resolve("machete-pre-rebase")
+
+  val machetePreRebaseHookOutputPath: Path =
+    rootDirectoryPath.resolve("machete-pre-rebase-hook-executed")
+
+  val machetePostSlideOutHookPath: Path =
+    mainGitDirectoryPath.resolve("hooks").resolve("machete-post-slide-out")
+  val machetePostSlideOutHookOutputPath: Path =
+    rootDirectoryPath.resolve("machete-post-slide-out-hook-executed")
+
+  fun Path.makeExecutable() {
+    val attributes = Files.getPosixFilePermissions(this)
+    attributes.add(OWNER_EXECUTE)
+    attributes.add(GROUP_EXECUTE)
+    attributes.add(OTHERS_EXECUTE)
+    Files.setPosixFilePermissions(this, attributes)
+  }
 }
