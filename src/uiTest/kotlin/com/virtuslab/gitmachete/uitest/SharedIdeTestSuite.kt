@@ -139,6 +139,7 @@ abstract class SharedIdeTestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SI
   }
 }
 
+@Disabled
 class MyUITests : SharedIdeTestSuite() {
   @Test
   fun testFeatureA() {

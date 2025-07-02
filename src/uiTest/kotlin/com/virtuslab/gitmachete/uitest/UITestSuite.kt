@@ -4,18 +4,16 @@ import com.intellij.util.io.delete
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.nio.file.attribute.FileTime
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
 
-@Disabled
 class UITestSuite : BaseUITestSuite() {
 
   @Test
-  fun skipNonExistentBranches_toggleListingCommits_slideOutRoot() = uiTest {
+  fun skipNonExistentBranches_toggleListingCommits_slideOutRoot() {
     machetePostSlideOutHookPath.writeText(""" echo "$@" >> "$machetePostSlideOutHookOutputPath" """)
     machetePostSlideOutHookPath.makeExecutable()
 
@@ -100,7 +98,7 @@ class UITestSuite : BaseUITestSuite() {
   }
 
   @Test
-  fun discoverBranchLayout() = uiTest {
+  fun discover() {
     // When model is refreshed and machete file has not been modified for a long time, then discover suggestion should occur
     val epochStart = FileTime.fromMillis(0)
     Files.setLastModifiedTime(macheteFilePath, epochStart)
@@ -125,7 +123,7 @@ class UITestSuite : BaseUITestSuite() {
   }
 
   @Test
-  fun fastForwardParentOfBranch() = uiTest {
+  fun fastForwardParentOfBranch() {
     // fastForwardParentOfBranch_parentIsCurrentBranch
     openGitMacheteTab()
     checkoutBranch("master")
@@ -142,7 +140,7 @@ class UITestSuite : BaseUITestSuite() {
   }
 
   @Test
-  fun syncToParentByRebaseAction() = uiTest {
+  fun syncToParentByRebaseAction() {
     // Skip the fork point ($2) as it's a commit hash and it'll differ between test invocations.
     machetePreRebaseHookPath.writeText(""" echo "$1 $3" >> "$machetePreRebaseHookOutputPath" """)
     machetePreRebaseHookPath.makeExecutable()
@@ -164,7 +162,7 @@ class UITestSuite : BaseUITestSuite() {
   }
 
   @Test
-  fun pullBranch() = uiTest {
+  fun pullBranch() {
     // pullCurrentBranch
     openGitMacheteTab()
     // Remote tracking data is purposefully NOT set for this branch.
@@ -186,7 +184,7 @@ class UITestSuite : BaseUITestSuite() {
     assertSyncToParentStatus("call-ws", "InSync")
   }
 
-  @Test fun resetBranchToRemote() = uiTest {
+  @Test fun resetBranchToRemote() {
     // resetCurrentBranchToRemote
     openGitMacheteTab()
     checkoutBranch("hotfix/add-trigger")
@@ -203,7 +201,7 @@ class UITestSuite : BaseUITestSuite() {
     assertNoUncommittedChanges()
   }
 
-  @Test fun squashBranch() = uiTest {
+  @Test fun squashBranch() {
     // squashCurrentBranch
     openGitMacheteTab()
     toggleListingCommits()

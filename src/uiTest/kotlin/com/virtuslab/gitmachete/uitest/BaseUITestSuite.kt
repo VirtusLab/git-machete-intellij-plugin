@@ -6,6 +6,7 @@ import com.intellij.driver.sdk.waitForIndicators
 import com.intellij.ide.starter.ci.CIServer
 import com.intellij.ide.starter.ci.NoCIServer
 import com.intellij.ide.starter.di.di
+import com.intellij.ide.starter.driver.engine.BackgroundRun
 import com.intellij.ide.starter.driver.engine.runIdeWithDriver
 import com.intellij.ide.starter.ide.IdeProductProvider
 import com.intellij.ide.starter.junit5.displayName
@@ -18,6 +19,7 @@ import com.intellij.remoterobot.RemoteRobot
 import com.virtuslab.gitmachete.testcommon.SetupScripts
 import com.virtuslab.gitmachete.testcommon.TestGitRepository
 import org.intellij.lang.annotations.Language
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.fail
@@ -52,6 +54,8 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
 
   val intelliJVersion = System.getProperty("intellij.version")
   val robot = RemoteRobot("http://127.0.0.1:8580")
+  lateinit var backgroundRun: BackgroundRun
+  lateinit var driver: Driver
 
   val macheteFilePath: Path =
     mainGitDirectoryPath.resolve("machete")
@@ -67,11 +71,6 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
   val machetePostSlideOutHookOutputPath: Path =
     rootDirectoryPath.resolve("machete-post-slide-out-hook-executed")
 
-  @BeforeEach
-  fun beforeEach() {
-    println("IntelliJ build number is $intelliJVersion")
-  }
-
   private fun testCase(): TestCase<LocalProjectInfo> {
     val testCase = TestCase(IdeProductProvider.IC, projectInfo = LocalProjectInfo(rootDirectoryPath))
     return if (intelliJVersion.matches("20[0-9][0-9]\\.[0-9].*".toRegex())) {
@@ -81,8 +80,11 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
     }
   }
 
-  fun uiTest(block: Driver.() -> Unit) {
-    Starter.newContext(
+  @BeforeEach
+  fun setup() {
+    println("IntelliJ build number is $intelliJVersion")
+
+    backgroundRun = Starter.newContext(
       testName = CurrentTestMethod.displayName(),
       testCase = testCase(),
     ).skipIndicesInitialization().apply {
@@ -91,21 +93,26 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
       PluginConfigurator(this)
         .installPluginFromPath(File(pathToBuildPlugin).toPath())
         .installPluginFromPath(File(pathToRobotServerPlugin).toPath())
-    }.runIdeWithDriver().useDriverAndCloseIde {
-      println("waiting for project to open...")
-      waitForProject(3)
+    }.runIdeWithDriver { }
 
-      println("rhino project initializing...")
-      val rhinoProject = this.javaClass.getResource("/project.rhino.js")!!.readText()
-      retryOnConnectException(3) {
-        robot.runJs(rhinoProject, runInEdt = false)
-      }
-      println("rhino project initialized")
+    driver = backgroundRun.driver
+    println("waiting for project to open...")
+    waitForProject(3)
 
-      println("waiting for indicators...")
-      waitForIndicators(1.minutes)
-      block()
+    println("rhino project initializing...")
+    val rhinoProject = this.javaClass.getResource("/project.rhino.js")!!.readText()
+    retryOnConnectException(3) {
+      robot.runJs(rhinoProject, runInEdt = false)
     }
+    println("rhino project initialized")
+
+    println("waiting for indicators...")
+    driver.waitForIndicators(1.minutes)
+  }
+
+  @AfterEach
+  fun teardown() {
+    backgroundRun.closeIdeAndWait()
   }
 
   fun Path.makeExecutable() {
@@ -116,19 +123,19 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
     Files.setPosixFilePermissions(this, attributes)
   }
 
-  private fun Driver.doAndAwait(action: () -> Unit) {
+  private fun doAndAwait(action: () -> Unit) {
     action()
     println("waiting for indicators...")
-    waitForIndicators(1.minutes)
+    driver.waitForIndicators(1.minutes)
   }
 
-  fun Driver.waitForProject(attempts: Int) {
+  fun waitForProject(attempts: Int) {
     var attemptsLeft = attempts
-    while (!isProjectOpened() && attemptsLeft > 0) {
+    while (!driver.isProjectOpened() && attemptsLeft > 0) {
       Thread.sleep(3000)
       attemptsLeft--
     }
-    if (!isProjectOpened()) {
+    if (!driver.isProjectOpened()) {
       throw IllegalStateException("Project has still not been opened, aborting")
     }
   }
@@ -192,30 +199,30 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
   fun getHashOfCommitPointedByBranch(branch: String): String = callJs("project.getHashOfCommitPointedByBranch('$branch')")
   fun getSyncToParentStatus(child: String): String = callJs("project.getSyncToParentStatus('$child')")
 
-  fun Driver.acceptBranchDeletionOnSlideOut() = doAndAwait { runJs("project.acceptBranchDeletionOnSlideOut()") }
-  fun Driver.acceptSquash() = doAndAwait { runJs("project.acceptSquash()") }
-  fun Driver.acceptSuggestedBranchLayout() = doAndAwait { runJs("project.acceptSuggestedBranchLayout()") }
-  fun Driver.checkoutBranch(branch: String) = doAndAwait { runJs("project.checkoutBranch('$branch')") }
-  fun Driver.checkoutFirstChildBranch() = doAndAwait { runJs("project.checkoutFirstChildBranch()") }
-  fun Driver.checkoutNextBranch() = doAndAwait { runJs("project.checkoutNextBranch()") }
-  fun Driver.checkoutParentBranch() = doAndAwait { runJs("project.checkoutParentBranch()") }
-  fun Driver.checkoutPreviousBranch() = doAndAwait { runJs("project.checkoutPreviousBranch()") }
-  fun Driver.discoverBranchLayout() = doAndAwait { runJs("project.discoverBranchLayout()") }
-  fun Driver.fastForwardMergeCurrentToParent() = doAndAwait { runJs("project.fastForwardMergeCurrentToParent()") }
-  fun Driver.fastForwardMergeSelectedToParent(branch: String) = doAndAwait { runJs("project.fastForwardMergeSelectedToParent('$branch')") }
-  fun Driver.openGitMacheteTab() = runJs("project.openGitMacheteTab()")
-  fun Driver.pullCurrent() = doAndAwait { runJs("project.pullCurrent()") }
-  fun Driver.pullSelected(branch: String) = doAndAwait { runJs("project.pullSelected('$branch')") }
-  fun Driver.refreshModelAndGetManagedBranches(): Array<String> = callJs("project.refreshGraphTableModel(); project.getManagedBranches()")
-  fun Driver.refreshModelAndGetManagedBranchesAndCommits(): Array<String> = callJs("project.refreshGraphTableModel(); project.getManagedBranchesAndCommits()")
-  fun Driver.refreshModelAndGetRowCount(): Int = callJs("project.refreshGraphTableModel().getRowCount()")
-  fun Driver.resetCurrentToRemote() = doAndAwait { runJs("project.resetCurrentToRemote()") }
-  fun Driver.resetToRemote(branch: String) = doAndAwait { runJs("project.resetToRemote('$branch')") }
-  fun Driver.slideOutSelected(branch: String) = runJs("project.slideOutSelected('$branch')")
-  fun Driver.squashCurrent() = doAndAwait { runJs("project.squashCurrent()") }
-  fun Driver.squashSelected(branch: String) = doAndAwait { runJs("project.squashSelected('$branch')") }
-  fun Driver.syncCurrentToParentByRebase() = doAndAwait { runJs("project.syncCurrentToParentByRebase()") }
-  fun Driver.syncSelectedToParentByMerge(branch: String) = doAndAwait { runJs("project.syncSelectedToParentByMerge('$branch')") }
-  fun Driver.syncSelectedToParentByRebase(branch: String) = doAndAwait { runJs("project.syncSelectedToParentByRebase('$branch')") }
-  fun Driver.toggleListingCommits() = doAndAwait { runJs("project.toggleListingCommits()") }
+  fun acceptBranchDeletionOnSlideOut() = doAndAwait { runJs("project.acceptBranchDeletionOnSlideOut()") }
+  fun acceptSquash() = doAndAwait { runJs("project.acceptSquash()") }
+  fun acceptSuggestedBranchLayout() = doAndAwait { runJs("project.acceptSuggestedBranchLayout()") }
+  fun checkoutBranch(branch: String) = doAndAwait { runJs("project.checkoutBranch('$branch')") }
+  fun checkoutFirstChildBranch() = doAndAwait { runJs("project.checkoutFirstChildBranch()") }
+  fun checkoutNextBranch() = doAndAwait { runJs("project.checkoutNextBranch()") }
+  fun checkoutParentBranch() = doAndAwait { runJs("project.checkoutParentBranch()") }
+  fun checkoutPreviousBranch() = doAndAwait { runJs("project.checkoutPreviousBranch()") }
+  fun discoverBranchLayout() = doAndAwait { runJs("project.discoverBranchLayout()") }
+  fun fastForwardMergeCurrentToParent() = doAndAwait { runJs("project.fastForwardMergeCurrentToParent()") }
+  fun fastForwardMergeSelectedToParent(branch: String) = doAndAwait { runJs("project.fastForwardMergeSelectedToParent('$branch')") }
+  fun openGitMacheteTab() = runJs("project.openGitMacheteTab()")
+  fun pullCurrent() = doAndAwait { runJs("project.pullCurrent()") }
+  fun pullSelected(branch: String) = doAndAwait { runJs("project.pullSelected('$branch')") }
+  fun refreshModelAndGetManagedBranches(): Array<String> = callJs("project.refreshGraphTableModel(); project.getManagedBranches()")
+  fun refreshModelAndGetManagedBranchesAndCommits(): Array<String> = callJs("project.refreshGraphTableModel(); project.getManagedBranchesAndCommits()")
+  fun refreshModelAndGetRowCount(): Int = callJs("project.refreshGraphTableModel().getRowCount()")
+  fun resetCurrentToRemote() = doAndAwait { runJs("project.resetCurrentToRemote()") }
+  fun resetToRemote(branch: String) = doAndAwait { runJs("project.resetToRemote('$branch')") }
+  fun slideOutSelected(branch: String) = runJs("project.slideOutSelected('$branch')")
+  fun squashCurrent() = doAndAwait { runJs("project.squashCurrent()") }
+  fun squashSelected(branch: String) = doAndAwait { runJs("project.squashSelected('$branch')") }
+  fun syncCurrentToParentByRebase() = doAndAwait { runJs("project.syncCurrentToParentByRebase()") }
+  fun syncSelectedToParentByMerge(branch: String) = doAndAwait { runJs("project.syncSelectedToParentByMerge('$branch')") }
+  fun syncSelectedToParentByRebase(branch: String) = doAndAwait { runJs("project.syncSelectedToParentByRebase('$branch')") }
+  fun toggleListingCommits() = doAndAwait { runJs("project.toggleListingCommits()") }
 }
