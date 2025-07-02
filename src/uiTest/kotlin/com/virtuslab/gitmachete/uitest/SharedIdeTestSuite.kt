@@ -10,7 +10,6 @@ import com.intellij.ide.starter.models.TestCase
 import com.intellij.ide.starter.plugins.PluginConfigurator
 import com.intellij.ide.starter.project.NoProject
 import com.intellij.ide.starter.runner.Starter
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -49,12 +48,12 @@ abstract class SharedIdeTestSuite : BaseUITestSuite() {
       println("Shared IDE instance started")
     }
 
-    @JvmStatic
-    @AfterAll
-    fun closeSharedIde() {
-      backgroundRun.closeIdeAndWait()
-      println("Shared IDE instance closed")
-    }
+//    @JvmStatic
+//    @AfterAll
+//    fun closeSharedIde() {
+//      backgroundRun.closeIdeAndWait()
+//      println("Shared IDE instance closed")
+//    }
   }
 
   fun Driver.openProject(projectPath: Path) {
@@ -97,17 +96,17 @@ abstract class SharedIdeTestSuite : BaseUITestSuite() {
   }
 
   @BeforeEach
-  fun initProjectForTest(driver: Driver) {
+  fun Driver.initProjectForTest() {
     // Open new project in existing IDE instance
-    driver.openProject(rootDirectoryPath)
+    openProject(rootDirectoryPath)
     println("New project opened: $rootDirectoryPath")
 
     // Project initialization sequence
     println("Waiting for project to open...")
-    driver.waitForProject(3)
+    waitForProject(3)
 
     println("Waiting for indicators...")
-    driver.waitForIndicators(1.minutes)
+    waitForIndicators(1.minutes)
   }
 }
 
