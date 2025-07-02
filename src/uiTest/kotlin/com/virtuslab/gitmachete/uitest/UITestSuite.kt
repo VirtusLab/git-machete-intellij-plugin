@@ -10,7 +10,7 @@ import java.nio.file.attribute.FileTime
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
 
-class UITestSuite : BaseUITestSuite() {
+class UITestSuite : IdeProcessPerTestClass() {
 
   @Test
   fun skipNonExistentBranches_toggleListingCommits_slideOutRoot() {

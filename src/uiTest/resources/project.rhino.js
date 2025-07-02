@@ -391,9 +391,12 @@ function Project(underlyingProject) {
   };
 }
 
-const openProjects = ProjectUtil.getOpenProjects();
-if (openProjects.length !== 1) {
-  throw new IllegalStateException("Expected exactly one open project, found " + openProjects.length + " instead: " + openProjects);
+function getSoleOpenProject() {
+  const openProjects = ProjectUtil.getOpenProjects();
+  if (openProjects.length !== 1) {
+    throw new IllegalStateException("Expected exactly one open project, found " + openProjects.length + " instead: " + openProjects);
+  }
+  return new Project(openProjects[0]);
 }
 // See https://github.com/JetBrains/intellij-ui-test-robot#store-data-between-runjscalljs-requests
-global.put('project', new Project(openProjects[0]));
+global.put('getSoleOpenProject', getSoleOpenProject);

@@ -2,160 +2,50 @@ package com.virtuslab.gitmachete.uitest
 
 import com.intellij.driver.client.Driver
 import com.intellij.driver.sdk.isProjectOpened
-import com.intellij.driver.sdk.waitForIndicators
-import com.intellij.ide.starter.ci.CIServer
-import com.intellij.ide.starter.ci.NoCIServer
-import com.intellij.ide.starter.di.di
-import com.intellij.ide.starter.driver.engine.BackgroundRun
-import com.intellij.ide.starter.driver.engine.runIdeWithDriver
-import com.intellij.ide.starter.ide.IdeProductProvider
-import com.intellij.ide.starter.junit5.displayName
-import com.intellij.ide.starter.models.TestCase
-import com.intellij.ide.starter.plugins.PluginConfigurator
-import com.intellij.ide.starter.project.LocalProjectInfo
-import com.intellij.ide.starter.runner.CurrentTestMethod
-import com.intellij.ide.starter.runner.Starter
 import com.intellij.remoterobot.RemoteRobot
 import com.virtuslab.gitmachete.testcommon.SetupScripts
 import com.virtuslab.gitmachete.testcommon.TestGitRepository
 import org.intellij.lang.annotations.Language
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.fail
-import org.kodein.di.DI
-import org.kodein.di.bindSingleton
-import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.attribute.PosixFilePermission.*
-import kotlin.jvm.javaClass
-import kotlin.time.Duration.Companion.minutes
 
 abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGLE_REMOTE) {
+  companion object {
+    val robot = RemoteRobot("http://127.0.0.1:8580")
+    val intelliJVersion = System.getProperty("intellij.version")
 
-  init {
-    di = DI {
-      extend(di)
-      bindSingleton<CIServer>(overrides = true) {
-        object : CIServer by NoCIServer {
-          override fun reportTestFailure(
-            testName: String,
-            message: String,
-            details: String,
-            linkToLogs: String?,
-          ) {
-            fail { "$testName fails: $message. \n$details" }
-          }
-        }
+    fun <T> retryOnConnectException(attempts: Int, block: () -> T): T = try {
+      block()
+    } catch (e: java.net.ConnectException) {
+      if (attempts > 1) {
+        println("Retrying due to ${e.message}...")
+        Thread.sleep(3000)
+        retryOnConnectException(attempts - 1, block)
+      } else {
+        throw RuntimeException("Retries failed", e)
+      }
+    }
+
+    fun Driver.waitForProject(attempts: Int) {
+      var attemptsLeft = attempts
+      while (!isProjectOpened() && attemptsLeft > 0) {
+        Thread.sleep(3000)
+        attemptsLeft--
+      }
+      if (!isProjectOpened()) {
+        throw IllegalStateException("Project has still not been opened, aborting")
       }
     }
   }
 
-  val intelliJVersion = System.getProperty("intellij.version")
-  val robot = RemoteRobot("http://127.0.0.1:8580")
-  lateinit var backgroundRun: BackgroundRun
-  lateinit var driver: Driver
-
-  val macheteFilePath: Path =
-    mainGitDirectoryPath.resolve("machete")
-
-  val machetePreRebaseHookPath: Path =
-    mainGitDirectoryPath.resolve("hooks").resolve("machete-pre-rebase")
-
-  val machetePreRebaseHookOutputPath: Path =
-    rootDirectoryPath.resolve("machete-pre-rebase-hook-executed")
-
-  val machetePostSlideOutHookPath: Path =
-    mainGitDirectoryPath.resolve("hooks").resolve("machete-post-slide-out")
-  val machetePostSlideOutHookOutputPath: Path =
-    rootDirectoryPath.resolve("machete-post-slide-out-hook-executed")
-
-  private fun testCase(): TestCase<LocalProjectInfo> {
-    val testCase = TestCase(IdeProductProvider.IC, projectInfo = LocalProjectInfo(rootDirectoryPath))
-    return if (intelliJVersion.matches("20[0-9][0-9]\\.[0-9].*".toRegex())) {
-      testCase.withVersion(intelliJVersion)
-    } else {
-      testCase.withBuildNumber(intelliJVersion)
-    }
-  }
-
-  @BeforeEach
-  fun setup() {
-    println("IntelliJ build number is $intelliJVersion")
-
-    backgroundRun = Starter.newContext(
-      testName = CurrentTestMethod.displayName(),
-      testCase = testCase(),
-    ).skipIndicesInitialization().apply {
-      val pathToBuildPlugin = System.getProperty("path.to.build.plugin")
-      val pathToRobotServerPlugin = System.getProperty("path.to.robot.server.plugin")
-      PluginConfigurator(this)
-        .installPluginFromPath(File(pathToBuildPlugin).toPath())
-        .installPluginFromPath(File(pathToRobotServerPlugin).toPath())
-    }.runIdeWithDriver { }
-
-    driver = backgroundRun.driver
-    println("waiting for project to open...")
-    waitForProject(3)
-
-    println("rhino project initializing...")
-    val rhinoProject = this.javaClass.getResource("/project.rhino.js")!!.readText()
-    retryOnConnectException(3) {
-      robot.runJs(rhinoProject, runInEdt = false)
-    }
-    println("rhino project initialized")
-
-    println("waiting for indicators...")
-    driver.waitForIndicators(1.minutes)
-  }
-
-  @AfterEach
-  fun teardown() {
-    backgroundRun.closeIdeAndWait()
-  }
-
-  fun Path.makeExecutable() {
-    val attributes = Files.getPosixFilePermissions(this)
-    attributes.add(OWNER_EXECUTE)
-    attributes.add(GROUP_EXECUTE)
-    attributes.add(OTHERS_EXECUTE)
-    Files.setPosixFilePermissions(this, attributes)
-  }
-
-  private fun doAndAwait(action: () -> Unit) {
-    action()
-    println("waiting for indicators...")
-    driver.waitForIndicators(1.minutes)
-  }
-
-  fun waitForProject(attempts: Int) {
-    var attemptsLeft = attempts
-    while (!driver.isProjectOpened() && attemptsLeft > 0) {
-      Thread.sleep(3000)
-      attemptsLeft--
-    }
-    if (!driver.isProjectOpened()) {
-      throw IllegalStateException("Project has still not been opened, aborting")
-    }
-  }
-
-  fun <T> retryOnConnectException(attempts: Int, block: () -> T): T = try {
-    block()
-  } catch (e: java.net.ConnectException) {
-    if (attempts > 1) {
-      println("Retrying due to ${e.message}...")
-      Thread.sleep(3000)
-      retryOnConnectException(attempts - 1, block)
-    } else {
-      throw RuntimeException("Retries failed", e)
-    }
-  }
+  abstract fun doAndAwait(action: () -> Unit)
 
   private fun runJs(@Language("JavaScript") statement: String) {
     println("runJs: executing `$statement`")
     retryOnConnectException(3) {
-      robot.runJs("const project = global.get('project');\n" + statement, runInEdt = false)
+      robot.runJs("const project = global.get('getSoleOpenProject')(); " + statement, runInEdt = false)
     }
     println("runJs: executed `$statement`")
   }
@@ -163,7 +53,7 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
   private fun <T : java.io.Serializable> callJs(@Language("JavaScript") expression: String): T {
     println("callJs: evaluating `$expression`")
     val result = retryOnConnectException(3) {
-      robot.callJs<T>("const project = global.get('project');\n" + expression, runInEdt = false)
+      robot.callJs<T>("const project = global.get('getSoleOpenProject')(); " + expression, runInEdt = false)
     }
     val representation = when (result) {
       is IntArray -> result.contentToString()
@@ -225,4 +115,26 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
   fun syncSelectedToParentByMerge(branch: String) = doAndAwait { runJs("project.syncSelectedToParentByMerge('$branch')") }
   fun syncSelectedToParentByRebase(branch: String) = doAndAwait { runJs("project.syncSelectedToParentByRebase('$branch')") }
   fun toggleListingCommits() = doAndAwait { runJs("project.toggleListingCommits()") }
+
+  val macheteFilePath: Path =
+    mainGitDirectoryPath.resolve("machete")
+
+  val machetePreRebaseHookPath: Path =
+    mainGitDirectoryPath.resolve("hooks").resolve("machete-pre-rebase")
+
+  val machetePreRebaseHookOutputPath: Path =
+    rootDirectoryPath.resolve("machete-pre-rebase-hook-executed")
+
+  val machetePostSlideOutHookPath: Path =
+    mainGitDirectoryPath.resolve("hooks").resolve("machete-post-slide-out")
+  val machetePostSlideOutHookOutputPath: Path =
+    rootDirectoryPath.resolve("machete-post-slide-out-hook-executed")
+
+  fun Path.makeExecutable() {
+    val attributes = Files.getPosixFilePermissions(this)
+    attributes.add(OWNER_EXECUTE)
+    attributes.add(GROUP_EXECUTE)
+    attributes.add(OTHERS_EXECUTE)
+    Files.setPosixFilePermissions(this, attributes)
+  }
 }
