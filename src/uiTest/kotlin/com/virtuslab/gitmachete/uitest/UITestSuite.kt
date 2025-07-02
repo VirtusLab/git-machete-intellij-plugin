@@ -184,7 +184,8 @@ class UITestSuite : IdeProcessPerTestClass() {
     assertSyncToParentStatus("call-ws", "InSync")
   }
 
-  @Test fun resetBranchToRemote() {
+  @Test
+  fun resetBranchToRemote() {
     // resetCurrentBranchToRemote
     openGitMacheteTab()
     checkoutBranch("hotfix/add-trigger")
@@ -201,7 +202,8 @@ class UITestSuite : IdeProcessPerTestClass() {
     assertNoUncommittedChanges()
   }
 
-  @Test fun squashBranch() {
+  @Test
+  fun squashBranch() {
     // squashCurrentBranch
     openGitMacheteTab()
     toggleListingCommits()

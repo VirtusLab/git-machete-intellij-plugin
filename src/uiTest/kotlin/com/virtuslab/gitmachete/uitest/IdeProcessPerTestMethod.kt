@@ -20,7 +20,6 @@ import org.junit.jupiter.api.fail
 import org.kodein.di.DI
 import org.kodein.di.bindSingleton
 import java.io.File
-import java.nio.file.attribute.PosixFilePermission.*
 import kotlin.jvm.javaClass
 import kotlin.time.Duration.Companion.minutes
 
@@ -44,8 +43,8 @@ abstract class IdeProcessPerTestMethod : BaseUITestSuite() {
     }
   }
 
-  lateinit var backgroundRun: BackgroundRun
-  lateinit var driver: Driver
+  private lateinit var backgroundRun: BackgroundRun
+  override fun driver(): Driver = backgroundRun.driver
 
   private fun testCase(): TestCase<LocalProjectInfo> {
     val testCase = TestCase(IdeProductProvider.IC, projectInfo = LocalProjectInfo(rootDirectoryPath))
@@ -71,9 +70,8 @@ abstract class IdeProcessPerTestMethod : BaseUITestSuite() {
         .installPluginFromPath(File(pathToRobotServerPlugin).toPath())
     }.runIdeWithDriver { }
 
-    driver = backgroundRun.driver
     println("waiting for project to open...")
-    driver.waitForProject(3)
+    driver().waitForProject(3)
 
     println("rhino project initializing...")
     val rhinoProject = this.javaClass.getResource("/project.rhino.js")!!.readText()
@@ -83,17 +81,11 @@ abstract class IdeProcessPerTestMethod : BaseUITestSuite() {
     println("rhino project initialized")
 
     println("waiting for indicators...")
-    driver.waitForIndicators(1.minutes)
+    driver().waitForIndicators(1.minutes)
   }
 
   @AfterEach
   fun teardown() {
     backgroundRun.closeIdeAndWait()
-  }
-
-  override fun doAndAwait(action: () -> Unit) {
-    action()
-    println("waiting for indicators...")
-    driver.waitForIndicators(1.minutes)
   }
 }

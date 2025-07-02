@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.uitest
 
 import com.intellij.driver.client.Driver
 import com.intellij.driver.sdk.isProjectOpened
+import com.intellij.driver.sdk.waitForIndicators
 import com.intellij.remoterobot.RemoteRobot
 import com.virtuslab.gitmachete.testcommon.SetupScripts
 import com.virtuslab.gitmachete.testcommon.TestGitRepository
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.attribute.PosixFilePermission.*
+import kotlin.time.Duration.Companion.minutes
 
 abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGLE_REMOTE) {
   companion object {
@@ -40,7 +42,13 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
     }
   }
 
-  abstract fun doAndAwait(action: () -> Unit)
+  abstract fun driver(): Driver
+
+  private fun doAndAwait(action: () -> Unit) {
+    action()
+    println("waiting for indicators...")
+    driver().waitForIndicators(1.minutes)
+  }
 
   private fun runJs(@Language("JavaScript") statement: String) {
     println("runJs: executing `$statement`")

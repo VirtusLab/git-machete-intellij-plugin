@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.uitest
 
+import com.intellij.driver.client.Driver
 import com.intellij.driver.sdk.waitForIndicators
 import com.intellij.ide.starter.driver.engine.BackgroundRun
 import com.intellij.ide.starter.driver.engine.runIdeWithDriver
@@ -61,6 +62,8 @@ abstract class IdeProcessPerTestClass : BaseUITestSuite() {
     }
   }
 
+  override fun driver(): Driver = backgroundRun.driver
+
   @BeforeEach
   fun initProjectForTest() {
     retryOnConnectException(3) {
@@ -107,12 +110,6 @@ abstract class IdeProcessPerTestClass : BaseUITestSuite() {
     println("New project opened: $rootDirectoryPath")
 
     backgroundRun.driver.waitForProject(3)
-    backgroundRun.driver.waitForIndicators(1.minutes)
-  }
-
-  override fun doAndAwait(action: () -> Unit) {
-    action()
-    println("waiting for indicators...")
     backgroundRun.driver.waitForIndicators(1.minutes)
   }
 }
