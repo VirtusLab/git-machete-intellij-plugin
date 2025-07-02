@@ -26,7 +26,7 @@ function Project(underlyingProject) {
   const pluginId = PluginId.getId('com.virtuslab.git-machete');
   const pluginClassLoader = PluginManagerCore.getPlugin(pluginId).getPluginClassLoader();
 
-  const sleep = function(ms) {
+  const sleep = function (ms) {
     if (ms === undefined) {
       ms = 100;
     }
