@@ -9,11 +9,12 @@ import com.intellij.ide.starter.models.TestCase
 import com.intellij.ide.starter.plugins.PluginConfigurator
 import com.intellij.ide.starter.project.NoProject
 import com.intellij.ide.starter.runner.Starter
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import java.io.File
 import kotlin.time.Duration.Companion.minutes
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 abstract class IdeProcessPerTestClass : BaseUITestSuite() {
 
   companion object {
@@ -34,7 +35,7 @@ abstract class IdeProcessPerTestClass : BaseUITestSuite() {
     @BeforeAll
     fun startSharedIde() {
       val ideStarter = Starter.newContext(
-        testName = "SharedTestSuite",
+        testName = IdeProcessPerTestClass::class.simpleName!!,
         testCase = testCase(),
       ).skipIndicesInitialization().apply {
         val pathToBuildPlugin = System.getProperty("path.to.build.plugin")
