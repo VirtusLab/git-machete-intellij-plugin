@@ -3,11 +3,26 @@ package com.virtuslab.gitmachete.uitest
 import com.intellij.driver.client.Driver
 import com.intellij.driver.sdk.isProjectOpened
 import com.intellij.driver.sdk.waitForIndicators
+import com.intellij.ide.starter.ci.CIServer
+import com.intellij.ide.starter.ci.NoCIServer
+import com.intellij.ide.starter.di.di
+import com.intellij.ide.starter.driver.engine.BackgroundRun
+import com.intellij.ide.starter.driver.engine.runIdeWithDriver
+import com.intellij.ide.starter.ide.IdeProductProvider
+import com.intellij.ide.starter.models.TestCase
+import com.intellij.ide.starter.plugins.PluginConfigurator
+import com.intellij.ide.starter.project.ProjectInfoSpec
+import com.intellij.ide.starter.runner.Starter
 import com.intellij.remoterobot.RemoteRobot
 import com.virtuslab.gitmachete.testcommon.SetupScripts
 import com.virtuslab.gitmachete.testcommon.TestGitRepository
 import org.intellij.lang.annotations.Language
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.fail
+import org.kodein.di.DI
+import org.kodein.di.bindSingleton
+import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.attribute.PosixFilePermission.*
@@ -16,7 +31,7 @@ import kotlin.time.Duration.Companion.minutes
 abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGLE_REMOTE) {
   companion object {
     val robot = RemoteRobot("http://127.0.0.1:8580")
-    val intelliJVersion = System.getProperty("intellij.version")
+    private val intelliJVersion = System.getProperty("intellij.version")
 
     fun <T> retryOnConnectException(attempts: Int, block: () -> T): T = try {
       block()
@@ -30,8 +45,9 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
       }
     }
 
-    fun Driver.waitForProject(attempts: Int) {
-      var attemptsLeft = attempts
+    fun Driver.waitForProject() {
+      println("Waiting for project to open...")
+      var attemptsLeft = 3
       while (!isProjectOpened() && attemptsLeft > 0) {
         Thread.sleep(3000)
         attemptsLeft--
@@ -39,14 +55,73 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
       if (!isProjectOpened()) {
         throw IllegalStateException("Project has still not been opened, aborting")
       }
+
+      println("Waiting for indicators...")
+      waitForIndicators(1.minutes)
+      println("Project opened")
     }
+
+    private fun testCase(projectInfo: ProjectInfoSpec): TestCase<ProjectInfoSpec> {
+      val testCase = TestCase(IdeProductProvider.IC, projectInfo)
+      return if (intelliJVersion.matches("20[0-9][0-9]\\.[0-9].*".toRegex())) {
+        testCase.withVersion(intelliJVersion)
+      } else {
+        testCase.withBuildNumber(intelliJVersion)
+      }
+    }
+
+    fun startIde(projectInfo: ProjectInfoSpec): BackgroundRun {
+      di = DI {
+        extend(di)
+        bindSingleton<CIServer>(overrides = true) {
+          object : CIServer by NoCIServer {
+            override fun reportTestFailure(
+              testName: String,
+              message: String,
+              details: String,
+              linkToLogs: String?,
+            ) {
+              fail { "$testName fails: $message. \n$details" }
+            }
+          }
+        }
+      }
+
+      println("IDE instance starting...")
+      val ideStarter = Starter.newContext(
+        testName = "UI test",
+        testCase = testCase(projectInfo),
+      ).skipIndicesInitialization().apply {
+        val pathToBuildPlugin = System.getProperty("path.to.build.plugin")
+        val pathToRobotServerPlugin = System.getProperty("path.to.robot.server.plugin")
+        PluginConfigurator(this)
+          .installPluginFromPath(File(pathToBuildPlugin).toPath())
+          .installPluginFromPath(File(pathToRobotServerPlugin).toPath())
+      }
+      val backgroundRun = ideStarter.runIdeWithDriver { }
+      println("IDE instance started")
+
+      println("Rhino project initializing...")
+      val rhinoProject = this::class.java.getResource("/project.rhino.js")!!.readText()
+      retryOnConnectException(3) {
+        robot.runJs(rhinoProject, runInEdt = false)
+      }
+      println("Rhino project initialized")
+
+      return backgroundRun
+    }
+  }
+
+  @BeforeEach
+  fun printIntelliJVersion() {
+    println("Using IntelliJ $intelliJVersion")
   }
 
   abstract fun driver(): Driver
 
   private fun doAndAwait(action: () -> Unit) {
     action()
-    println("waiting for indicators...")
+    println("Waiting for indicators...")
     driver().waitForIndicators(1.minutes)
   }
 

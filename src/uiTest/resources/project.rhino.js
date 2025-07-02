@@ -1,11 +1,14 @@
 importClass(java.lang.IllegalStateException);
 importClass(java.lang.System);
 importClass(java.lang.Thread);
+importClass(java.nio.file.Paths);
 importClass(java.util.Arrays);
 importClass(java.util.stream.Collectors);
 
 importClass(com.intellij.ide.plugins.PluginManagerCore);
+importClass(com.intellij.ide.impl.OpenProjectTask);
 importClass(com.intellij.ide.impl.ProjectUtil);
+importClass(com.intellij.ide.impl.TrustedPathsSettings);
 importClass(com.intellij.ide.util.PropertiesComponent);
 importClass(com.intellij.openapi.actionSystem.ActionManager);
 importClass(com.intellij.openapi.actionSystem.ActionPlaces);
@@ -15,7 +18,9 @@ importClass(com.intellij.openapi.actionSystem.Presentation);
 importClass(com.intellij.openapi.actionSystem.impl.ActionButton);
 importClass(com.intellij.openapi.application.ApplicationManager);
 importClass(com.intellij.openapi.application.ModalityState);
+importClass(com.intellij.openapi.components.ServiceManager);
 importClass(com.intellij.openapi.extensions.PluginId);
+importClass(com.intellij.openapi.project.ex.ProjectManagerEx);
 importClass(com.intellij.openapi.wm.ToolWindowId);
 importClass(com.intellij.openapi.wm.ToolWindowManager);
 importClass(com.intellij.util.ModalityUiUtil);
@@ -400,3 +405,20 @@ function getSoleOpenProject() {
 }
 // See https://github.com/JetBrains/intellij-ui-test-robot#store-data-between-runjscalljs-requests
 global.put('getSoleOpenProject', getSoleOpenProject);
+
+function openProject(projectPath) {
+  const projectManager = ProjectManagerEx.getInstanceEx();
+  const currentProject = projectManager.getOpenProjects()[0];
+  if (currentProject) {
+    ApplicationManager.getApplication().invokeAndWait(() => projectManager.closeAndDispose(currentProject));
+  }
+
+  const trustedPathsSettings = ServiceManager.getService(TrustedPathsSettings);
+  trustedPathsSettings.addTrustedPath(projectPath);
+
+  ApplicationManager.getApplication().invokeAndWait(() => {
+    const newProject = projectManager.openProject(Paths.get(projectPath), OpenProjectTask.build());
+    ProjectUtil.focusProjectWindow(newProject, true);
+  });
+}
+global.put('openProject', openProject);

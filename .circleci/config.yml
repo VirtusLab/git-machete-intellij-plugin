@@ -201,6 +201,8 @@ jobs:
       - run:
           name: Run UI tests against the latest stable IntelliJ version
           command: ./gradlew -PvirtualDisplay -Pagainst=latestStable uiTest
+      - store_test_results:
+          path: build/test-results/
 
   ui-tests-earlier:
     executor: ubuntu_executor
@@ -227,6 +229,8 @@ jobs:
             - run:
                 name: Run UI tests against earlier supported major IntelliJ versions
                 command: ./gradlew -PvirtualDisplay -Pagainst=latestMinorsOfOldSupportedMajors uiTest
+            - store_test_results:
+                path: build/test-results/
 
   old-ui-tests-recent:
     executor: ubuntu_executor
