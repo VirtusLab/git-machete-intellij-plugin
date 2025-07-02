@@ -4,36 +4,26 @@ import com.intellij.driver.client.Driver
 import com.intellij.driver.sdk.waitForIndicators
 import com.intellij.ide.starter.driver.engine.BackgroundRun
 import com.intellij.ide.starter.driver.engine.runIdeWithDriver
-import com.intellij.ide.starter.ide.IDETestContext
 import com.intellij.ide.starter.ide.IdeProductProvider
 import com.intellij.ide.starter.models.TestCase
 import com.intellij.ide.starter.plugins.PluginConfigurator
 import com.intellij.ide.starter.project.NoProject
 import com.intellij.ide.starter.runner.Starter
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.extension.ExtendWith
-import org.junit.jupiter.api.extension.ExtensionContext
-import org.junit.jupiter.api.extension.ParameterContext
-import org.junit.jupiter.api.extension.ParameterResolver
+import org.junit.jupiter.api.*
 import java.io.File
 import java.nio.file.Path
 import kotlin.time.Duration.Companion.minutes
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@ExtendWith(DriverResolver::class)
 abstract class SharedIdeTestSuite : BaseUITestSuite() {
 
   companion object {
-    private lateinit var ideStarter: IDETestContext
     lateinit var backgroundRun: BackgroundRun
 
     @JvmStatic
     @BeforeAll
     fun startSharedIde() {
-      ideStarter = Starter.newContext(
+      val ideStarter = Starter.newContext(
         testName = "SharedTestSuite",
         testCase = TestCase(IdeProductProvider.IC, projectInfo = NoProject).withVersion("2024.3"),
       ).skipIndicesInitialization().apply {
@@ -43,21 +33,19 @@ abstract class SharedIdeTestSuite : BaseUITestSuite() {
           .installPluginFromPath(File(pathToBuildPlugin).toPath())
           .installPluginFromPath(File(pathToRobotServerPlugin).toPath())
       }
-
       backgroundRun = ideStarter.runIdeWithDriver { }
       println("Shared IDE instance started")
     }
 
-//    @JvmStatic
-//    @AfterAll
-//    fun closeSharedIde() {
-//      backgroundRun.closeIdeAndWait()
-//      println("Shared IDE instance closed")
-//    }
+    @JvmStatic
+    @AfterAll
+    fun closeSharedIde() {
+      backgroundRun.closeIdeAndWait()
+      println("Shared IDE instance closed")
+    }
   }
 
-  fun Driver.openProject(projectPath: Path) {
-    // Close current project if exists
+  private fun Driver.openProject(projectPath: Path) {
     retryOnConnectException(3) {
       robot.runJs(
         """
@@ -72,14 +60,19 @@ abstract class SharedIdeTestSuite : BaseUITestSuite() {
       )
     }
 
-    // Open new project
     retryOnConnectException(3) {
       robot.runJs(
         """
         importClass(java.nio.file.Paths);
         importClass(com.intellij.ide.impl.OpenProjectTask);
         importClass(com.intellij.ide.impl.ProjectUtil);
+        importClass(com.intellij.ide.impl.TrustedPathsSettings);
+        importClass(com.intellij.openapi.components.ServiceManager);
         importClass(com.intellij.openapi.project.ex.ProjectManagerEx);
+
+        const trustedPathsSettings = ServiceManager.getService(TrustedPathsSettings);
+        trustedPathsSettings.addTrustedPath("$projectPath");
+
         const projectManager = ProjectManagerEx.getInstanceEx();
         const newProject = projectManager.openProject(
             Paths.get("$projectPath"),
@@ -91,41 +84,29 @@ abstract class SharedIdeTestSuite : BaseUITestSuite() {
       )
     }
 
-    // Wait for project initialization
     waitForProject(3)
   }
 
   @BeforeEach
-  fun Driver.initProjectForTest() {
-    // Open new project in existing IDE instance
-    openProject(rootDirectoryPath)
+  fun initProjectForTest() {
+    val driver = backgroundRun.driver
+    driver.openProject(rootDirectoryPath)
     println("New project opened: $rootDirectoryPath")
 
-    // Project initialization sequence
     println("Waiting for project to open...")
-    waitForProject(3)
+    driver.waitForProject(3)
 
     println("Waiting for indicators...")
-    waitForIndicators(1.minutes)
+    driver.waitForIndicators(1.minutes)
   }
 }
 
-// Resolves Driver instance for test methods
-class DriverResolver : ParameterResolver {
-  override fun supportsParameter(
-    parameterContext: ParameterContext,
-    extensionContext: ExtensionContext,
-  ) = parameterContext.parameter.type == Driver::class.java
-
-  override fun resolveParameter(
-    parameterContext: ParameterContext,
-    extensionContext: ExtensionContext,
-  ) = SharedIdeTestSuite.backgroundRun.driver
-}
-
-// Example test suite implementation
 class MyUITests : SharedIdeTestSuite() {
   @Test
   fun testFeatureA() {
+  }
+
+  @Test
+  fun testFeatureB() {
   }
 }
