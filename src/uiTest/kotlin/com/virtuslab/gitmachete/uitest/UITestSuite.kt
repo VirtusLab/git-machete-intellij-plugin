@@ -13,7 +13,7 @@ import kotlin.io.path.writeText
 class UITestSuite : IdeProcessPerTestClass() {
 
   @Test
-  fun skipNonExistentBranches_toggleListingCommits_slideOutRoot() {
+  fun testSkipNonExistentBranches_toggleListingCommits_slideOutRoot() {
     machetePostSlideOutHookPath.writeText(""" echo "$@" >> "$machetePostSlideOutHookOutputPath" """)
     machetePostSlideOutHookPath.makeExecutable()
 
@@ -98,7 +98,7 @@ class UITestSuite : IdeProcessPerTestClass() {
   }
 
   @Test
-  fun discover() {
+  fun testDiscover() {
     // When model is refreshed and machete file has not been modified for a long time, then discover suggestion should occur
     val epochStart = FileTime.fromMillis(0)
     Files.setLastModifiedTime(macheteFilePath, epochStart)
@@ -123,7 +123,7 @@ class UITestSuite : IdeProcessPerTestClass() {
   }
 
   @Test
-  fun fastForwardParentOfBranch() {
+  fun testFastForwardParentOfBranch() {
     // fastForwardParentOfBranch_parentIsCurrentBranch
     openGitMacheteTab()
     checkoutBranch("master")
@@ -140,7 +140,7 @@ class UITestSuite : IdeProcessPerTestClass() {
   }
 
   @Test
-  fun syncToParentByRebaseAction() {
+  fun testSyncToParentByRebaseAction() {
     // Skip the fork point ($2) as it's a commit hash and it'll differ between test invocations.
     machetePreRebaseHookPath.writeText(""" echo "$1 $3" >> "$machetePreRebaseHookOutputPath" """)
     machetePreRebaseHookPath.makeExecutable()
@@ -162,7 +162,7 @@ class UITestSuite : IdeProcessPerTestClass() {
   }
 
   @Test
-  fun pullBranch() {
+  fun testPullBranch() {
     // pullCurrentBranch
     openGitMacheteTab()
     // Remote tracking data is purposefully NOT set for this branch.
@@ -185,7 +185,7 @@ class UITestSuite : IdeProcessPerTestClass() {
   }
 
   @Test
-  fun resetBranchToRemote() {
+  fun testResetBranchToRemote() {
     // resetCurrentBranchToRemote
     openGitMacheteTab()
     checkoutBranch("hotfix/add-trigger")
@@ -203,7 +203,7 @@ class UITestSuite : IdeProcessPerTestClass() {
   }
 
   @Test
-  fun squashBranch() {
+  fun testSquashBranch() {
     // squashCurrentBranch
     openGitMacheteTab()
     toggleListingCommits()
