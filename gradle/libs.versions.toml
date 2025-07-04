@@ -23,7 +23,7 @@ kodein = "org.kodein.di:kodein-di-jvm:7.26.1"
 kotlin-coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2"
 lombok = "org.projectlombok:lombok:1.18.38"
 mockito = "org.mockito:mockito-junit-jupiter:5.18.0"
-okhttp = "com.squareup.okhttp3:okhttp:4.12.0"
+okhttp = "com.squareup.okhttp3:okhttp:5.0.0"
 remoteRobot-client = { module = "com.intellij.remoterobot:remote-robot", version.ref = "remoteRobot" }
 remoteRobot-serverPlugin = { module = "com.intellij.remoterobot:robot-server-plugin", version.ref = "remoteRobot" }
 scalaLibrary = "org.scala-lang:scala-library:2.13.16"
