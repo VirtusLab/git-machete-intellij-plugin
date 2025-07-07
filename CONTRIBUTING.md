@@ -13,7 +13,7 @@ Use IntelliJ IDEA Community Edition/Ultimate.
 2. Make sure the following bundled plugins are enabled, in the `Installed` tab of `File > Settings > Plugins` (`Preferences/Settings > Plugins` on macOS):
    * Git
    * Gradle
-   * IntelliLang (for highlighting of language injections, e.g. JavaScript within Scala, or shell script within YAML)
+   * IntelliLang (for highlighting of language injections, e.g. shell script within YAML)
    * Java Internationalization
    * JUnit
    * Lombok
@@ -28,13 +28,11 @@ Use IntelliJ IDEA Community Edition/Ultimate.
 
 4. Install the following non-bundled plugins from Marketplace:
     * [Kotlin plugin](https://plugins.jetbrains.com/plugin/6954-kotlin) will be useful for editing certain parts of UI, esp. dialogs.
-    * [Scala plugin](https://plugins.jetbrains.com/plugin/1347-scala) might be useful for editing UI tests.
 
 5. (optional) Install further non-bundled plugins from Marketplace:
    * [AWK Support](https://plugins.jetbrains.com/plugin/17037-awk-support)
    * [Grammar-Kit IntelliJ plugin](https://plugins.jetbrains.com/plugin/6606-grammar-kit) can be used instead of Gradle plugin
      to manually generate grammar and lexer code from `.bnf` and `.flex` files.
-   * [HOCON plugin](https://plugins.jetbrains.com/plugin/10481-hocon) for `.conf` file support in UI tests
    * [PsiViewer IntelliJ plugin](https://plugins.jetbrains.com/plugin/227-psiviewer) can be helpful to see parsing result on the `machete` file
      when running IntelliJ instance with the Git Machete plugin loaded.
 
