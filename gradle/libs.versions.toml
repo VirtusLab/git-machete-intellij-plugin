@@ -1,6 +1,6 @@
 [versions]
 checker = "3.49.4"
-junitJupiter = "5.13.3"
+junitJupiter = "5.13.4"
 remoteRobot = "0.11.23"
 
 [libraries]
@@ -10,14 +10,14 @@ archunit = "com.tngtech.archunit:archunit:1.4.1"
 betterStrings = "com.antkorwin:better-strings:0.5"
 checker = { module = "org.checkerframework:checker", version.ref = "checker" }
 checker-qual = { module = "org.checkerframework:checker-qual", version.ref = "checker" }
-commonsIO = "commons-io:commons-io:2.19.0"
+commonsIO = "commons-io:commons-io:2.20.0"
 jetbrains-annotations = "org.jetbrains:annotations:26.0.2"
 jgit = "org.eclipse.jgit:org.eclipse.jgit:7.3.0.202506031305-r"
 junit4 = "junit:junit:4.13.2"
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiter" }
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiter" }
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junitJupiter" }
-junit-platformLauncher = "org.junit.platform:junit-platform-launcher:1.13.3"
+junit-platformLauncher = "org.junit.platform:junit-platform-launcher:1.13.4"
 kodein = "org.kodein.di:kodein-di-jvm:7.26.1"
 kotlin-coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2"
 lombok = "org.projectlombok:lombok:1.18.38"
@@ -28,7 +28,7 @@ remoteRobot-serverPlugin = { module = "com.intellij.remoterobot:robot-server-plu
 slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
 slf4j-mock = "org.simplify4u:slf4j-mock:2.4.0"
 slf4j-simple = "org.slf4j:slf4j-simple:1.7.36"
-vavr = "io.vavr:vavr:0.10.6"
+vavr = "io.vavr:vavr:0.10.7"
 
 # Note that certain plugins are also pulled in via buildSrc,
 # where they aren't really `apply`-ed as plugins, but rather added to classpath as plugin packages;
