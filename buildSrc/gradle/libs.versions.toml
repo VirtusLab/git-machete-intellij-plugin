@@ -7,7 +7,7 @@ junit-api = "org.junit.jupiter:junit-jupiter-api:5.13.4"
 pluginPackages-checkerFramework = "org.checkerframework:checkerframework-gradle-plugin:0.6.56"
 pluginPackages-grgit = "org.ajoberstar.grgit:grgit-gradle:5.3.2"
 pluginPackages-jetbrains-kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.22"
-pluginPackages-spotless = "com.diffplug.spotless:spotless-plugin-gradle:7.2.0"
+pluginPackages-spotless = "com.diffplug.spotless:spotless-plugin-gradle:7.2.1"
 
 [plugins]
 taskTree = "com.dorongold.task-tree:4.0.1"
