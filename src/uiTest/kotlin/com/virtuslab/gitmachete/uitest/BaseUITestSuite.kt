@@ -91,15 +91,13 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
       val ideStarter = Starter.newContext(
         testName = "UI test",
         testCase = testCase(projectInfo),
-      ).skipIndicesInitialization()
-        .applyVMOptionsPatch { withEnv("NODE_OPTIONS", "--max_old_space_size=4096") }
-        .apply {
-          val pathToBuildPlugin = System.getProperty("path.to.build.plugin")
-          val pathToRobotServerPlugin = System.getProperty("path.to.robot.server.plugin")
-          PluginConfigurator(this)
-            .installPluginFromPath(File(pathToBuildPlugin).toPath())
-            .installPluginFromPath(File(pathToRobotServerPlugin).toPath())
-        }
+      ).skipIndicesInitialization().apply {
+        val pathToBuildPlugin = System.getProperty("path.to.build.plugin")
+        val pathToRobotServerPlugin = System.getProperty("path.to.robot.server.plugin")
+        PluginConfigurator(this)
+          .installPluginFromPath(File(pathToBuildPlugin).toPath())
+          .installPluginFromPath(File(pathToRobotServerPlugin).toPath())
+      }
       val backgroundRun = ideStarter.runIdeWithDriver { }
       println("IDE instance started")
 
