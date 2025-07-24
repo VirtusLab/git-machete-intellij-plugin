@@ -50,6 +50,7 @@ _ prohibit-trailing-whitespace
 _ validate-icons
 # This one needs to connect to the linked websites and can potentially run long,
 # let's skip it when this script is executed locally.
+export NODE_OPTIONS=--max_old_space_size=4096
 _ validate-markdown-links --ci-only
 _ validate-markdown-values
 
