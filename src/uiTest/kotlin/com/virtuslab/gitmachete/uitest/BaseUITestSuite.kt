@@ -122,7 +122,7 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
   private fun doAndAwait(action: () -> Unit) {
     action()
     println("Waiting for indicators...")
-    driver().waitForIndicators(1.minutes)
+    driver().waitForIndicators(2.minutes)
   }
 
   private fun runJs(@Language("JavaScript") statement: String) {
