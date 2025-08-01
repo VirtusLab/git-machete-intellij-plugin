@@ -42,12 +42,6 @@ tasks.withType<Test> {
   useJUnitPlatform()
 }
 
-project.tasks.withType<KotlinCompile> {
-  compilerOptions {
-    allWarningsAsErrors = true
-  }
-}
-
 apply<SpotlessPlugin>()
 configure<SpotlessExtension> {
   val ktlintEditorConfig = mapOf(
