@@ -41,7 +41,6 @@
         <module name="EmptyStatement"/>
         <module name="EqualsHashCode"/>
         <module name="FallThrough"/>
-        <module name="FinalClass"/>
         <module name="HiddenField">
             <property name="ignoreConstructorParameter" value="true"/>
         </module>
