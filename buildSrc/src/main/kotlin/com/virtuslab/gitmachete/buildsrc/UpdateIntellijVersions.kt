@@ -3,73 +3,66 @@ package com.virtuslab.gitmachete.buildsrc
 import com.virtuslab.gitmachete.buildsrc.IntellijVersionHelper.versionIsNewerThan
 import com.virtuslab.gitmachete.buildsrc.IntellijVersionHelper.versionToBuildNumber
 import com.virtuslab.gitmachete.buildsrc.IntellijVersionHelper.versionToMajorVersion
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.provideDelegate
-import org.jsoup.Jsoup
+import java.net.HttpURLConnection
+import java.net.URL
 
 open class UpdateIntellijVersions : DefaultTask() {
 
-  private val linksToIntellijReleases: List<String> by lazy {
-    getLinksFromUrl("https://www.jetbrains.com/intellij-repository/releases/")
+  private val intellijReleases: List<String> by lazy {
+    listIntelliJCommunityVersionsForType("release", "version")
   }
 
-  private val linksToIntellijSnapshots: List<String> by lazy {
-    getLinksFromUrl("https://www.jetbrains.com/intellij-repository/snapshots/")
+  private val intellijSnapshots: List<String> by lazy {
+    listIntelliJCommunityVersionsForType("eap", "build")
   }
 
-  private fun getLinksFromUrl(repositoryUrl: String): List<String> {
-    val selector = "a[href^=${repositoryUrl}com/jetbrains/intellij/idea/ideaIC/][href$=.pom]"
-    // `maxBodySize(0)`, i.e. no limit on body size, is needed
-    // as JSoup would only take the first 1MB of the document by default
-    val result = Jsoup.connect(repositoryUrl).maxBodySize(0).get().select(selector).map { it.attr("href") }
-    if (result.isEmpty()) {
-      throw RuntimeException(
-        "No links matching regex '$selector' have been found under $repositoryUrl. " +
-          "This indicates that either the server doesn't expose the entire site contents to this programmatic HTTP client, " +
-          "or that HTML structure of the site changed.",
-      )
-    }
-    return result
-  }
-
-  private fun findFirstMatchingVersionNewerThan(repoLinks: List<String>, regex: Regex, thresholdVersion: String): String? {
-    for (link in repoLinks) {
-      val matchResult = regex.find(link)
-
-      if (matchResult != null) {
-        val foundVersion = matchResult.value
-
-        if (foundVersion versionIsNewerThan thresholdVersion) {
-          return foundVersion
-        }
-      }
-    }
-    return null
-  }
+  private fun findFirstMatchingVersionNewerThan(versions: List<String>, thresholdVersion: String): String? = versions.firstOrNull { it versionIsNewerThan thresholdVersion }
 
   private fun findReleaseNewerThan(version: String): String? = findFirstMatchingVersionNewerThan(
-    linksToIntellijReleases,
-    Regex("""(?<=ideaIC-)(\d+\.)+\d+(?=.pom)"""),
+    intellijReleases,
     version,
   )
 
-  private fun findLatestMinorOfVersion(versionNumber: String): String {
-    val major = versionToMajorVersion(versionNumber)
-
+  private fun findLatestMinorOfVersion(version: String): String {
+    val major = versionToMajorVersion(version)
     return findFirstMatchingVersionNewerThan(
-      linksToIntellijReleases,
-      Regex("""(?<=ideaIC-)$major(\.\d+)?(?=.pom)"""),
-      major,
-    ) ?: versionNumber
+      intellijReleases.filter { it.startsWith(major) },
+      version,
+    ) ?: version
   }
 
   private fun findEapWithBuildNumberHigherThan(buildNumber: String): String? = findFirstMatchingVersionNewerThan(
-    linksToIntellijSnapshots,
-    Regex("""(?<=ideaIC-)\d+\.\d+\.\d+(?=-EAP-SNAPSHOT\.pom)"""),
+    intellijSnapshots,
     buildNumber,
   )
+
+  private fun fetchJson(url: String): String {
+    val connection = (URL(url).openConnection() as? HttpURLConnection)!!
+    connection.requestMethod = "GET"
+    connection.connectTimeout = 5000
+    connection.readTimeout = 5000
+
+    return connection.inputStream.bufferedReader().use { it.readText() }
+  }
+
+  private fun listIntelliJCommunityVersionsForType(type: String, attribute: String): List<String> {
+    val url = "https://data.services.jetbrains.com/products?code=IC&type=$type"
+    val jsonString = fetchJson(url)
+
+    val json = Json { ignoreUnknownKeys = true }
+    val jsonElement = json.parseToJsonElement(jsonString)
+
+    val releaseElements = jsonElement.jsonArray[0].jsonObject["releases"]?.jsonArray?.toList() ?: listOf()
+    return releaseElements.mapNotNull { it.jsonObject[attribute]?.jsonPrimitive?.content }
+  }
 
   @TaskAction
   fun execute() {
@@ -112,7 +105,10 @@ open class UpdateIntellijVersions : DefaultTask() {
     }
 
     if (originalVersions != updatedVersions) {
-      PropertiesHelper.storeProperties(updatedVersions.toProperties(), project.rootDir.resolve("intellij-versions.properties"))
+      PropertiesHelper.storeProperties(
+        updatedVersions.toProperties(),
+        project.rootDir.resolve("intellij-versions.properties"),
+      )
     }
   }
 }

@@ -42,3 +42,4 @@ updates:
       # As per https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#kotlin-standard-library:
       # "If a plugin supports multiple platform versions, it must (...) target the lowest bundled stdlib version".
       - dependency-name: "org.jetbrains.kotlin:kotlin-gradle-plugin"
+      - dependency-name: "org.jetbrains.kotlinx:kotlinx-serialization-json"

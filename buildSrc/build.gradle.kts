@@ -30,7 +30,7 @@ repositories {
 }
 
 dependencies {
-  implementation(libs.jsoup)
+  implementation(libs.kotlin.serialization.json)
   implementation(libs.pluginPackages.checkerFramework)
   implementation(libs.pluginPackages.grgit)
   implementation(libs.pluginPackages.jetbrains.kotlin)
