@@ -103,7 +103,7 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
 
       println("Rhino project initializing...")
       val rhinoProject = this::class.java.getResource("/project.rhino.js")!!.readText()
-      retryOnConnectException(3) {
+      retryOnConnectException(10) {
         robot.runJs(rhinoProject, runInEdt = false)
       }
       println("Rhino project initialized")
