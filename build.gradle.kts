@@ -84,6 +84,7 @@ allprojects {
       getFlagsForAddExports(
         "com.sun.tools.javac.api",
         "com.sun.tools.javac.code",
+        "com.sun.tools.javac.parser", // this one is for checker-framework
         "com.sun.tools.javac.processing",
         "com.sun.tools.javac.tree",
         "com.sun.tools.javac.util",
