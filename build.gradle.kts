@@ -368,7 +368,7 @@ intellijPlatform {
       // so the builds are more reproducible in this respect.
       val maybeEap = listOfNotNull(intellijVersions.eapOfLatestSupportedMajor)
       val ideVersions = intellijVersions.latestMinorsOfOldSupportedMajors + intellijVersions.latestStable + maybeEap
-      ides(ideVersions)
+      ides(ideVersions.map { "IC-$it" })
     }
   }
 }
