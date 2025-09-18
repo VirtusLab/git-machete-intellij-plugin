@@ -20,7 +20,7 @@ junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref 
 junit-platformLauncher = "org.junit.platform:junit-platform-launcher:1.13.4"
 kodein = "org.kodein.di:kodein-di-jvm:7.26.1"
 kotlin-coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2"
-lombok = "org.projectlombok:lombok:1.18.40"
+lombok = "org.projectlombok:lombok:1.18.42"
 mockito = "org.mockito:mockito-junit-jupiter:5.19.0"
 okhttp = "com.squareup.okhttp3:okhttp:5.1.0"
 remoteRobot-client = { module = "com.intellij.remoterobot:remote-robot", version.ref = "remoteRobot" }
