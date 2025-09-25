@@ -7,7 +7,7 @@ kotlin-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.
 pluginPackages-checkerFramework = "org.checkerframework:checkerframework-gradle-plugin:0.6.59"
 pluginPackages-grgit = "org.ajoberstar.grgit:grgit-gradle:5.3.3"
 pluginPackages-jetbrains-kotlin = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.22"
-pluginPackages-spotless = "com.diffplug.spotless:spotless-plugin-gradle:7.2.1"
+pluginPackages-spotless = "com.diffplug.spotless:spotless-plugin-gradle:8.0.0"
 
 [plugins]
 taskTree = "com.dorongold.task-tree:4.0.1"
