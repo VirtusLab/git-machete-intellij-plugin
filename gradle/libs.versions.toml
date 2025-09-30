@@ -1,6 +1,6 @@
 [versions]
 checker = "3.51.0"
-junitJupiter = "5.13.4"
+junitJupiter = "6.0.0"
 remoteRobot = "0.11.23"
 
 [libraries]
@@ -17,8 +17,8 @@ junit4 = "junit:junit:4.13.2"
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiter" }
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiter" }
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junitJupiter" }
-junit-platformLauncher = "org.junit.platform:junit-platform-launcher:1.13.4"
-kodein = "org.kodein.di:kodein-di-jvm:7.26.1"
+junit-platformLauncher = "org.junit.platform:junit-platform-launcher:6.0.0"
+kodein = "org.kodein.di:kodein-di-jvm:7.28.0"
 kotlin-coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2"
 lombok = "org.projectlombok:lombok:1.18.42"
 mockito = "org.mockito:mockito-junit-jupiter:5.20.0"
