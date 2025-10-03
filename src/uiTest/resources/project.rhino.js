@@ -123,9 +123,9 @@ function Project(underlyingProject) {
     let i = 0;
     do {
       sleep();
-    } while (!refreshDone && ++i < 150);
+    } while (!refreshDone && ++i < 50);
     if (!refreshDone) {
-      throw new IllegalStateException("Waiting for condition timed out");
+      throw new IllegalStateException("Waiting for refresh timed out");
     }
 
     return graphTable.getModel();
@@ -232,7 +232,7 @@ function Project(underlyingProject) {
       button = getButton();
     }
     if (button === null) {
-      throw new IllegalStateException("Waiting for condition timed out");
+      throw new IllegalStateException("Waiting for '" + name + "' button timed out");
     }
     robot.click(button, MouseButton.LEFT_BUTTON);
   };
@@ -257,7 +257,7 @@ function Project(underlyingProject) {
       component = searchForComponent();
     }
     if (component === null) {
-      throw new IllegalStateException("Waiting for condition timed out");
+      throw new IllegalStateException("Waiting for '" + className + "' component timed out");
     }
     return component;
   };
