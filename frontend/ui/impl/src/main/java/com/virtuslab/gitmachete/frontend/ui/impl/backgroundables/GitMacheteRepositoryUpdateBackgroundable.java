@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import com.intellij.openapi.application.ApplicationManager;
@@ -47,7 +48,7 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
   private final GitRepository gitRepository;
   private final IBranchLayoutReader branchLayoutReader;
   private final DoOnUIThreadWhenDone doOnUIThreadWhenDone;
-  private final Consumer<@Nullable IGitMacheteRepository> gitMacheteRepositoryConsumer;
+  private final AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryHolder;
 
   private final IGitMacheteRepositoryCache gitMacheteRepositoryCache;
 
@@ -66,14 +67,14 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
       GitRepository gitRepository,
       IBranchLayoutReader branchLayoutReader,
       DoOnUIThreadWhenDone doOnUIThreadWhenDone,
-      Consumer<@Nullable IGitMacheteRepository> gitMacheteRepositoryConsumer) {
+      AtomicReference<@Nullable IGitMacheteRepository> gitMacheteRepositoryHolder) {
     super(gitRepository.getProject(),
         getNonHtmlString("action.GitMachete.GitMacheteRepositoryUpdateBackgroundable.task-title"));
 
     this.gitRepository = gitRepository;
     this.branchLayoutReader = branchLayoutReader;
     this.doOnUIThreadWhenDone = doOnUIThreadWhenDone;
-    this.gitMacheteRepositoryConsumer = gitMacheteRepositoryConsumer;
+    this.gitMacheteRepositoryHolder = gitMacheteRepositoryHolder;
 
     this.gitMacheteRepositoryCache = ApplicationManager.getApplication().getService(IGitMacheteRepositoryCache.class);
   }
@@ -139,7 +140,7 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
         BranchLayout branchLayout = readBranchLayout(macheteFilePath);
         IGitMacheteRepository gitMacheteRepository = gitMacheteRepositoryCache.getInstance(rootDirectoryPath,
             mainGitDirectoryPath, worktreeGitDirectoryPath, ApplicationManager.getApplication()::getService);
-        gitMacheteRepositoryConsumer.accept(gitMacheteRepository);
+        gitMacheteRepositoryHolder.set(gitMacheteRepository);
         return gitMacheteRepository.createSnapshotForLayout(branchLayout);
       } catch (MacheteFileReaderException e) {
         LOG.warn("Unable to create Git Machete repository", e);

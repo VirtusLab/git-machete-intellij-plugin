@@ -568,7 +568,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
         gitRepository,
         branchLayoutReader,
         doRefreshModel,
-        /* gitMacheteRepositoryConsumer */ gitMacheteRepositoryRef::set).queue();
+        /* gitMacheteRepositoryHolder */ gitMacheteRepositoryRef).queue();
 
     val macheteFile = gitRepository.getMacheteFile();
     if (macheteFile != null) {
