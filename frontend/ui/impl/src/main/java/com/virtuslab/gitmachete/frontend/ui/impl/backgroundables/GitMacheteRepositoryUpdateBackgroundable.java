@@ -75,10 +75,11 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
 
   @UIThreadUnsafe
   @Override
-  public void run(ProgressIndicator indicator) {
+  public synchronized void run(ProgressIndicator indicator) {
     if (TASK_RUNNING.get()) {
       RUN_ANOTHER_TASK_ONCE_FINISHED.set(true);
     } else {
+      TASK_RUNNING.set(true);
       runInner();
     }
   }
@@ -90,16 +91,16 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
     // and `doOnUIThreadWhenDone` can only start once repository update is complete.
 
     // Thus, we synchronously run repository update first...
-    TASK_RUNNING.set(true);
     IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot = updateRepositorySnapshot();
+
+    // ... and only once it completes, we queue `doOnUIThreadWhenDone` onto the UI thread.
+    LOG.debug("Queuing graph table refresh onto the UI thread");
+    ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> doOnUIThreadWhenDone.accept(gitMacheteRepositorySnapshot));
+
     if (RUN_ANOTHER_TASK_ONCE_FINISHED.getAndSet(false)) {
       runInner();
     } else {
       TASK_RUNNING.set(false);
-
-      // ... and only once it completes, we queue `doOnUIThreadWhenDone` onto the UI thread.
-      LOG.debug("Queuing graph table refresh onto the UI thread");
-      ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> doOnUIThreadWhenDone.accept(gitMacheteRepositorySnapshot));
     }
   }
 
