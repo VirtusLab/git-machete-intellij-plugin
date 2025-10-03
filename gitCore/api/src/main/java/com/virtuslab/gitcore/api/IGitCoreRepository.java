@@ -68,7 +68,7 @@ public interface IGitCoreRepository {
   IGitCoreCommit deriveAnyMergeBase(IGitCoreCommit commit1, IGitCoreCommit commit2) throws GitCoreException;
 
   @UIThreadUnsafe
-  Stream<IGitCoreCommit> ancestorsOf(IGitCoreCommit commitInclusive) throws GitCoreException;
+  Stream<IGitCoreCommit> ancestorsOf(IGitCoreCommit commitInclusive, int maxCommits) throws GitCoreException;
 
   @UIThreadUnsafe
   List<IGitCoreCommit> deriveCommitRange(IGitCoreCommit fromInclusive, IGitCoreCommit untilExclusive) throws GitCoreException;

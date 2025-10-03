@@ -393,7 +393,7 @@ public class CreateGitMacheteRepositoryAux extends Aux {
     LOG.debug(() -> "Entering: branch = '${branch.getFullName()}'");
 
     Tuple2<IGitCoreCommit, Seq<IBranchReference>> forkPointAndContainingBranches = gitCoreRepository
-        .ancestorsOf(branch.getPointedCommit())
+        .ancestorsOf(branch.getPointedCommit(), MAX_ANCESTOR_COMMIT_COUNT)
         .map(commit -> {
           Seq<IBranchReference> containingBranches = deriveBranchesContainingGivenCommitInReflog()
               .getOrElse(commit.getHash(), List.empty())

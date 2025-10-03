@@ -30,6 +30,12 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
 public class Aux {
+  /**
+   * Let's avoid loading too many commits when trying to find fork point.
+   * It's unlikely that anyone will have that many unique commits on a branch.
+   */
+  protected static final int MAX_ANCESTOR_COMMIT_COUNT = 100;
+
   protected final IGitCoreRepository gitCoreRepository;
   protected final List<IGitCoreLocalBranchSnapshot> localBranches;
   protected final Map<String, IGitCoreLocalBranchSnapshot> localBranchByName;
@@ -180,7 +186,7 @@ public class Aux {
         "${eligibleLocalBranchNames.mkString(\", \")}");
 
     Tuple2<IGitCoreCommit, Seq<ILocalBranchReference>> commitAndContainingBranches = gitCoreRepository
-        .ancestorsOf(localBranch.getPointedCommit())
+        .ancestorsOf(localBranch.getPointedCommit(), MAX_ANCESTOR_COMMIT_COUNT)
         .map(commit -> {
           Seq<ILocalBranchReference> eligibleContainingBranches = deriveBranchesContainingGivenCommitInReflog()
               .getOrElse(commit.getHash(), List.empty())

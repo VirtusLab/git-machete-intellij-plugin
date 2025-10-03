@@ -19,7 +19,7 @@ import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 
-public class GitMacheteRepository_deriveCreatedAndDuplicatedAndSkippedBranchesUnitTestSuite
+public class GitMacheteRepository_deriveCreatedAndDuplicatedAndSkippedBranches_UnitTestSuite
     extends
       BaseGitMacheteRepositoryUnitTestSuite {
 

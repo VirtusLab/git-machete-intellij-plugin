@@ -16,7 +16,7 @@ import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
 import com.virtuslab.gitmachete.backend.impl.ForkPointCommitOfManagedBranch;
 
-public class GitMacheteRepository_deriveParentAwareForkPointUnitTestSuite extends BaseGitMacheteRepositoryUnitTestSuite {
+public class GitMacheteRepository_deriveParentAwareForkPoint_UnitTestSuite extends BaseGitMacheteRepositoryUnitTestSuite {
 
   @SneakyThrows
   private @Nullable IGitCoreCommit invokeDeriveParentAwareForkPoint(
@@ -43,7 +43,7 @@ public class GitMacheteRepository_deriveParentAwareForkPointUnitTestSuite extend
     IGitCoreLocalBranchSnapshot childBranch = createGitCoreLocalBranch(childCommit);
     IGitCoreLocalBranchSnapshot parentBranch = createGitCoreLocalBranch(parentCommit);
 
-    when(gitCoreRepository.ancestorsOf(childCommit)).thenReturn(Stream.empty());
+    when(gitCoreRepository.ancestorsOf(childCommit, any())).thenReturn(Stream.empty());
     when(gitCoreRepository.isAncestorOrEqual(parentCommit, childCommit)).thenReturn(false);
 
     // when
@@ -62,7 +62,7 @@ public class GitMacheteRepository_deriveParentAwareForkPointUnitTestSuite extend
     IGitCoreLocalBranchSnapshot parentBranch = createGitCoreLocalBranch(parentCommit);
     IGitCoreLocalBranchSnapshot childBranch = createGitCoreLocalBranch(childCommit);
 
-    when(gitCoreRepository.ancestorsOf(childCommit)).thenReturn(Stream.empty());
+    when(gitCoreRepository.ancestorsOf(childCommit, any())).thenReturn(Stream.empty());
     when(gitCoreRepository.isAncestorOrEqual(parentCommit, childCommit)).thenReturn(true);
 
     // when
@@ -82,7 +82,7 @@ public class GitMacheteRepository_deriveParentAwareForkPointUnitTestSuite extend
     IGitCoreLocalBranchSnapshot parentBranch = createGitCoreLocalBranch(parentCommit);
     IGitCoreLocalBranchSnapshot childBranch = createGitCoreLocalBranch(childCommit);
 
-    when(gitCoreRepository.ancestorsOf(childCommit)).thenReturn(Stream.of(forkPointCommit));
+    when(gitCoreRepository.ancestorsOf(childCommit, any())).thenReturn(Stream.of(forkPointCommit));
     when(gitCoreRepository.isAncestorOrEqual(parentCommit, forkPointCommit)).thenReturn(false);
     when(gitCoreRepository.isAncestorOrEqual(parentCommit, childCommit)).thenReturn(true);
 
