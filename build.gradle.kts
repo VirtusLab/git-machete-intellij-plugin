@@ -6,6 +6,7 @@ import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.intellij.platform.gradle.tasks.BuildPluginTask
 import org.jetbrains.intellij.platform.gradle.tasks.SignPluginTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilerExecutionStrategy
 import java.net.URI
 import java.util.Base64
 import java.util.zip.ZipEntry
@@ -408,6 +409,13 @@ val uiTestImplementation by configurations.getting {
 
 val uiTestRuntimeOnly by configurations.getting {
   extendsFrom(configurations.testRuntimeOnly.get())
+}
+
+tasks.withType<KotlinCompile>().named("compileUiTestKotlin") {
+  // See https://kotlinlang.org/docs/gradle-compilation-and-caches.html#defining-kotlin-compiler-execution-strategy
+  // This is needed to avoid a fallback to In process since compilation in Kotlin daemon fails on
+  // `bindSingleton<CIServer>(overrides = true)` in BaseUITestSuite, and it's unclear how to fix/replace it.
+  compilerExecutionStrategy = KotlinCompilerExecutionStrategy.IN_PROCESS
 }
 
 val robotServerPluginZip by configurations.creating
