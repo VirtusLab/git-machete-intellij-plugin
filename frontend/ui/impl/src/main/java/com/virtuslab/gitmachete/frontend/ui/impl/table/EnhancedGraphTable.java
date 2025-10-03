@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
 import javax.swing.ListSelectionModel;
 
@@ -552,7 +551,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       return;
     }
 
-    @UI Consumer<@Nullable IGitMacheteRepositorySnapshot> doRefreshModel = newGitMacheteRepositorySnapshot -> {
+    @SuppressWarnings("guieffect:assignment") GitMacheteRepositoryUpdateBackgroundable.DoOnUIThreadWhenDone doRefreshModel = newGitMacheteRepositorySnapshot -> {
       this.gitMacheteRepositorySnapshot = newGitMacheteRepositorySnapshot;
       if (newGitMacheteRepositorySnapshot != null) {
         validateUnmanagedBranchNotification(newGitMacheteRepositorySnapshot, unmanagedBranchNotification);

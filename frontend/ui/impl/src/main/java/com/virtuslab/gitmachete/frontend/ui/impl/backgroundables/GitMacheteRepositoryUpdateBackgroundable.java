@@ -7,6 +7,7 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -22,7 +23,6 @@ import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -45,13 +45,16 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
 
   private final GitRepository gitRepository;
   private final IBranchLayoutReader branchLayoutReader;
-  private final @UI Consumer<@Nullable IGitMacheteRepositorySnapshot> doOnUIThreadWhenDone;
+  private final DoOnUIThreadWhenDone doOnUIThreadWhenDone;
   private final Consumer<@Nullable IGitMacheteRepository> gitMacheteRepositoryConsumer;
 
   private final IGitMacheteRepositoryCache gitMacheteRepositoryCache;
 
   private static final AtomicBoolean TASK_RUNNING = new AtomicBoolean(false);
   private static final AtomicBoolean RUN_ANOTHER_TASK_ONCE_FINISHED = new AtomicBoolean(false);
+  private static final ConcurrentLinkedQueue<DoOnUIThreadWhenDone> DO_ON_UI_THREAD_WHEN_DONE = new ConcurrentLinkedQueue<>();
+
+  public interface DoOnUIThreadWhenDone extends Consumer<@Nullable IGitMacheteRepositorySnapshot> {}
 
   /**
    *  A backgroundable task that reads the branch layout from the machete file and updates the
@@ -60,7 +63,7 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
   public GitMacheteRepositoryUpdateBackgroundable(
       GitRepository gitRepository,
       IBranchLayoutReader branchLayoutReader,
-      @UI Consumer<@Nullable IGitMacheteRepositorySnapshot> doOnUIThreadWhenDone,
+      DoOnUIThreadWhenDone doOnUIThreadWhenDone,
       Consumer<@Nullable IGitMacheteRepository> gitMacheteRepositoryConsumer) {
     super(gitRepository.getProject(),
         getNonHtmlString("action.GitMachete.GitMacheteRepositoryUpdateBackgroundable.task-title"));
@@ -77,6 +80,7 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
   @Override
   @SuppressWarnings("regexp") // to allow for `synchronized`
   public synchronized void run(ProgressIndicator indicator) {
+    DO_ON_UI_THREAD_WHEN_DONE.add(this.doOnUIThreadWhenDone);
     if (TASK_RUNNING.get()) {
       RUN_ANOTHER_TASK_ONCE_FINISHED.set(true);
     } else {
@@ -96,7 +100,10 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
 
     // ... and only once it completes, we queue `doOnUIThreadWhenDone` onto the UI thread.
     LOG.debug("Queuing graph table refresh onto the UI thread");
-    ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> doOnUIThreadWhenDone.accept(gitMacheteRepositorySnapshot));
+    for (val whenDone : DO_ON_UI_THREAD_WHEN_DONE) {
+      ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> whenDone.accept(gitMacheteRepositorySnapshot));
+    }
+    DO_ON_UI_THREAD_WHEN_DONE.clear();
 
     if (RUN_ANOTHER_TASK_ONCE_FINISHED.getAndSet(false)) {
       runInner();
