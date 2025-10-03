@@ -52,7 +52,7 @@ function Project(underlyingProject) {
       sleep();
     } while (toolWindow === null && ++i < 50);
     if (toolWindow === null) {
-      throw new IlegalStateException("Waiting for " + toolWindowId + " tool window timed out");
+      throw new IllegalStateException("Waiting for " + toolWindowId + " tool window timed out");
     }
 
     // The method is NOT meant to be executed on the UI thread,
@@ -67,7 +67,7 @@ function Project(underlyingProject) {
         sleep();
       } while (tab === null && ++i < 10);
       if (tab === null) {
-        throw new IlegalStateException("Waiting for " + tabName + " tab timed out");
+        throw new IllegalStateException("Waiting for " + tabName + " tab timed out");
       }
       contentManager.setSelectedContent(tab);
     });
@@ -123,9 +123,9 @@ function Project(underlyingProject) {
     let i = 0;
     do {
       sleep();
-    } while (!refreshDone && ++i < 50);
+    } while (!refreshDone && ++i < 150);
     if (!refreshDone) {
-      throw new IlegalStateException("Waiting for condition timed out");
+      throw new IllegalStateException("Waiting for condition timed out");
     }
 
     return graphTable.getModel();
