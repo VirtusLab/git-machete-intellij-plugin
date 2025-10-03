@@ -75,6 +75,7 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
 
   @UIThreadUnsafe
   @Override
+  @SuppressWarnings("regexp") // to allow for `synchronized`
   public synchronized void run(ProgressIndicator indicator) {
     if (TASK_RUNNING.get()) {
       RUN_ANOTHER_TASK_ONCE_FINISHED.set(true);
