@@ -7,6 +7,7 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import com.intellij.openapi.application.ApplicationManager;
@@ -49,6 +50,9 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
 
   private final IGitMacheteRepositoryCache gitMacheteRepositoryCache;
 
+  private static final AtomicBoolean TASK_RUNNING = new AtomicBoolean(false);
+  private static final AtomicBoolean RUN_ANOTHER_TASK_ONCE_FINISHED = new AtomicBoolean(false);
+
   /**
    *  A backgroundable task that reads the branch layout from the machete file and updates the
    *  repository snapshot, which is the base for the creation of the branch graph seen in the GitMachete IntelliJ tab.
@@ -72,12 +76,23 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
   @UIThreadUnsafe
   @Override
   public void run(ProgressIndicator indicator) {
+    if (TASK_RUNNING.get()) {
+      RUN_ANOTHER_TASK_ONCE_FINISHED.set(true);
+      return;
+    }
+
     // We can't queue repository update (onto a non-UI thread) and `doOnUIThreadWhenDone` (onto the UI thread) separately
     // since those two actions happen on two separate threads
     // and `doOnUIThreadWhenDone` can only start once repository update is complete.
 
     // Thus, we synchronously run repository update first...
+    TASK_RUNNING.set(true);
     IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot = updateRepositorySnapshot();
+    if (RUN_ANOTHER_TASK_ONCE_FINISHED.getAndSet(false)) {
+      run(indicator);
+      return;
+    }
+    TASK_RUNNING.set(false);
 
     // ... and only once it completes, we queue `doOnUIThreadWhenDone` onto the UI thread.
     LOG.debug("Queuing graph table refresh onto the UI thread");
