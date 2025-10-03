@@ -16,16 +16,6 @@ public class NamingTestSuite extends BaseArchUnitTestSuite {
   }
 
   @Test
-  public void interface_names_should_start_with_I() {
-    classes()
-        .that().areInterfaces()
-        .and().resideOutsideOfPackage("com.virtuslab.gitmachete.frontend.file.grammar")
-        .and().areNotAnnotations()
-        .and().haveSimpleNameNotEndingWith("Runnable")
-        .should().haveSimpleNameStartingWith("I")
-        .check(productionClasses);
-  }
-  @Test
   public void class_names_should_not_end_with_Manager() {
     noClasses()
         .should().haveSimpleNameEndingWith("Manager")

@@ -23,6 +23,7 @@ import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.checkerframework.checker.guieffect.qual.UI;
 import org.checkerframework.checker.index.qual.Positive;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -54,11 +55,12 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
   private static final AtomicBoolean RUN_ANOTHER_TASK_ONCE_FINISHED = new AtomicBoolean(false);
   private static final ConcurrentLinkedQueue<DoOnUIThreadWhenDone> DO_ON_UI_THREAD_WHEN_DONE = new ConcurrentLinkedQueue<>();
 
-  public interface DoOnUIThreadWhenDone extends Consumer<@Nullable IGitMacheteRepositorySnapshot> {}
+  @UI
+  public interface DoOnUIThreadWhenDone extends @UI Consumer<@Nullable IGitMacheteRepositorySnapshot> {}
 
   /**
    *  A backgroundable task that reads the branch layout from the machete file and updates the
-   *  repository snapshot, which is the base for the creation of the branch graph seen in the GitMachete IntelliJ tab.
+   *  repository snapshot, which is the base for the creation of the branch graph seen in the Git Machete IntelliJ tab.
    */
   public GitMacheteRepositoryUpdateBackgroundable(
       GitRepository gitRepository,
@@ -91,16 +93,17 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
 
   @UIThreadUnsafe
   private void runInner() {
-    // We can't queue repository update (onto a non-UI thread) and `doOnUIThreadWhenDone` (onto the UI thread) separately
-    // since those two actions happen on two separate threads
-    // and `doOnUIThreadWhenDone` can only start once repository update is complete.
+    // We can't queue repository update (onto a non-UI thread)
+    // and accumulated `doOnUIThreadWhenDone` actions (onto the UI thread) separately
+    // since these two happen on two different threads
+    // and `doOnUIThreadWhenDone` can only start once a repository update is complete.
 
     // Thus, we synchronously run repository update first...
     IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot = updateRepositorySnapshot();
 
     // ... and only once it completes, we queue `doOnUIThreadWhenDone` onto the UI thread.
     LOG.debug("Queuing graph table refresh onto the UI thread");
-    for (val whenDone : DO_ON_UI_THREAD_WHEN_DONE) {
+    for (@UI DoOnUIThreadWhenDone whenDone : DO_ON_UI_THREAD_WHEN_DONE) {
       ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> whenDone.accept(gitMacheteRepositorySnapshot));
     }
     DO_ON_UI_THREAD_WHEN_DONE.clear();

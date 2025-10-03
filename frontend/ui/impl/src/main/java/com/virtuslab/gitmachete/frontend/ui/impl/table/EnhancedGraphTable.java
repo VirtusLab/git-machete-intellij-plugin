@@ -5,6 +5,7 @@ import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
 import static com.virtuslab.gitmachete.frontend.defs.ActionIds.OPEN_MACHETE_FILE;
 import static com.virtuslab.gitmachete.frontend.file.MacheteFileUtils.isMacheteFileSelected;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
+import static com.virtuslab.gitmachete.frontend.ui.impl.backgroundables.GitMacheteRepositoryUpdateBackgroundable.DoOnUIThreadWhenDone;
 import static io.vavr.API.$;
 import static io.vavr.API.Case;
 import static io.vavr.API.Match;
@@ -551,7 +552,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       return;
     }
 
-    @SuppressWarnings("guieffect:assignment") GitMacheteRepositoryUpdateBackgroundable.DoOnUIThreadWhenDone doRefreshModel = newGitMacheteRepositorySnapshot -> {
+    @UI DoOnUIThreadWhenDone doRefreshModel = newGitMacheteRepositorySnapshot -> {
       this.gitMacheteRepositorySnapshot = newGitMacheteRepositorySnapshot;
       if (newGitMacheteRepositorySnapshot != null) {
         validateUnmanagedBranchNotification(newGitMacheteRepositorySnapshot, unmanagedBranchNotification);
