@@ -211,11 +211,8 @@ public class CreateGitMacheteRepositoryAux extends Aux {
     }
 
     val branchFullName = coreLocalBranch.getFullName();
-
     IGitCoreCommit corePointedCommit = coreLocalBranch.getPointedCommit();
-
     ForkPointCommitOfManagedBranch forkPoint = deriveParentAwareForkPoint(coreLocalBranch, parentCoreLocalBranch);
-
     val syncToParentStatus = deriveSyncToParentStatus(coreLocalBranch, parentCoreLocalBranch, forkPoint);
 
     List<IGitCoreCommit> uniqueCommits;

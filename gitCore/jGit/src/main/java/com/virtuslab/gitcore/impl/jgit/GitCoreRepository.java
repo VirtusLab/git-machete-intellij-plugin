@@ -75,6 +75,11 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
   private static final String ORIGIN = "origin";
 
+  // Note that these caches can be static since merge-base and commit range for the given two commits
+  // will never change thanks to git commit graph immutability.
+  private static final java.util.Map<Tuple2<IGitCoreCommit, IGitCoreCommit>, @Nullable GitCoreCommitHash> mergeBaseCache = new java.util.HashMap<>();
+  private static final java.util.Map<Tuple2<IGitCoreCommit, IGitCoreCommit>, List<IGitCoreCommit>> commitRangeCache = new java.util.HashMap<>();
+
   @UIThreadUnsafe
   public GitCoreRepository(Path rootDirectoryPath, Path mainGitDirectoryPath, Path worktreeGitDirectoryPath)
       throws GitCoreException {
@@ -305,7 +310,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
       IGitCoreCommit asComparedTo) throws GitCoreException {
 
     return (GitCoreRelativeCommitCount) withRevWalk(walk -> {
-      val mergeBaseHash = deriveMergeBaseIfNeeded(fromPerspectiveOf, asComparedTo);
+      val mergeBaseHash = deriveAnyMergeBaseIfNeeded(fromPerspectiveOf, asComparedTo);
       if (mergeBaseHash == null) {
         // Nullness checker does not allow this method to return null, let's rely on Option instead
         return Option.none();
@@ -486,7 +491,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
   }
 
   @UIThreadUnsafe
-  private @Nullable GitCoreCommitHash deriveMergeBase(IGitCoreCommit c1, IGitCoreCommit c2) throws GitCoreException {
+  private @Nullable GitCoreCommitHash deriveAnyMergeBaseInternal(IGitCoreCommit c1, IGitCoreCommit c2) throws GitCoreException {
     LOG.debug(() -> "Entering: this = ${this}");
 
     return (GitCoreCommitHash) withRevWalk(walk -> {
@@ -515,12 +520,8 @@ public final class GitCoreRepository implements IGitCoreRepository {
     }).getOrNull();
   }
 
-  // Note that this cache can be static since merge-base for the given two commits
-  // will never change thanks to git commit graph immutability.
-  private static final java.util.Map<Tuple2<IGitCoreCommit, IGitCoreCommit>, @Nullable GitCoreCommitHash> mergeBaseCache = new java.util.HashMap<>();
-
   @UIThreadUnsafe
-  private @Nullable GitCoreCommitHash deriveMergeBaseIfNeeded(IGitCoreCommit a, IGitCoreCommit b) throws GitCoreException {
+  private @Nullable GitCoreCommitHash deriveAnyMergeBaseIfNeeded(IGitCoreCommit a, IGitCoreCommit b) throws GitCoreException {
     LOG.debug(() -> "Entering: commit1 = ${a.getHash().getHashString()}, commit2 = ${b.getHash().getHashString()}");
     val abKey = Tuple.of(a, b);
     val baKey = Tuple.of(b, a);
@@ -531,7 +532,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
       LOG.debug(() -> "Merge base for ${b.getHash().getHashString()} and ${a.getHash().getHashString()} found in cache");
       return mergeBaseCache.get(baKey);
     } else {
-      val result = deriveMergeBase(a, b);
+      val result = deriveAnyMergeBaseInternal(a, b);
       mergeBaseCache.put(abKey, result);
       return result;
     }
@@ -543,7 +544,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
     if (commit1.equals(commit2)) {
       return commit1;
     }
-    val mergeBaseHash = deriveMergeBaseIfNeeded(commit1, commit2);
+    val mergeBaseHash = deriveAnyMergeBaseIfNeeded(commit1, commit2);
     if (mergeBaseHash == null) {
       return null;
     }
@@ -570,7 +571,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
       LOG.debug("presumedAncestor is equal to presumedDescendant");
       return true;
     }
-    val mergeBaseHash = deriveMergeBaseIfNeeded(presumedAncestor, presumedDescendant);
+    val mergeBaseHash = deriveAnyMergeBaseIfNeeded(presumedAncestor, presumedDescendant);
     if (mergeBaseHash == null) {
       LOG.debug("Merge base of presumedAncestor and presumedDescendant not found " +
           "=> presumedAncestor is not ancestor of presumedDescendant");
@@ -582,9 +583,8 @@ public final class GitCoreRepository implements IGitCoreRepository {
     return isAncestor;
   }
 
-  @Override
   @UIThreadUnsafe
-  public List<IGitCoreCommit> deriveCommitRange(IGitCoreCommit fromInclusive, IGitCoreCommit untilExclusive)
+  private List<IGitCoreCommit> deriveCommitRangeInternal(IGitCoreCommit fromInclusive, IGitCoreCommit untilExclusive)
       throws GitCoreException {
     LOG.debug(() -> "Entering: fromInclusive = '${fromInclusive}', untilExclusive = '${untilExclusive}'");
 
@@ -599,7 +599,6 @@ public final class GitCoreRepository implements IGitCoreRepository {
       walk.markStart(walk.parseCommit(convertGitCoreCommitToObjectId(fromInclusive)));
       walk.markUninteresting(walk.parseCommit(convertGitCoreCommitToObjectId(untilExclusive)));
 
-      LOG.debug("Starting revwalk");
       return Iterator.ofAll(walk.iterator())
           .takeWhile(revCommit -> !revCommit.getId().getName().equals(untilExclusive.getHash().getHashString()))
           .toJavaStream()
@@ -607,6 +606,20 @@ public final class GitCoreRepository implements IGitCoreRepository {
           .map(GitCoreCommit::new)
           .collect(List.collector());
     });
+  }
+
+  @Override
+  @UIThreadUnsafe
+  public List<IGitCoreCommit> deriveCommitRange(IGitCoreCommit fromInclusive, IGitCoreCommit untilExclusive)
+      throws GitCoreException {
+    val key = Tuple.of(fromInclusive, untilExclusive);
+    if (commitRangeCache.containsKey(key)) {
+      return commitRangeCache.get(key);
+    } else {
+      val result = deriveCommitRangeInternal(fromInclusive, untilExclusive);
+      commitRangeCache.put(key, result);
+      return result;
+    }
   }
 
   @Override
