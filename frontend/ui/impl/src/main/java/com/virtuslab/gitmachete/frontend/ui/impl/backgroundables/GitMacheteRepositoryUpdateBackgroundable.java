@@ -7,8 +7,6 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 
 import java.nio.file.Path;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -52,10 +50,6 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
 
   private final IGitMacheteRepositoryCache gitMacheteRepositoryCache;
 
-  private static final AtomicBoolean TASK_RUNNING = new AtomicBoolean(false);
-  private static final AtomicBoolean RUN_ANOTHER_TASK_ONCE_FINISHED = new AtomicBoolean(false);
-  private static final ConcurrentLinkedQueue<DoOnUIThreadWhenDone> DO_ON_UI_THREAD_WHEN_DONE = new ConcurrentLinkedQueue<>();
-
   @UI
   public interface DoOnUIThreadWhenDone extends @UI Consumer<@Nullable IGitMacheteRepositorySnapshot> {}
 
@@ -81,39 +75,17 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
 
   @UIThreadUnsafe
   @Override
-  @SuppressWarnings("regexp") // to allow for `synchronized`
-  public synchronized void run(ProgressIndicator indicator) {
-    DO_ON_UI_THREAD_WHEN_DONE.add(this.doOnUIThreadWhenDone);
-    if (TASK_RUNNING.get()) {
-      RUN_ANOTHER_TASK_ONCE_FINISHED.set(true);
-    } else {
-      TASK_RUNNING.set(true);
-      runInner();
-    }
-  }
-
-  @UIThreadUnsafe
-  private void runInner() {
-    // We can't queue repository update (onto a non-UI thread)
-    // and accumulated `doOnUIThreadWhenDone` actions (onto the UI thread) separately
-    // since these two happen on two different threads
-    // and `doOnUIThreadWhenDone` can only start once a repository update is complete.
+  public void run(ProgressIndicator indicator) {
+    // We can't queue repository update (onto a non-UI thread) and `doOnUIThreadWhenDone` (onto the UI thread) separately
+    // since those two actions happen on two separate threads
+    // and `doOnUIThreadWhenDone` can only start once repository update is complete.
 
     // Thus, we synchronously run repository update first...
     IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot = updateRepositorySnapshot();
 
     // ... and only once it completes, we queue `doOnUIThreadWhenDone` onto the UI thread.
     LOG.debug("Queuing graph table refresh onto the UI thread");
-    for (@UI DoOnUIThreadWhenDone whenDone : DO_ON_UI_THREAD_WHEN_DONE) {
-      ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> whenDone.accept(gitMacheteRepositorySnapshot));
-    }
-    DO_ON_UI_THREAD_WHEN_DONE.clear();
-
-    if (RUN_ANOTHER_TASK_ONCE_FINISHED.getAndSet(false)) {
-      runInner();
-    } else {
-      TASK_RUNNING.set(false);
-    }
+    ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> doOnUIThreadWhenDone.accept(gitMacheteRepositorySnapshot));
   }
 
   /**

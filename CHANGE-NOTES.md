@@ -1,7 +1,6 @@
 # Changelog
 
 ## v6.1.4
-- Fixed: prevented multiple `Updating Git Machete status` tasks from running simultaneously
 - Fixed: improved loading time of Git Machete status on large repos
 
 ## v6.1.3
