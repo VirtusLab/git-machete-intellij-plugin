@@ -4,8 +4,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 // Not worth using Gradle toolchains, they don't seem to work as expected for buildSrc (or are just hard to configure properly).
 // Let the developers install sdkman to switch Java versions instead.
-if (JavaVersion.current() != JavaVersion.VERSION_17) {
-  throw GradleException("This build must be run under Java 17. Consider using sdkman with .sdkmanrc file for easily switching Java versions.")
+if (JavaVersion.current() != JavaVersion.VERSION_21) {
+  throw GradleException("This build must be run under Java 21. Consider using sdkman with .sdkmanrc file for easily switching Java versions.")
 }
 
 plugins {

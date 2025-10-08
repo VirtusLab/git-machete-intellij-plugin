@@ -197,7 +197,7 @@ subprojects {
     }
     dependencies {
       intellijPlatform {
-        intellijIdeaCommunity(intellijVersions.buildTarget)
+        intellijIdea(intellijVersions.buildTarget)
         bundledPlugin("Git4Idea")
       }
     }
@@ -383,7 +383,7 @@ tasks.withType<RunIdeTask>().named("runIde") {
 
 dependencies {
   intellijPlatform {
-    intellijIdeaCommunity(intellijVersions.buildTarget)
+    intellijIdea(intellijVersions.buildTarget)
     bundledPlugin("Git4Idea")
     pluginVerifier()
     zipSigner()

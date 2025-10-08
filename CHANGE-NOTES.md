@@ -1,6 +1,7 @@
 # Changelog
 
-## v6.1.4
+## v6.2.0
+- Added: support for IntelliJ 2025.3.
 - Fixed: improved loading time of Git Machete status on large repos
 
 ## v6.1.3
