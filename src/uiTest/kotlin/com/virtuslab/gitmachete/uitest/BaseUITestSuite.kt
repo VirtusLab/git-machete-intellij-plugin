@@ -32,6 +32,7 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
   companion object {
     val robot = RemoteRobot("http://127.0.0.1:8580")
     private val intelliJVersion = System.getProperty("intellij.version")
+    private val intelliJProduct = System.getProperty("intellij.product")
 
     fun <T> retryOnConnectException(attempts: Int, block: () -> T): T = try {
       block()
@@ -62,7 +63,12 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
     }
 
     private fun testCase(projectInfo: ProjectInfoSpec): TestCase<ProjectInfoSpec> {
-      val testCase = TestCase(IdeProductProvider.IC, projectInfo)
+      val productProvider = when (intelliJProduct) {
+        "IC" -> IdeProductProvider.IC
+        "IU" -> IdeProductProvider.IU
+        else -> throw IllegalArgumentException("Illegal IntelliJ product: $intelliJProduct")
+      }
+      val testCase = TestCase(productProvider, projectInfo)
       return if (intelliJVersion.matches("20[0-9][0-9]\\.[0-9].*".toRegex())) {
         testCase.withVersion(intelliJVersion)
       } else {

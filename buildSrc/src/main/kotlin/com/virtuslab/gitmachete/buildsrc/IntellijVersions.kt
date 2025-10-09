@@ -109,3 +109,13 @@ data class IntellijVersions(
     return p
   }
 }
+
+fun String.productCode(): String {
+  if (this.startsWith("253") || this.startsWith("2025.3")) {
+    return "IU"
+  } else {
+    return "IC"
+  }
+}
+fun String.withProductCode(): String = "${this.productCode()}-$this"
+fun String.removeEapSuffix(): String = this.removeSuffix("-EAP-SNAPSHOT")

@@ -172,7 +172,7 @@ subprojects {
   // into the final zip.
   // No need to include near-empty (only with META-INF/MANIFEST.MF) jars
   // for subprojects that don't have any production code.
-  if (sourceSets["main"].allSource.srcDirs.any { it?.exists() == true }) {
+  if (sourceSets["main"].allSource.srcDirs.any { it.exists() }) {
     rootProject.dependencies { implementation(project) }
   }
 
@@ -195,12 +195,20 @@ subprojects {
         jetbrainsRuntime()
       }
     }
+
     dependencies {
       intellijPlatform {
-        intellijIdea(intellijVersions.buildTarget)
+        // TODO (#2143): 2025.3 EAP doesn't provide it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap
+        if (path == ":frontend:file") {
+          // Let's use a 2025.2 release instead for building this subproject until 2025.3 is fixed
+          intellijIdeaCommunity(intellijVersions.latestStable)
+        } else {
+          intellijIdea(intellijVersions.buildTarget)
+        }
         bundledPlugin("Git4Idea")
       }
     }
+
     intellijPlatform {
       // It only affects searchability of plugin-specific settings (which we don't provide so far).
       // Actions remain searchable anyway.
@@ -368,9 +376,9 @@ intellijPlatform {
       // but with this explicit approach, the IDE versions used for verification
       // are fully controlled by repository contents (intellij-versions.properties),
       // so the builds are more reproducible in this respect.
-      val maybeEap = listOfNotNull(intellijVersions.eapOfLatestSupportedMajor)
+      val maybeEap = listOfNotNull(intellijVersions.eapOfLatestSupportedMajor?.removeEapSuffix())
       val ideVersions = intellijVersions.latestMinorsOfOldSupportedMajors + intellijVersions.latestStable + maybeEap
-      ides(ideVersions.map { "IC-$it" })
+      ides(ideVersions.map { it.withProductCode() })
     }
   }
 }
@@ -466,7 +474,8 @@ uiTestTargetVersions.onEach { version ->
     description = "Runs UI tests."
     group = "verification"
 
-    systemProperty("intellij.version", version.replace("-EAP-SNAPSHOT", ""))
+    systemProperty("intellij.version", version.removeEapSuffix())
+    systemProperty("intellij.product", version.productCode())
 
     testClassesDirs = uiTest.output.classesDirs
     classpath = configurations["uiTestRuntimeClasspath"] + uiTest.output
