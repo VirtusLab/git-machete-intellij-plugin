@@ -118,4 +118,3 @@ fun String.productCode(): String {
   }
 }
 fun String.withProductCode(): String = "${this.productCode()}-$this"
-fun String.removeEapSuffix(): String = this.removeSuffix("-EAP-SNAPSHOT")

@@ -97,14 +97,14 @@ open class UpdateIntellijVersions : DefaultTask() {
       }
     }
 
-    val buildNumberThreshold = updatedVersions.eapOfLatestSupportedMajor?.removeEapSuffix()
+    val buildNumberThreshold = updatedVersions.eapOfLatestSupportedMajor
       ?: "${versionToBuildNumber(updatedVersions.latestStable)}.999999.999999"
 
     val newerEapBuildNumber = findEapWithBuildNumberHigherThan(buildNumberThreshold)
 
     if (newerEapBuildNumber != null) {
       logger.lifecycle("eapOfLatestSupportedMajor has been updated to $newerEapBuildNumber")
-      updatedVersions = updatedVersions.copy(eapOfLatestSupportedMajor = "$newerEapBuildNumber-EAP-SNAPSHOT")
+      updatedVersions = updatedVersions.copy(eapOfLatestSupportedMajor = newerEapBuildNumber)
     }
 
     if (originalVersions != updatedVersions) {

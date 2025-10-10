@@ -376,7 +376,7 @@ intellijPlatform {
       // but with this explicit approach, the IDE versions used for verification
       // are fully controlled by repository contents (intellij-versions.properties),
       // so the builds are more reproducible in this respect.
-      val maybeEap = listOfNotNull(intellijVersions.eapOfLatestSupportedMajor?.removeEapSuffix())
+      val maybeEap = listOfNotNull(intellijVersions.eapOfLatestSupportedMajor)
       val ideVersions = intellijVersions.latestMinorsOfOldSupportedMajors + intellijVersions.latestStable + maybeEap
       ides(ideVersions.map { it.withProductCode() })
     }
@@ -474,7 +474,7 @@ uiTestTargetVersions.onEach { version ->
     description = "Runs UI tests."
     group = "verification"
 
-    systemProperty("intellij.version", version.removeEapSuffix())
+    systemProperty("intellij.version", version)
     systemProperty("intellij.product", version.productCode())
 
     testClassesDirs = uiTest.output.classesDirs
