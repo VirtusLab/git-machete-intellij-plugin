@@ -16,12 +16,13 @@ import java.net.URL
 
 open class UpdateIntellijVersions : DefaultTask() {
 
+  // TODO (#2145): check for releases of IU from 2025.3 onwards, but IC up to 2025.2
   private val intellijReleases: List<String> by lazy {
-    listIntelliJCommunityVersionsForType("release", "version")
+    listIntelliJVersionsForType(code = "IC", type = "release", attribute = "version")
   }
 
   private val intellijSnapshots: List<String> by lazy {
-    listIntelliJCommunityVersionsForType("eap", "build")
+    listIntelliJVersionsForType(code = "IU", type = "eap", attribute = "build")
   }
 
   private fun findFirstMatchingVersionNewerThan(versions: List<String>, thresholdVersion: String): String? = versions.firstOrNull { it versionIsNewerThan thresholdVersion }
@@ -53,15 +54,17 @@ open class UpdateIntellijVersions : DefaultTask() {
     return connection.inputStream.bufferedReader().use { it.readText() }
   }
 
-  private fun listIntelliJCommunityVersionsForType(type: String, attribute: String): List<String> {
-    val url = "https://data.services.jetbrains.com/products?code=IC&type=$type"
+  private fun listIntelliJVersionsForType(code: String, type: String, attribute: String): List<String> {
+    val url = "https://data.services.jetbrains.com/products?code=$code&type=$type"
     val jsonString = fetchJson(url)
 
     val json = Json { ignoreUnknownKeys = true }
     val jsonElement = json.parseToJsonElement(jsonString)
 
     val releaseElements = jsonElement.jsonArray[0].jsonObject["releases"]?.jsonArray?.toList() ?: listOf()
-    return releaseElements.mapNotNull { it.jsonObject[attribute]?.jsonPrimitive?.content }
+    val result = releaseElements.mapNotNull { it.jsonObject[attribute]?.jsonPrimitive?.content }
+    println("listIntelliJVersionsForType(code=$code, type=$type, attribute=$attribute) = $result\n")
+    return result
   }
 
   @TaskAction
