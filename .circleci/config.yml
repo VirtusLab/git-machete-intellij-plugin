@@ -88,7 +88,7 @@ jobs:
   build:
     executor: ubuntu_executor
     steps:
-      - checkout
+      - checkout: {method: blobless}
       - install_github_cli
       - run:
           name: Install other dependencies for pre-build checks
@@ -172,7 +172,7 @@ jobs:
   ui-tests-recent:
     executor: ubuntu_executor
     steps:
-      - checkout
+      - checkout: {method: blobless}
       - restore_gradle_cache
       - run:
           name: Run UI tests against an EAP of the latest supported major IntelliJ version (if applicable)
@@ -203,7 +203,7 @@ jobs:
               pattern: "^(.+/ci-.+|develop|hotfix/.+|master|release/.+|.*ui(-)?test.*|update-intellij-versions/.+)$"
               value: << pipeline.git.branch >>
           steps:
-            - checkout
+            - checkout: {method: blobless}
             - restore_gradle_cache
             - run:
                 name: Run UI tests against earlier supported major IntelliJ versions
@@ -214,7 +214,7 @@ jobs:
   publish-plugin:
     executor: ubuntu_executor
     steps:
-      - checkout
+      - checkout: {method: blobless}
       - restore_gradle_cache
       - run:
           # Publishing should be the first step since if it fails, we should NOT proceed with opening GitHub release etc.
@@ -255,7 +255,7 @@ jobs:
   check-for-updates:
     executor: ubuntu_executor
     steps:
-      - checkout
+      - checkout: {method: blobless}
       - run:
           name: Configure git user information
           # language=sh
