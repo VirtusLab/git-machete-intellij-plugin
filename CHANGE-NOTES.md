@@ -1,5 +1,8 @@
 # Changelog
 
+## v6.2.1
+- Fixed: errors on IntelliJ 2025.3 EAP (reported by @kjeffery)
+
 ## v6.2.0
 - Added: support for IntelliJ 2025.3
 - Fixed: improved loading time of Git Machete status on large repos

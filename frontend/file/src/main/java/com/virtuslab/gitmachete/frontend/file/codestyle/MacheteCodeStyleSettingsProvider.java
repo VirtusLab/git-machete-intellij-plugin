@@ -3,6 +3,7 @@ package com.virtuslab.gitmachete.frontend.file.codestyle;
 import com.intellij.application.options.CodeStyleAbstractConfigurable;
 import com.intellij.application.options.CodeStyleAbstractPanel;
 import com.intellij.application.options.TabbedLanguageCodeStylePanel;
+import com.intellij.lang.Language;
 import com.intellij.psi.codeStyle.CodeStyleConfigurable;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsProvider;
@@ -11,6 +12,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.gitmachete.frontend.file.grammar.MacheteLanguage;
 
 public class MacheteCodeStyleSettingsProvider extends CodeStyleSettingsProvider {
+  @Override
   public CodeStyleConfigurable createConfigurable(CodeStyleSettings settings, CodeStyleSettings modelSettings) {
     return new CodeStyleAbstractConfigurable(settings, modelSettings, this.getConfigurableDisplayName()) {
       @Override
@@ -21,8 +23,13 @@ public class MacheteCodeStyleSettingsProvider extends CodeStyleSettingsProvider 
   }
 
   @Override
+  public Language getLanguage() {
+    return MacheteLanguage.instance;
+  }
+
+  @Override
   public String getConfigurableDisplayName() {
-    return MacheteLanguage.instance.getDisplayName();
+    return getLanguage().getDisplayName();
   }
 
   private static class MacheteCodeStyleMainPanel extends TabbedLanguageCodeStylePanel {
