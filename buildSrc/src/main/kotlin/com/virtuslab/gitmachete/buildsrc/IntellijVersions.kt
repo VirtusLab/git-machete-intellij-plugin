@@ -7,55 +7,59 @@ import kotlin.reflect.full.memberProperties
 
 interface AnyVersion {
   val value: String
-}
 
-class BuildNumber(override val value: String) : AnyVersion {
-  fun toMajorVersion(): String = "20${value.take(2)}.${value[2]}"
-}
+  infix fun isNewerThan(rhsVersion: AnyVersion): Boolean {
+    if (rhsVersion.javaClass != this.javaClass) {
+      throw IllegalArgumentException("$this and $rhsVersion cannot be compared")
+    }
+    val lhsSplit = value.split('.')
+    val rhsSplit = rhsVersion.value.split('.')
 
-class ReleaseVersion(override val value: String) : AnyVersion
+    val firstDiff = lhsSplit.zip(rhsSplit).find { it.first != it.second }
 
-fun String.versionToBuildNumber(): String = this.substring(2, 6).filter { it != '.' }
+    // 8.0.6 is older than 8.0.6.0, but zipped they will look like this: [(8,8), (0,0), (6,6)]
+    if (firstDiff == null) {
+      return lhsSplit.size > rhsSplit.size
+    }
 
-fun String.versionToMajorVersion(): String = this.substring(0, 6)
-
-infix fun String.versionIsNewerThan(rhsVersion: AnyVersion): Boolean {
-  val lhsSplit = this.split('.')
-  val rhsSplit = rhsVersion.value.split('.')
-
-  val firstDiff = lhsSplit.zip(rhsSplit).find { it.first != it.second }
-
-  // 8.0.6 is older than 8.0.6.0, but zipped they will look like this: [(8,8), (0,0), (6,6)]
-  if (firstDiff == null) {
-    return lhsSplit.size > rhsSplit.size
+    return Integer.parseInt(firstDiff.first) > Integer.parseInt(firstDiff.second)
   }
 
-  return Integer.parseInt(firstDiff.first) > Integer.parseInt(firstDiff.second)
-}
+  companion object {
+    fun String.toPlainReleaseNumber(): Int {
+      if ("""\d\d\d\.[.\d]+""".toRegex().matches(this)) {
+        return this.take(3).toInt()
+      } else if ("""\d\d\d\d\.\d[.\d]*""".toRegex().matches(this)) {
+        return "${this[2]}${this[3]}${this[5]}".toInt()
+      } else {
+        throw IllegalArgumentException("Not a build number or release: $this")
+      }
+    }
 
-fun String.toPlainReleaseNumber(): Int {
-  if ("""\d\d\d\.[.\d]+""".toRegex().matches(this)) {
-    return this.take(3).toInt()
-  } else if ("""\d\d\d\d\.\d[.\d]*""".toRegex().matches(this)) {
-    return "${this[2]}${this[3]}${this[5]}".toInt()
-  } else {
-    throw IllegalArgumentException("Not a build number or release: $this")
+    // IntelliJ 2025.3 removed the distinction between Community and Ultimate
+    fun String.productCode(): String = if (toPlainReleaseNumber() >= 253) "IU" else "IC"
+
+    fun String.withProductCode(): String = "${productCode()}-$this"
   }
 }
 
-// IntelliJ 2025.3 removed the distinction between Community and Ultimate
-fun String.productCode(): String = if (this.toPlainReleaseNumber() >= 253) "IU" else "IC"
+data class BuildNumber(override val value: String) : AnyVersion {
+  fun toMajorVersion(): ReleaseVersion = ReleaseVersion("20${value.take(2)}.${value[2]}")
+}
 
-fun String.withProductCode(): String = "${this.productCode()}-$this"
+data class ReleaseVersion(override val value: String) : AnyVersion {
+  fun toBuildNumber(): BuildNumber = BuildNumber(value.substring(2, 6).filter { it != '.' })
+  fun toMajorVersion(): ReleaseVersion = ReleaseVersion(value.substring(0, 6))
+}
 
 // See https://www.jetbrains.com/intellij-repository/releases/ -> Ctrl+F .idea
 data class IntellijVersions(
-  val earliestSupportedMajor: String,
+  val earliestSupportedMajor: ReleaseVersion,
   val earliestSupportedMajorKotlinVersion: String,
-  val latestMinorsOfOldSupportedMajors: List<String>,
-  val latestStable: String,
+  val latestMinorsOfOldSupportedMajors: List<ReleaseVersion>,
+  val latestStable: ReleaseVersion,
   val eapOfLatestSupportedMajor: BuildNumber?,
-  val latestSupportedMajor: String,
+  val latestSupportedMajor: ReleaseVersion,
   val buildTarget: String,
 ) {
   companion object {
@@ -69,16 +73,16 @@ data class IntellijVersions(
       // since most likely some plugin version will still be downloadable (however not the latest).
       // Marking a release version as hidden is a way to forbid its download
       // (see https://plugins.jetbrains.com/plugin/14221-git-machete/versions).
-      val earliestSupportedMajor: String = intellijVersionsProperties.getProperty("earliestSupportedMajor")
+      val earliestSupportedMajor: ReleaseVersion = ReleaseVersion(intellijVersionsProperties.getProperty("earliestSupportedMajor"))
       // Every time `earliestSupportedMajor` is bumped, this should be bumped to the Kotlin version
       // listed for `earliestSupportedMajor` in https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#kotlin-standard-library
       val earliestSupportedMajorKotlinVersion: String = intellijVersionsProperties.getProperty("earliestSupportedMajorKotlinVersion")
 
       // Most recent minor versions of all major releases between the earliest supported (incl.)
       // and latest stable (excl.), used for binary compatibility checks and UI tests
-      val latestMinorsOfOldSupportedMajors: List<String> = intellijVersionsProperties.getProperty("latestMinorsOfOldSupportedMajors").split(",")
+      val latestMinorsOfOldSupportedMajors: List<ReleaseVersion> = intellijVersionsProperties.getProperty("latestMinorsOfOldSupportedMajors").split(",").map { ReleaseVersion(it) }
 
-      val latestStable: String = intellijVersionsProperties.getProperty("latestStable")
+      val latestStable: ReleaseVersion = ReleaseVersion(intellijVersionsProperties.getProperty("latestStable"))
 
       // Note that we have to use a "fixed snapshot" version X.Y.Z-EAP-SNAPSHOT (e.g. 211.4961.33-EAP-SNAPSHOT)
       // rather than a "rolling snapshot" X-EAP-SNAPSHOT (e.g. 211-EAP-SNAPSHOT)
@@ -89,13 +93,13 @@ data class IntellijVersions(
       val eapOfLatestSupportedMajor: BuildNumber? = intellijVersionsProperties.getPropertyOrNullIfEmpty("eapOfLatestSupportedMajor")
         ?.let { BuildNumber(it) }
 
-      val latestSupportedMajor: String = eapOfLatestSupportedMajor?.toMajorVersion() ?: latestStable.versionToMajorVersion()
+      val latestSupportedMajor: ReleaseVersion = eapOfLatestSupportedMajor?.toMajorVersion() ?: latestStable.toMajorVersion()
 
       // This allows to change the target IntelliJ version
       // by using a project property 'overrideBuildTarget' while running tasks like runIde
       val buildTarget: String = overrideBuildTarget
         ?: eapOfLatestSupportedMajor?.value
-        ?: latestStable
+        ?: latestStable.value
 
       return IntellijVersions(
         earliestSupportedMajor = earliestSupportedMajor,
@@ -139,7 +143,7 @@ data class IntellijVersions(
         return listOf(propertyValue.value)
       }
       is List<*> -> {
-        return propertyValue.mapNotNull { it as? String }
+        return propertyValue.mapNotNull { it as? AnyVersion }.map { it.value }
       }
       else -> {
         throw IllegalStateException("Unexpected property value found for $versionKey: $propertyValue")
@@ -150,10 +154,10 @@ data class IntellijVersions(
   fun toProperties(): Properties {
     val p = Properties()
     p.setProperty("eapOfLatestSupportedMajor", eapOfLatestSupportedMajor?.value ?: "")
-    p.setProperty("earliestSupportedMajor", earliestSupportedMajor)
+    p.setProperty("earliestSupportedMajor", earliestSupportedMajor.value)
     p.setProperty("earliestSupportedMajorKotlinVersion", earliestSupportedMajorKotlinVersion)
-    p.setProperty("latestMinorsOfOldSupportedMajors", latestMinorsOfOldSupportedMajors.joinToString(separator = ","))
-    p.setProperty("latestStable", latestStable)
+    p.setProperty("latestMinorsOfOldSupportedMajors", latestMinorsOfOldSupportedMajors.joinToString(separator = ",") { it.value })
+    p.setProperty("latestStable", latestStable.value)
     return p
   }
 }

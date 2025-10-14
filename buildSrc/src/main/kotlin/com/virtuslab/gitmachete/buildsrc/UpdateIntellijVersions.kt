@@ -9,7 +9,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.provideDelegate
 import java.net.HttpURLConnection
-import java.net.URL
+import java.net.URI
 
 open class UpdateIntellijVersions : DefaultTask() {
 
@@ -22,17 +22,17 @@ open class UpdateIntellijVersions : DefaultTask() {
     listIntelliJVersionsForType(code = "IU", type = "eap", attribute = "build").map { BuildNumber(it) }
   }
 
-  private fun <T : AnyVersion> findFirstMatchingVersionNewerThan(versions: List<T>, thresholdVersion: AnyVersion): T? = versions.firstOrNull { it.value versionIsNewerThan thresholdVersion }
+  private fun <T : AnyVersion> findFirstMatchingVersionNewerThan(versions: List<T>, thresholdVersion: T): T? = versions.firstOrNull { it isNewerThan thresholdVersion }
 
-  private fun findReleaseNewerThan(version: AnyVersion): AnyVersion? = findFirstMatchingVersionNewerThan(
+  private fun findReleaseNewerThan(version: ReleaseVersion): ReleaseVersion? = findFirstMatchingVersionNewerThan(
     intellijReleases,
     version,
   )
 
   private fun findLatestMinorOfVersion(version: ReleaseVersion): ReleaseVersion {
-    val major = version.value.versionToMajorVersion()
+    val major = version.toMajorVersion()
     return findFirstMatchingVersionNewerThan(
-      intellijReleases.filter { it.value.startsWith(major) },
+      intellijReleases.filter { it.value.startsWith(major.value) },
       version,
     ) ?: version
   }
@@ -43,7 +43,7 @@ open class UpdateIntellijVersions : DefaultTask() {
   )
 
   private fun fetchJson(url: String): String {
-    val connection = (URL(url).openConnection() as? HttpURLConnection)!!
+    val connection = (URI(url).toURL().openConnection() as? HttpURLConnection)!!
     connection.requestMethod = "GET"
     connection.connectTimeout = 5000
     connection.readTimeout = 5000
@@ -69,33 +69,33 @@ open class UpdateIntellijVersions : DefaultTask() {
     val intellijVersions: IntellijVersions by project.rootProject.extra
     val originalVersions = intellijVersions
     var updatedVersions = originalVersions
-    val latestMinorsOfOldSupportedMajors = originalVersions.latestMinorsOfOldSupportedMajors.map { findLatestMinorOfVersion(ReleaseVersion(it)) }
+    val latestMinorsOfOldSupportedMajors = originalVersions.latestMinorsOfOldSupportedMajors.map { findLatestMinorOfVersion(it) }
 
     if (latestMinorsOfOldSupportedMajors != originalVersions.latestMinorsOfOldSupportedMajors) {
       logger.lifecycle("latestMinorsOfOldSupportedMajors have been updated to $latestMinorsOfOldSupportedMajors")
-      updatedVersions = updatedVersions.copy(latestMinorsOfOldSupportedMajors = latestMinorsOfOldSupportedMajors.map { it.value })
+      updatedVersions = updatedVersions.copy(latestMinorsOfOldSupportedMajors = latestMinorsOfOldSupportedMajors)
     }
 
     val latestStable = originalVersions.latestStable
-    val newerStable = findReleaseNewerThan(BuildNumber(latestStable))
+    val newerStable = findReleaseNewerThan(latestStable)
 
     if (newerStable != null) {
       logger.lifecycle("latestStable has been updated to $newerStable")
-      updatedVersions = updatedVersions.copy(latestStable = newerStable.value)
+      updatedVersions = updatedVersions.copy(latestStable = newerStable)
 
-      if (latestStable.versionToMajorVersion() != newerStable.value.versionToMajorVersion()) {
-        val newLatestMinors = latestMinorsOfOldSupportedMajors.plus(findLatestMinorOfVersion(ReleaseVersion(latestStable)))
+      if (latestStable.toMajorVersion() != newerStable.toMajorVersion()) {
+        val newLatestMinors = latestMinorsOfOldSupportedMajors.plus(findLatestMinorOfVersion(latestStable))
         logger.lifecycle("latestMinorsOfOldSupportedMajors have been updated to $newLatestMinors")
         logger.lifecycle("eapOfLatestSupportedMajor has been cleared")
         updatedVersions = updatedVersions.copy(
-          latestMinorsOfOldSupportedMajors = newLatestMinors.map { it.value },
+          latestMinorsOfOldSupportedMajors = newLatestMinors,
           eapOfLatestSupportedMajor = null,
         )
       }
     }
 
     val buildNumberThreshold = updatedVersions.eapOfLatestSupportedMajor
-      ?: BuildNumber("${updatedVersions.latestStable.versionToBuildNumber()}.999999.999999")
+      ?: BuildNumber("${updatedVersions.latestStable.toBuildNumber()}.999999.999999")
 
     val newerEapBuildNumber = findEapWithBuildNumberHigherThan(buildNumberThreshold)
 
