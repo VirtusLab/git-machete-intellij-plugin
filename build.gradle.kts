@@ -354,9 +354,9 @@ intellijPlatform {
 
     ideaVersion {
       // `sinceBuild` is exclusive when we are using `*` in version but inclusive when without `*`
-      sinceBuild = IntellijVersionHelper.versionToBuildNumber(intellijVersions.earliestSupportedMajor)
+      sinceBuild = intellijVersions.earliestSupportedMajor.versionToBuildNumber()
       // In `untilBuild` situation is inverted: it's inclusive when using `*` but exclusive when without `*`
-      untilBuild = IntellijVersionHelper.versionToBuildNumber(intellijVersions.latestSupportedMajor) + ".*"
+      untilBuild = intellijVersions.latestSupportedMajor.versionToBuildNumber() + ".*"
     }
   }
 

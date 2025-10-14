@@ -1,8 +1,5 @@
 package com.virtuslab.gitmachete.buildsrc
 
-import com.virtuslab.gitmachete.buildsrc.IntellijVersionHelper.versionIsNewerThan
-import com.virtuslab.gitmachete.buildsrc.IntellijVersionHelper.versionToBuildNumber
-import com.virtuslab.gitmachete.buildsrc.IntellijVersionHelper.versionToMajorVersion
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -33,7 +30,7 @@ open class UpdateIntellijVersions : DefaultTask() {
   )
 
   private fun findLatestMinorOfVersion(version: String): String {
-    val major = versionToMajorVersion(version)
+    val major = version.versionToMajorVersion()
     return findFirstMatchingVersionNewerThan(
       intellijReleases.filter { it.startsWith(major) },
       version,
@@ -86,7 +83,7 @@ open class UpdateIntellijVersions : DefaultTask() {
       logger.lifecycle("latestStable has been updated to $newerStable")
       updatedVersions = updatedVersions.copy(latestStable = newerStable)
 
-      if (versionToMajorVersion(latestStable) != versionToMajorVersion(newerStable)) {
+      if (latestStable.versionToMajorVersion() != newerStable.versionToMajorVersion()) {
         val newLatestMinors = latestMinorsOfOldSupportedMajors.plus(findLatestMinorOfVersion(latestStable))
         logger.lifecycle("latestMinorsOfOldSupportedMajors have been updated to $newLatestMinors")
         logger.lifecycle("eapOfLatestSupportedMajor has been cleared")
@@ -98,7 +95,7 @@ open class UpdateIntellijVersions : DefaultTask() {
     }
 
     val buildNumberThreshold = updatedVersions.eapOfLatestSupportedMajor
-      ?: "${versionToBuildNumber(updatedVersions.latestStable)}.999999.999999"
+      ?: "${updatedVersions.latestStable.versionToBuildNumber()}.999999.999999"
 
     val newerEapBuildNumber = findEapWithBuildNumberHigherThan(buildNumberThreshold)
 

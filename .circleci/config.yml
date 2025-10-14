@@ -125,7 +125,7 @@ jobs:
           command: ./gradlew testClasses
       - run:
           name: Run unit & integration tests
-          command: ./gradlew test
+          command: ./gradlew :buildSrc:test test
       # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
       - store_test_results:
           path: branchLayout/impl/build/test-results/test/

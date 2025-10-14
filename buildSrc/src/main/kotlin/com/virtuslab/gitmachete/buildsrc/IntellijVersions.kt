@@ -5,6 +5,41 @@ import java.lang.IllegalStateException
 import java.util.Properties
 import kotlin.reflect.full.memberProperties
 
+fun String.buildNumberToMajorVersion(): String = "20${this.substring(0, 2)}.${this.substring(2, 3)}"
+
+fun String.versionToBuildNumber(): String = this.substring(2, 6).filter { it != '.' }
+
+fun String.versionToMajorVersion(): String = this.substring(0, 6)
+
+infix fun String.versionIsNewerThan(rhsVersion: String): Boolean {
+  val lhsSplit = this.split('.')
+  val rhsSplit = rhsVersion.split('.')
+
+  val firstDiff = lhsSplit.zip(rhsSplit).find { it.first != it.second }
+
+  // 8.0.6 is older than 8.0.6.0, but zipped they will look like this: [(8,8), (0,0), (6,6)]
+  if (firstDiff == null) {
+    return lhsSplit.size > rhsSplit.size
+  }
+
+  return Integer.parseInt(firstDiff.first) > Integer.parseInt(firstDiff.second)
+}
+
+fun String.toPlainReleaseNumber(): Int {
+  if ("""\d\d\d\.[.\d]+""".toRegex().matches(this)) {
+    return this.substring(0, 3).toInt()
+  } else if ("""\d\d\d\d\.\d[.\d]*""".toRegex().matches(this)) {
+    return "${get(2)}${get(3)}${get(5)}".toInt()
+  } else {
+    throw IllegalArgumentException("Not a build number or release: $this")
+  }
+}
+
+// IntelliJ 2025.3 removed the distinction between Community and Ultimate
+fun String.productCode(): String = if (this.toPlainReleaseNumber() >= 253) "IU" else "IC"
+
+fun String.withProductCode(): String = "${this.productCode()}-$this"
+
 // See https://www.jetbrains.com/intellij-repository/releases/ -> Ctrl+F .idea
 data class IntellijVersions(
   val earliestSupportedMajor: String,
@@ -46,9 +81,9 @@ data class IntellijVersions(
       val eapOfLatestSupportedMajor: String? = intellijVersionsProperties.getPropertyOrNullIfEmpty("eapOfLatestSupportedMajor")
 
       val latestSupportedMajor: String = if (eapOfLatestSupportedMajor != null) {
-        IntellijVersionHelper.buildNumberToMajorVersion(eapOfLatestSupportedMajor)
+        eapOfLatestSupportedMajor.buildNumberToMajorVersion()
       } else {
-        IntellijVersionHelper.versionToMajorVersion(latestStable)
+        latestStable.versionToMajorVersion()
       }
 
       // This allows to change the target IntelliJ version
@@ -109,12 +144,3 @@ data class IntellijVersions(
     return p
   }
 }
-
-fun String.productCode(): String {
-  if (this.startsWith("253") || this.startsWith("2025.3")) {
-    return "IU"
-  } else {
-    return "IC"
-  }
-}
-fun String.withProductCode(): String = "${this.productCode()}-$this"
