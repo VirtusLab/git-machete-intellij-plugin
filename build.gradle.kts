@@ -376,7 +376,7 @@ intellijPlatform {
       // but with this explicit approach, the IDE versions used for verification
       // are fully controlled by repository contents (intellij-versions.properties),
       // so the builds are more reproducible in this respect.
-      val maybeEap = listOfNotNull(intellijVersions.eapOfLatestSupportedMajor)
+      val maybeEap = listOfNotNull(intellijVersions.eapOfLatestSupportedMajor?.value)
       val ideVersions = intellijVersions.latestMinorsOfOldSupportedMajors + intellijVersions.latestStable + maybeEap
       ides(ideVersions.map { it.withProductCode() })
     }

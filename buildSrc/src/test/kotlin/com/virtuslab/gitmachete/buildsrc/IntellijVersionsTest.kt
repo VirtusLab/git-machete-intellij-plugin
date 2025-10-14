@@ -31,8 +31,8 @@ class IntellijVersionsTest {
   fun shouldRecognizeEqualVersions() {
     val version1 = "123.1234.56789"
     val version2 = "0.0.0"
-    assertFalse(version1 versionIsNewerThan version1)
-    assertFalse(version2 versionIsNewerThan version2)
+    assertFalse(version1 versionIsNewerThan BuildNumber(version1))
+    assertFalse(version2 versionIsNewerThan BuildNumber(version2))
   }
 
   @Test
@@ -40,7 +40,7 @@ class IntellijVersionsTest {
     val olderVersion = "1111.11.111"
     val newerVersions = listOf("1112.11.111", "1111.12.111", "1111.11.112", "1111.11.111.0")
 
-    for (newerVersion in newerVersions) assertTrue(newerVersion versionIsNewerThan olderVersion)
+    for (newerVersion in newerVersions) assertTrue(newerVersion versionIsNewerThan BuildNumber(olderVersion))
   }
 
   @Test

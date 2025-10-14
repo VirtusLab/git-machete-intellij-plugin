@@ -14,30 +14,30 @@ import java.net.URL
 open class UpdateIntellijVersions : DefaultTask() {
 
   // TODO (#2145): check for releases of IU from 2025.3 onwards, but IC up to 2025.2
-  private val intellijReleases: List<String> by lazy {
-    listIntelliJVersionsForType(code = "IC", type = "release", attribute = "version")
+  private val intellijReleases: List<ReleaseVersion> by lazy {
+    listIntelliJVersionsForType(code = "IC", type = "release", attribute = "version").map { ReleaseVersion(it) }
   }
 
-  private val intellijSnapshots: List<String> by lazy {
-    listIntelliJVersionsForType(code = "IU", type = "eap", attribute = "build")
+  private val intellijSnapshots: List<BuildNumber> by lazy {
+    listIntelliJVersionsForType(code = "IU", type = "eap", attribute = "build").map { BuildNumber(it) }
   }
 
-  private fun findFirstMatchingVersionNewerThan(versions: List<String>, thresholdVersion: String): String? = versions.firstOrNull { it versionIsNewerThan thresholdVersion }
+  private fun <T : AnyVersion> findFirstMatchingVersionNewerThan(versions: List<T>, thresholdVersion: AnyVersion): T? = versions.firstOrNull { it.value versionIsNewerThan thresholdVersion }
 
-  private fun findReleaseNewerThan(version: String): String? = findFirstMatchingVersionNewerThan(
+  private fun findReleaseNewerThan(version: AnyVersion): AnyVersion? = findFirstMatchingVersionNewerThan(
     intellijReleases,
     version,
   )
 
-  private fun findLatestMinorOfVersion(version: String): String {
-    val major = version.versionToMajorVersion()
+  private fun findLatestMinorOfVersion(version: ReleaseVersion): ReleaseVersion {
+    val major = version.value.versionToMajorVersion()
     return findFirstMatchingVersionNewerThan(
-      intellijReleases.filter { it.startsWith(major) },
+      intellijReleases.filter { it.value.startsWith(major) },
       version,
     ) ?: version
   }
 
-  private fun findEapWithBuildNumberHigherThan(buildNumber: String): String? = findFirstMatchingVersionNewerThan(
+  private fun findEapWithBuildNumberHigherThan(buildNumber: BuildNumber): BuildNumber? = findFirstMatchingVersionNewerThan(
     intellijSnapshots,
     buildNumber,
   )
@@ -69,33 +69,33 @@ open class UpdateIntellijVersions : DefaultTask() {
     val intellijVersions: IntellijVersions by project.rootProject.extra
     val originalVersions = intellijVersions
     var updatedVersions = originalVersions
-    val latestMinorsOfOldSupportedMajors = originalVersions.latestMinorsOfOldSupportedMajors.map { findLatestMinorOfVersion(it) }
+    val latestMinorsOfOldSupportedMajors = originalVersions.latestMinorsOfOldSupportedMajors.map { findLatestMinorOfVersion(ReleaseVersion(it)) }
 
     if (latestMinorsOfOldSupportedMajors != originalVersions.latestMinorsOfOldSupportedMajors) {
       logger.lifecycle("latestMinorsOfOldSupportedMajors have been updated to $latestMinorsOfOldSupportedMajors")
-      updatedVersions = updatedVersions.copy(latestMinorsOfOldSupportedMajors = latestMinorsOfOldSupportedMajors)
+      updatedVersions = updatedVersions.copy(latestMinorsOfOldSupportedMajors = latestMinorsOfOldSupportedMajors.map { it.value })
     }
 
     val latestStable = originalVersions.latestStable
-    val newerStable = findReleaseNewerThan(latestStable)
+    val newerStable = findReleaseNewerThan(BuildNumber(latestStable))
 
     if (newerStable != null) {
       logger.lifecycle("latestStable has been updated to $newerStable")
-      updatedVersions = updatedVersions.copy(latestStable = newerStable)
+      updatedVersions = updatedVersions.copy(latestStable = newerStable.value)
 
-      if (latestStable.versionToMajorVersion() != newerStable.versionToMajorVersion()) {
-        val newLatestMinors = latestMinorsOfOldSupportedMajors.plus(findLatestMinorOfVersion(latestStable))
+      if (latestStable.versionToMajorVersion() != newerStable.value.versionToMajorVersion()) {
+        val newLatestMinors = latestMinorsOfOldSupportedMajors.plus(findLatestMinorOfVersion(ReleaseVersion(latestStable)))
         logger.lifecycle("latestMinorsOfOldSupportedMajors have been updated to $newLatestMinors")
         logger.lifecycle("eapOfLatestSupportedMajor has been cleared")
         updatedVersions = updatedVersions.copy(
-          latestMinorsOfOldSupportedMajors = newLatestMinors,
+          latestMinorsOfOldSupportedMajors = newLatestMinors.map { it.value },
           eapOfLatestSupportedMajor = null,
         )
       }
     }
 
     val buildNumberThreshold = updatedVersions.eapOfLatestSupportedMajor
-      ?: "${updatedVersions.latestStable.versionToBuildNumber()}.999999.999999"
+      ?: BuildNumber("${updatedVersions.latestStable.versionToBuildNumber()}.999999.999999")
 
     val newerEapBuildNumber = findEapWithBuildNumberHigherThan(buildNumberThreshold)
 

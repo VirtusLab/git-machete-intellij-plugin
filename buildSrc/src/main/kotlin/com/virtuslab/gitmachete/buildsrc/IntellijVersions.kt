@@ -5,15 +5,23 @@ import java.lang.IllegalStateException
 import java.util.Properties
 import kotlin.reflect.full.memberProperties
 
-fun String.buildNumberToMajorVersion(): String = "20${this.substring(0, 2)}.${this.substring(2, 3)}"
+interface AnyVersion {
+  val value: String
+}
+
+class BuildNumber(override val value: String) : AnyVersion {
+  fun toMajorVersion(): String = "20${value.take(2)}.${value[2]}"
+}
+
+class ReleaseVersion(override val value: String) : AnyVersion
 
 fun String.versionToBuildNumber(): String = this.substring(2, 6).filter { it != '.' }
 
 fun String.versionToMajorVersion(): String = this.substring(0, 6)
 
-infix fun String.versionIsNewerThan(rhsVersion: String): Boolean {
+infix fun String.versionIsNewerThan(rhsVersion: AnyVersion): Boolean {
   val lhsSplit = this.split('.')
-  val rhsSplit = rhsVersion.split('.')
+  val rhsSplit = rhsVersion.value.split('.')
 
   val firstDiff = lhsSplit.zip(rhsSplit).find { it.first != it.second }
 
@@ -27,9 +35,9 @@ infix fun String.versionIsNewerThan(rhsVersion: String): Boolean {
 
 fun String.toPlainReleaseNumber(): Int {
   if ("""\d\d\d\.[.\d]+""".toRegex().matches(this)) {
-    return this.substring(0, 3).toInt()
+    return this.take(3).toInt()
   } else if ("""\d\d\d\d\.\d[.\d]*""".toRegex().matches(this)) {
-    return "${get(2)}${get(3)}${get(5)}".toInt()
+    return "${this[2]}${this[3]}${this[5]}".toInt()
   } else {
     throw IllegalArgumentException("Not a build number or release: $this")
   }
@@ -46,7 +54,7 @@ data class IntellijVersions(
   val earliestSupportedMajorKotlinVersion: String,
   val latestMinorsOfOldSupportedMajors: List<String>,
   val latestStable: String,
-  val eapOfLatestSupportedMajor: String?,
+  val eapOfLatestSupportedMajor: BuildNumber?,
   val latestSupportedMajor: String,
   val buildTarget: String,
 ) {
@@ -78,18 +86,15 @@ data class IntellijVersions(
       // EAP-CANDIDATE-SNAPSHOTs apparently canNOT be used for either binary compatibility checks or UI tests.
       // Generally, see https://www.jetbrains.com/intellij-repository/snapshots/ -> Ctrl+F .idea
       // Use `null` if the latest supported major has a stable release (and not just EAPs).
-      val eapOfLatestSupportedMajor: String? = intellijVersionsProperties.getPropertyOrNullIfEmpty("eapOfLatestSupportedMajor")
+      val eapOfLatestSupportedMajor: BuildNumber? = intellijVersionsProperties.getPropertyOrNullIfEmpty("eapOfLatestSupportedMajor")
+        ?.let { BuildNumber(it) }
 
-      val latestSupportedMajor: String = if (eapOfLatestSupportedMajor != null) {
-        eapOfLatestSupportedMajor.buildNumberToMajorVersion()
-      } else {
-        latestStable.versionToMajorVersion()
-      }
+      val latestSupportedMajor: String = eapOfLatestSupportedMajor?.toMajorVersion() ?: latestStable.versionToMajorVersion()
 
       // This allows to change the target IntelliJ version
       // by using a project property 'overrideBuildTarget' while running tasks like runIde
       val buildTarget: String = overrideBuildTarget
-        ?: eapOfLatestSupportedMajor?.replace("-EAP-(CANDIDATE-)?SNAPSHOT".toRegex(), "")
+        ?: eapOfLatestSupportedMajor?.value
         ?: latestStable
 
       return IntellijVersions(
@@ -123,20 +128,28 @@ data class IntellijVersions(
         .single { it.name == versionKey }
         .get(this)
 
-    if (propertyValue == null) {
-      return listOf()
-    } else if (propertyValue is String) {
-      return listOf(propertyValue)
-    } else if (propertyValue is List<*>) {
-      return propertyValue.mapNotNull { it as? String }
-    } else {
-      throw IllegalStateException("Unexpected property value found for $versionKey: $propertyValue")
+    when (propertyValue) {
+      null -> {
+        return listOf()
+      }
+      is String -> {
+        return listOf(propertyValue)
+      }
+      is AnyVersion -> {
+        return listOf(propertyValue.value)
+      }
+      is List<*> -> {
+        return propertyValue.mapNotNull { it as? String }
+      }
+      else -> {
+        throw IllegalStateException("Unexpected property value found for $versionKey: $propertyValue")
+      }
     }
   }
 
   fun toProperties(): Properties {
     val p = Properties()
-    p.setProperty("eapOfLatestSupportedMajor", eapOfLatestSupportedMajor ?: "")
+    p.setProperty("eapOfLatestSupportedMajor", eapOfLatestSupportedMajor?.value ?: "")
     p.setProperty("earliestSupportedMajor", earliestSupportedMajor)
     p.setProperty("earliestSupportedMajorKotlinVersion", earliestSupportedMajorKotlinVersion)
     p.setProperty("latestMinorsOfOldSupportedMajors", latestMinorsOfOldSupportedMajors.joinToString(separator = ","))
