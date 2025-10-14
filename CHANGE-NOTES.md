@@ -1,5 +1,7 @@
 # Changelog
 
+## v6.2.2
+
 ## v6.2.1
 - Fixed: errors on IntelliJ 2025.3 EAP (reported by @kjeffery)
 
