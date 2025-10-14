@@ -17,7 +17,7 @@ junit4 = "junit:junit:4.13.2"
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiter" }
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiter" }
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junitJupiter" }
-junit-platformLauncher = "org.junit.platform:junit-platform-launcher:6.0.0"
+junit-platformLauncher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junitJupiter" }
 kodein = "org.kodein.di:kodein-di-jvm:7.28.0"
 kotlin-coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2"
 lombok = "org.projectlombok:lombok:1.18.42"
@@ -36,5 +36,5 @@ vavr = "io.vavr:vavr:0.10.7"
 [plugins]
 jetbrains-changelog = "org.jetbrains.changelog:2.4.0"
 jetbrains-grammarkit = "org.jetbrains.grammarkit:2022.3.2.2"
-jetbrains-intellij = "org.jetbrains.intellij.platform:2.9.0"
+jetbrains-intellij = "org.jetbrains.intellij.platform:2.10.0"
 taskTree = "com.dorongold.task-tree:4.0.1"

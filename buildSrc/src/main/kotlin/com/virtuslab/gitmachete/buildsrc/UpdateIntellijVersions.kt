@@ -1,8 +1,5 @@
 package com.virtuslab.gitmachete.buildsrc
 
-import com.virtuslab.gitmachete.buildsrc.IntellijVersionHelper.versionIsNewerThan
-import com.virtuslab.gitmachete.buildsrc.IntellijVersionHelper.versionToBuildNumber
-import com.virtuslab.gitmachete.buildsrc.IntellijVersionHelper.versionToMajorVersion
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -12,41 +9,41 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.provideDelegate
 import java.net.HttpURLConnection
-import java.net.URL
+import java.net.URI
 
 open class UpdateIntellijVersions : DefaultTask() {
 
   // TODO (#2145): check for releases of IU from 2025.3 onwards, but IC up to 2025.2
-  private val intellijReleases: List<String> by lazy {
-    listIntelliJVersionsForType(code = "IC", type = "release", attribute = "version")
+  private val intellijReleases: List<ReleaseVersion> by lazy {
+    listIntelliJVersionsForType(code = "IC", type = "release", attribute = "version").map { ReleaseVersion(it) }
   }
 
-  private val intellijSnapshots: List<String> by lazy {
-    listIntelliJVersionsForType(code = "IU", type = "eap", attribute = "build")
+  private val intellijSnapshots: List<BuildNumber> by lazy {
+    listIntelliJVersionsForType(code = "IU", type = "eap", attribute = "build").map { BuildNumber(it) }
   }
 
-  private fun findFirstMatchingVersionNewerThan(versions: List<String>, thresholdVersion: String): String? = versions.firstOrNull { it versionIsNewerThan thresholdVersion }
+  private fun <T : AnyVersion> findFirstMatchingVersionNewerThan(versions: List<T>, thresholdVersion: T): T? = versions.firstOrNull { it isNewerThan thresholdVersion }
 
-  private fun findReleaseNewerThan(version: String): String? = findFirstMatchingVersionNewerThan(
+  private fun findReleaseNewerThan(version: ReleaseVersion): ReleaseVersion? = findFirstMatchingVersionNewerThan(
     intellijReleases,
     version,
   )
 
-  private fun findLatestMinorOfVersion(version: String): String {
-    val major = versionToMajorVersion(version)
+  private fun findLatestMinorOfVersion(version: ReleaseVersion): ReleaseVersion {
+    val major = version.toMajorVersion()
     return findFirstMatchingVersionNewerThan(
-      intellijReleases.filter { it.startsWith(major) },
+      intellijReleases.filter { it.value.startsWith(major.value) },
       version,
     ) ?: version
   }
 
-  private fun findEapWithBuildNumberHigherThan(buildNumber: String): String? = findFirstMatchingVersionNewerThan(
+  private fun findEapWithBuildNumberHigherThan(buildNumber: BuildNumber): BuildNumber? = findFirstMatchingVersionNewerThan(
     intellijSnapshots,
     buildNumber,
   )
 
   private fun fetchJson(url: String): String {
-    val connection = (URL(url).openConnection() as? HttpURLConnection)!!
+    val connection = (URI(url).toURL().openConnection() as? HttpURLConnection)!!
     connection.requestMethod = "GET"
     connection.connectTimeout = 5000
     connection.readTimeout = 5000
@@ -86,7 +83,7 @@ open class UpdateIntellijVersions : DefaultTask() {
       logger.lifecycle("latestStable has been updated to $newerStable")
       updatedVersions = updatedVersions.copy(latestStable = newerStable)
 
-      if (versionToMajorVersion(latestStable) != versionToMajorVersion(newerStable)) {
+      if (latestStable.toMajorVersion() != newerStable.toMajorVersion()) {
         val newLatestMinors = latestMinorsOfOldSupportedMajors.plus(findLatestMinorOfVersion(latestStable))
         logger.lifecycle("latestMinorsOfOldSupportedMajors have been updated to $newLatestMinors")
         logger.lifecycle("eapOfLatestSupportedMajor has been cleared")
@@ -98,7 +95,7 @@ open class UpdateIntellijVersions : DefaultTask() {
     }
 
     val buildNumberThreshold = updatedVersions.eapOfLatestSupportedMajor
-      ?: "${versionToBuildNumber(updatedVersions.latestStable)}.999999.999999"
+      ?: BuildNumber("${updatedVersions.latestStable.toBuildNumber().value}.999999.999999")
 
     val newerEapBuildNumber = findEapWithBuildNumberHigherThan(buildNumberThreshold)
 

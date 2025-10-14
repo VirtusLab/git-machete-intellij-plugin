@@ -1,5 +1,7 @@
 
 import com.virtuslab.gitmachete.buildsrc.*
+import com.virtuslab.gitmachete.buildsrc.AnyVersion.Companion.productCode
+import com.virtuslab.gitmachete.buildsrc.AnyVersion.Companion.withProductCode
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
@@ -201,7 +203,7 @@ subprojects {
         // TODO (#2143): 2025.3 EAP doesn't provide it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap
         if (path == ":frontend:file") {
           // Let's use a 2025.2 release instead for building this subproject until 2025.3 is fixed
-          intellijIdeaCommunity(intellijVersions.latestStable)
+          intellijIdeaCommunity(intellijVersions.latestStable.value)
         } else {
           intellijIdea(intellijVersions.buildTarget)
         }
@@ -354,9 +356,9 @@ intellijPlatform {
 
     ideaVersion {
       // `sinceBuild` is exclusive when we are using `*` in version but inclusive when without `*`
-      sinceBuild = IntellijVersionHelper.versionToBuildNumber(intellijVersions.earliestSupportedMajor)
+      sinceBuild = intellijVersions.earliestSupportedMajor.toBuildNumber().value
       // In `untilBuild` situation is inverted: it's inclusive when using `*` but exclusive when without `*`
-      untilBuild = IntellijVersionHelper.versionToBuildNumber(intellijVersions.latestSupportedMajor) + ".*"
+      untilBuild = intellijVersions.latestSupportedMajor.toBuildNumber().value + ".*"
     }
   }
 
@@ -378,7 +380,7 @@ intellijPlatform {
       // so the builds are more reproducible in this respect.
       val maybeEap = listOfNotNull(intellijVersions.eapOfLatestSupportedMajor)
       val ideVersions = intellijVersions.latestMinorsOfOldSupportedMajors + intellijVersions.latestStable + maybeEap
-      ides(ideVersions.map { it.withProductCode() })
+      ides(ideVersions.map { it.value.withProductCode() })
     }
   }
 }
@@ -391,7 +393,13 @@ tasks.withType<RunIdeTask>().named("runIde") {
 
 dependencies {
   intellijPlatform {
-    intellijIdea(intellijVersions.buildTarget)
+    val productCode = intellijVersions.buildTarget.productCode()
+    // TODO (#2146): drop support for IntelliJ Community
+    if (productCode == "IU") {
+      intellijIdea(intellijVersions.buildTarget)
+    } else {
+      intellijIdeaCommunity(intellijVersions.buildTarget)
+    }
     bundledPlugin("Git4Idea")
     pluginVerifier()
     zipSigner()
@@ -475,6 +483,7 @@ uiTestTargetVersions.onEach { version ->
     group = "verification"
 
     systemProperty("intellij.version", version)
+    // TODO (#2146): drop support for IntelliJ Community
     systemProperty("intellij.product", version.productCode())
 
     testClassesDirs = uiTest.output.classesDirs
