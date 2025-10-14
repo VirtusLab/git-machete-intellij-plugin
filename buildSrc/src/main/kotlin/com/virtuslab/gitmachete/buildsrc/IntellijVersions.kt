@@ -5,7 +5,7 @@ import java.lang.IllegalStateException
 import java.util.Properties
 import kotlin.reflect.full.memberProperties
 
-interface AnyVersion {
+sealed interface AnyVersion {
   val value: String
 
   infix fun isNewerThan(rhsVersion: AnyVersion): Boolean {
@@ -36,6 +36,7 @@ interface AnyVersion {
       }
     }
 
+    // TODO (#2146): drop support for IntelliJ Community
     // IntelliJ 2025.3 removed the distinction between Community and Ultimate
     fun String.productCode(): String = if (toPlainReleaseNumber() >= 253) "IU" else "IC"
 
@@ -45,11 +46,13 @@ interface AnyVersion {
 
 data class BuildNumber(override val value: String) : AnyVersion {
   fun toMajorVersion(): ReleaseVersion = ReleaseVersion("20${value.take(2)}.${value[2]}")
+  override fun toString() = value
 }
 
 data class ReleaseVersion(override val value: String) : AnyVersion {
   fun toBuildNumber(): BuildNumber = BuildNumber(value.substring(2, 6).filter { it != '.' })
-  fun toMajorVersion(): ReleaseVersion = ReleaseVersion(value.substring(0, 6))
+  fun toMajorVersion(): ReleaseVersion = ReleaseVersion(value.take(6))
+  override fun toString() = value
 }
 
 // See https://www.jetbrains.com/intellij-repository/releases/ -> Ctrl+F .idea
@@ -132,22 +135,12 @@ data class IntellijVersions(
         .single { it.name == versionKey }
         .get(this)
 
-    when (propertyValue) {
-      null -> {
-        return listOf()
-      }
-      is String -> {
-        return listOf(propertyValue)
-      }
-      is AnyVersion -> {
-        return listOf(propertyValue.value)
-      }
-      is List<*> -> {
-        return propertyValue.mapNotNull { it as? AnyVersion }.map { it.value }
-      }
-      else -> {
-        throw IllegalStateException("Unexpected property value found for $versionKey: $propertyValue")
-      }
+    return when (propertyValue) {
+      null -> listOf()
+      is String -> listOf(propertyValue)
+      is AnyVersion -> listOf(propertyValue.value)
+      is List<*> -> propertyValue.mapNotNull { it as? AnyVersion }.map { it.value }
+      else -> throw IllegalStateException("Unexpected property value found for $versionKey: $propertyValue")
     }
   }
 

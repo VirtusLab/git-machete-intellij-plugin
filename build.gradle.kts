@@ -393,7 +393,13 @@ tasks.withType<RunIdeTask>().named("runIde") {
 
 dependencies {
   intellijPlatform {
-    intellijIdea(intellijVersions.buildTarget)
+    val productCode = intellijVersions.buildTarget.productCode()
+    // TODO (#2146): drop support for IntelliJ Community
+    if (productCode == "IU") {
+      intellijIdea(intellijVersions.buildTarget)
+    } else {
+      intellijIdeaCommunity(intellijVersions.buildTarget)
+    }
     bundledPlugin("Git4Idea")
     pluginVerifier()
     zipSigner()
@@ -477,6 +483,7 @@ uiTestTargetVersions.onEach { version ->
     group = "verification"
 
     systemProperty("intellij.version", version)
+    // TODO (#2146): drop support for IntelliJ Community
     systemProperty("intellij.product", version.productCode())
 
     testClassesDirs = uiTest.output.classesDirs
