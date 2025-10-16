@@ -14,6 +14,8 @@ class IntellijVersionsUpdaterTest {
       "1-first-eap-of-upcoming-major",
       "2-new-minor-with-eap",
       "3-new-minor-no-eap",
+      "4-newer-eap-for-same-major",
+      "5-eap-major-becomes-stable",
     )
   }
 
