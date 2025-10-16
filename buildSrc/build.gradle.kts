@@ -41,6 +41,7 @@ dependencies {
   implementation(libs.pluginPackages.jetbrains.kotlin)
   implementation(libs.pluginPackages.spotless)
   testImplementation(libs.junit.api)
+  testImplementation(libs.junit.params)
   testRuntimeOnly(libs.junit.engine)
   testRuntimeOnly(libs.junit.platformLauncher)
 }

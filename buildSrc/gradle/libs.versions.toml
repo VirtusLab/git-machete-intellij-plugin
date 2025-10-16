@@ -4,6 +4,7 @@ junitJupiter = "6.0.0"
 [libraries]
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiter" }
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiter" }
+junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junitJupiter" }
 junit-platformLauncher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junitJupiter" }
 kotlin-serialization-json = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3"
 # Plugin packages
