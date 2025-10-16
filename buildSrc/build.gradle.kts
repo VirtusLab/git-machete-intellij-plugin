@@ -1,5 +1,6 @@
 import com.diffplug.gradle.spotless.SpotlessExtension
 import com.diffplug.gradle.spotless.SpotlessPlugin
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Properties
 
@@ -53,6 +54,10 @@ dependencies {
 
 tasks.withType<Test> {
   useJUnitPlatform()
+
+  testLogging {
+    exceptionFormat = TestExceptionFormat.FULL
+  }
 }
 
 apply<SpotlessPlugin>()

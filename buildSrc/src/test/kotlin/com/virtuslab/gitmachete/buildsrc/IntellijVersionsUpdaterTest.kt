@@ -46,7 +46,7 @@ class IntellijVersionsUpdaterTest {
     val originalVersions = IntellijVersions.from(inputProperties, null)
 
     // Run the update
-    val updatedVersions = updater.update(originalVersions)
+    val updatedVersions = updater.update(originalVersions.earliestSupportedMajor)
 
     // Convert to properties and compare
     val actualOutputProperties = updatedVersions.toProperties()

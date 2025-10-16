@@ -26,6 +26,14 @@ sealed interface AnyVersion {
   }
 
   companion object {
+    fun <T : AnyVersion> descendingComparator(): Comparator<T> = Comparator { a, b ->
+      when {
+        a isNewerThan b -> -1
+        b isNewerThan a -> 1
+        else -> 0
+      }
+    }
+
     fun String.toPlainReleaseNumber(): Int {
       if ("""\d\d\d\.[.\d]+""".toRegex().matches(this)) {
         return this.take(3).toInt()
@@ -62,21 +70,26 @@ data class IntellijVersions(
   val latestMinorsOfOldSupportedMajors: List<ReleaseVersion>,
   val latestStable: ReleaseVersion,
   val eapOfLatestSupportedMajor: BuildNumber?,
-  val latestSupportedMajor: ReleaseVersion,
-  val buildTarget: String,
+  val overrideBuildTarget: String?,
 ) {
+  val latestSupportedMajor: ReleaseVersion = (eapOfLatestSupportedMajor?.toMajorVersion() ?: latestStable.toMajorVersion())
+
+  // This allows to change the target IntelliJ version
+  // by using a project property 'overrideBuildTarget' while running tasks like runIde
+  val buildTarget: String = overrideBuildTarget ?: eapOfLatestSupportedMajor?.value ?: latestStable.value
+
   companion object {
     fun from(intellijVersionsProperties: Properties, overrideBuildTarget: String?): IntellijVersions {
       // When this value is updated, remember to update:
-      // 1. the minimum required IDEA version in README.md,
-      // 2. version of Gradle Kotlin plugin in buildSrc/gradle/libs.versions.toml
+      // 1. the minimum required IDEA version in README.md
+      // 2. version of Kotlin - automatically via `./gradlew updateIntellijVersions`
       // Note that after bumping `earliestSupportedMajor` from AAAA.B to CCCC.D (CCCC.D is later)
       // the released plugin versions supporting AAAA.B remain available in JetBrains Marketplace.
       // Dropping a support for an IntelliJ version is less painful then,
       // since most likely some plugin version will still be downloadable (however not the latest).
       // Marking a release version as hidden is a way to forbid its download
       // (see https://plugins.jetbrains.com/plugin/14221-git-machete/versions).
-      val earliestSupportedMajor: ReleaseVersion = ReleaseVersion(intellijVersionsProperties.getProperty("earliestSupportedMajor"))
+      val earliestSupportedMajor = ReleaseVersion(intellijVersionsProperties.getProperty("earliestSupportedMajor"))
       // Every time `earliestSupportedMajor` is bumped, this should be bumped to the Kotlin version
       // listed for `earliestSupportedMajor` in https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#kotlin-standard-library
       val earliestSupportedMajorKotlinVersion: String = intellijVersionsProperties.getProperty("earliestSupportedMajorKotlinVersion")
@@ -85,7 +98,7 @@ data class IntellijVersions(
       // and latest stable (excl.), used for binary compatibility checks and UI tests
       val latestMinorsOfOldSupportedMajors: List<ReleaseVersion> = intellijVersionsProperties.getProperty("latestMinorsOfOldSupportedMajors").split(",").map { ReleaseVersion(it) }
 
-      val latestStable: ReleaseVersion = ReleaseVersion(intellijVersionsProperties.getProperty("latestStable"))
+      val latestStable = ReleaseVersion(intellijVersionsProperties.getProperty("latestStable"))
 
       // Note that we have to use a "fixed snapshot" version X.Y.Z-EAP-SNAPSHOT (e.g. 211.4961.33-EAP-SNAPSHOT)
       // rather than a "rolling snapshot" X-EAP-SNAPSHOT (e.g. 211-EAP-SNAPSHOT)
@@ -96,22 +109,13 @@ data class IntellijVersions(
       val eapOfLatestSupportedMajor: BuildNumber? = intellijVersionsProperties.getPropertyOrNullIfEmpty("eapOfLatestSupportedMajor")
         ?.let { BuildNumber(it) }
 
-      val latestSupportedMajor: ReleaseVersion = eapOfLatestSupportedMajor?.toMajorVersion() ?: latestStable.toMajorVersion()
-
-      // This allows to change the target IntelliJ version
-      // by using a project property 'overrideBuildTarget' while running tasks like runIde
-      val buildTarget: String = overrideBuildTarget
-        ?: eapOfLatestSupportedMajor?.value
-        ?: latestStable.value
-
       return IntellijVersions(
         earliestSupportedMajor = earliestSupportedMajor,
         earliestSupportedMajorKotlinVersion = earliestSupportedMajorKotlinVersion,
         latestMinorsOfOldSupportedMajors = latestMinorsOfOldSupportedMajors,
         latestStable = latestStable,
         eapOfLatestSupportedMajor = eapOfLatestSupportedMajor,
-        latestSupportedMajor = latestSupportedMajor,
-        buildTarget = buildTarget,
+        overrideBuildTarget = overrideBuildTarget,
       )
     }
   }
