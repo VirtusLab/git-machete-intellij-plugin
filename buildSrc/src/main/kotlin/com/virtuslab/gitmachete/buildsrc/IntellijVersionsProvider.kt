@@ -9,6 +9,7 @@ import java.net.URI
 
 interface IntelliJVersionsProvider {
   fun listIntelliJVersionsForType(code: String, type: String, attribute: String): List<String>
+  fun getKotlinVersionForIntelliJ(intellijVersion: String): String
 }
 
 class RealIntelliJVersionsProvider : IntelliJVersionsProvider {
@@ -33,6 +34,25 @@ class RealIntelliJVersionsProvider : IntelliJVersionsProvider {
     println("listIntelliJVersionsForType(code=$code, type=$type, attribute=$attribute) = $result\n")
     return result
   }
+
+  override fun getKotlinVersionForIntelliJ(intellijVersion: String): String {
+    // See https://www.jetbrains.com/legal/third-party-software/?product=IIC&version=2024.2 for web version
+    val url = "https://resources.jetbrains.com/storage/third-party-libraries/idea/ideaIC-$intellijVersion-third-party-libraries.json"
+    val jsonString = fetchJson(url)
+
+    val json = Json { ignoreUnknownKeys = true }
+    val jsonElement = json.parseToJsonElement(jsonString)
+
+    val kotlinLibrary = jsonElement.jsonArray.firstOrNull { library ->
+      library.jsonObject["name"]?.jsonPrimitive?.content == "Kotlin Standard Library"
+    }
+
+    val version = kotlinLibrary?.jsonObject?.get("version")?.jsonPrimitive?.content
+      ?: throw IllegalStateException("Kotlin Standard Library not found for IntelliJ version $intellijVersion")
+
+    println("getKotlinVersionForIntelliJ($intellijVersion) = $version\n")
+    return version
+  }
 }
 
 class MockIntelliJVersionsProvider(
@@ -44,4 +64,6 @@ class MockIntelliJVersionsProvider(
     code == "IU" && type == "eap" && attribute == "build" -> eapBuilds
     else -> emptyList()
   }
+
+  override fun getKotlinVersionForIntelliJ(intellijVersion: String): String = "1.9.22"
 }

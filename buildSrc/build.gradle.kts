@@ -1,6 +1,7 @@
 import com.diffplug.gradle.spotless.SpotlessExtension
 import com.diffplug.gradle.spotless.SpotlessPlugin
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.util.Properties
 
 // Not worth using Gradle toolchains, they don't seem to work as expected for buildSrc (or are just hard to configure properly).
 // Let the developers install sdkman to switch Java versions instead.
@@ -23,7 +24,6 @@ buildscript {
     gradlePluginPortal()
   }
   dependencies {
-    classpath(libs.pluginPackages.jetbrains.kotlin)
     classpath(libs.pluginPackages.spotless)
   }
 }
@@ -34,11 +34,16 @@ repositories {
   gradlePluginPortal()
 }
 
+val properties = Properties()
+properties.load(rootDir.parentFile.resolve("intellij-versions.properties").inputStream())
+val kotlinVersion = properties.getProperty("earliestSupportedMajorKotlinVersion")!!
+val kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+
 dependencies {
+  implementation(kotlinGradlePlugin)
   implementation(libs.kotlin.serialization.json)
   implementation(libs.pluginPackages.checkerFramework)
   implementation(libs.pluginPackages.grgit)
-  implementation(libs.pluginPackages.jetbrains.kotlin)
   implementation(libs.pluginPackages.spotless)
   testImplementation(libs.junit.api)
   testImplementation(libs.junit.params)

@@ -27,6 +27,15 @@ class IntellijVersionsUpdater(private val versionsProvider: IntelliJVersionsProv
 
   fun update(originalVersions: IntellijVersions, logger: ((String) -> Unit)? = null): IntellijVersions {
     var updatedVersions = originalVersions
+
+    // As per https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#kotlin-standard-library:
+    // "If a plugin supports multiple platform versions, it must (...) target the lowest bundled stdlib version".
+    val earliestSupportedMajorKotlinVersion = versionsProvider.getKotlinVersionForIntelliJ(originalVersions.earliestSupportedMajor.value)
+    if (earliestSupportedMajorKotlinVersion != originalVersions.earliestSupportedMajorKotlinVersion) {
+      logger?.invoke("earliestSupportedMajorKotlinVersion has been updated to $earliestSupportedMajorKotlinVersion")
+      updatedVersions = updatedVersions.copy(earliestSupportedMajorKotlinVersion = earliestSupportedMajorKotlinVersion)
+    }
+
     val latestMinorsOfOldSupportedMajors = originalVersions.latestMinorsOfOldSupportedMajors.map { findLatestMinorOfVersion(it) }
 
     if (latestMinorsOfOldSupportedMajors != originalVersions.latestMinorsOfOldSupportedMajors) {
