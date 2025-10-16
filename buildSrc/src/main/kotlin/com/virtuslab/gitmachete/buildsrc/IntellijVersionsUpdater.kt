@@ -2,15 +2,14 @@ package com.virtuslab.gitmachete.buildsrc
 
 class IntellijVersionsUpdater(private val versionsProvider: IntelliJVersionsProvider) {
 
-  // TODO (#2145): check for releases of IU from 2025.3 onwards, but IC up to 2025.2
-  // Sorted in descending order (newest first)
+  // Let's check for releases of IU even up to 2025.2 (they seem to mimic IC releases 1:1 anyway),
+  // even though we actually used to build against IntelliJ Community for those versions.
   private val intellijReleases: List<ReleaseVersion> by lazy {
-    versionsProvider.listIntelliJVersionsForType(code = "IC", type = "release", attribute = "version")
+    versionsProvider.listIntelliJVersionsForType(code = "IU", type = "release", attribute = "version")
       .map { ReleaseVersion(it) }
       .sortedWith(AnyVersion.descendingComparator())
   }
 
-  // Sorted in descending order (newest first)
   private val intellijSnapshots: List<BuildNumber> by lazy {
     versionsProvider.listIntelliJVersionsForType(code = "IU", type = "eap", attribute = "build")
       .map { BuildNumber(it) }

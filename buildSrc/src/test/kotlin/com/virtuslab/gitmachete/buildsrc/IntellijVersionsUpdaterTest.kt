@@ -33,13 +33,13 @@ class IntellijVersionsUpdaterTest {
     val basePath = "/intellij-versions-test-cases/$testCaseName"
 
     // Load input data
-    val icReleaseVersions = loadVersionsFromResource("$basePath/INPUT.ic-release-versions.txt")
+    val iuReleaseVersions = loadVersionsFromResource("$basePath/INPUT.iu-release-versions.txt")
     val iuEapBuilds = loadVersionsFromResource("$basePath/INPUT.iu-eap-versions.txt")
     val inputProperties = loadPropertiesFromResource("$basePath/INPUT.intellij-versions.properties")
     val expectedOutputProperties = loadPropertiesFromResource("$basePath/OUTPUT.intellij-versions.properties")
 
     // Create mock provider and updater
-    val mockProvider = MockIntelliJVersionsProvider(icReleaseVersions, iuEapBuilds)
+    val mockProvider = MockIntelliJVersionsProvider(iuReleaseVersions, iuEapBuilds)
     val updater = IntellijVersionsUpdater(mockProvider)
 
     // Parse input versions from properties

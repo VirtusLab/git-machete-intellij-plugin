@@ -5,7 +5,7 @@ class MockIntelliJVersionsProvider(
   private val eapBuilds: List<String>,
 ) : IntelliJVersionsProvider {
   override fun listIntelliJVersionsForType(code: String, type: String, attribute: String): List<String> = when {
-    code == "IC" && type == "release" && attribute == "version" -> releaseVersions
+    code == "IU" && type == "release" && attribute == "version" -> releaseVersions
     code == "IU" && type == "eap" && attribute == "build" -> eapBuilds
     else -> emptyList()
   }
