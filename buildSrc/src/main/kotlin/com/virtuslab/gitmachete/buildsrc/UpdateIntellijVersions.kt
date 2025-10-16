@@ -10,16 +10,13 @@ open class UpdateIntellijVersions : DefaultTask() {
   @TaskAction
   fun execute() {
     val intellijVersions: IntellijVersions by project.rootProject.extra
-    val originalVersions = intellijVersions
 
     val versionsProvider = RealIntelliJVersionsProvider()
     val updater = IntellijVersionsUpdater(versionsProvider)
 
-    val updatedVersions = updater.update(originalVersions) { message ->
-      logger.lifecycle(message)
-    }
+    val updatedVersions = updater.update(intellijVersions.earliestSupportedMajor)
 
-    if (originalVersions != updatedVersions) {
+    if (intellijVersions != updatedVersions) {
       PropertiesHelper.storeProperties(
         updatedVersions.toProperties(),
         project.rootDir.resolve("intellij-versions.properties"),
