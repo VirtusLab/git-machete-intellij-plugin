@@ -176,7 +176,7 @@ jobs:
       - restore_gradle_cache
       - run:
           name: Run UI tests against an EAP of the latest supported major IntelliJ version (if applicable)
-          command: ./gradlew -Pagainst=eapOfLatestSupportedMajor uiTest
+          command: ./gradlew -Pagainst=upcomingMajorEap uiTest
       - run:
           name: Run UI tests against the latest stable IntelliJ version
           command: ./gradlew -Pagainst=latestStable uiTest

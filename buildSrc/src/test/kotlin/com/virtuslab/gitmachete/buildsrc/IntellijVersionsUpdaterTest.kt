@@ -58,7 +58,7 @@ class IntellijVersionsUpdaterTest {
       "earliestSupportedMajorKotlinVersion",
       "latestMinorsOfOldSupportedMajors",
       "latestStable",
-      "eapOfLatestSupportedMajor",
+      "upcomingMajorEap",
     )
 
     for (key in propertyKeys) {

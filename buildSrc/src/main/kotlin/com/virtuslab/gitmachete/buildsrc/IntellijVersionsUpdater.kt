@@ -34,7 +34,7 @@ class IntellijVersionsUpdater(private val versionsProvider: IntelliJVersionsProv
       .sortedWith(AnyVersion.descendingComparator())
       .reversed()
 
-    val eapOfLatestSupportedMajor = intellijSnapshots.first().takeIf {
+    val upcomingMajorEap = intellijSnapshots.first().takeIf {
       it.toMajorVersion().value > latestStableMajor.value
     }
 
@@ -43,7 +43,7 @@ class IntellijVersionsUpdater(private val versionsProvider: IntelliJVersionsProv
       earliestSupportedMajorKotlinVersion = earliestSupportedMajorKotlinVersion,
       latestMinorsOfOldSupportedMajors = latestMinorsOfOldSupportedMajors,
       latestStable = latestStable,
-      eapOfLatestSupportedMajor = eapOfLatestSupportedMajor,
+      upcomingMajorEap = upcomingMajorEap,
       overrideBuildTarget = null,
     )
   }

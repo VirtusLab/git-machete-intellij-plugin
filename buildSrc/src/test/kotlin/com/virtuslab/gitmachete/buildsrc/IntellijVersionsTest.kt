@@ -15,12 +15,12 @@ class IntellijVersionsTest {
       earliestSupportedMajorKotlinVersion = "1.9",
       latestMinorsOfOldSupportedMajors = listOf("2020.3.4", "2021.1.3", "2021.2.4", "2021.3.3", "2022.1.4").map { ReleaseVersion(it) },
       latestStable = ReleaseVersion("2022.2.2"),
-      eapOfLatestSupportedMajor = null,
+      upcomingMajorEap = null,
       overrideBuildTarget = null,
     )
 
     assertEquals(listOf("2020.3.4", "2021.1.3", "2021.2.4", "2021.3.3", "2022.1.4"), iv.resolveIntelliJVersions("latestMinorsOfOldSupportedMajors"))
-    assertEquals(listOf<String>(), iv.resolveIntelliJVersions("eapOfLatestSupportedMajor"))
+    assertEquals(listOf<String>(), iv.resolveIntelliJVersions("upcomingMajorEap"))
     assertEquals(listOf("2020.3"), iv.resolveIntelliJVersions("earliestSupportedMajor"))
     assertEquals(listOf("2022.2.2"), iv.resolveIntelliJVersions("latestStable"))
     assertEquals(listOf("2022.2.2"), iv.resolveIntelliJVersions("buildTarget"))
@@ -34,12 +34,12 @@ class IntellijVersionsTest {
       earliestSupportedMajorKotlinVersion = "1.9",
       latestMinorsOfOldSupportedMajors = listOf("2020.3.4", "2021.1.3", "2021.2.4", "2021.3.3", "2022.1.4").map { ReleaseVersion(it) },
       latestStable = ReleaseVersion("2022.2.2"),
-      eapOfLatestSupportedMajor = BuildNumber("223.7571.182"),
+      upcomingMajorEap = BuildNumber("223.7571.182"),
       overrideBuildTarget = "2021.3.2",
     )
 
     assertEquals(listOf("2020.3.4", "2021.1.3", "2021.2.4", "2021.3.3", "2022.1.4"), iv.resolveIntelliJVersions("latestMinorsOfOldSupportedMajors"))
-    assertEquals(listOf("223.7571.182"), iv.resolveIntelliJVersions("eapOfLatestSupportedMajor"))
+    assertEquals(listOf("223.7571.182"), iv.resolveIntelliJVersions("upcomingMajorEap"))
     assertEquals(listOf("2020.3"), iv.resolveIntelliJVersions("earliestSupportedMajor"))
     assertEquals(listOf("2022.2.2"), iv.resolveIntelliJVersions("latestStable"))
     assertEquals(listOf("2021.3.2"), iv.resolveIntelliJVersions("buildTarget"))

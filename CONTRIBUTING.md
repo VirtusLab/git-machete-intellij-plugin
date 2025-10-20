@@ -296,7 +296,7 @@ The whole logic of the process can be illustrated with an example:
 1. our plugin in version `0.7.0` is compatible with IntelliJ `2020.2`
 2. then IntelliJ `2020.3-EAP` is released (see [snapshot repository](https://www.jetbrains.com/intellij-repository/snapshots/) -> Ctrl+F `.idea`),
    and is detected with `./gradlew updateIntellijVersions`, <br/>
-   new `eapOfLatestSupportedMajor` is set in [intellij-versions.properties](intellij-versions.properties)
+   new `upcomingMajorEap` is set in [intellij-versions.properties](intellij-versions.properties)
 3. we check if `0.7.0` is compatible with IntelliJ `2020.3-EAP` &mdash; see if the CI pipeline passes (this will both check binary compatibility and run UI tests against the given EAP)
 4. we release the plugin as `0.8.0` (`untilBuild` will extend automatically to `2020.3.*`
    via `latestSupportedMajor` in [intellij-versions.properties](intellij-versions.properties))

@@ -69,14 +69,14 @@ data class IntellijVersions(
   val earliestSupportedMajorKotlinVersion: String,
   val latestMinorsOfOldSupportedMajors: List<ReleaseVersion>,
   val latestStable: ReleaseVersion,
-  val eapOfLatestSupportedMajor: BuildNumber?,
+  val upcomingMajorEap: BuildNumber?,
   val overrideBuildTarget: String?,
 ) {
-  val latestSupportedMajor: ReleaseVersion = (eapOfLatestSupportedMajor?.toMajorVersion() ?: latestStable.toMajorVersion())
+  val latestSupportedMajor: ReleaseVersion = (upcomingMajorEap?.toMajorVersion() ?: latestStable.toMajorVersion())
 
   // This allows to change the target IntelliJ version
   // by using a project property 'overrideBuildTarget' while running tasks like runIde
-  val buildTarget: String = overrideBuildTarget ?: eapOfLatestSupportedMajor?.value ?: latestStable.value
+  val buildTarget: String = overrideBuildTarget ?: upcomingMajorEap?.value ?: latestStable.value
 
   companion object {
     fun from(intellijVersionsProperties: Properties, overrideBuildTarget: String?): IntellijVersions {
@@ -106,7 +106,7 @@ data class IntellijVersions(
       // EAP-CANDIDATE-SNAPSHOTs apparently canNOT be used for either binary compatibility checks or UI tests.
       // Generally, see https://www.jetbrains.com/intellij-repository/snapshots/ -> Ctrl+F .idea
       // Use `null` if the latest supported major has a stable release (and not just EAPs).
-      val eapOfLatestSupportedMajor: BuildNumber? = intellijVersionsProperties.getPropertyOrNullIfEmpty("eapOfLatestSupportedMajor")
+      val upcomingMajorEap: BuildNumber? = intellijVersionsProperties.getPropertyOrNullIfEmpty("upcomingMajorEap")
         ?.let { BuildNumber(it) }
 
       return IntellijVersions(
@@ -114,15 +114,14 @@ data class IntellijVersions(
         earliestSupportedMajorKotlinVersion = earliestSupportedMajorKotlinVersion,
         latestMinorsOfOldSupportedMajors = latestMinorsOfOldSupportedMajors,
         latestStable = latestStable,
-        eapOfLatestSupportedMajor = eapOfLatestSupportedMajor,
+        upcomingMajorEap = upcomingMajorEap,
         overrideBuildTarget = overrideBuildTarget,
       )
     }
   }
 
   /**
-   * @param versionKey Either release number (like 2020.3) or key of intellijVersions (like
-   * eapOfLatestSupportedMajor)
+   * @param versionKey Either release number (like 2020.3) or key of intellijVersions (like upcomingMajorEap)
    * @returns Corresponding release numbers.
    */
   fun resolveIntelliJVersions(versionKey: String?): List<String> {
@@ -150,7 +149,7 @@ data class IntellijVersions(
 
   fun toProperties(): Properties {
     val p = Properties()
-    p.setProperty("eapOfLatestSupportedMajor", eapOfLatestSupportedMajor?.value ?: "")
+    p.setProperty("upcomingMajorEap", upcomingMajorEap?.value ?: "")
     p.setProperty("earliestSupportedMajor", earliestSupportedMajor.value)
     p.setProperty("earliestSupportedMajorKotlinVersion", earliestSupportedMajorKotlinVersion)
     p.setProperty("latestMinorsOfOldSupportedMajors", latestMinorsOfOldSupportedMajors.joinToString(separator = ",") { it.value })
