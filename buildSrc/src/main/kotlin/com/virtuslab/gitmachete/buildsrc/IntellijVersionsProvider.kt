@@ -57,15 +57,9 @@ class RealIntelliJVersionsProvider : IntelliJVersionsProvider {
       throw IllegalStateException("No version found for $libraryName in IntelliJ version $intellijVersion")
     }
 
-    // Find the highest version using isNewerThan
+    // Find the highest version using compareTo
     return versions.map { ReleaseVersion(it) }
-      .maxWithOrNull { a, b ->
-        when {
-          a isNewerThan b -> 1
-          b isNewerThan a -> -1
-          else -> 0
-        }
-      }?.value ?: versions.first()
+      .maxWithOrNull { a, b -> a compareTo b }?.value ?: versions.first()
   }
 
   override fun getKotlinLibraryVersionsForIntelliJ(intellijVersion: String): KotlinLibraryVersions {

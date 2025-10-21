@@ -8,7 +8,11 @@ import kotlin.reflect.full.memberProperties
 sealed interface AnyVersion {
   val value: String
 
-  infix fun isNewerThan(rhsVersion: AnyVersion): Boolean {
+  /**
+   * Compares this version with another version.
+   * @return negative if this < other, zero if this == other, positive if this > other
+   */
+  infix fun compareTo(rhsVersion: AnyVersion): Int {
     if (rhsVersion.javaClass != this.javaClass) {
       throw IllegalArgumentException("$this and $rhsVersion cannot be compared")
     }
@@ -19,20 +23,14 @@ sealed interface AnyVersion {
 
     // 8.0.6 is older than 8.0.6.0, but zipped they will look like this: [(8,8), (0,0), (6,6)]
     if (firstDiff == null) {
-      return lhsSplit.size > rhsSplit.size
+      return lhsSplit.size.compareTo(rhsSplit.size)
     }
 
-    return Integer.parseInt(firstDiff.first) > Integer.parseInt(firstDiff.second)
+    return Integer.parseInt(firstDiff.first).compareTo(Integer.parseInt(firstDiff.second))
   }
 
   companion object {
-    fun <T : AnyVersion> descendingComparator(): Comparator<T> = Comparator { a, b ->
-      when {
-        a isNewerThan b -> -1
-        b isNewerThan a -> 1
-        else -> 0
-      }
-    }
+    fun <T : AnyVersion> descendingComparator(): Comparator<T> = Comparator { a, b -> -(a compareTo b) }
 
     fun String.toPlainReleaseNumber(): Int {
       if ("""\d\d\d\.[.\d]+""".toRegex().matches(this)) {
