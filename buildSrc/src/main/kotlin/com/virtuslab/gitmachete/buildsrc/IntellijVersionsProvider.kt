@@ -40,13 +40,13 @@ class RealIntelliJVersionsProvider : IntelliJVersionsProvider {
     return result
   }
 
-  private fun extractLibraryVersionByUrl(jsonElement: kotlinx.serialization.json.JsonElement, url: String, libraryName: String, intellijVersion: String): String {
+  private fun extractLibraryVersionByUrl(jsonElement: kotlinx.serialization.json.JsonElement, url: String, intellijVersion: String): String {
     val matchingLibraries = jsonElement.jsonArray.filter { library ->
       library.jsonObject["url"]?.jsonPrimitive?.content == url
     }
 
     if (matchingLibraries.isEmpty()) {
-      throw IllegalStateException("$libraryName not found for IntelliJ version $intellijVersion")
+      throw IllegalStateException("Library with URL $url not found for IntelliJ version $intellijVersion")
     }
 
     val versions = matchingLibraries.mapNotNull { library ->
@@ -54,7 +54,7 @@ class RealIntelliJVersionsProvider : IntelliJVersionsProvider {
     }
 
     if (versions.isEmpty()) {
-      throw IllegalStateException("No version found for $libraryName in IntelliJ version $intellijVersion")
+      throw IllegalStateException("No version found for library with URL $url in IntelliJ version $intellijVersion")
     }
 
     // Find the highest version using compareTo
@@ -73,14 +73,12 @@ class RealIntelliJVersionsProvider : IntelliJVersionsProvider {
     val kotlinVersion = extractLibraryVersionByUrl(
       jsonElement,
       "https://github.com/JetBrains/kotlin",
-      "Kotlin library",
       intellijVersion,
     )
 
     val kotlinxSerializationJsonVersion = extractLibraryVersionByUrl(
       jsonElement,
       "https://github.com/Kotlin/kotlinx.serialization",
-      "kotlinx.serialization library",
       intellijVersion,
     )
 
