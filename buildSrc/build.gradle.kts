@@ -37,7 +37,7 @@ repositories {
 
 val properties = Properties()
 properties.load(rootDir.parentFile.resolve("intellij-versions.properties").inputStream())
-val kotlinVersion = properties.getProperty("earliestSupportedMajorKotlinVersion")!!
+val kotlinVersion = properties.getProperty("kotlinVersion")!!
 val kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
 
 dependencies {

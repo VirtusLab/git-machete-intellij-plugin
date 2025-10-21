@@ -55,7 +55,7 @@ class IntellijVersionsUpdaterTest {
 
     val propertyKeys = listOf(
       "earliestSupportedMajor",
-      "earliestSupportedMajorKotlinVersion",
+      "kotlinVersion",
       "latestMinorsOfOldSupportedMajors",
       "latestStable",
       "upcomingMajorEap",

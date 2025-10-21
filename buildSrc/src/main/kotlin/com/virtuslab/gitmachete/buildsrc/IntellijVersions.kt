@@ -66,7 +66,7 @@ data class ReleaseVersion(override val value: String) : AnyVersion {
 // See https://www.jetbrains.com/intellij-repository/releases/ -> Ctrl+F .idea
 data class IntellijVersions(
   val earliestSupportedMajor: ReleaseVersion,
-  val earliestSupportedMajorKotlinVersion: String,
+  val kotlinVersion: String,
   val latestMinorsOfOldSupportedMajors: List<ReleaseVersion>,
   val latestStable: ReleaseVersion,
   val upcomingMajorEap: BuildNumber?,
@@ -82,7 +82,7 @@ data class IntellijVersions(
     fun from(intellijVersionsProperties: Properties, overrideBuildTarget: String?): IntellijVersions {
       // When this value is updated, remember to update:
       // 1. the minimum required IDEA version in README.md
-      // 2. version of Kotlin - automatically via `./gradlew updateIntellijVersions`
+      // 2. version of Kotlin and kotlinx-serialization-json - automatically via `./gradlew updateIntellijVersions`
       // Note that after bumping `earliestSupportedMajor` from AAAA.B to CCCC.D (CCCC.D is later)
       // the released plugin versions supporting AAAA.B remain available in JetBrains Marketplace.
       // Dropping a support for an IntelliJ version is less painful then,
@@ -90,9 +90,10 @@ data class IntellijVersions(
       // Marking a release version as hidden is a way to forbid its download
       // (see https://plugins.jetbrains.com/plugin/14221-git-machete/versions).
       val earliestSupportedMajor = ReleaseVersion(intellijVersionsProperties.getProperty("earliestSupportedMajor"))
-      // Every time `earliestSupportedMajor` is bumped, this should be bumped to the Kotlin version
-      // listed for `earliestSupportedMajor` in https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#kotlin-standard-library
-      val earliestSupportedMajorKotlinVersion: String = intellijVersionsProperties.getProperty("earliestSupportedMajorKotlinVersion")
+      // Every time `earliestSupportedMajor` is bumped, this should be bumped (using ./gradle updateIntellijVersions)
+      // to the Kotlin version listed for `earliestSupportedMajor`
+      // in https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#kotlin-standard-library
+      val kotlinVersion: String = intellijVersionsProperties.getProperty("kotlinVersion")
 
       // Most recent minor versions of all major releases between the earliest supported (incl.)
       // and latest stable (excl.), used for binary compatibility checks and UI tests
@@ -111,7 +112,7 @@ data class IntellijVersions(
 
       return IntellijVersions(
         earliestSupportedMajor = earliestSupportedMajor,
-        earliestSupportedMajorKotlinVersion = earliestSupportedMajorKotlinVersion,
+        kotlinVersion = kotlinVersion,
         latestMinorsOfOldSupportedMajors = latestMinorsOfOldSupportedMajors,
         latestStable = latestStable,
         upcomingMajorEap = upcomingMajorEap,
@@ -151,7 +152,7 @@ data class IntellijVersions(
     val p = Properties()
     p.setProperty("upcomingMajorEap", upcomingMajorEap?.value ?: "")
     p.setProperty("earliestSupportedMajor", earliestSupportedMajor.value)
-    p.setProperty("earliestSupportedMajorKotlinVersion", earliestSupportedMajorKotlinVersion)
+    p.setProperty("kotlinVersion", kotlinVersion)
     p.setProperty("latestMinorsOfOldSupportedMajors", latestMinorsOfOldSupportedMajors.joinToString(separator = ",") { it.value })
     p.setProperty("latestStable", latestStable.value)
     return p

@@ -161,7 +161,7 @@ allprojects {
   configurations.runtimeClasspath { exclude(group = "org.slf4j", module = "slf4j-api") }
 
   tasks.withType<KotlinCompile>().configureEach {
-    val kotlinLanguageVersion = intellijVersions.earliestSupportedMajorKotlinVersion.replace("""\.\d+$""".toRegex(), "")
+    val kotlinLanguageVersion = intellijVersions.kotlinVersion.replace("""\.\d+$""".toRegex(), "")
     kotlinOptions {
       apiVersion = kotlinLanguageVersion
       languageVersion = kotlinLanguageVersion
