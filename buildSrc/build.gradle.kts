@@ -39,10 +39,12 @@ val properties = Properties()
 properties.load(rootDir.parentFile.resolve("intellij-versions.properties").inputStream())
 val kotlinVersion = properties.getProperty("kotlinVersion")!!
 val kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+val kotlinxSerializationJsonVersion = properties.getProperty("kotlinxSerializationJsonVersion")!!
+val kotlinxSerializationJson = "org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinxSerializationJsonVersion"
 
 dependencies {
   implementation(kotlinGradlePlugin)
-  implementation(libs.kotlin.serialization.json)
+  implementation(kotlinxSerializationJson)
   implementation(libs.pluginPackages.checkerFramework)
   implementation(libs.pluginPackages.grgit)
   implementation(libs.pluginPackages.spotless)

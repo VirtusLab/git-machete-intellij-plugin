@@ -19,7 +19,7 @@ class IntellijVersionsUpdater(private val versionsProvider: IntelliJVersionsProv
   fun update(earliestSupportedMajor: ReleaseVersion): IntellijVersions {
     // As per https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#kotlin-standard-library:
     // "If a plugin supports multiple platform versions, it must (...) target the lowest bundled stdlib version".
-    val kotlinVersion = versionsProvider.getKotlinVersionForIntelliJ(earliestSupportedMajor.value)
+    val kotlinLibraryVersions = versionsProvider.getKotlinLibraryVersionsForIntelliJ(earliestSupportedMajor.value)
 
     // Find the latest stable release
     val latestStable = intellijReleases.first()
@@ -40,7 +40,8 @@ class IntellijVersionsUpdater(private val versionsProvider: IntelliJVersionsProv
 
     return IntellijVersions(
       earliestSupportedMajor = earliestSupportedMajor,
-      kotlinVersion = kotlinVersion,
+      kotlinVersion = kotlinLibraryVersions.kotlinVersion,
+      kotlinxSerializationJsonVersion = kotlinLibraryVersions.kotlinxSerializationJsonVersion,
       latestMinorsOfOldSupportedMajors = latestMinorsOfOldSupportedMajors,
       latestStable = latestStable,
       upcomingMajorEap = upcomingMajorEap,

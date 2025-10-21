@@ -56,6 +56,7 @@ class IntellijVersionsUpdaterTest {
     val propertyKeys = listOf(
       "earliestSupportedMajor",
       "kotlinVersion",
+      "kotlinxSerializationJsonVersion",
       "latestMinorsOfOldSupportedMajors",
       "latestStable",
       "upcomingMajorEap",

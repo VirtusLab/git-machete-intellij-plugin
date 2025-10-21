@@ -67,6 +67,7 @@ data class ReleaseVersion(override val value: String) : AnyVersion {
 data class IntellijVersions(
   val earliestSupportedMajor: ReleaseVersion,
   val kotlinVersion: String,
+  val kotlinxSerializationJsonVersion: String,
   val latestMinorsOfOldSupportedMajors: List<ReleaseVersion>,
   val latestStable: ReleaseVersion,
   val upcomingMajorEap: BuildNumber?,
@@ -94,6 +95,7 @@ data class IntellijVersions(
       // to the Kotlin version listed for `earliestSupportedMajor`
       // in https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#kotlin-standard-library
       val kotlinVersion: String = intellijVersionsProperties.getProperty("kotlinVersion")
+      val kotlinxSerializationJsonVersion: String = intellijVersionsProperties.getProperty("kotlinxSerializationJsonVersion")
 
       // Most recent minor versions of all major releases between the earliest supported (incl.)
       // and latest stable (excl.), used for binary compatibility checks and UI tests
@@ -113,6 +115,7 @@ data class IntellijVersions(
       return IntellijVersions(
         earliestSupportedMajor = earliestSupportedMajor,
         kotlinVersion = kotlinVersion,
+        kotlinxSerializationJsonVersion = kotlinxSerializationJsonVersion,
         latestMinorsOfOldSupportedMajors = latestMinorsOfOldSupportedMajors,
         latestStable = latestStable,
         upcomingMajorEap = upcomingMajorEap,
@@ -153,6 +156,7 @@ data class IntellijVersions(
     p.setProperty("upcomingMajorEap", upcomingMajorEap?.value ?: "")
     p.setProperty("earliestSupportedMajor", earliestSupportedMajor.value)
     p.setProperty("kotlinVersion", kotlinVersion)
+    p.setProperty("kotlinxSerializationJsonVersion", kotlinxSerializationJsonVersion)
     p.setProperty("latestMinorsOfOldSupportedMajors", latestMinorsOfOldSupportedMajors.joinToString(separator = ",") { it.value })
     p.setProperty("latestStable", latestStable.value)
     return p

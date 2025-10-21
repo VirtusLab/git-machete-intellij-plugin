@@ -32,5 +32,3 @@ updates:
         patterns:
           # To lump all updated dependencies together into a single PR (instead of PR-per-dependency)
           - "*"
-    ignore:
-      - dependency-name: "org.jetbrains.kotlinx:kotlinx-serialization-json"
