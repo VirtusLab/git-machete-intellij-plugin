@@ -3,7 +3,6 @@ package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
-import java.util.Arrays;
 import java.util.Collections;
 
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -12,14 +11,11 @@ import git4idea.branch.GitBranchUiHandlerImpl;
 import git4idea.branch.GitBranchWorker;
 import git4idea.branch.GitRebaseParams;
 import git4idea.commands.Git;
-import git4idea.config.GitVersion;
-import git4idea.rebase.GitRebaseOption;
 import git4idea.rebase.GitRebaseUtils;
 import git4idea.repo.GitRepository;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.backend.api.GitMacheteMissingForkPointException;
 import com.virtuslab.gitmachete.backend.api.IGitRebaseParameters;
@@ -51,31 +47,14 @@ public class RebaseOnParentBackgroundable extends SideEffectingBackgroundable {
   }
 
   @UIThreadUnsafe
-  private @Nullable GitRebaseOption getAvailableGitRebaseOptions(String optionText, GitVersion gitVersion) {
-    val maybeEmptyDropEntry = Arrays.stream(GitRebaseOption.values())
-        .filter(entry -> entry.getOption(gitVersion).equals(optionText)).findFirst();
-
-    return maybeEmptyDropEntry.orElse(null);
-  }
-
-  @UIThreadUnsafe
   private GitRebaseParams getIdeaRebaseParamsOf(GitRepository repository, IGitRebaseParameters gitRebaseParams) {
     val gitVersion = repository.getVcs().getVersion();
     val currentBranchName = gitRebaseParams.getCurrentBranch().getName();
     val newBaseBranchFullName = gitRebaseParams.getNewBaseBranch().getFullName();
     val forkPointCommitHash = gitRebaseParams.getForkPointCommit().getHash();
 
-    // TODO (#1114): remove the mechanism for checking the availability of "--empty=drop"
-    val options = kotlin.collections.SetsKt.hashSetOf(GitRebaseOption.INTERACTIVE);
-
-    val gitRebaseOption = getAvailableGitRebaseOptions("--empty=drop", gitVersion);
-    if (gitRebaseOption != null) {
-      options.add(gitRebaseOption);
-    }
-
     return new GitRebaseParams(gitVersion, currentBranchName, newBaseBranchFullName,
-        /* upstream */ forkPointCommitHash, /* selectedOptions */ options, GitRebaseParams.AutoSquashOption.DEFAULT,
-        /* editorHandler */ null);
+        /* upstream */ forkPointCommitHash, /* interactive */ true, /* preserveMerges */ false);
   }
 
   @Override

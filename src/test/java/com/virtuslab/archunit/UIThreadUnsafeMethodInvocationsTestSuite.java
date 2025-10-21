@@ -128,6 +128,7 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
       "git4idea.branch.GitNewBranchDialog.showAndGetOptions()",
       "git4idea.branch.GitNewBranchOptions.getName()",
       "git4idea.branch.GitNewBranchOptions.shouldCheckout()",
+      "git4idea.branch.GitRebaseParams.<init>(git4idea.config.GitVersion, java.lang.String, java.lang.String, java.lang.String, boolean, boolean)",
       "git4idea.config.GitConfigUtil.getBooleanValue(java.lang.String)",
       "git4idea.config.GitSharedSettings.getInstance(com.intellij.openapi.project.Project)",
       "git4idea.config.GitSharedSettings.isBranchProtected(java.lang.String)",
