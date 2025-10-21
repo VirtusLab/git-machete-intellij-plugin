@@ -1,6 +1,7 @@
 # Changelog
 
 ## v6.2.2
+- Fixed: compatibility issues with latest 2025.3 EAPs
 
 ## v6.2.1
 - Fixed: errors on IntelliJ 2025.3 EAP (reported by @kjeffery)
