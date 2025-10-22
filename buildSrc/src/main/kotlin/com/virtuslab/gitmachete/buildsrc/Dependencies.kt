@@ -112,8 +112,7 @@ fun Project.junit() {
   dependencies {
     "testRuntimeOnly"(lib("junit-engine"))
     "testRuntimeOnly"(lib("junit-platformLauncher"))
-    // JUnit 4 is for some reason needed since intellij-platform-gradle-plugin v2.4.0
-    // (might change with future updates of this Gradle plugin; still there in v2.10.0)
+    // FIXME (JetBrains/intellij-platform-gradle-plugin#2045): JUnit 4 is needed on runtime classpath when IntelliJ is on runtime classpath
     "testRuntimeOnly"(lib("junit4"))
   }
 }
