@@ -5,15 +5,10 @@ import java.io.File
 import java.util.*
 
 object PropertiesHelper {
-  fun Properties.getPropertyOrNullIfEmpty(key: String): String? {
-    val value = getProperty(key)
-    return if (value == "") null else value
-  }
+  fun Properties.getPropertyOrNullIfEmpty(key: String): String? = getProperty(key).takeIf { it != "" }
 
-  fun getProperties(file: File): Properties {
-    val properties = Properties()
-    properties.load(file.inputStream())
-    return properties
+  fun getProperties(file: File): Properties = Properties().apply {
+    load(file.inputStream())
   }
 
   fun storeProperties(properties: Properties, file: File) {

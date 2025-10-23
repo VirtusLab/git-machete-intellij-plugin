@@ -17,6 +17,7 @@ junitParams()
 lombok()
 mockito()
 slf4jLambdaApi()
+slf4jSimple("test")
 vavr()
 
 applySubtypingChecker()

@@ -6,7 +6,10 @@ import java.util.Properties
 
 // Not worth using Gradle toolchains, they don't seem to work as expected for buildSrc (or are just hard to configure properly).
 // Let the developers install sdkman to switch Java versions instead.
-val requiredJavaVersion = 21
+val javaVersionProperties = Properties().apply {
+  load(rootDir.parentFile.resolve("java-version.properties").inputStream())
+}
+val requiredJavaVersion = javaVersionProperties.getProperty("jdkVersionForRunningGradle").toInt()
 val currentJavaVersion = JavaVersion.current()
 if (currentJavaVersion != JavaVersion.toVersion(requiredJavaVersion)) {
   throw GradleException(
