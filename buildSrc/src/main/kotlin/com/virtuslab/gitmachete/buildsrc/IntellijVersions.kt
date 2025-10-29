@@ -126,10 +126,7 @@ data class IntellijVersions(
    * @param versionKey Either release number (like 2020.3) or key of intellijVersions (like upcomingMajorEap)
    * @returns Corresponding release numbers.
    */
-  fun resolveIntelliJVersions(versionKey: String?): List<String> {
-    if (versionKey == null) {
-      return emptyList()
-    }
+  fun resolveIntelliJVersions(versionKey: String): List<String> {
     val regex = "^[0-9].*$".toRegex()
     if (regex.matches(versionKey)) {
       return listOf(versionKey)

@@ -23,7 +23,7 @@ plugins {
   alias(libs.plugins.taskTree)
 }
 
-fun getFlagsForAddExports(vararg packages: String, module: String): List<String> = packages.toList().map { "--add-exports=$module/$it=ALL-UNNAMED" }
+fun getFlagsForAddExports(vararg packages: String, module: String): List<String> = packages.map { "--add-exports=$module/$it=ALL-UNNAMED" }
 
 val javaVersionProperties = PropertiesHelper.getProperties(rootDir.resolve("java-version.properties"))
 val targetJavaVersion: JavaVersion by extra(
@@ -91,7 +91,6 @@ allprojects {
       getFlagsForAddExports(
         "com.sun.tools.javac.api",
         "com.sun.tools.javac.code",
-        "com.sun.tools.javac.parser", // this one is for checker-framework
         "com.sun.tools.javac.processing",
         "com.sun.tools.javac.tree",
         "com.sun.tools.javac.util",
@@ -473,14 +472,15 @@ dependencies {
   }
 }
 
+val uiTestAgainst = project.properties["against"] as? String
 val uiTestTargetVersions: List<String> =
-  if (project.properties["against"] != null) {
-    intellijVersions.resolveIntelliJVersions(project.properties["against"] as? String)
+  if (uiTestAgainst != null) {
+    intellijVersions.resolveIntelliJVersions(uiTestAgainst)
   } else {
     listOf(intellijVersions.buildTarget)
   }
 
-uiTestTargetVersions.onEach { version ->
+val allUiTests = uiTestTargetVersions.map { version ->
   tasks.register<Test>("uiTest_$version") {
     description = "Runs UI tests."
     group = "verification"
@@ -515,5 +515,5 @@ uiTestTargetVersions.onEach { version ->
 }
 
 tasks.register("uiTest") {
-  dependsOn(tasks.matching { task -> task.name.startsWith("uiTest_") })
+  dependsOn(allUiTests)
 }
