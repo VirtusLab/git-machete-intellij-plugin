@@ -10,7 +10,6 @@ dependencies {
   api(project(":qual"))
   implementation(project(":branchLayout:api"))
   implementation(project(":frontend:base"))
-  implementation(project(":frontend:resourcebundles"))
 }
 
 lombok()
@@ -52,7 +51,7 @@ val generateMacheteLexer =
 
 tasks.withType<JavaCompile> { dependsOn(generateMacheteLexer) }
 
-configure<CheckerFrameworkExtension> {
+checkerFramework {
   val grammarPackageRegex = grammarJavaPackage.replace(".", "\\.") // replace all literal `.` with `\.`
   extraJavacArgs.add("-AskipDefs=^${grammarPackageRegex}\\.MacheteGenerated.*\$")
 }

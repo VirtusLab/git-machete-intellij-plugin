@@ -20,16 +20,8 @@ if (currentJavaVersion != JavaVersion.toVersion(requiredJavaVersion)) {
 
 plugins {
   `kotlin-dsl`
+  alias(libs.plugins.spotless)
   alias(libs.plugins.taskTree)
-}
-
-buildscript {
-  repositories {
-    gradlePluginPortal()
-  }
-  dependencies {
-    classpath(libs.pluginPackages.spotless)
-  }
 }
 
 repositories {
@@ -65,8 +57,7 @@ tasks.withType<Test> {
   }
 }
 
-apply<SpotlessPlugin>()
-configure<SpotlessExtension> {
+spotless {
   val ktlintEditorConfig = mapOf(
     "indent_size" to 2,
     "ktlint_standard_no-wildcard-imports" to "disabled",

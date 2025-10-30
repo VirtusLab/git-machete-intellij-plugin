@@ -1,17 +1,19 @@
 [versions]
-junitJupiter = "6.0.0"
+junit = "6.0.0"
+spotless = "8.0.0"
 
 [libraries]
-junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junitJupiter" }
-junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junitJupiter" }
-junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junitJupiter" }
-junit-platformLauncher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junitJupiter" }
+junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
+junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
+junit-platformLauncher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit" }
 # Plugin packages
 # This way of applying the plugins is needed for the build-related code in buildSrc/src/main/,
 # see https://docs.gradle.org/current/samples/sample_convention_plugins.html#things_to_note.
 pluginPackages-checkerFramework = "org.checkerframework:checkerframework-gradle-plugin:0.6.60"
 pluginPackages-grgit = "org.ajoberstar.grgit:grgit-gradle:5.3.3"
-pluginPackages-spotless = "com.diffplug.spotless:spotless-plugin-gradle:8.0.0"
+pluginPackages-spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
 
 [plugins]
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 taskTree = "com.dorongold.task-tree:4.0.1"

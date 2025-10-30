@@ -242,7 +242,6 @@ class UITestSuite : IdeProcessPerTestClass() {
     // squashNonCurrentBranch
     squashSelected("hotfix/add-trigger")
     acceptSquash()
-    Thread.sleep(1000) // to prevent #1079, mostly happening locally (rather on CI)
 
     managedBranchesAndCommits = refreshModelAndGetManagedBranchesAndCommits()
     assertEquals(

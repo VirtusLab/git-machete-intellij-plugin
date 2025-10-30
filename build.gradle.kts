@@ -1,7 +1,6 @@
 
 import com.virtuslab.gitmachete.buildsrc.*
 import com.virtuslab.gitmachete.buildsrc.AnyVersion.Companion.productCode
-import com.virtuslab.gitmachete.buildsrc.AnyVersion.Companion.withProductCode
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
@@ -9,7 +8,6 @@ import org.jetbrains.intellij.platform.gradle.tasks.BuildPluginTask
 import org.jetbrains.intellij.platform.gradle.tasks.RunIdeTask
 import org.jetbrains.intellij.platform.gradle.tasks.SignPluginTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompilerExecutionStrategy
 import java.net.URI
 import java.util.Base64
 import java.util.zip.ZipEntry
@@ -22,8 +20,6 @@ plugins {
   alias(libs.plugins.jetbrains.intellij)
   alias(libs.plugins.taskTree)
 }
-
-fun getFlagsForAddExports(vararg packages: String, module: String): List<String> = packages.map { "--add-exports=$module/$it=ALL-UNNAMED" }
 
 val javaVersionProperties = PropertiesHelper.getProperties(rootDir.resolve("java-version.properties"))
 val targetJavaVersion: JavaVersion by extra(
@@ -51,8 +47,6 @@ val shouldRunAllCheckers: Boolean by extra(isCI || project.hasProperty("runAllCh
 
 tasks.register<UpdateIntellijVersions>("updateIntellijVersions")
 
-val configCheckerDirectory: String by extra(rootProject.file("config/checker").path)
-
 allprojects {
   repositories {
     mavenLocal()
@@ -70,14 +64,12 @@ allprojects {
   // This needs to be enabled in each subproject by default because there's going to be no warning
   // if this annotation processor isn't run in any subproject (the strings will be just interpreted
   // verbatim, without interpolation applied).
-  // Otherwise, we'd only capture an unprocessed interpolation in ArchUnit tests by analyzing constant pools of classes.
+  // In such case, we'd only capture an unprocessed interpolation in ArchUnit tests by analyzing constant pools of classes.
   betterStrings()
 
   tasks.withType<JavaCompile> {
     options.compilerArgs.addAll(
       listOf(
-        // Enforce explicit `.toString()` call in code generated for string interpolations
-        "-AcallToStringExplicitlyInInterpolations",
         // Treat each compiler warning (esp. the ones coming from Checker Framework) as an error.
         "-Werror",
         // Warn of type-unsafe operations on generics.
@@ -86,17 +78,6 @@ allprojects {
     )
 
     options.isFork = true
-    // Required for better-strings to work under Java 17: https://github.com/antkorwin/better-strings/issues/21
-    options.forkOptions.jvmArgs?.addAll(
-      getFlagsForAddExports(
-        "com.sun.tools.javac.api",
-        "com.sun.tools.javac.code",
-        "com.sun.tools.javac.processing",
-        "com.sun.tools.javac.tree",
-        "com.sun.tools.javac.util",
-        module = "jdk.compiler",
-      ),
-    )
 
     // `sourceCompatibility` and `targetCompatibility` say nothing about the Java APIs available to the compiled code.
     // In fact, for X < Y it's perfectly possible to compile Java X code that uses Java Y APIs...
@@ -106,10 +87,6 @@ allprojects {
     // `options.release = X` makes sure that regardless of Java version used to run the compiler,
     // only Java X-compatible APIs are available to the compiled code.
     options.release.set(Integer.parseInt(targetJavaVersion.majorVersion))
-
-    // Add files from config/checker directory as inputs to java compilation (so that changes trigger recompilation).
-    // These files are config files for the Checker Framework, which is for Java exclusively.
-    inputs.dir(configCheckerDirectory)
   }
 
   tasks.withType<Javadoc> {
@@ -162,8 +139,8 @@ allprojects {
   // from ALL dependencies.
   configurations.runtimeClasspath { exclude(group = "org.slf4j", module = "slf4j-api") }
 
-  tasks.withType<KotlinCompile>().configureEach {
-    val kotlinLanguageVersion = intellijVersions.kotlinVersion.replace("""\.\d+$""".toRegex(), "")
+  tasks.withType<KotlinCompile> {
+    val kotlinLanguageVersion = intellijVersions.kotlinVersion.replace("""^(\d+\.\d+).*""".toRegex(), "$1")
     kotlinOptions {
       apiVersion = kotlinLanguageVersion
       languageVersion = kotlinLanguageVersion
@@ -187,7 +164,7 @@ subprojects {
   // Let's use full name like frontend-ui-api.jar instead.
   base.archivesName.set(path.replaceFirst(":", "").replace(":", "-"))
 
-  if (path.startsWith(":frontend:") && path != ":frontend:resourcebundles") {
+  if (path.startsWith(":frontend:")) {
     apply(plugin = "org.jetbrains.intellij.platform.module")
 
     applyGuiEffectChecker()
@@ -382,7 +359,9 @@ intellijPlatform {
       // so the builds are more reproducible in this respect.
       val maybeEap = listOfNotNull(intellijVersions.upcomingMajorEap)
       val ideVersions = intellijVersions.latestMinorsOfOldSupportedMajors + intellijVersions.latestStable + maybeEap
-      ides(ideVersions.map { it.value.withProductCode() })
+      ideVersions.map { it.value }.forEach {
+        create(it.productCode(), it)
+      }
     }
   }
 }
@@ -417,16 +396,7 @@ junit()
 lombok("test")
 vavr("test")
 
-// This is needed solely for ArchUnit tests that detect unprocessed string interpolations
-// to access constant pools of classes.
-tasks.withType<Test> {
-  jvmArgs(getFlagsForAddExports("jdk.internal.reflect", module = "java.base"))
-}
-
-val uiTest = sourceSets.create("uiTest") {
-  compileClasspath += sourceSets.main.get().output
-  runtimeClasspath += sourceSets.main.get().output
-}
+val uiTest = sourceSets.create("uiTest")
 
 val uiTestImplementation by configurations.getting {
   extendsFrom(configurations.testImplementation.get())
@@ -434,13 +404,6 @@ val uiTestImplementation by configurations.getting {
 
 val uiTestRuntimeOnly by configurations.getting {
   extendsFrom(configurations.testRuntimeOnly.get())
-}
-
-tasks.withType<KotlinCompile>().named("compileUiTestKotlin") {
-  // See https://kotlinlang.org/docs/gradle-compilation-and-caches.html#defining-kotlin-compiler-execution-strategy
-  // This is needed to avoid a fallback to In process since compilation in Kotlin daemon fails on
-  // `bindSingleton<CIServer>(overrides = true)` in BaseUITestSuite, and it's unclear how to fix/replace it.
-  compilerExecutionStrategy = KotlinCompilerExecutionStrategy.IN_PROCESS
 }
 
 val robotServerPluginZip by configurations.creating
@@ -472,48 +435,4 @@ dependencies {
   }
 }
 
-val uiTestAgainst = project.properties["against"] as? String
-val uiTestTargetVersions: List<String> =
-  if (uiTestAgainst != null) {
-    intellijVersions.resolveIntelliJVersions(uiTestAgainst)
-  } else {
-    listOf(intellijVersions.buildTarget)
-  }
-
-val allUiTests = uiTestTargetVersions.map { version ->
-  tasks.register<Test>("uiTest_$version") {
-    description = "Runs UI tests."
-    group = "verification"
-
-    systemProperty("intellij.version", version)
-    // TODO (#2146): drop support for IntelliJ Community
-    systemProperty("intellij.product", version.productCode())
-
-    testClassesDirs = uiTest.output.classesDirs
-    classpath = configurations["uiTestRuntimeClasspath"] + uiTest.output
-
-    val buildPlugin = tasks.findByPath(":buildPlugin")!!
-    dependsOn(buildPlugin)
-    systemProperty("path.to.build.plugin", buildPlugin.outputs.files.singleFile.path)
-
-    dependsOn(robotServerPluginZip)
-    systemProperty("path.to.robot.server.plugin", robotServerPluginZip.singleFile.path)
-
-    if (!isCI) {
-      outputs.upToDateWhen { false }
-    }
-
-    val testFilter = project.properties["tests"]
-    if (testFilter != null) {
-      filter { includeTestsMatching("*.*$testFilter*") }
-    }
-
-    useJUnitPlatform()
-    jvmArgs("--add-opens=java.base/java.lang=ALL-UNNAMED")
-    testLogging.showStandardStreams = true
-  }
-}
-
-tasks.register("uiTest") {
-  dependsOn(allUiTests)
-}
+configureUiTests()

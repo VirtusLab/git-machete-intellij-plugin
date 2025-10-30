@@ -5,17 +5,14 @@ import java.lang.IllegalStateException
 import java.util.Properties
 import kotlin.reflect.full.memberProperties
 
-sealed interface AnyVersion {
+sealed interface AnyVersion<Self : AnyVersion<Self>> {
   val value: String
 
   /**
    * Compares this version with another version.
    * @return negative if this < other, zero if this == other, positive if this > other
    */
-  infix fun compareTo(rhsVersion: AnyVersion): Int {
-    if (rhsVersion.javaClass != this.javaClass) {
-      throw IllegalArgumentException("$this and $rhsVersion cannot be compared")
-    }
+  infix fun compareTo(rhsVersion: AnyVersion<Self>): Int {
     val lhsSplit = value.split('.')
     val rhsSplit = rhsVersion.value.split('.')
 
@@ -30,7 +27,7 @@ sealed interface AnyVersion {
   }
 
   companion object {
-    fun <T : AnyVersion> descendingComparator(): Comparator<T> = Comparator { a, b -> -(a compareTo b) }
+    fun <T : AnyVersion<T>> descendingComparator(): Comparator<T> = Comparator { a, b -> -(a compareTo b) }
 
     fun String.toPlainReleaseNumber(): Int {
       if ("""\d\d\d\.[.\d]+""".toRegex().matches(this)) {
@@ -45,17 +42,15 @@ sealed interface AnyVersion {
     // TODO (#2146): drop support for IntelliJ Community
     // IntelliJ 2025.3 removed the distinction between Community and Ultimate
     fun String.productCode(): String = if (toPlainReleaseNumber() >= 253) "IU" else "IC"
-
-    fun String.withProductCode(): String = "${productCode()}-$this"
   }
 }
 
-data class BuildNumber(override val value: String) : AnyVersion {
+data class BuildNumber(override val value: String) : AnyVersion<BuildNumber> {
   fun toMajorVersion(): ReleaseVersion = ReleaseVersion("20${value.take(2)}.${value[2]}")
   override fun toString() = value
 }
 
-data class ReleaseVersion(override val value: String) : AnyVersion {
+data class ReleaseVersion(override val value: String) : AnyVersion<ReleaseVersion> {
   fun toBuildNumber(): BuildNumber = BuildNumber(value.substring(2, 6).filter { it != '.' })
   fun toMajorVersion(): ReleaseVersion = ReleaseVersion(value.take(6))
   override fun toString() = value
@@ -89,6 +84,7 @@ data class IntellijVersions(
       // Marking a release version as hidden is a way to forbid its download
       // (see https://plugins.jetbrains.com/plugin/14221-git-machete/versions).
       val earliestSupportedMajor = ReleaseVersion(intellijVersionsProperties.getProperty("earliestSupportedMajor"))
+
       // Every time `earliestSupportedMajor` is bumped, this should be bumped (using ./gradle updateIntellijVersions)
       // to the Kotlin version listed for `earliestSupportedMajor`
       // in https://plugins.jetbrains.com/docs/intellij/using-kotlin.html#kotlin-standard-library
@@ -140,20 +136,18 @@ data class IntellijVersions(
     return when (propertyValue) {
       null -> listOf()
       is String -> listOf(propertyValue)
-      is AnyVersion -> listOf(propertyValue.value)
-      is List<*> -> propertyValue.mapNotNull { it as? AnyVersion }.map { it.value }
+      is AnyVersion<*> -> listOf(propertyValue.value)
+      is List<*> -> propertyValue.mapNotNull { it as? AnyVersion<*> }.map { it.value }
       else -> throw IllegalStateException("Unexpected property value found for $versionKey: $propertyValue")
     }
   }
 
-  fun toProperties(): Properties {
-    val p = Properties()
-    p.setProperty("upcomingMajorEap", upcomingMajorEap?.value ?: "")
-    p.setProperty("earliestSupportedMajor", earliestSupportedMajor.value)
-    p.setProperty("kotlinVersion", kotlinVersion)
-    p.setProperty("kotlinxSerializationJsonVersion", kotlinxSerializationJsonVersion)
-    p.setProperty("latestMinorsOfOldSupportedMajors", latestMinorsOfOldSupportedMajors.joinToString(separator = ",") { it.value })
-    p.setProperty("latestStable", latestStable.value)
-    return p
+  fun toProperties(): Properties = Properties().apply {
+    setProperty("upcomingMajorEap", upcomingMajorEap?.value ?: "")
+    setProperty("earliestSupportedMajor", earliestSupportedMajor.value)
+    setProperty("kotlinVersion", kotlinVersion)
+    setProperty("kotlinxSerializationJsonVersion", kotlinxSerializationJsonVersion)
+    setProperty("latestMinorsOfOldSupportedMajors", latestMinorsOfOldSupportedMajors.joinToString(separator = ",") { it.value })
+    setProperty("latestStable", latestStable.value)
   }
 }

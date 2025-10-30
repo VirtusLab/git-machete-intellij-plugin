@@ -54,8 +54,6 @@ class IntellijVersionsTest {
     val version2 = BuildNumber("0.0.0")
     assertEquals(0, version1 compareTo version1)
     assertEquals(0, version2 compareTo version2)
-
-    assertThrows<IllegalArgumentException> { version1 compareTo ReleaseVersion("2025.3") }
   }
 
   @Test

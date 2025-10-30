@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.resourcebundles.junit;
+package com.virtuslab.gitmachete.frontend.resourcebundles;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

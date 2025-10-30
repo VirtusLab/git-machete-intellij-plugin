@@ -4,11 +4,23 @@ import org.checkerframework.gradle.plugin.CheckerFrameworkExtension
 import org.checkerframework.gradle.plugin.CheckerFrameworkPlugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.kotlin.dsl.*
 
 fun Project.configureCheckerFramework() {
   apply<CheckerFrameworkPlugin>()
   configure<CheckerFrameworkExtension> {
+    checkerQual()
+    dependencies {
+      "checkerFramework"(lib("checker"))
+    }
+
+    val configCheckerDirectory = rootProject.file("config/checker").path
+    tasks.withType<JavaCompile> {
+      // Add files from config/checker directory as inputs to Java compilation (so that changes trigger recompilation).
+      inputs.dir(configCheckerDirectory)
+    }
+
     excludeTests = true
     checkers =
       mutableListOf(
@@ -42,7 +54,7 @@ fun Project.configureCheckerFramework() {
         "-Alint=cast:redundant,cast:unsafe",
         "-ArequirePrefixInWarningSuppressions",
         "-AshowSuppressWarningsStrings",
-        "-Astubs=${rootProject.extra.get("configCheckerDirectory")}",
+        "-Astubs=$configCheckerDirectory",
         // The `-AstubWarnIfNotFoundIgnoresClasses` flag is required since Checker 3.14.0,
         // the version since which `-AstubWarnIfNotFound` is assumed to be true for custom stub files.
         // Without this flag, we would end up with a lot of errors in subprojects where any of
@@ -53,8 +65,6 @@ fun Project.configureCheckerFramework() {
         "-AstubWarnIfNotFoundIgnoresClasses",
         "-AsuppressWarnings=${suppressedWarnings.joinToString(",")}",
       )
-
-    checker()
   }
 }
 
@@ -90,13 +100,13 @@ fun Project.applyI18nFormatterAndTaintingCheckers() {
         "org.checkerframework.checker.tainting.TaintingChecker",
       ),
     )
-    extraJavacArgs.add("-Abundlenames=GitMacheteBundle")
-  }
 
-  // Apparently, I18nFormatterChecker doesn't see resource bundles in its classpath unless they're
-  // defined in a separate module.
-  dependencies {
-    "checkerFramework"(project(":frontend:resourcebundles"))
+    val frontendBaseProject = project(":frontend:base")
+    val javaPlugin = frontendBaseProject.extensions.getByType<JavaPluginExtension>()
+    val mainSourceSet = javaPlugin.sourceSets["main"]
+    val bundlePropertiesFile = mainSourceSet.resources.srcDirs.first().resolve("GitMacheteBundle.properties")
+
+    extraJavacArgs.add("-Apropfiles=${bundlePropertiesFile.path}")
   }
 }
 

@@ -6,7 +6,6 @@ dependencies {
   implementation(project(":frontend:base"))
   implementation(project(":frontend:file"))
   implementation(project(":frontend:graph:api"))
-  implementation(project(":frontend:resourcebundles"))
   implementation(project(":frontend:ui:api"))
 }
 

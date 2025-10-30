@@ -6,6 +6,8 @@ import org.gradle.api.artifacts.MinimalExternalModuleDependency
 import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.compile.JavaCompile
+import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -34,7 +36,7 @@ fun Project.applyKotlinConfig() {
 // See https://melix.github.io/blog/2021/03/version-catalogs-faq.html#_but_how_can_i_use_the_catalog_in_plugins_defined_in_buildsrc
 private fun Project.versionCatalog(): VersionCatalog = this.rootProject.extensions.getByType<VersionCatalogsExtension>().named("libs")
 
-private fun Project.lib(id: String): Provider<MinimalExternalModuleDependency> = this.versionCatalog().findLibrary(id).get()
+fun Project.lib(id: String): Provider<MinimalExternalModuleDependency> = this.versionCatalog().findLibrary(id).get()
 
 private infix fun String.camelConcat(other: String): String {
   if (this != "") {
@@ -54,6 +56,12 @@ fun Project.archunit() {
   dependencies {
     "testImplementation"(lib("archunit"))
   }
+
+  // This is needed for the tests that detect unprocessed string interpolations,
+  // to access constant pools of classes.
+  tasks.withType<Test> {
+    jvmArgs(getFlagsForAddExports("jdk.internal.reflect", module = "java.base"))
+  }
 }
 
 fun Project.betterStrings(scopePrefixes: List<String> = listOf("", "test")) {
@@ -62,17 +70,25 @@ fun Project.betterStrings(scopePrefixes: List<String> = listOf("", "test")) {
       (scopePrefix camelConcat "annotationProcessor")(lib("betterStrings"))
     }
   }
+  tasks.withType<JavaCompile> {
+    // Enforce explicit `.toString()` call in code generated for string interpolations
+    options.compilerArgs.add("-AcallToStringExplicitlyInInterpolations")
+    // Required for better-strings to work under Java 17: https://github.com/antkorwin/better-strings/issues/21
+    options.forkOptions.jvmArgs?.addAll(
+      getFlagsForAddExports(
+        "com.sun.tools.javac.api",
+        "com.sun.tools.javac.code",
+        "com.sun.tools.javac.processing",
+        "com.sun.tools.javac.tree",
+        "com.sun.tools.javac.util",
+        module = "jdk.compiler",
+      ),
+    )
+  }
 }
 
 fun Project.betterStrings(scopePrefix: String) {
   betterStrings(listOf(scopePrefix))
-}
-
-fun Project.checker() {
-  checkerQual()
-  dependencies {
-    "checkerFramework"(lib("checker"))
-  }
 }
 
 fun Project.checkerQual(scopePrefix: String = "") {
