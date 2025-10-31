@@ -22,7 +22,7 @@ kodein = "org.kodein.di:kodein-di-jvm:7.28.0"
 kotlin-coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2"
 lombok = "org.projectlombok:lombok:1.18.42"
 mockito = "org.mockito:mockito-junit-jupiter:5.20.0"
-okhttp = "com.squareup.okhttp3:okhttp:5.2.1"
+okhttp = "com.squareup.okhttp3:okhttp:5.3.0"
 remoteRobot-client = { module = "com.intellij.remoterobot:remote-robot", version.ref = "remoteRobot" }
 remoteRobot-serverPlugin = { module = "com.intellij.remoterobot:robot-server-plugin", version.ref = "remoteRobot" }
 slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
@@ -36,5 +36,5 @@ vavr = "io.vavr:vavr:0.10.7"
 [plugins]
 jetbrains-changelog = "org.jetbrains.changelog:2.4.0"
 jetbrains-grammarkit = "org.jetbrains.grammarkit:2022.3.2.2"
-jetbrains-intellij = "org.jetbrains.intellij.platform:2.10.2"
+jetbrains-intellij = "org.jetbrains.intellij.platform:2.10.3"
 taskTree = "com.dorongold.task-tree:4.0.1"
