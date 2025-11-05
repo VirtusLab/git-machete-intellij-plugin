@@ -171,6 +171,9 @@ public class Aux {
     return result;
   }
 
+  private record CommitAndContainingBranches(IGitCoreCommit commit, Seq<ILocalBranchReference> containingBranches) {
+  }
+
   @UIThreadUnsafe
   @Nullable
   public ILocalBranchReference inferParentForLocalBranch(
@@ -185,7 +188,7 @@ public class Aux {
     LOG.debug(() -> "Branch(es) eligible for becoming the parent of ${localBranchName}: " +
         "${eligibleLocalBranchNames.mkString(\", \")}");
 
-    Tuple2<IGitCoreCommit, Seq<ILocalBranchReference>> commitAndContainingBranches = gitCoreRepository
+    CommitAndContainingBranches commitAndContainingBranches = gitCoreRepository
         .ancestorsOf(localBranch.getPointedCommit(), MAX_ANCESTOR_COMMIT_COUNT)
         .map(commit -> {
           Seq<ILocalBranchReference> eligibleContainingBranches = deriveBranchesContainingGivenCommitInReflog()
@@ -195,14 +198,14 @@ public class Aux {
                   : candidateBranch.asRemote().getTrackedLocalBranch())
               .filter(correspondingLocalBranch -> !correspondingLocalBranch.getName().equals(localBranch.getName())
                   && eligibleLocalBranchNames.contains(correspondingLocalBranch.getName()));
-          return Tuple.of(commit, eligibleContainingBranches);
+          return new CommitAndContainingBranches(commit, eligibleContainingBranches);
         })
-        .find(ccbs -> ccbs._2.nonEmpty())
+        .find(ccbs -> ccbs.containingBranches.nonEmpty())
         .getOrNull();
 
     if (commitAndContainingBranches != null) {
-      val commit = commitAndContainingBranches._1;
-      val containingBranches = commitAndContainingBranches._2.toList();
+      val commit = commitAndContainingBranches.commit;
+      val containingBranches = commitAndContainingBranches.containingBranches.toList();
       assert containingBranches.nonEmpty() : "containingBranches is empty";
 
       val firstContainingBranch = containingBranches.head();
