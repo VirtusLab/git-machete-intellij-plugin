@@ -10,7 +10,7 @@ junit-platformLauncher = { module = "org.junit.platform:junit-platform-launcher"
 # Plugin packages
 # This way of applying the plugins is needed for the build-related code in buildSrc/src/main/,
 # see https://docs.gradle.org/current/samples/sample_convention_plugins.html#things_to_note.
-pluginPackages-checkerFramework = "org.checkerframework:checkerframework-gradle-plugin:0.6.60"
+pluginPackages-checkerFramework = "org.checkerframework:checkerframework-gradle-plugin:0.6.61"
 pluginPackages-grgit = "org.ajoberstar.grgit:grgit-gradle:5.3.3"
 pluginPackages-spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
 
