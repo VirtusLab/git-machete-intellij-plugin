@@ -171,7 +171,7 @@ To regenerate the CLI outputs:
 ### Run UI tests
 
 ```shell
-./gradlew [-Pagainst=<e.g. 2021.2>] [-Ptests=<e.g. toggle>] uiTest
+./gradlew [-Pagainst=<e.g. 2021.2>] [-Ptests=<e.g. Squash>] uiTest
 ```
 
 See [Robot plugin](https://github.com/JetBrains/intellij-ui-test-robot)

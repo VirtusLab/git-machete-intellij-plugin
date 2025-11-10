@@ -179,13 +179,7 @@ subprojects {
 
     dependencies {
       intellijPlatform {
-        // TODO (#2143): 2025.3 EAP doesn't provide it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap
-        if (path == ":frontend:file") {
-          // Let's use a 2025.2 release instead for building this subproject until 2025.3 is fixed
-          intellijIdeaCommunity(intellijVersions.latestStable.value)
-        } else {
-          intellijIdea(intellijVersions.buildTarget)
-        }
+        intellijIdea(intellijVersions.buildTarget)
         bundledPlugin("Git4Idea")
       }
     }
@@ -367,9 +361,7 @@ intellijPlatform {
 }
 
 tasks.withType<RunIdeTask>().named("runIde") {
-  jvmArgumentProviders += CommandLineArgumentProvider {
-    listOf("-Xmx20G")
-  }
+  jvmArgs("-Xmx20G")
 }
 
 dependencies {
@@ -397,15 +389,8 @@ lombok("test")
 vavr("test")
 
 val uiTest = sourceSets.create("uiTest")
-
-val uiTestImplementation by configurations.getting {
-  extendsFrom(configurations.testImplementation.get())
-}
-
-val uiTestRuntimeOnly by configurations.getting {
-  extendsFrom(configurations.testRuntimeOnly.get())
-}
-
+val uiTestImplementation by configurations.getting
+val uiTestRuntimeOnly by configurations.getting
 val robotServerPluginZip by configurations.creating
 
 repositories {
@@ -419,13 +404,11 @@ dependencies {
     testFramework(TestFrameworkType.Starter, configurationName = uiTestImplementation.name)
   }
 
+  junit("uiTest")
   uiTestImplementation(testFixtures(project(":testCommon")))
-  uiTestImplementation(libs.junit.api)
   uiTestImplementation(libs.kodein)
   uiTestImplementation(libs.okhttp)
   uiTestImplementation(libs.remoteRobot.client)
-
-  uiTestRuntimeOnly(libs.junit.platformLauncher)
   uiTestRuntimeOnly(libs.kotlin.coroutines)
 
   robotServerPluginZip(libs.remoteRobot.serverPlugin) {

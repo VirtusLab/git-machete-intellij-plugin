@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.buildsrc
 
 import com.virtuslab.gitmachete.buildsrc.AnyVersion.Companion.productCode
 import org.gradle.api.Project
+import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -11,7 +12,7 @@ fun Project.configureUiTests() {
   val intellijVersions: IntellijVersions by rootProject.extra
   val isCI: Boolean by rootProject.extra
 
-  val uiTest = extensions.getByType<org.gradle.api.plugins.JavaPluginExtension>().sourceSets.getByName("uiTest")
+  val uiTest = extensions.getByType<JavaPluginExtension>().sourceSets.getByName("uiTest")
 
   tasks.named<KotlinCompile>("compileUiTestKotlin") {
     // See https://kotlinlang.org/docs/gradle-compilation-and-caches.html#defining-kotlin-compiler-execution-strategy
