@@ -16,6 +16,14 @@ lombok()
 slf4jLambdaApi()
 vavr()
 
+// TODO (#2143): workaround for https://youtrack.jetbrains.com/issue/IJPL-217565
+val grammarKitMissingDependencies by configurations.creating
+dependencies {
+  grammarKitMissingDependencies("it.unimi.dsi:fastutil:8.5.15")
+  grammarKitMissingDependencies("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.4.0")
+  grammarKitMissingDependencies("org.jetbrains.intellij.deps:asm-all:9.6.1")
+}
+
 applyI18nFormatterAndTaintingCheckers()
 
 val grammarSourcesRoot = "src/main/grammar"
@@ -38,6 +46,8 @@ val generateMacheteParser =
     pathToParser.set("/$grammarJavaPackagePath/MacheteGeneratedParser.java")
     pathToPsiRoot.set("/$grammarJavaPackagePath/")
     purgeOldFiles.set(false)
+
+    classpath += files(grammarKitMissingDependencies)
   }
 
 val generateMacheteLexer =

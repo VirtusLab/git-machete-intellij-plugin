@@ -123,13 +123,14 @@ fun Project.junitApi(scopePrefix: String) {
   }
 }
 
-fun Project.junit() {
-  junitApi("test")
+fun Project.junit(scopePrefix: String = "test") {
+  junitApi(scopePrefix)
   dependencies {
-    "testRuntimeOnly"(lib("junit-engine"))
-    "testRuntimeOnly"(lib("junit-platformLauncher"))
+    val runtimeScope = scopePrefix camelConcat "runtimeOnly"
+    runtimeScope(lib("junit-engine"))
+    runtimeScope(lib("junit-platformLauncher"))
     // FIXME (JetBrains/intellij-platform-gradle-plugin#2045): JUnit 4 is needed on runtime classpath when IntelliJ is on runtime classpath
-    "testRuntimeOnly"(lib("junit4"))
+    runtimeScope(lib("junit4"))
   }
 }
 
