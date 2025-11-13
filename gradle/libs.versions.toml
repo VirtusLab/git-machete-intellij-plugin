@@ -35,6 +35,6 @@ vavr = "io.vavr:vavr:0.10.7"
 # see https://docs.gradle.org/current/samples/sample_convention_plugins.html#things_to_note.
 [plugins]
 jetbrains-changelog = "org.jetbrains.changelog:2.4.0"
-jetbrains-grammarkit = "org.jetbrains.grammarkit:2022.3.2.2"
+jetbrains-grammarkit = "org.jetbrains.grammarkit:2023.3"
 jetbrains-intellij = "org.jetbrains.intellij.platform:2.10.4"
 taskTree = "com.dorongold.task-tree:4.0.1"

@@ -360,7 +360,7 @@ intellijPlatform {
   }
 }
 
-tasks.withType<RunIdeTask>().named("runIde") {
+tasks.runIde {
   jvmArgs("-Xmx20G")
 }
 

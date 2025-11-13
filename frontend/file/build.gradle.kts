@@ -16,14 +16,6 @@ lombok()
 slf4jLambdaApi()
 vavr()
 
-// TODO (#2143): workaround for https://youtrack.jetbrains.com/issue/IJPL-217565
-val grammarKitMissingDependencies by configurations.creating
-dependencies {
-  grammarKitMissingDependencies("it.unimi.dsi:fastutil:8.5.15")
-  grammarKitMissingDependencies("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.4.0")
-  grammarKitMissingDependencies("org.jetbrains.intellij.deps:asm-all:9.6.1")
-}
-
 applyI18nFormatterAndTaintingCheckers()
 
 val grammarSourcesRoot = "src/main/grammar"
@@ -39,8 +31,14 @@ val additionalSourceDirs = listOf(generatedParserJavaSourcesRoot, generatedLexer
 
 sourceSets["main"].java { srcDir(additionalSourceDirs) }
 
-val generateMacheteParser =
-  tasks.withType<GenerateParserTask> {
+// FIXME (#2186): required to avoid a fallback to JavaHelper.ReflectionHelper and a ClassCastException
+val grammarKitMissingDependencies by configurations.creating
+dependencies {
+  grammarKitMissingDependencies("org.jetbrains.intellij.deps:asm-all:9.6.1")
+}
+
+tasks {
+  generateParser {
     sourceFile.set(file("$grammarSourcesRoot/Machete.bnf"))
     targetRootOutputDir.set(file(generatedParserJavaSourcesRoot))
     pathToParser.set("/$grammarJavaPackagePath/MacheteGeneratedParser.java")
@@ -50,16 +48,18 @@ val generateMacheteParser =
     classpath += files(grammarKitMissingDependencies)
   }
 
-val generateMacheteLexer =
-  tasks.withType<GenerateLexerTask> {
-    dependsOn(generateMacheteParser)
+  generateLexer {
+    dependsOn(generateParser)
 
     sourceFile.set(file("$grammarSourcesRoot/Machete.flex"))
     targetOutputDir.set(file("$generatedLexerJavaSourcesRoot/$grammarJavaPackagePath/"))
     purgeOldFiles.set(false)
   }
 
-tasks.withType<JavaCompile> { dependsOn(generateMacheteLexer) }
+  compileJava {
+    dependsOn(generateLexer)
+  }
+}
 
 checkerFramework {
   val grammarPackageRegex = grammarJavaPackage.replace(".", "\\.") // replace all literal `.` with `\.`

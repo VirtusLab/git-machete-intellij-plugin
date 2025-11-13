@@ -7,7 +7,7 @@ version: 2
 updates:
   - package-ecosystem: "gradle"
     directory: "/"
-    # TODO (#2143): deps used only as a workaround
+    # TODO (#2186): dep used only as a workaround
     exclude-paths:
       - "frontend/file"
     schedule:
