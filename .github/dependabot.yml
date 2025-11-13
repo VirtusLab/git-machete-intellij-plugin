@@ -7,9 +7,6 @@ version: 2
 updates:
   - package-ecosystem: "gradle"
     directory: "/"
-    # TODO (#2186): dep used only as a workaround
-    exclude-paths:
-      - "frontend/file"
     schedule:
       interval: weekly
     target-branch: develop

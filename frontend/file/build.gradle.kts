@@ -1,6 +1,4 @@
 import com.virtuslab.gitmachete.buildsrc.*
-import org.checkerframework.gradle.plugin.CheckerFrameworkExtension
-import org.jetbrains.grammarkit.tasks.*
 
 plugins {
   alias(libs.plugins.jetbrains.grammarkit)
@@ -31,12 +29,6 @@ val additionalSourceDirs = listOf(generatedParserJavaSourcesRoot, generatedLexer
 
 sourceSets["main"].java { srcDir(additionalSourceDirs) }
 
-// FIXME (#2186): required to avoid a fallback to JavaHelper.ReflectionHelper and a ClassCastException
-val grammarKitMissingDependencies by configurations.creating
-dependencies {
-  grammarKitMissingDependencies("org.jetbrains.intellij.deps:asm-all:9.6.1")
-}
-
 tasks {
   generateParser {
     sourceFile.set(file("$grammarSourcesRoot/Machete.bnf"))
@@ -44,8 +36,6 @@ tasks {
     pathToParser.set("/$grammarJavaPackagePath/MacheteGeneratedParser.java")
     pathToPsiRoot.set("/$grammarJavaPackagePath/")
     purgeOldFiles.set(false)
-
-    classpath += files(grammarKitMissingDependencies)
   }
 
   generateLexer {
