@@ -1,4 +1,5 @@
 /allure-results/
+bin/
 build/
 *.class
 *.crt

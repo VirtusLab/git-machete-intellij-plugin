@@ -1,1 +1,1 @@
-val prospectiveReleaseVersion by extra("6.2.3")
+val prospectiveReleaseVersion by extra("7.0.0")

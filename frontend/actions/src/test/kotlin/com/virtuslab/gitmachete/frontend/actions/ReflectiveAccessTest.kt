@@ -13,11 +13,4 @@ class ReflectiveAccessTest {
   fun testCreateGit4IdeaOptions() {
     MyGitNewBranchDialog.Companion.createGit4IdeaOptions("name", checkout = true, reset = true, setTracking = true)
   }
-
-  @Test
-  fun testCreateGitBranchCheckoutOperation() {
-    val project = mock<Project>()
-    val gitRepository = mock<GitRepository>()
-    BaseSlideInBelowAction.createGitBranchCheckoutOperation(project, gitRepository)
-  }
 }

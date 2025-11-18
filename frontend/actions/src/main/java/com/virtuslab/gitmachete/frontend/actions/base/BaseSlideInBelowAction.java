@@ -7,13 +7,10 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitRemoteBranch;
 import git4idea.repo.GitRemote;
@@ -192,7 +189,8 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
         @UIThreadUnsafe
         @Override
         public void run() {
-          createGitBranchCheckoutOperation(project, gitRepository).perform(startPoint, options, /* callInAwtLater */ null);
+          val operation = new GitBranchCheckoutOperation(project, Collections.singletonList(gitRepository));
+          operation.perform(startPoint, options, /* callInAwtLater */ null);
         }
       });
 
@@ -216,27 +214,6 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
           "Fetching Remote Branch",
           getNonHtmlString("action.GitMachete.Pull.notification.title.pull-fail").fmt(branchName),
           getString("action.GitMachete.Pull.notification.title.pull-success.HTML").fmt(branchName)).queue());
-    }
-  }
-
-  public static GitBranchCheckoutOperation createGitBranchCheckoutOperation(Project project, GitRepository gitRepository) {
-    // TODO (#1938): replace with a non-reflective call once 2024.2 is no longer supported
-    Constructor<GitBranchCheckoutOperation> constructor;
-    try {
-      // Since 243.19420.21-EAP-SNAPSHOT
-      constructor = GitBranchCheckoutOperation.class.getConstructor(Project.class, java.util.Collection.class);
-    } catch (NoSuchMethodException e) {
-      try {
-        // Before 243.19420.21-EAP-SNAPSHOT
-        constructor = GitBranchCheckoutOperation.class.getConstructor(Project.class, java.util.List.class);
-      } catch (NoSuchMethodException e1) {
-        throw new RuntimeException(e1);
-      }
-    }
-    try {
-      return constructor.newInstance(project, Collections.singletonList(gitRepository));
-    } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-      throw new RuntimeException(e);
     }
   }
 
