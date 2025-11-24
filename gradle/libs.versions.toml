@@ -18,11 +18,11 @@ junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "jun
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
 junit-platformLauncher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit" }
-kodein = "org.kodein.di:kodein-di-jvm:7.29.0"
+kodein = "org.kodein.di:kodein-di-jvm:7.30.0"
 kotlin-coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2"
 lombok = "org.projectlombok:lombok:1.18.42"
 mockito = "org.mockito:mockito-junit-jupiter:5.20.0"
-okhttp = "com.squareup.okhttp3:okhttp:5.3.1"
+okhttp = "com.squareup.okhttp3:okhttp:5.3.2"
 remoteRobot-client = { module = "com.intellij.remoterobot:remote-robot", version.ref = "remoteRobot" }
 remoteRobot-serverPlugin = { module = "com.intellij.remoterobot:robot-server-plugin", version.ref = "remoteRobot" }
 slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
