@@ -10,5 +10,5 @@ class MockIntelliJVersionsProvider(
     else -> emptyList()
   }
 
-  override fun getKotlinLibraryVersionsForIntelliJ(intellijVersion: String): KotlinLibraryVersions = KotlinLibraryVersions(kotlinVersion = "1.9.22", kotlinxSerializationJsonVersion = "1.6.3")
+  override fun getKotlinLibraryVersionsForIntelliJ(intellijVersion: String): KotlinLibraryVersions = KotlinLibraryVersions(kotlinVersion = "1.9.22")
 }

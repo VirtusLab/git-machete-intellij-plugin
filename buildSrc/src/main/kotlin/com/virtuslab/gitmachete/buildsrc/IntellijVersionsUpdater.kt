@@ -41,7 +41,6 @@ class IntellijVersionsUpdater(private val versionsProvider: IntelliJVersionsProv
     return IntellijVersions(
       earliestSupportedMajor = earliestSupportedMajor,
       kotlinVersion = kotlinLibraryVersions.kotlinVersion,
-      kotlinxSerializationJsonVersion = kotlinLibraryVersions.kotlinxSerializationJsonVersion,
       latestMinorsOfOldSupportedMajors = latestMinorsOfOldSupportedMajors,
       latestStable = latestStable,
       upcomingMajorEap = upcomingMajorEap,
