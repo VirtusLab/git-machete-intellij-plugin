@@ -9,7 +9,6 @@ import java.net.URI
 
 data class KotlinLibraryVersions(
   val kotlinVersion: String,
-  val kotlinxSerializationJsonVersion: String,
 )
 
 interface IntelliJVersionsProvider {
@@ -76,13 +75,7 @@ class RealIntelliJVersionsProvider : IntelliJVersionsProvider {
       intellijVersion,
     )
 
-    val kotlinxSerializationJsonVersion = extractLibraryVersionByUrl(
-      jsonElement,
-      "https://github.com/Kotlin/kotlinx.serialization",
-      intellijVersion,
-    )
-
-    println("getKotlinLibraryVersionsForIntelliJ($intellijVersion) = KotlinLibraryVersions(kotlinVersion=$kotlinVersion, kotlinxSerializationJsonVersion=$kotlinxSerializationJsonVersion)\n")
-    return KotlinLibraryVersions(kotlinVersion, kotlinxSerializationJsonVersion)
+    println("getKotlinLibraryVersionsForIntelliJ($intellijVersion) = KotlinLibraryVersions(kotlinVersion=$kotlinVersion)\n")
+    return KotlinLibraryVersions(kotlinVersion)
   }
 }

@@ -13,7 +13,6 @@ class IntellijVersionsTest {
     val iv = IntellijVersions(
       earliestSupportedMajor = ReleaseVersion("2020.3"),
       kotlinVersion = "1.9",
-      kotlinxSerializationJsonVersion = "1.6.3",
       latestMinorsOfOldSupportedMajors = listOf("2020.3.4", "2021.1.3", "2021.2.4", "2021.3.3", "2022.1.4").map { ReleaseVersion(it) },
       latestStable = ReleaseVersion("2022.2.2"),
       upcomingMajorEap = null,
@@ -33,7 +32,6 @@ class IntellijVersionsTest {
     val iv = IntellijVersions(
       earliestSupportedMajor = ReleaseVersion("2020.3"),
       kotlinVersion = "1.9",
-      kotlinxSerializationJsonVersion = "1.6.3",
       latestMinorsOfOldSupportedMajors = listOf("2020.3.4", "2021.1.3", "2021.2.4", "2021.3.3", "2022.1.4").map { ReleaseVersion(it) },
       latestStable = ReleaseVersion("2022.2.2"),
       upcomingMajorEap = BuildNumber("223.7571.182"),
