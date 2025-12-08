@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.uitest
 
 import com.intellij.driver.client.Driver
+import com.intellij.driver.sdk.invokeAction
 import com.intellij.driver.sdk.isProjectOpened
 import com.intellij.driver.sdk.waitForIndicators
 import com.intellij.ide.starter.ci.CIServer
@@ -14,6 +15,9 @@ import com.intellij.ide.starter.plugins.PluginConfigurator
 import com.intellij.ide.starter.project.ProjectInfoSpec
 import com.intellij.ide.starter.runner.Starter
 import com.intellij.remoterobot.RemoteRobot
+import com.intellij.remoterobot.fixtures.ComponentFixture
+import com.intellij.remoterobot.search.locators.byXpath
+import com.intellij.remoterobot.utils.waitFor
 import com.virtuslab.gitmachete.testcommon.SetupScripts
 import com.virtuslab.gitmachete.testcommon.TestGitRepository
 import org.intellij.lang.annotations.Language
@@ -26,6 +30,7 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.attribute.PosixFilePermission.*
+import java.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
 abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGLE_REMOTE) {
@@ -139,6 +144,31 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
     println("runJs: executed `$statement`")
   }
 
+  // RemoteRobot-based helper methods
+  // These methods use RemoteRobot's Kotlin API instead of Rhino JS
+  // to interact with UI components, similar to the patterns shown in:
+  // https://plugins.jetbrains.com/docs/intellij/integration-tests-ui.html#searching-components
+  private fun findAndClickButton(buttonText: String) {
+    println("RemoteRobot: finding and clicking button '$buttonText'")
+    retryOnConnectException(3) {
+      waitFor(Duration.ofSeconds(30)) {
+        robot.findAll<ComponentFixture>(
+          byXpath("//div[@class='JButton' and @text='$buttonText']"),
+        ).isNotEmpty()
+      }
+      robot.find<ComponentFixture>(
+        byXpath("//div[@class='JButton' and @text='$buttonText']"),
+      ).click()
+    }
+    println("RemoteRobot: clicked button '$buttonText'")
+  }
+
+  private fun invokeActionWithDriver(actionId: String) {
+    println("Driver: invoking action '$actionId'")
+    driver().invokeAction(actionId)
+    println("Driver: invoked action '$actionId'")
+  }
+
   private fun <T : java.io.Serializable> callJs(@Language("JavaScript") expression: String): T {
     println("callJs: evaluating `$expression`")
     val result = retryOnConnectException(3) {
@@ -178,19 +208,22 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
   fun getHashOfCommitPointedByBranch(branch: String): String = callJs("project.getHashOfCommitPointedByBranch('$branch')")
   fun getSyncToParentStatus(child: String): String = callJs("project.getSyncToParentStatus('$child')")
 
-  fun acceptBranchDeletionOnSlideOut() = doAndAwait { runJs("project.acceptBranchDeletionOnSlideOut()") }
-  fun acceptSquash() = doAndAwait { runJs("project.acceptSquash()") }
-  fun acceptSuggestedBranchLayout() = doAndAwait { runJs("project.acceptSuggestedBranchLayout()") }
+  fun acceptBranchDeletionOnSlideOut() = doAndAwait { findAndClickButton("Slide Out & Delete Local Branch") }
+  fun acceptSquash() = doAndAwait { findAndClickButton("OK") }
+  fun acceptSuggestedBranchLayout() = doAndAwait { findAndClickButton("Yes") }
   fun checkoutBranch(branch: String) = doAndAwait { runJs("project.checkoutBranch('$branch')") }
   fun checkoutFirstChildBranch() = doAndAwait { runJs("project.checkoutFirstChildBranch()") }
   fun checkoutNextBranch() = doAndAwait { runJs("project.checkoutNextBranch()") }
   fun checkoutParentBranch() = doAndAwait { runJs("project.checkoutParentBranch()") }
   fun checkoutPreviousBranch() = doAndAwait { runJs("project.checkoutPreviousBranch()") }
-  fun discoverBranchLayout() = doAndAwait { runJs("project.discoverBranchLayout()") }
+  fun discoverBranchLayout() = doAndAwait {
+    invokeActionWithDriver("GitMachete.DiscoverAction")
+    findAndClickButton("Save")
+  }
   fun fastForwardMergeCurrentToParent() = doAndAwait { runJs("project.fastForwardMergeCurrentToParent()") }
   fun fastForwardMergeSelectedToParent(branch: String) = doAndAwait { runJs("project.fastForwardMergeSelectedToParent('$branch')") }
   fun openGitMacheteTab() = runJs("project.openGitMacheteTab()")
-  fun pullCurrent() = doAndAwait { runJs("project.pullCurrent()") }
+  fun pullCurrent() = doAndAwait { invokeActionWithDriver("GitMachete.PullCurrentAction") }
   fun pullSelected(branch: String) = doAndAwait { runJs("project.pullSelected('$branch')") }
   fun refreshModelAndGetManagedBranches(): Array<String> = callJs("project.refreshGraphTableModel(); project.getManagedBranches()")
   fun refreshModelAndGetManagedBranchesAndCommits(): Array<String> = callJs("project.refreshGraphTableModel(); project.getManagedBranchesAndCommits()")
@@ -203,7 +236,7 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
   fun syncCurrentToParentByRebase() = doAndAwait { runJs("project.syncCurrentToParentByRebase()") }
   fun syncSelectedToParentByMerge(branch: String) = doAndAwait { runJs("project.syncSelectedToParentByMerge('$branch')") }
   fun syncSelectedToParentByRebase(branch: String) = doAndAwait { runJs("project.syncSelectedToParentByRebase('$branch')") }
-  fun toggleListingCommits() = doAndAwait { runJs("project.toggleListingCommits()") }
+  fun toggleListingCommits() = doAndAwait { invokeActionWithDriver("GitMachete.ToggleListingCommitsAction") }
 
   val macheteFilePath: Path =
     mainGitDirectoryPath.resolve("machete")
