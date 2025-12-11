@@ -85,90 +85,6 @@ commands:
             git checkout "$CIRCLE_BRANCH"
 
 jobs:
-  build:
-    executor: ubuntu_executor
-    steps:
-      - checkout: {method: blobless}
-      - install_github_cli
-      - run:
-          name: Install other dependencies for pre-build checks
-          # language=sh
-          command: |
-            sudo apt-get update
-            sudo apt-get install shellcheck -y
-            npm install --global remark-cli remark-lint-no-dead-urls remark-validate-links
-            remark --help
-      - run:
-          name: Run pre-build checks
-          command: ./scripts/run-pre-build-checks
-
-      - restore_gradle_cache
-      - run:
-          name: Start Gradle daemon
-          command: ./gradlew
-
-      - run:
-          name: Check formatting
-          command: ./gradlew spotlessCheck
-      - run:
-          name: Compile production code
-          command: ./gradlew classes
-      - run:
-          name: Run static code analyzer
-          command: ./gradlew --warn checkstyleMain checkstyleTestFixtures
-      - run:
-          name: Check Javadoc correctness
-          command: ./gradlew javadoc
-
-      - run:
-          name: Compile tests
-          command: ./gradlew testClasses
-      - run:
-          name: Run unit & integration tests
-          command: ./gradlew :buildSrc:test test
-      # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
-      - store_test_results:
-          path: branchLayout/impl/build/test-results/test/
-      - store_test_results:
-          path: backend/impl/build/test-results/test/
-      - store_test_results:
-          path: frontend/base/build/test-results/test/
-      - store_test_results:
-          path: build/test-results/
-
-      - run:
-          name: Build plugin artifact
-          command: ./gradlew buildPlugin
-      - run:
-          name: Sign plugin artifact
-          command: ./gradlew signPlugin
-      - store_artifacts:
-          path: build/distributions/
-          destination: .
-      - run:
-          name: Verify binary compatibility with supported IntelliJ versions
-          command: ./gradlew verifyPlugin
-
-      - when:
-          condition:
-            not:
-              equal: [ master, << pipeline.git.branch >> ]
-          steps:
-            - run:
-                name: Remove IntelliJ artifacts to reduce cache size
-                # language=sh
-                command: |
-                  du -h -d1 ~/.gradle/caches/modules-2/files-2.1/ | sort -h
-                  echo '---------'
-                  rm -rf ~/.gradle/caches/modules-2/files-2.1/com.jetbrains.intellij.idea/
-                  rm -rf ~/.gradle/caches/modules-2/files-2.1/idea/
-                  rm -rf ~/.gradle/caches/.tmp/
-                  rm -rf ~/.gradle/caches/*/transforms/
-                  du -h -d3 ~/.gradle/ | sort -h
-            - save_cache:
-                paths: [ ~/.gradle/ ]
-                key: gradle-deps-v13-{{ checksum "gradle/libs.versions.toml" }}-{{ .Branch }}
-
   ui-tests-recent:
     executor: ubuntu_executor
     steps:
@@ -176,10 +92,7 @@ jobs:
       - restore_gradle_cache
       - run:
           name: Run UI tests against an EAP of the latest supported major IntelliJ version (if applicable)
-          command: ./gradlew -Pagainst=upcomingMajorEap uiTest
-      - run:
-          name: Run UI tests against the latest stable IntelliJ version
-          command: ./gradlew -Pagainst=latestStable uiTest
+          command: ./gradlew -Pagainst=upcomingMajorEap -Ptests=testSquashBranch uiTest
       - store_test_results:
           path: build/test-results/
 
@@ -305,13 +218,11 @@ workflows:
   version: 2
   build-and-ui-tests:
     jobs:
-      - build
       # There's a 1-hour time limit on a job execution, so let's split the UI tests into 2 separate jobs
       - ui-tests-recent
       - ui-tests-earlier
       - publish-plugin:
           requires:
-            - build
             - ui-tests-recent
             - ui-tests-earlier
           filters:

@@ -26,6 +26,7 @@ internal class GitNewCommitMessageActionDialog(
 
     init()
     isModal = false
+    setOKButtonText("Helloxd")
     this.title = title
   }
 
