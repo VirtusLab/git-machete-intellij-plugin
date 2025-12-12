@@ -1,6 +1,7 @@
 package com.virtuslab.gitmachete.uitest
 
-import com.intellij.driver.sdk.ui.components.common.ideFrame
+import com.intellij.remoterobot.fixtures.ComponentFixture
+import com.intellij.remoterobot.search.locators.byXpath
 import com.intellij.util.io.delete
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -212,18 +213,8 @@ class UITestSuite : IdeProcessPerTestClass() {
     assertEquals(18, branchRowsCount)
     checkoutBranch("call-ws")
     squashCurrent()
-    // Native Driver SDK implementation instead of acceptSquash()
-    // Using ideFrame DSL as per https://plugins.jetbrains.com/docs/intellij/integration-tests-ui.html#interaction-with-components
-    driver().ideFrame {
-      x(
-        com.intellij.driver.sdk.ui.xQuery {
-          and(
-            byType("javax.swing.JButton"),
-            byVisibleText("Helloxd"),
-          )
-        },
-      ).click()
-    }
+    // Native Kotlin/RemoteRobot implementation instead of Rhino JS
+    robot.find<ComponentFixture>(byXpath("//div[@class='JButton' and @text='Helloxd']")).click()
 
     // call-ws had 3 commits before the squash
     var managedBranchesAndCommits = refreshModelAndGetManagedBranchesAndCommits()
@@ -253,18 +244,8 @@ class UITestSuite : IdeProcessPerTestClass() {
 
     // squashNonCurrentBranch
     squashSelected("hotfix/add-trigger")
-    // Native Driver SDK implementation instead of acceptSquash()
-    // Using ideFrame DSL as per https://plugins.jetbrains.com/docs/intellij/integration-tests-ui.html#interaction-with-components
-    driver().ideFrame {
-      x(
-        com.intellij.driver.sdk.ui.xQuery {
-          and(
-            byType("javax.swing.JButton"),
-            byVisibleText("Helloxd"),
-          )
-        },
-      ).click()
-    }
+    // Native Kotlin/RemoteRobot implementation instead of Rhino JS
+    robot.find<ComponentFixture>(byXpath("//div[@class='JButton' and @text='Helloxd']")).click()
 
     managedBranchesAndCommits = refreshModelAndGetManagedBranchesAndCommits()
     assertEquals(
