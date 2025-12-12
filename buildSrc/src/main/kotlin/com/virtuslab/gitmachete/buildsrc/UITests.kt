@@ -38,6 +38,11 @@ fun Project.configureUiTests() {
       // TODO (#2146): drop support for IntelliJ Community
       systemProperty("intellij.product", version.productCode())
 
+      // FIXME (#2202): use IDE instance per method for 2025.3.x,
+      // IDE instance per class for the other versions
+      val ideInstancePer = if (version.startsWith("2025.3")) "method" else "class"
+      systemProperty("ide.instance-per", ideInstancePer)
+
       testClassesDirs = uiTest.output.classesDirs
       classpath = configurations.getByName("uiTestRuntimeClasspath") + uiTest.output
 
