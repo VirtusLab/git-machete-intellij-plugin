@@ -12,7 +12,7 @@ checker = { module = "org.checkerframework:checker", version.ref = "checker" }
 checker-qual = { module = "org.checkerframework:checker-qual", version.ref = "checker" }
 commonsIO = "commons-io:commons-io:2.21.0"
 jetbrains-annotations = "org.jetbrains:annotations:26.0.2-1"
-jgit = "org.eclipse.jgit:org.eclipse.jgit:7.4.0.202509020913-r"
+jgit = "org.eclipse.jgit:org.eclipse.jgit:7.5.0.202512021534-r"
 junit4 = "junit:junit:4.13.2"
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
@@ -22,14 +22,14 @@ kodein = "org.kodein.di:kodein-di-jvm:7.30.0"
 kotlin-coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2"
 kotlinxSerializationJson = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0"
 lombok = "org.projectlombok:lombok:1.18.42"
-mockito = "org.mockito:mockito-junit-jupiter:5.20.0"
+mockito = "org.mockito:mockito-junit-jupiter:5.21.0"
 okhttp = "com.squareup.okhttp3:okhttp:5.3.2"
 remoteRobot-client = { module = "com.intellij.remoterobot:remote-robot", version.ref = "remoteRobot" }
 remoteRobot-serverPlugin = { module = "com.intellij.remoterobot:robot-server-plugin", version.ref = "remoteRobot" }
 slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
 slf4j-mock = "org.simplify4u:slf4j-mock:2.4.0"
 slf4j-simple = "org.slf4j:slf4j-simple:2.0.17"
-vavr = "io.vavr:vavr:0.10.7"
+vavr = "io.vavr:vavr:0.11.0"
 
 # Note that certain plugins are also pulled in via buildSrc,
 # where they aren't really `apply`-ed as plugins, but rather added to classpath as plugin packages;
