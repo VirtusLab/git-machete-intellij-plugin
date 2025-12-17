@@ -11,9 +11,9 @@ import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
-import com.virtuslab.gitmachete.backend.impl.aux.Aux;
-import com.virtuslab.gitmachete.backend.impl.aux.CreateGitMacheteRepositoryAux;
-import com.virtuslab.gitmachete.backend.impl.aux.DiscoverGitMacheteRepositoryAux;
+import com.virtuslab.gitmachete.backend.impl.helper.Helper;
+import com.virtuslab.gitmachete.backend.impl.helper.CreateGitMacheteRepositoryHelper;
+import com.virtuslab.gitmachete.backend.impl.helper.DiscoverGitMacheteRepositoryHelper;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 public class GitMacheteRepository implements IGitMacheteRepository {
@@ -33,8 +33,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   @UIThreadUnsafe
   public IGitMacheteRepositorySnapshot createSnapshotForLayout(BranchLayout branchLayout) throws GitMacheteException {
     try {
-      val aux = new CreateGitMacheteRepositoryAux(gitCoreRepository, statusHookExecutor);
-      return aux.createSnapshot(branchLayout);
+      val helper = new CreateGitMacheteRepositoryHelper(gitCoreRepository, statusHookExecutor);
+      return helper.createSnapshot(branchLayout);
     } catch (GitCoreException e) {
       throw new GitMacheteException(e);
     }
@@ -46,8 +46,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
       Set<String> eligibleLocalBranchNames,
       String localBranchName) throws GitMacheteException {
     try {
-      val aux = new Aux(gitCoreRepository);
-      return aux.inferParentForLocalBranch(eligibleLocalBranchNames, localBranchName);
+      val helper = new Helper(gitCoreRepository);
+      return helper.inferParentForLocalBranch(eligibleLocalBranchNames, localBranchName);
     } catch (GitCoreException e) {
       throw new GitMacheteException(e);
     }
@@ -57,8 +57,8 @@ public class GitMacheteRepository implements IGitMacheteRepository {
   @UIThreadUnsafe
   public IGitMacheteRepositorySnapshot discoverLayoutAndCreateSnapshot() throws GitMacheteException {
     try {
-      val aux = new DiscoverGitMacheteRepositoryAux(gitCoreRepository, statusHookExecutor);
-      return aux.discoverLayoutAndCreateSnapshot(NUMBER_OF_MOST_RECENTLY_CHECKED_OUT_BRANCHES_FOR_DISCOVER);
+      val helper = new DiscoverGitMacheteRepositoryHelper(gitCoreRepository, statusHookExecutor);
+      return helper.discoverLayoutAndCreateSnapshot(NUMBER_OF_MOST_RECENTLY_CHECKED_OUT_BRANCHES_FOR_DISCOVER);
     } catch (GitCoreException e) {
       throw new GitMacheteException(e);
     }

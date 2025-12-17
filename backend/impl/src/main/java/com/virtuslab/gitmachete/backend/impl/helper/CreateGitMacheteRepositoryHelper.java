@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.backend.impl.aux;
+package com.virtuslab.gitmachete.backend.impl.helper;
 
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.AheadOfRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.BehindRemote;
@@ -48,7 +48,7 @@ import com.virtuslab.gitmachete.backend.impl.StatusBranchHookExecutor;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
-public class CreateGitMacheteRepositoryAux extends Aux {
+public class CreateGitMacheteRepositoryHelper extends Helper {
 
   private final StatusBranchHookExecutor statusHookExecutor;
   private final List<String> remoteNames;
@@ -56,7 +56,7 @@ public class CreateGitMacheteRepositoryAux extends Aux {
   private final Path mainGitDirectoryPath;
 
   @UIThreadUnsafe
-  public CreateGitMacheteRepositoryAux(
+  public CreateGitMacheteRepositoryHelper(
       IGitCoreRepository gitCoreRepository,
       StatusBranchHookExecutor statusHookExecutor) throws GitCoreException {
     super(gitCoreRepository);
