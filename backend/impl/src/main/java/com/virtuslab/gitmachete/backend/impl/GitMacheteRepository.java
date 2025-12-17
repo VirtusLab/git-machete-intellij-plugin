@@ -11,9 +11,9 @@ import com.virtuslab.gitmachete.backend.api.GitMacheteException;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepository;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.ILocalBranchReference;
-import com.virtuslab.gitmachete.backend.impl.helper.Helper;
 import com.virtuslab.gitmachete.backend.impl.helper.CreateGitMacheteRepositoryHelper;
 import com.virtuslab.gitmachete.backend.impl.helper.DiscoverGitMacheteRepositoryHelper;
+import com.virtuslab.gitmachete.backend.impl.helper.Helper;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 public class GitMacheteRepository implements IGitMacheteRepository {
