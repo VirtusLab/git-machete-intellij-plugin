@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.backend.impl.aux;
+package com.virtuslab.gitmachete.backend.impl.helper;
 
 import java.util.function.Predicate;
 
@@ -29,7 +29,7 @@ import com.virtuslab.gitmachete.backend.impl.RemoteTrackingBranchReference;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
-public class Aux {
+public class Helper {
   /**
    * Let's avoid loading too many commits when trying to find fork point.
    * It's unlikely that anyone will have that many unique commits on a branch.
@@ -44,7 +44,7 @@ public class Aux {
   private @MonotonicNonNull Map<IGitCoreCommitHash, Seq<IBranchReference>> branchesContainingGivenCommitInReflog;
 
   @UIThreadUnsafe
-  public Aux(IGitCoreRepository gitCoreRepository) throws GitCoreException {
+  public Helper(IGitCoreRepository gitCoreRepository) throws GitCoreException {
     this.gitCoreRepository = gitCoreRepository;
     this.localBranches = gitCoreRepository.deriveAllLocalBranches();
     this.localBranchByName = localBranches.toMap(localBranch -> Tuple.of(localBranch.getName(), localBranch));

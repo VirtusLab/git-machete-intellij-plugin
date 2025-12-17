@@ -1,4 +1,4 @@
-package com.virtuslab.gitmachete.backend.impl.aux;
+package com.virtuslab.gitmachete.backend.impl.helper;
 
 import java.time.Instant;
 
@@ -27,14 +27,14 @@ import com.virtuslab.gitmachete.backend.impl.StatusBranchHookExecutor;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @CustomLog
-public class DiscoverGitMacheteRepositoryAux extends CreateGitMacheteRepositoryAux {
+public class DiscoverGitMacheteRepositoryHelper extends CreateGitMacheteRepositoryHelper {
 
   private static final String MASTER = "master";
   private static final String MAIN = "main"; // see https://github.com/github/renaming
   private static final String DEVELOP = "develop";
 
   @UIThreadUnsafe
-  public DiscoverGitMacheteRepositoryAux(
+  public DiscoverGitMacheteRepositoryHelper(
       IGitCoreRepository gitCoreRepository,
       StatusBranchHookExecutor statusHookExecutor) throws GitCoreException {
     super(gitCoreRepository, statusHookExecutor);

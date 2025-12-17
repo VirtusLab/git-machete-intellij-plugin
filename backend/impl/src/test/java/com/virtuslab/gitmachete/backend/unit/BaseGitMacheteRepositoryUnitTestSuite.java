@@ -14,14 +14,14 @@ import com.virtuslab.gitcore.api.IGitCoreHeadSnapshot;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
 import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitmachete.backend.impl.StatusBranchHookExecutor;
-import com.virtuslab.gitmachete.backend.impl.aux.CreateGitMacheteRepositoryAux;
+import com.virtuslab.gitmachete.backend.impl.helper.CreateGitMacheteRepositoryHelper;
 
 public class BaseGitMacheteRepositoryUnitTestSuite {
 
   protected final IGitCoreRepository gitCoreRepository = mock(IGitCoreRepository.class);
 
   @SneakyThrows
-  protected CreateGitMacheteRepositoryAux aux(IGitCoreLocalBranchSnapshot... localCoreBranches) {
+  protected CreateGitMacheteRepositoryHelper aux(IGitCoreLocalBranchSnapshot... localCoreBranches) {
     when(gitCoreRepository.deriveAllLocalBranches()).thenReturn(List.ofAll(Arrays.stream(localCoreBranches)));
 
     val iGitCoreHeadSnapshot = mock(IGitCoreHeadSnapshot.class);
@@ -34,6 +34,6 @@ public class BaseGitMacheteRepositoryUnitTestSuite {
     // cannot be mocked as it is final
     val statusBranchHookExecutor = new StatusBranchHookExecutor(gitCoreRepository);
 
-    return new CreateGitMacheteRepositoryAux(gitCoreRepository, statusBranchHookExecutor);
+    return new CreateGitMacheteRepositoryHelper(gitCoreRepository, statusBranchHookExecutor);
   }
 }
