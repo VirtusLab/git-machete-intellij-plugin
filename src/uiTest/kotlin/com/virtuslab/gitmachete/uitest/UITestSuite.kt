@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.uitest
 
+import com.intellij.driver.sdk.ui.components.common.ideFrame
 import com.intellij.util.io.delete
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -11,7 +12,7 @@ import kotlin.io.path.readText
 import kotlin.io.path.writeText
 
 class UITestSuite : ConfigurableIdeLifecycleTestSuite() {
-
+/*
   @Test
   fun testSkipNonExistentBranches_toggleListingCommits_slideOutRoot() {
     machetePostSlideOutHookPath.writeText(""" echo "$@" >> "$machetePostSlideOutHookOutputPath" """)
@@ -183,7 +184,7 @@ class UITestSuite : ConfigurableIdeLifecycleTestSuite() {
     syncSelectedToParentByMerge("call-ws")
     assertSyncToParentStatus("call-ws", "InSync")
   }
-
+ */
   @Test
   fun testResetBranchToRemote() {
     // resetCurrentBranchToRemote

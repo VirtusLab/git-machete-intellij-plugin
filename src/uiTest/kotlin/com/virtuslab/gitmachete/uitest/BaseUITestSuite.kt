@@ -2,6 +2,8 @@ package com.virtuslab.gitmachete.uitest
 
 import com.intellij.driver.client.Driver
 import com.intellij.driver.sdk.isProjectOpened
+import com.intellij.driver.sdk.ui.components.common.ideFrame
+import com.intellij.driver.sdk.ui.xQuery
 import com.intellij.driver.sdk.waitForIndicators
 import com.intellij.ide.starter.ci.CIServer
 import com.intellij.ide.starter.ci.NoCIServer
@@ -179,7 +181,11 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
   fun getSyncToParentStatus(child: String): String = callJs("project.getSyncToParentStatus('$child')")
 
   fun acceptBranchDeletionOnSlideOut() = doAndAwait { runJs("project.acceptBranchDeletionOnSlideOut()") }
-  fun acceptSquash() = doAndAwait { runJs("project.acceptSquash()") }
+  fun acceptSquash() = doAndAwait {
+    driver().ideFrame {
+      x(xQuery { byVisibleText("OK") }).click()
+    }
+  }
   fun acceptSuggestedBranchLayout() = doAndAwait { runJs("project.acceptSuggestedBranchLayout()") }
   fun checkoutBranch(branch: String) = doAndAwait { runJs("project.checkoutBranch('$branch')") }
   fun checkoutFirstChildBranch() = doAndAwait { runJs("project.checkoutFirstChildBranch()") }
