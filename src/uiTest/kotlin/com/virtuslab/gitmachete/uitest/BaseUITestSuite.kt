@@ -180,19 +180,24 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
   fun getHashOfCommitPointedByBranch(branch: String): String = callJs("project.getHashOfCommitPointedByBranch('$branch')")
   fun getSyncToParentStatus(child: String): String = callJs("project.getSyncToParentStatus('$child')")
 
-  fun acceptBranchDeletionOnSlideOut() = doAndAwait { runJs("project.acceptBranchDeletionOnSlideOut()") }
-  fun acceptSquash() = doAndAwait {
+  private fun clickButton(visibleText: String) {
     driver().ideFrame {
-      x(xQuery { byVisibleText("OK") }).click()
+      x(xQuery { byVisibleText(visibleText) }).click()
     }
   }
-  fun acceptSuggestedBranchLayout() = doAndAwait { runJs("project.acceptSuggestedBranchLayout()") }
+
+  fun acceptBranchDeletionOnSlideOut() = doAndAwait { clickButton("Slide Out & Delete Local Branch") }
+  fun acceptSquash() = doAndAwait { clickButton("OK") }
+  fun acceptSuggestedBranchLayout() = doAndAwait { clickButton("Yes") }
   fun checkoutBranch(branch: String) = doAndAwait { runJs("project.checkoutBranch('$branch')") }
   fun checkoutFirstChildBranch() = doAndAwait { runJs("project.checkoutFirstChildBranch()") }
   fun checkoutNextBranch() = doAndAwait { runJs("project.checkoutNextBranch()") }
   fun checkoutParentBranch() = doAndAwait { runJs("project.checkoutParentBranch()") }
   fun checkoutPreviousBranch() = doAndAwait { runJs("project.checkoutPreviousBranch()") }
-  fun discoverBranchLayout() = doAndAwait { runJs("project.discoverBranchLayout()") }
+  fun discoverBranchLayout() {
+    runJs("project.discoverBranchLayout()")
+    doAndAwait { clickButton("Save") }
+  }
   fun fastForwardMergeCurrentToParent() = doAndAwait { runJs("project.fastForwardMergeCurrentToParent()") }
   fun fastForwardMergeSelectedToParent(branch: String) = doAndAwait { runJs("project.fastForwardMergeSelectedToParent('$branch')") }
   fun openGitMacheteTab() = runJs("project.openGitMacheteTab()")
@@ -206,9 +211,15 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
   fun slideOutSelected(branch: String) = runJs("project.slideOutSelected('$branch')")
   fun squashCurrent() = doAndAwait { runJs("project.squashCurrent()") }
   fun squashSelected(branch: String) = doAndAwait { runJs("project.squashSelected('$branch')") }
-  fun syncCurrentToParentByRebase() = doAndAwait { runJs("project.syncCurrentToParentByRebase()") }
+  fun syncCurrentToParentByRebase() {
+    runJs("project.syncCurrentToParentByRebase()")
+    doAndAwait { clickButton("Start Rebasing") }
+  }
   fun syncSelectedToParentByMerge(branch: String) = doAndAwait { runJs("project.syncSelectedToParentByMerge('$branch')") }
-  fun syncSelectedToParentByRebase(branch: String) = doAndAwait { runJs("project.syncSelectedToParentByRebase('$branch')") }
+  fun syncSelectedToParentByRebase(branch: String) {
+    runJs("project.syncSelectedToParentByRebase('$branch')")
+    doAndAwait { clickButton("Start Rebasing") }
+  }
   fun toggleListingCommits() = doAndAwait { runJs("project.toggleListingCommits()") }
 
   val macheteFilePath: Path =

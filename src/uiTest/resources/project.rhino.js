@@ -173,20 +173,7 @@ function Project(underlyingProject) {
 
   this.discoverBranchLayout = function () {
     invokeActionAsync('GitMachete.DiscoverAction', ActionPlaces.ACTION_SEARCH, {});
-    findAndClickButton('Save');
   }
-
-  const acceptRebase = function () {
-    findAndClickButton('Start Rebasing');
-  };
-
-  this.acceptSuggestedBranchLayout = function () {
-    findAndClickButton('Yes');
-  };
-
-  this.acceptBranchDeletionOnSlideOut = function () {
-    findAndClickButton('Slide Out & Delete Local Branch');
-  };
 
   this.pullCurrent = function () {
     findAndClickToolbarButton('Pull Current Branch');
@@ -200,13 +187,6 @@ function Project(underlyingProject) {
     const graphTable = getGraphTable();
     robot.click(graphTable);
     sleep();
-  };
-
-  const findAndClickButton = function (name) {
-    const button = getComponentByClassAndPredicate('javax.swing.JButton',
-        /* predicate */ component => name.equals(component.getText())
-    );
-    robot.click(button, MouseButton.LEFT_BUTTON);
   };
 
   const findAndClickToolbarButton = function (name) {
@@ -292,12 +272,10 @@ function Project(underlyingProject) {
 
   this.syncSelectedToParentByRebase = function (branchName) {
     invokeActionAsync('GitMachete.SyncSelectedToParentByRebaseAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
-    acceptRebase()
   };
 
   this.syncCurrentToParentByRebase = function () {
     invokeActionAsync('GitMachete.SyncCurrentToParentByRebaseAction', ACTION_PLACE_CONTEXT_MENU, {});
-    acceptRebase()
   };
 
   this.syncSelectedToParentByMerge = function (branchName) {
