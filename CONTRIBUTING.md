@@ -170,6 +170,9 @@ To regenerate the CLI outputs:
 
 ### Run UI tests
 
+On macOS, make sure that the terminal (e.g. iTerm) where you run the tests has the permissions to move the cursor:
+System Settings > Privacy & Security > Accessibility > (+) > iTerm
+
 ```shell
 ./gradlew [-Pagainst=<e.g. 2021.2>] [-Ptests=<e.g. Squash>] uiTest
 ```

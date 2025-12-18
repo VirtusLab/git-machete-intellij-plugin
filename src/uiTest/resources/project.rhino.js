@@ -180,10 +180,6 @@ function Project(underlyingProject) {
     findAndClickButton('Start Rebasing');
   };
 
-  this.acceptSquash = function () {
-    findAndClickButton('OK');
-  };
-
   this.acceptSuggestedBranchLayout = function () {
     findAndClickButton('Yes');
   };
