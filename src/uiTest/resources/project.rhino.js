@@ -168,6 +168,12 @@ function Project(underlyingProject) {
     ApplicationManager.getApplication().invokeAndWait(() => action.actionPerformed(actionEvent));
   };
 
+  // Note that clicking the toolbar actions doesn't seem to work for most cases reliably in UI tests.
+  // Some of the errors include:
+  //  java.awt.IllegalComponentStateException: component must be showing on the screen to determine its location
+  //  org.assertj.swing.exception.ActionFailedException: The component to click is out of the boundaries of the screen
+  // Let's invoke the toolbar actions directly instead in the more brittle cases.
+
   this.discoverBranchLayout = function () {
     invokeActionAsync('GitMachete.DiscoverAction', ActionPlaces.ACTION_SEARCH, {});
   }
@@ -220,10 +226,6 @@ function Project(underlyingProject) {
 
   this.squashSelected = function (branchName) {
     invokeActionAndWait('GitMachete.SquashSelectedAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
-  };
-
-  this.squashCurrent = function () {
-    invokeActionAndWait('GitMachete.SquashCurrentAction', ACTION_PLACE_TOOLBAR, {});
   };
 
   this.pullSelected = function (branchName) {

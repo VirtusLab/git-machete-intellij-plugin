@@ -214,7 +214,9 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
   fun fastForwardMergeCurrentToParent() = doAndAwait { runJs("project.fastForwardMergeCurrentToParent()") }
   fun fastForwardMergeSelectedToParent(branch: String) = doAndAwait { runJs("project.fastForwardMergeSelectedToParent('$branch')") }
   fun openGitMacheteTab() = runJs("project.openGitMacheteTab()")
-  fun pullCurrent() = doAndAwait { clickToolbarButton("Pull Current Branch") }
+  fun pullCurrent() {
+    doAndAwait { clickToolbarButton("Pull Current Branch") }
+  }
   fun pullSelected(branch: String) = doAndAwait { runJs("project.pullSelected('$branch')") }
   fun refreshModelAndGetManagedBranches(): Array<String> = callJs("project.refreshGraphTableModel(); project.getManagedBranches()")
   fun refreshModelAndGetManagedBranchesAndCommits(): Array<String> = callJs("project.refreshGraphTableModel(); project.getManagedBranchesAndCommits()")
@@ -222,7 +224,9 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
   fun resetCurrentToRemote() = doAndAwait { runJs("project.resetCurrentToRemote()") }
   fun resetToRemote(branch: String) = doAndAwait { runJs("project.resetToRemote('$branch')") }
   fun slideOutSelected(branch: String) = runJs("project.slideOutSelected('$branch')")
-  fun squashCurrent() = doAndAwait { runJs("project.squashCurrent()") }
+  fun squashCurrent() {
+    doAndAwait { clickToolbarButton("Squash\u2026") }
+  }
   fun squashSelected(branch: String) = doAndAwait { runJs("project.squashSelected('$branch')") }
   fun syncCurrentToParentByRebase() {
     runJs("project.syncCurrentToParentByRebase()")
@@ -233,13 +237,8 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
     runJs("project.syncSelectedToParentByRebase('$branch')")
     doAndAwait { clickButton("Start Rebasing") }
   }
-  fun toggleListingCommits() = doAndAwait {
-    // For some reason, clicking this particular toolbar doesn't seem to work reliably, unlike with other toolbar buttons.
-    // After the first click we're sometimes getting
-    //  java.awt.IllegalComponentStateException: component must be showing on the screen to determine its location
-    // so two clicks would be needed in this case, which is brittle since toggling isn't idempotent.
-    // Let's instead invoke the action directly.
-    runJs("project.toggleListingCommits()")
+  fun toggleListingCommits() {
+    doAndAwait { runJs("project.toggleListingCommits()") }
   }
 
   val macheteFilePath: Path =
