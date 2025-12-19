@@ -18,6 +18,11 @@ abstract class ConfigurableIdeLifecycleTestSuite : BaseUITestSuite() {
     @JvmStatic
     @BeforeAll
     fun startSharedIdeIfNeeded() {
+      if (System.getProperty("os.name") == "Mac OS X") {
+        println("WARN: On macOS, make sure that the terminal (e.g. iTerm) where you run the tests has the permissions to move the cursor:")
+        println("System Settings > Privacy & Security > Accessibility > (+) > iTerm")
+      }
+
       if (ideInstancePer == "class") {
         println("Starting shared IDE for all tests (class mode)...")
         sharedBackgroundRun = startIde(NoProject)
