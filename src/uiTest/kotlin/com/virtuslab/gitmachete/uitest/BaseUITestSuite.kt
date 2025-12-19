@@ -89,7 +89,12 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
               details: String,
               linkToLogs: String?,
             ) {
-              fail { "$testName fails: $message. \n$details" }
+              println("*** testName: $testName")
+              println("*** message: $message")
+              // Spurious error in 2025.3+, unrelated to our plugin
+              if ("No KubernetesApiProviderInterface implementation found" !in message) {
+                fail { "$testName fails: $message. \n$details" }
+              }
             }
           }
         }
@@ -181,8 +186,16 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
   fun getSyncToParentStatus(child: String): String = callJs("project.getSyncToParentStatus('$child')")
 
   private fun clickButton(visibleText: String) {
+    println("clickButton: $visibleText")
     driver().ideFrame {
       x(xQuery { byVisibleText(visibleText) }).click()
+    }
+  }
+
+  private fun clickToolbarButton(name: String) {
+    println("clickToolbarButton: $name")
+    driver().ideFrame {
+      x(xQuery { byAccessibleName(name) }).click()
     }
   }
 
@@ -201,7 +214,7 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
   fun fastForwardMergeCurrentToParent() = doAndAwait { runJs("project.fastForwardMergeCurrentToParent()") }
   fun fastForwardMergeSelectedToParent(branch: String) = doAndAwait { runJs("project.fastForwardMergeSelectedToParent('$branch')") }
   fun openGitMacheteTab() = runJs("project.openGitMacheteTab()")
-  fun pullCurrent() = doAndAwait { runJs("project.pullCurrent()") }
+  fun pullCurrent() = doAndAwait { clickToolbarButton("Pull Current Branch") }
   fun pullSelected(branch: String) = doAndAwait { runJs("project.pullSelected('$branch')") }
   fun refreshModelAndGetManagedBranches(): Array<String> = callJs("project.refreshGraphTableModel(); project.getManagedBranches()")
   fun refreshModelAndGetManagedBranchesAndCommits(): Array<String> = callJs("project.refreshGraphTableModel(); project.getManagedBranchesAndCommits()")
@@ -220,7 +233,14 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
     runJs("project.syncSelectedToParentByRebase('$branch')")
     doAndAwait { clickButton("Start Rebasing") }
   }
-  fun toggleListingCommits() = doAndAwait { runJs("project.toggleListingCommits()") }
+  fun toggleListingCommits() = doAndAwait {
+    // For some reason, clicking this particular toolbar doesn't seem to work reliably, unlike with other toolbar buttons.
+    // After the first click we're sometimes getting
+    //  java.awt.IllegalComponentStateException: component must be showing on the screen to determine its location
+    // so two clicks would be needed in this case, which is brittle since toggling isn't idempotent.
+    // Let's instead invoke the action directly.
+    runJs("project.toggleListingCommits()")
+  }
 
   val macheteFilePath: Path =
     mainGitDirectoryPath.resolve("machete")

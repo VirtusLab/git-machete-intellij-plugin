@@ -1,8 +1,6 @@
 importClass(java.lang.IllegalStateException);
-importClass(java.lang.System);
 importClass(java.lang.Thread);
 importClass(java.nio.file.Paths);
-importClass(java.util.Arrays);
 importClass(java.util.stream.Collectors);
 
 importClass(com.intellij.ide.plugins.PluginManagerCore);
@@ -15,7 +13,6 @@ importClass(com.intellij.openapi.actionSystem.ActionPlaces);
 importClass(com.intellij.openapi.actionSystem.AnActionEvent);
 importClass(com.intellij.openapi.actionSystem.DataContext);
 importClass(com.intellij.openapi.actionSystem.Presentation);
-importClass(com.intellij.openapi.actionSystem.impl.ActionButton);
 importClass(com.intellij.openapi.application.ApplicationManager);
 importClass(com.intellij.openapi.application.ModalityState);
 importClass(com.intellij.openapi.components.ServiceManager);
@@ -175,69 +172,6 @@ function Project(underlyingProject) {
     invokeActionAsync('GitMachete.DiscoverAction', ActionPlaces.ACTION_SEARCH, {});
   }
 
-  this.pullCurrent = function () {
-    findAndClickToolbarButton('Pull Current Branch');
-  };
-
-  this.toggleListingCommits = function () {
-    findAndClickToolbarButton('Toggle Listing Commits');
-  };
-
-  const clickMouseInGraphTable = function () {
-    const graphTable = getGraphTable();
-    robot.click(graphTable);
-    sleep();
-  };
-
-  const findAndClickToolbarButton = function (name) {
-    let fullName = 'Git Machete: ' + name;
-    const getButton = function () {
-      // findAll() returns a LinkedHashSet
-      const result = robot.finder().findAll(component =>
-        component instanceof ActionButton
-          && fullName.equals(component.getAction().getTemplatePresentation().getText())
-          && component.isEnabled()
-      ).toArray();
-      return result.length === 1 ? result[0] : null;
-    };
-
-    // The action is invoked asynchronously, let's first make sure the button has already appeared.
-    let button = getButton(), i = 0;
-    while (button === null && i++ < 50) {
-      clickMouseInGraphTable();
-      button = getButton();
-    }
-    if (button === null) {
-      throw new IllegalStateException("Waiting for '" + name + "' button timed out");
-    }
-    robot.click(button, MouseButton.LEFT_BUTTON);
-  };
-
-  /** Note that we're checking for the components that are exactly of the provided class, or of any subclass */
-  const getComponentByClassAndPredicate = function (className, predicate) {
-    const searchForComponent = function () {
-      const clazz = pluginClassLoader.loadClass(className);
-      const result = robot.finder().findAll(component =>
-        clazz.isInstance(component) && predicate(component)
-      ).toArray();
-      // TODO (#1079): in `squashBranch` UI test, the second squash seems to never execute...
-      //  is there a problem with a different "OK" button getting clicked?
-      System.out.println("getComponentByClassAndPredicate(" + className + ", [predicate]) = "
-          + Arrays.deepToString(result) + "(" + result.length + " element(s))");
-      return result.length === 1 ? result[0] : null;
-    }
-    // The action is invoked asynchronously, let's first make sure the component has already appeared.
-    let component = searchForComponent(), i = 0;
-    while (component === null && i++ < 100) {
-      clickMouseInGraphTable();
-      component = searchForComponent();
-    }
-    if (component === null) {
-      throw new IllegalStateException("Waiting for '" + className + "' component timed out");
-    }
-    return component;
-  };
-
   this.toggleListingCommits = function () {
     invokeActionAndWait('GitMachete.ToggleListingCommitsAction', ACTION_PLACE_TOOLBAR, {});
   };
@@ -294,10 +228,6 @@ function Project(underlyingProject) {
 
   this.pullSelected = function (branchName) {
     invokeActionAndWait('GitMachete.PullSelectedAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
-  };
-
-  this.pullCurrent = function () {
-    invokeActionAndWait('GitMachete.PullCurrentAction', ACTION_PLACE_TOOLBAR, {});
   };
 
   this.resetToRemote = function (branchName) {
