@@ -84,13 +84,13 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
         bindSingleton<CIServer>(overrides = true) {
           object : CIServer by NoCIServer {
             override fun reportTestFailure(
-              testName: String,
+              // For some reason, the actual arguments are passed in message-then-testName order,
+              // unlike testName-then-message order indicated by the superclass method.
               message: String,
+              testName: String,
               details: String,
               linkToLogs: String?,
             ) {
-              println("*** testName: $testName")
-              println("*** message: $message")
               // Spurious error in 2025.3+, unrelated to our plugin
               if ("No KubernetesApiProviderInterface implementation found" !in message) {
                 fail { "$testName fails: $message. \n$details" }
@@ -110,6 +110,13 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
         PluginConfigurator(this)
           .installPluginFromPath(File(pathToBuildPlugin).toPath())
           .installPluginFromPath(File(pathToRobotServerPlugin).toPath())
+          .also {
+            // FIXME (#2207): Junie plugin is only installed so that a Junie ad dialog doesn't interfere with UI tests
+            //  Instead, let's turn off the ad somehow (it should likely be done in intellij-platform-gradle-plugin)
+            if (intelliJVersion.startsWith("2025.3")) {
+              it.installPluginFromPluginManager("org.jetbrains.junie", "253.549.106")
+            }
+          }
       }
       val backgroundRun = ideStarter.runIdeWithDriver { }
       println("IDE instance started")
