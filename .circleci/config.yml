@@ -182,6 +182,12 @@ jobs:
           command: ./gradlew -Pagainst=latestStable uiTest
       - store_test_results:
           path: build/test-results/
+      - store_artifacts:
+          path: "out/ide-tests/tests/IU-253.29346.138/UI test/log/screenshots/"
+          destination: screenshots
+      - store_artifacts:
+          path: "out/ide-tests/tests/IU-253.29346.138/UI test/log/monitoring-thread-dumps-ide/"
+          destination: thread-dumps
 
   ui-tests-earlier:
     executor: ubuntu_executor
