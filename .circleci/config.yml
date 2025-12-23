@@ -42,7 +42,6 @@ commands:
     steps:
       - run:
           name: Reconfigure origin remote to https
-          # language=sh
           command: git remote set-url origin https://${GITHUB_TOKEN}@github.com/VirtusLab/git-machete-intellij-plugin.git
 
   create_pull_request_if_files_changed:
@@ -83,6 +82,23 @@ commands:
               --base "$CIRCLE_BRANCH" \
               --label "<<parameters.labels>>"
             git checkout "$CIRCLE_BRANCH"
+
+  store_ui_test_artifacts:
+    steps:
+      - run:
+          name: Remove uninteresting files
+          command: |
+            find out/ide-tests/tests/ -type f \
+              -not -path "*log/idea.log*" \
+              -not -path "*log/monitoring-thread-dumps-ide*" \
+              -not -path "*log/screenshots*" \
+              -delete
+            find out/ide-tests/tests/ -type d -empty -delete
+            find out/ide-tests/tests/
+          when: always
+      - store_artifacts:
+          path: out/ide-tests/tests/
+          destination: .
 
 jobs:
   build:
@@ -182,12 +198,7 @@ jobs:
           command: ./gradlew -Pagainst=latestStable uiTest
       - store_test_results:
           path: build/test-results/
-      - store_artifacts:
-          path: "out/ide-tests/tests/IU-253.29346.138/UI test/log/screenshots/"
-          destination: screenshots
-      - store_artifacts:
-          path: "out/ide-tests/tests/IU-253.29346.138/UI test/log/monitoring-thread-dumps-ide/"
-          destination: thread-dumps
+      - store_ui_test_artifacts
 
   ui-tests-earlier:
     executor: ubuntu_executor
@@ -216,6 +227,7 @@ jobs:
                 command: ./gradlew -Pagainst=latestMinorsOfOldSupportedMajors uiTest
             - store_test_results:
                 path: build/test-results/
+            - store_ui_test_artifacts
 
   publish-plugin:
     executor: ubuntu_executor

@@ -102,7 +102,7 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
 
       println("IDE instance starting...")
       val ideStarter = Starter.newContext(
-        testName = "UI test",
+        testName = "ui-test",
         testCase = testCase(projectInfo),
       ).skipIndicesInitialization().apply {
         val pathToBuildPlugin = System.getProperty("path.to.build.plugin")
