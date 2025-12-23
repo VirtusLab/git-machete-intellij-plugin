@@ -94,6 +94,7 @@ commands:
               -not -path "*log/screenshots*" \
               -delete
             find out/ide-tests/tests/ -type d -empty -delete
+            echo "Files left to upload:"
             find out/ide-tests/tests/
           when: always
       - store_artifacts:

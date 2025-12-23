@@ -110,8 +110,6 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
         pluginConfigurator
           .installPluginFromPath(File(pathToBuildPlugin).toPath())
           .installPluginFromPath(File(pathToRobotServerPlugin).toPath())
-          // To prevent "free AI" dialog from interfering with UI tests (since 2025.3)
-          .disablePlugins("com.intellij.llmInstaller")
       }
       val backgroundRun = ideStarter.runIdeWithDriver { }
       println("IDE instance started")
