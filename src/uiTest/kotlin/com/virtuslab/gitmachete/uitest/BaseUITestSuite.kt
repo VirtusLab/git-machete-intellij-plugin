@@ -107,16 +107,11 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
       ).skipIndicesInitialization().apply {
         val pathToBuildPlugin = System.getProperty("path.to.build.plugin")
         val pathToRobotServerPlugin = System.getProperty("path.to.robot.server.plugin")
-        PluginConfigurator(this)
+        pluginConfigurator
           .installPluginFromPath(File(pathToBuildPlugin).toPath())
           .installPluginFromPath(File(pathToRobotServerPlugin).toPath())
-          .also {
-            // FIXME (#2207): Junie plugin is only installed so that a Junie ad dialog doesn't interfere with UI tests
-            //  Instead, let's turn off the ad somehow (it should likely be done in intellij-platform-gradle-plugin)
-            if (intelliJVersion.startsWith("2025.3")) {
-              it.installPluginFromPluginManager("org.jetbrains.junie", "253.549.106")
-            }
-          }
+          // To prevent "free AI" dialog from interfering with UI tests (since 2025.3)
+          .disablePlugins("com.intellij.llmInstaller")
       }
       val backgroundRun = ideStarter.runIdeWithDriver { }
       println("IDE instance started")
