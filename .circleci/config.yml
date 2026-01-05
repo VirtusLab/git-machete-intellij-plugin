@@ -7,6 +7,9 @@ executors:
       image: ubuntu-2404:2025.09.1
     resource_class: large
     working_directory: ~/git-machete-intellij-plugin
+    environment:
+      # To avoid ANSI escape characters and animated progress bars in Gradle output
+      TERM: dumb
 
 commands:
   install_github_cli:

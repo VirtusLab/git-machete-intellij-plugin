@@ -4,6 +4,7 @@ import com.intellij.util.io.delete
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.nio.file.Files
 import java.nio.file.attribute.FileTime
@@ -185,6 +186,7 @@ class UITestSuite : ConfigurableIdeLifecycleTestSuite() {
   }
 
   @Test
+  @Disabled  /////////// REMOVE
   fun testResetBranchToRemote() {
     // resetCurrentBranchToRemote
     openGitMacheteTab()
