@@ -110,6 +110,9 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
         pluginConfigurator
           .installPluginFromPath(File(pathToBuildPlugin).toPath())
           .installPluginFromPath(File(pathToRobotServerPlugin).toPath())
+
+        // See https://youtrack.jetbrains.com/issue/LLM-22958
+        applyVMOptionsPatch { addSystemProperty("llm.show.ai.promotion.window.on.start", "false") }
       }
       val backgroundRun = ideStarter.runIdeWithDriver { }
       println("IDE instance started")
