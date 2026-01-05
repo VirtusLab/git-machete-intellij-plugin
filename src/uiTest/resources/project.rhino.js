@@ -3,7 +3,6 @@ importClass(java.lang.Thread);
 importClass(java.nio.file.Paths);
 importClass(java.util.stream.Collectors);
 
-
 importClass(com.intellij.ide.plugins.PluginManagerCore);
 importClass(com.intellij.ide.impl.OpenProjectTask);
 importClass(com.intellij.ide.impl.ProjectUtil);
@@ -329,6 +328,11 @@ function openProject(projectPath) {
     ProjectUtil.focusProjectWindow(newProject, true);
 
     // Disable the "Restore workspace on branch switching" feature
+    // when switching the branch, since com.intellij.tasks.context.BranchContextTracker
+    // tries attempts to reload the context - including breakpoints - associated with the branch,
+    // which leads to ClassNotFoundException: com.intellij.javascript.debugger.breakpoints.JavaScriptBreakpointListener
+    // since 2025.3 for some reason (not observed earlier)
+    // See https://youtrack.jetbrains.com/issue/IJPL-226827
     const vcsConfig = VcsConfiguration.getInstance(newProject);
     vcsConfig.RELOAD_CONTEXT = false
   });

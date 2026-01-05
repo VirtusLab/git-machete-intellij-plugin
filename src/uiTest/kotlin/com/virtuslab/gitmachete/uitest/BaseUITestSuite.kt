@@ -91,10 +91,7 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
               details: String,
               linkToLogs: String?,
             ) {
-              // Spurious error in 2025.3+, unrelated to our plugin
-              if ("No KubernetesApiProviderInterface implementation found" !in message) {
-                fail { "$testName fails: $message. \n$details" }
-              }
+              fail { "$testName fails: $message. \n$details" }
             }
           }
         }
