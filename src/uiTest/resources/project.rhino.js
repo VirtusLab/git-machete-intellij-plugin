@@ -18,6 +18,7 @@ importClass(com.intellij.openapi.application.ModalityState);
 importClass(com.intellij.openapi.components.ServiceManager);
 importClass(com.intellij.openapi.extensions.PluginId);
 importClass(com.intellij.openapi.project.ex.ProjectManagerEx);
+importClass(com.intellij.openapi.vcs.VcsConfiguration);
 importClass(com.intellij.openapi.wm.ToolWindowId);
 importClass(com.intellij.openapi.wm.ToolWindowManager);
 importClass(com.intellij.util.ModalityUiUtil);
@@ -325,6 +326,15 @@ function openProject(projectPath) {
   ApplicationManager.getApplication().invokeAndWait(() => {
     const newProject = projectManager.openProject(Paths.get(projectPath), OpenProjectTask.build());
     ProjectUtil.focusProjectWindow(newProject, true);
+
+    // Disable the "Restore workspace on branch switching" feature
+    // when switching the branch, since com.intellij.tasks.context.BranchContextTracker
+    // tries attempts to reload the context - including breakpoints - associated with the branch,
+    // which leads to ClassNotFoundException: com.intellij.javascript.debugger.breakpoints.JavaScriptBreakpointListener
+    // since 2025.3 for some reason (not observed earlier)
+    // See https://youtrack.jetbrains.com/issue/IJPL-226827
+    const vcsConfig = VcsConfiguration.getInstance(newProject);
+    vcsConfig.RELOAD_CONTEXT = false
   });
 }
 global.put('openProject', openProject);
