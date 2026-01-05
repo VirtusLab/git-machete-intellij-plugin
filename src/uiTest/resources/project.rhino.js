@@ -3,6 +3,7 @@ importClass(java.lang.Thread);
 importClass(java.nio.file.Paths);
 importClass(java.util.stream.Collectors);
 
+
 importClass(com.intellij.ide.plugins.PluginManagerCore);
 importClass(com.intellij.ide.impl.OpenProjectTask);
 importClass(com.intellij.ide.impl.ProjectUtil);
@@ -18,6 +19,7 @@ importClass(com.intellij.openapi.application.ModalityState);
 importClass(com.intellij.openapi.components.ServiceManager);
 importClass(com.intellij.openapi.extensions.PluginId);
 importClass(com.intellij.openapi.project.ex.ProjectManagerEx);
+importClass(com.intellij.openapi.vcs.VcsConfiguration);
 importClass(com.intellij.openapi.wm.ToolWindowId);
 importClass(com.intellij.openapi.wm.ToolWindowManager);
 importClass(com.intellij.util.ModalityUiUtil);
@@ -325,6 +327,10 @@ function openProject(projectPath) {
   ApplicationManager.getApplication().invokeAndWait(() => {
     const newProject = projectManager.openProject(Paths.get(projectPath), OpenProjectTask.build());
     ProjectUtil.focusProjectWindow(newProject, true);
+
+    // Disable the "Restore workspace on branch switching" feature
+    const vcsConfig = VcsConfiguration.getInstance(newProject);
+    vcsConfig.RELOAD_CONTEXT = false
   });
 }
 global.put('openProject', openProject);
