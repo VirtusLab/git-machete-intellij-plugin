@@ -1,6 +1,6 @@
 [versions]
-checker = "3.52.1"
-junit = "6.0.1"
+checker = "3.53.0"
+junit = "6.0.2"
 remoteRobot = "0.11.23"
 
 [libraries]
