@@ -18,6 +18,7 @@ importClass(com.intellij.openapi.application.ModalityState);
 importClass(com.intellij.openapi.components.ServiceManager);
 importClass(com.intellij.openapi.extensions.PluginId);
 importClass(com.intellij.openapi.project.ex.ProjectManagerEx);
+importClass(com.intellij.openapi.util.registry.Registry);
 importClass(com.intellij.openapi.vcs.VcsConfiguration);
 importClass(com.intellij.openapi.wm.ToolWindowId);
 importClass(com.intellij.openapi.wm.ToolWindowManager);
@@ -322,6 +323,8 @@ function openProject(projectPath) {
 
   const trustedPathsSettings = ServiceManager.getService(TrustedPathsSettings);
   trustedPathsSettings.addTrustedPath(projectPath);
+
+  Registry.get("csat.survey.enabled").setValue(false);
 
   ApplicationManager.getApplication().invokeAndWait(() => {
     const newProject = projectManager.openProject(Paths.get(projectPath), OpenProjectTask.build());
