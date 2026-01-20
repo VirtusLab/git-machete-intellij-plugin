@@ -325,6 +325,7 @@ function openProject(projectPath) {
   trustedPathsSettings.addTrustedPath(projectPath);
 
   Registry.get("csat.survey.enabled").setValue(false);
+  Registry.get("csat.survey.show.probability").setValue(0);
 
   ApplicationManager.getApplication().invokeAndWait(() => {
     const newProject = projectManager.openProject(Paths.get(projectPath), OpenProjectTask.build());
