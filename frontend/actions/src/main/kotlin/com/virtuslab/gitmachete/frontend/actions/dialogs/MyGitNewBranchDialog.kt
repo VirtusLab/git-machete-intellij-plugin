@@ -49,8 +49,10 @@ class MyGitNewBranchDialog @JvmOverloads constructor(
       return when (constructor.parameters.size) {
         // Before 251.17181.16-EAP-SNAPSHOT
         4 -> constructor.call(name, checkout, reset, setTracking)
+
         // Between 251.17181.16-EAP-SNAPSHOT and certain 252-EAP-SNAPSHOT
         5 -> constructor.call(name, checkout, reset, setTracking, emptyList<GitRepository>())
+
         // Since certain 252-EAP-SNAPSHOT
         else -> constructor.call(name, checkout, reset, setTracking, emptyList<GitRepository>(), /* unsetUpstream */ false)
       }

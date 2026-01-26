@@ -1,13 +1,13 @@
 [versions]
 junit = "6.0.2"
-spotless = "8.1.0"
+spotless = "8.2.0"
 
 [libraries]
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
 junit-platformLauncher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit" }
-kotlinxSerializationJson = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0"
+kotlinxSerializationJson = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0"
 # Plugin packages
 # This way of applying the plugins is needed for the build-related code in buildSrc/src/main/,
 # see https://docs.gradle.org/current/samples/sample_convention_plugins.html#things_to_note.

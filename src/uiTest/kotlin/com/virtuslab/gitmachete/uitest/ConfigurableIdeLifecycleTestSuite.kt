@@ -54,6 +54,7 @@ abstract class ConfigurableIdeLifecycleTestSuite : BaseUITestSuite() {
         methodBackgroundRun = startIde(LocalProjectInfo(rootDirectoryPath))
         driver().waitForProject()
       }
+
       else -> {
         println("Opening new project at $rootDirectoryPath (class mode)...")
         retryOnConnectException(3) {
