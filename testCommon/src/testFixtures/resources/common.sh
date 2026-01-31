@@ -43,12 +43,10 @@ function create_repo() {
   cd $dir || exit 1
   shift
   git init "$@"
-  if [[ "$(uname -s)" != *MINGW*_NT* ]]; then
-    mkdir -p .git/hooks/
-    local hook_path=.git/hooks/machete-status-branch
-    echo "$status_branch_hook" > $hook_path
-    chmod +x $hook_path
-  fi
+  mkdir -p .git/hooks/
+  local hook_path=.git/hooks/machete-status-branch
+  echo "$status_branch_hook" > $hook_path
+  chmod +x $hook_path
   # `--local` (per-repository) is the default when writing git config... let's put it here for clarity anyway.
   git config --local user.email "circleci@example.com"
   git config --local user.name "CircleCI"

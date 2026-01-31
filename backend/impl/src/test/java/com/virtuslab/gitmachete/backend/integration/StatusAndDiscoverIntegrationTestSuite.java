@@ -1,12 +1,7 @@
 package com.virtuslab.gitmachete.backend.integration;
 
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.AheadOfRemote;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.BehindRemote;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.DivergedFromAndNewerThanRemote;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.DivergedFromAndOlderThanRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.InSyncToRemote;
 import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.NoRemotes;
-import static com.virtuslab.gitmachete.backend.api.SyncToRemoteStatus.Untracked;
 import static com.virtuslab.gitmachete.testcommon.SetupScripts.ALL_SETUP_SCRIPTS;
 import static com.virtuslab.gitmachete.testcommon.TestFileUtils.cleanUpDir;
 import static org.junit.jupiter.api.Assertions.assertEquals;
