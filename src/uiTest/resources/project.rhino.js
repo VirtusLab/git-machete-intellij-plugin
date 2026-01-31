@@ -324,6 +324,8 @@ function openProject(projectPath) {
   const trustedPathsSettings = ServiceManager.getService(TrustedPathsSettings);
   trustedPathsSettings.addTrustedPath(projectPath);
 
+  // Disable `Tell us about your experience` dialog that interferes with UI tests in IDEA Ultimate
+  // See https://youtrack.jetbrains.com/issue/IJPL-225266
   Registry.get("csat.survey.enabled").setValue(false);
   Registry.get("csat.survey.show.probability").setValue(0);
 
