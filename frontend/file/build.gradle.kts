@@ -36,6 +36,11 @@ tasks {
     pathToParser.set("/$grammarJavaPackagePath/MacheteGeneratedParser.java")
     pathToPsiRoot.set("/$grammarJavaPackagePath/")
     purgeOldFiles.set(false)
+
+    val platformLibs = intellijPlatform.platformPath.resolve("lib")
+    classpath += fileTree(platformLibs) {
+      include("*.jar")
+    }
   }
 
   generateLexer {
