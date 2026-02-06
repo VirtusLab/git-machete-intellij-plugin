@@ -65,10 +65,9 @@ public final class BranchLayoutEntry {
   public boolean equals(@Nullable Object other) {
     if (this == other) {
       return true;
-    } else if (!(other instanceof BranchLayoutEntry)) {
+    } else if (!(other instanceof BranchLayoutEntry otherEntry)) {
       return false;
     } else {
-      val otherEntry = (BranchLayoutEntry) other;
       val areNamesSame = this.name.equals(otherEntry.name);
       val areCustomAnnotationsSame = Objects.equals(this.customAnnotation, otherEntry.customAnnotation);
 

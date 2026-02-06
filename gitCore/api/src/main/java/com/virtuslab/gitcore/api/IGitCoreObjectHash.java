@@ -27,10 +27,10 @@ public interface IGitCoreObjectHash {
   static boolean defaultEquals(@FindDistinct IGitCoreObjectHash self, @Nullable Object other) {
     if (self == other) {
       return true;
-    } else if (!(other instanceof IGitCoreObjectHash)) {
+    } else if (!(other instanceof IGitCoreObjectHash otherHash)) {
       return false;
     } else {
-      return self.getHashString().equals(((IGitCoreObjectHash) other).getHashString());
+      return self.getHashString().equals(otherHash.getHashString());
     }
   }
 

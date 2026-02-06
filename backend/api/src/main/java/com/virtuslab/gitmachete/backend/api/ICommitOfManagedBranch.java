@@ -27,10 +27,10 @@ public interface ICommitOfManagedBranch {
   static boolean defaultEquals(@FindDistinct ICommitOfManagedBranch self, @Nullable Object other) {
     if (self == other) {
       return true;
-    } else if (!(other instanceof ICommitOfManagedBranch)) {
+    } else if (!(other instanceof ICommitOfManagedBranch otherCommit)) {
       return false;
     } else {
-      return self.getHash().equals(((ICommitOfManagedBranch) other).getHash());
+      return self.getHash().equals(otherCommit.getHash());
     }
   }
 

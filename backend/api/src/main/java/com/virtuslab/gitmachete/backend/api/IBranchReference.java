@@ -38,10 +38,10 @@ public interface IBranchReference {
   static boolean defaultEquals(@FindDistinct IBranchReference self, @Nullable Object other) {
     if (self == other) {
       return true;
-    } else if (!(other instanceof IBranchReference)) {
+    } else if (!(other instanceof IBranchReference otherBranch)) {
       return false;
     } else {
-      return self.getFullName().equals(((IBranchReference) other).getFullName());
+      return self.getFullName().equals(otherBranch.getFullName());
     }
   }
 

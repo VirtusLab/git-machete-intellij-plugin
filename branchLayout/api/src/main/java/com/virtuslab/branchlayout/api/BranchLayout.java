@@ -160,10 +160,9 @@ public class BranchLayout {
   public final boolean equals(@Nullable Object other) {
     if (this == other) {
       return true;
-    } else if (!(other instanceof BranchLayout)) {
+    } else if (!(other instanceof BranchLayout otherLayout)) {
       return false;
     } else {
-      val otherLayout = (BranchLayout) other;
       if (this.rootEntries.size() == otherLayout.rootEntries.size()) {
         val entryNameComparator = Comparator.comparing(BranchLayoutEntry::getName);
 
