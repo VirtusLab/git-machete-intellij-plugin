@@ -324,8 +324,7 @@ function openProject(projectPath) {
   const trustedPathsSettings = ServiceManager.getService(TrustedPathsSettings);
   trustedPathsSettings.addTrustedPath(projectPath);
 
-  // Disable `Tell us about your experience` dialog that interferes with UI tests in IDEA Ultimate
-  // See https://youtrack.jetbrains.com/issue/IJPL-225266
+  // FIXME (IJPL-225266): workaround for `Tell us about your experience` dialog that interferes with UI tests in IDEA Ultimate
   Registry.get("csat.survey.enabled").setValue(false);
   Registry.get("csat.survey.show.probability").setValue(0);
 
@@ -333,12 +332,11 @@ function openProject(projectPath) {
     const newProject = projectManager.openProject(Paths.get(projectPath), OpenProjectTask.build());
     ProjectUtil.focusProjectWindow(newProject, true);
 
-    // Disable the "Restore workspace on branch switching" feature
+    // FIXME (IJPL-226827): explicitly disable the "Restore workspace on branch switching" feature
     // when switching the branch, since com.intellij.tasks.context.BranchContextTracker
     // tries attempts to reload the context - including breakpoints - associated with the branch,
     // which leads to ClassNotFoundException: com.intellij.javascript.debugger.breakpoints.JavaScriptBreakpointListener
     // since 2025.3 for some reason (not observed earlier)
-    // See https://youtrack.jetbrains.com/issue/IJPL-226827
     const vcsConfig = VcsConfiguration.getInstance(newProject);
     vcsConfig.RELOAD_CONTEXT = false
   });

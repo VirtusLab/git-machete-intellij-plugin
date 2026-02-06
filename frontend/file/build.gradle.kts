@@ -29,6 +29,12 @@ val additionalSourceDirs = listOf(generatedParserJavaSourcesRoot, generatedLexer
 
 sourceSets["main"].java { srcDir(additionalSourceDirs) }
 
+// FIXME (#2186): required to avoid a fallback to JavaHelper.ReflectionHelper and a ClassCastException
+val grammarKitMissingDependencies by configurations.creating
+dependencies {
+  grammarKitMissingDependencies("org.jetbrains.intellij.deps:asm-all:9.6.1")
+}
+
 tasks {
   generateParser {
     sourceFile.set(file("$grammarSourcesRoot/Machete.bnf"))
@@ -36,6 +42,18 @@ tasks {
     pathToParser.set("/$grammarJavaPackagePath/MacheteGeneratedParser.java")
     pathToPsiRoot.set("/$grammarJavaPackagePath/")
     purgeOldFiles.set(false)
+
+    // FIXME (JetBrains/gradle-grammar-kit-plugin#223): remove this workaround
+    val requiredLibs261 = listOf(
+      "intellij.platform.core", "intellij.platform.core.impl", "intellij.platform.analysis", "intellij.platform.analysis.impl",
+      "intellij.platform.projectModel", "intellij.platform.lang",
+      "intellij.libraries.fastutil", "intellij.libraries.kotlinx.coroutines.core", "intellij.libraries.kotlinx.collections.immutable",
+    )
+
+    val platformLibs = intellijPlatform.platformPath.resolve("lib")
+    classpath += fileTree(platformLibs) { include { it.file.nameWithoutExtension in requiredLibs261 } }
+
+    classpath += files(grammarKitMissingDependencies)
   }
 
   generateLexer {

@@ -106,7 +106,8 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
           .installPluginFromPath(File(pathToBuildPlugin).toPath())
           .installPluginFromPath(File(pathToRobotServerPlugin).toPath())
 
-        // See https://youtrack.jetbrains.com/issue/LLM-22958
+        // FIXME (LLM-22958): disable `Unlock next-level development with free AI` dialog
+        //  which interferes with automatic UI tests since 2025.3
         applyVMOptionsPatch { addSystemProperty("llm.show.ai.promotion.window.on.start", "false") }
       }
       val backgroundRun = ideStarter.runIdeWithDriver { }
