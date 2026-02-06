@@ -1,7 +1,9 @@
 
 import com.virtuslab.gitmachete.buildsrc.*
 import com.virtuslab.gitmachete.buildsrc.AnyVersion.Companion.productCode
+import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.jvm.tasks.Jar
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.intellij.platform.gradle.tasks.BuildPluginTask
@@ -167,6 +169,27 @@ subprojects {
   if (path.startsWith(":frontend:")) {
     apply(plugin = "org.jetbrains.intellij.platform.module")
 
+    // The intellij-platform-gradle-plugin sets archiveBaseName in two places:
+    // 1. JarCompanion.kt sets it to project.name (last segment) for the "jar" task
+    // 2. ComposedJarTask.kt sets it to "${rootProject.name}.${project.name}" for the "composedJar" task
+    // The composedJar task is what gets used when resolving project dependencies, so we need
+    // to override both to use the full path-based name.
+    afterEvaluate {
+      tasks.named<Jar>("jar").configure {
+        archiveBaseName.set(path.replaceFirst(":", "").replace(":", "-"))
+        archiveClassifier.set("") // Clear the classifier to avoid "-base" suffix
+      }
+      // The composedJar task is what actually gets included in the plugin zip
+      // The intellij-platform-gradle-plugin sets archiveBaseName to "${rootProject.name}.${project.name}"
+      // for the composedJar task. We override it to use the full path-based name.
+      tasks.named<Jar>("composedJar").configure {
+        val desiredName = path.replaceFirst(":", "").replace(":", "-")
+        archiveBaseName.set(desiredName)
+        archiveVersion.set("") // Clear version to match the pattern
+        archiveClassifier.set("") // Clear classifier
+      }
+    }
+
     applyGuiEffectChecker()
 
     repositories {
@@ -288,6 +311,27 @@ val verifyPluginZipTask = tasks.register("verifyPluginZip") {
         .map { it.removePrefix("git-machete-intellij-plugin/").removePrefix("lib/").removeSuffix(".jar") }
         .filter { it.isNotEmpty() }
         .toList()
+    }
+
+    // Verify that all subprojects with source code have correctly named jars
+    // Note: For frontend:* projects, the jar may have a "-composedJar" suffix due to Gradle's
+    // default naming for custom jar tasks, so we check for both variants.
+    for (proj in subprojects) {
+      val projJar = proj.path.replaceFirst(":", "").replace(":", "-")
+      val javaExtension = proj.extensions.findByType<JavaPluginExtension>()
+      val hasSourceCode = javaExtension?.sourceSets?.get("main")?.allSource?.srcDirs?.any { it.exists() } ?: false
+
+      if (hasSourceCode) {
+        val jarFound = projJar in jarsInPluginZip || "$projJar-composedJar" in jarsInPluginZip
+        check(jarFound) {
+          "$projJar.jar (or $projJar-composedJar.jar) was expected in plugin zip ($pluginZipPath) but was NOT found\nAll entries: $jarsInPluginZip"
+        }
+      } else {
+        val jarFound = projJar in jarsInPluginZip || "$projJar-composedJar" in jarsInPluginZip
+        check(!jarFound) {
+          "$projJar.jar (or $projJar-composedJar.jar) was NOT expected in plugin zip ($pluginZipPath) but was found\nAll entries: $jarsInPluginZip"
+        }
+      }
     }
 
     val expectedLibs = listOf("org.eclipse.jgit", "slf4j-lambda-core", "vavr", "vavr-match")
