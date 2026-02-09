@@ -180,6 +180,7 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
       "java.nio.file.Path.equals(java.lang.Object)",
       "java.nio.file.Path.getFileName()",
       "java.nio.file.Path.getParent()",
+      "java.nio.file.Path.isAbsolute()",
       "java.nio.file.Path.of(java.lang.String, [Ljava.lang.String;)",
       "java.nio.file.Path.resolve(java.lang.String)",
       "java.nio.file.Path.toAbsolutePath()",

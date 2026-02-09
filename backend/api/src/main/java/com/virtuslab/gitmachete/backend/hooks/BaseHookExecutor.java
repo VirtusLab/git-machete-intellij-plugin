@@ -30,9 +30,14 @@ public abstract class BaseHookExecutor {
     this.name = name;
     this.rootDirectory = rootDirectoryPath.toFile();
 
-    val hooksDirPath = gitConfigCoreHooksPath != null
-        ? Paths.get(gitConfigCoreHooksPath)
-        : mainGitDirectoryPath.resolve("hooks");
+    Path hooksDirPath;
+    if (gitConfigCoreHooksPath == null) {
+      hooksDirPath = mainGitDirectoryPath.resolve("hooks");
+    } else if (Paths.get(gitConfigCoreHooksPath).isAbsolute()) {
+      hooksDirPath = Paths.get(gitConfigCoreHooksPath);
+    } else {
+      hooksDirPath = rootDirectoryPath.resolve(gitConfigCoreHooksPath);
+    }
     this.hookFile = hooksDirPath.resolve(name).toFile();
   }
 

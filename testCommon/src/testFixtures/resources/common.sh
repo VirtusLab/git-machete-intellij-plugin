@@ -58,6 +58,9 @@ function create_repo() {
   # To make sure the tests can run automatically in such scenario,
   # let's disable automatic commit signing on a per-repository level.
   git config --local commit.gpgSign false
+  # Override any global core.hooksPath setting to ensure hooks are looked up in .git/hooks
+  # (where we create them in tests) rather than a global hooks directory.
+  git config --local core.hooksPath .git/hooks
   cd - || exit 1
 }
 
