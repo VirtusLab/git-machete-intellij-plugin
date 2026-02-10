@@ -4,7 +4,6 @@ import com.intellij.driver.client.Driver
 import com.intellij.driver.sdk.isProjectOpened
 import com.intellij.driver.sdk.ui.components.common.ideFrame
 import com.intellij.driver.sdk.ui.xQuery
-import com.intellij.driver.sdk.waitForIndicators
 import com.intellij.ide.starter.ci.CIServer
 import com.intellij.ide.starter.ci.NoCIServer
 import com.intellij.ide.starter.di.di
@@ -12,7 +11,6 @@ import com.intellij.ide.starter.driver.engine.BackgroundRun
 import com.intellij.ide.starter.driver.engine.runIdeWithDriver
 import com.intellij.ide.starter.ide.IdeProductProvider
 import com.intellij.ide.starter.models.TestCase
-import com.intellij.ide.starter.plugins.PluginConfigurator
 import com.intellij.ide.starter.project.ProjectInfoSpec
 import com.intellij.ide.starter.runner.Starter
 import com.intellij.remoterobot.RemoteRobot
@@ -60,7 +58,7 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
       }
 
       println("Waiting for indicators...")
-      waitForIndicators(1.minutes)
+      myWaitForIndicators(1.minutes)
       println("Project opened")
     }
 
@@ -135,7 +133,7 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
   private fun doAndAwait(action: () -> Unit) {
     action()
     println("Waiting for indicators...")
-    driver().waitForIndicators(2.minutes)
+    driver().myWaitForIndicators(2.minutes)
   }
 
   private fun runJs(@Language("JavaScript") statement: String) {
