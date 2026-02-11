@@ -1,3 +1,6 @@
+// TODO (#2194): this is inlined from package com.intellij.driver.sdk + slightly modified
+//  to debug why waiting on indicators stalls every now and then
+
 package com.virtuslab.gitmachete.uitest
 
 import com.intellij.driver.client.Driver
@@ -11,7 +14,11 @@ fun Driver.getProgressIndicators(project: Project): List<StatusBar.TaskInfoPair>
   return withContext {
     val ideFrame = service<WindowManager>().getIdeFrame(project)
     val statusBar = ideFrame?.getStatusBar() ?: return@withContext emptyList()
-    statusBar.getBackgroundProcessModels()
+    val processes = statusBar.getBackgroundProcesses()
+    if (processes.isNotEmpty()) {
+      println("Driver.getProgressIndicators: background processes = $processes")
+    }
+    processes
   }
 }
 
@@ -58,8 +65,19 @@ internal fun Driver.myWaitForIndicators(projectGet: () -> Project?, timeout: Dur
 
   waitFor("Indicators", timeout) {
     val project = runCatching { projectGet.invoke() }.getOrNull()
-    if (project == null || !isProjectOpened(project) || areIndicatorsVisible(project)) {
+    if (project == null) {
       smartLongEnoughStart = null
+      println("Driver.myWaitForIndicators: waiting more since project is null")
+      return@waitFor false
+    }
+    if (!isProjectOpened(project)) {
+      smartLongEnoughStart = null
+      println("Driver.myWaitForIndicators: waiting more since project ($project) is not opened")
+      return@waitFor false
+    }
+    if (areIndicatorsVisible(project)) {
+      smartLongEnoughStart = null
+      println("Driver.myWaitForIndicators: waiting more since indicators in the project are visible, or not enough time passed without indicators")
       return@waitFor false
     }
 
