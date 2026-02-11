@@ -14,7 +14,7 @@ fun Driver.getProgressIndicators(project: Project): List<StatusBar.TaskInfoPair>
   return withContext {
     val ideFrame = service<WindowManager>().getIdeFrame(project)
     val statusBar = ideFrame?.getStatusBar() ?: return@withContext emptyList()
-    val processes = statusBar.getBackgroundProcesses()
+    val processes = statusBar.getBackgroundProcessModels()
     if (processes.isNotEmpty()) {
       println("Driver.getProgressIndicators: background processes = $processes")
     }

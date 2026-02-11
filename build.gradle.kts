@@ -445,6 +445,11 @@ repositories {
 
 dependencies {
   intellijPlatform {
+    // Note that theoretically, we should compile UI tests for each IDE version
+    // against test framework (ide-starter, driver-sdk etc.) for this particular version,
+    // as there's no guarantee that test framework version X will be compatible with IDE version Y for X != Y.
+    // See https://youtrack.jetbrains.com/issue/IJPL-234281.
+    // We're cutting corners here to keep the build setup simpler.
     testFramework(TestFrameworkType.Starter, configurationName = uiTestImplementation.name)
   }
 
