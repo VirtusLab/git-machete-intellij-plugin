@@ -195,11 +195,14 @@ jobs:
       - checkout: {method: blobless}
       - restore_gradle_cache
       - run:
-          name: Run UI tests against an EAP of the latest supported major IntelliJ version (if applicable)
-          command: ./gradlew -Pagainst=upcomingMajorEap uiTest
-      - run:
-          name: Run UI tests against the latest stable IntelliJ version
-          command: ./gradlew -Pagainst=latestStable uiTest
+          name: Run UI tests against the most recent supported IntelliJ version
+          # language=sh
+          command: |
+            if grep -E 'upcomingMajorEap=.+' intellij-versions.properties; then
+              ./gradlew -Pagainst=upcomingMajorEap uiTest
+            else
+              ./gradlew -Pagainst=latestStable uiTest
+            fi
       - store_test_results:
           path: build/test-results/
       - store_ui_test_artifacts
@@ -221,7 +224,7 @@ jobs:
             # Hence, to speed up the builds, we only run them for develop/master/hotfix/release branches and not on PRs.
             # Also, we run on branches related to UI tests, as indicated by their name.
             matches:
-              pattern: "^(.+/ci-.+|develop|hotfix/.+|master|release/.+|.*ui(-)?test.*|update-intellij-versions/.+)$"
+              pattern: "^(.*ci[-/].+|develop|hotfix/.+|master|release/.+|.*ui(-)?test.*|update-intellij-versions/.+)$"
               value: << pipeline.git.branch >>
           steps:
             - checkout: {method: blobless}
@@ -229,6 +232,13 @@ jobs:
             - run:
                 name: Run UI tests against earlier supported major IntelliJ versions
                 command: ./gradlew -Pagainst=latestMinorsOfOldSupportedMajors uiTest
+            - run:
+                name: Run UI tests against the latest stable IntelliJ version (if not run in ui-tests-recent)
+                # language=sh
+                command: |
+                  if grep -E 'upcomingMajorEap=.+' intellij-versions.properties; then
+                    ./gradlew -Pagainst=latestStable uiTest
+                  fi
             - store_test_results:
                 path: build/test-results/
             - store_ui_test_artifacts
