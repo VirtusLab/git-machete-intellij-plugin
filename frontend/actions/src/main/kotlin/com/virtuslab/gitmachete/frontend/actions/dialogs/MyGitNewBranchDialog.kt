@@ -42,21 +42,6 @@ class MyGitNewBranchDialog @JvmOverloads constructor(
 
   companion object {
     private const val NAME_SEPARATOR = '/'
-
-    fun createGit4IdeaOptions(name: String, checkout: Boolean, reset: Boolean, setTracking: Boolean): GitNewBranchOptions {
-      // TODO (#1974): replace with a non-reflective call once 2024.3 is no longer supported
-      val constructor = GitNewBranchOptions::class.primaryConstructor!!
-      return when (constructor.parameters.size) {
-        // Before 251.17181.16-EAP-SNAPSHOT
-        4 -> constructor.call(name, checkout, reset, setTracking)
-
-        // Between 251.17181.16-EAP-SNAPSHOT and certain 252-EAP-SNAPSHOT
-        5 -> constructor.call(name, checkout, reset, setTracking, emptyList<GitRepository>())
-
-        // Since certain 252-EAP-SNAPSHOT
-        else -> constructor.call(name, checkout, reset, setTracking, emptyList<GitRepository>(), /* unsetUpstream */ false)
-      }
-    }
   }
 
   private var checkout = true
@@ -75,7 +60,7 @@ class MyGitNewBranchDialog @JvmOverloads constructor(
 
   fun showAndGetOptions(): GitNewBranchOptions? {
     if (!showAndGet()) return null
-    return createGit4IdeaOptions(
+    return GitNewBranchOptions(
       name = validator.cleanUpBranchName(branchName).trim(),
       checkout = checkout,
       reset = reset,

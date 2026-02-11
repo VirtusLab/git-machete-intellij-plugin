@@ -126,6 +126,7 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
       "git4idea.branch.GitNewBranchDialog.<init>(com.intellij.openapi.project.Project, java.util.Collection, java.lang.String, java.lang.String, boolean, boolean, boolean)",
       "git4idea.branch.GitNewBranchDialog.<init>(com.intellij.openapi.project.Project, java.util.Collection, java.lang.String, java.lang.String, boolean, boolean, boolean, boolean, git4idea.branch.GitBranchOperationType)",
       "git4idea.branch.GitNewBranchDialog.showAndGetOptions()",
+      "git4idea.branch.GitNewBranchOptions.<init>(java.lang.String, boolean, boolean, boolean, java.util.Collection, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker)",
       "git4idea.branch.GitNewBranchOptions.getName()",
       "git4idea.branch.GitNewBranchOptions.shouldCheckout()",
       "git4idea.branch.GitRebaseParams.<init>(git4idea.config.GitVersion, java.lang.String, java.lang.String, java.lang.String, boolean, boolean)",
