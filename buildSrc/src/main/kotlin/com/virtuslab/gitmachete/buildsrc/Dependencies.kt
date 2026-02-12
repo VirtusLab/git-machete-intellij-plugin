@@ -9,6 +9,7 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.*
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -16,7 +17,7 @@ fun Project.applyKotlinConfig() {
   apply<KotlinPluginWrapper>()
 
   tasks.withType<KotlinCompile> {
-    kotlinOptions {
+    compilerOptions {
       allWarningsAsErrors = true
 
       // Suppress the warnings about different version of Kotlin used for compilation
@@ -25,10 +26,10 @@ fun Project.applyKotlinConfig() {
       // and as per https://kotlinlang.org/docs/components-stability.html,
       // code compiled against an older version of kotlin-stdlib should work
       // when a newer version of kotlin-stdlib is provided as a drop-in replacement.
-      freeCompilerArgs += listOf("-Xskip-metadata-version-check")
+      freeCompilerArgs.add("-Xskip-metadata-version-check")
 
       val targetJavaVersion: JavaVersion by rootProject.extra
-      jvmTarget = targetJavaVersion.toString()
+      jvmTarget.set(JvmTarget.fromTarget(targetJavaVersion.toString()))
     }
   }
 }
