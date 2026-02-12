@@ -13,6 +13,7 @@ import java.net.URI
 import java.util.Base64
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion as GradleKotlinVersion
 
 plugins {
   checkstyle
@@ -142,7 +143,7 @@ allprojects {
 
   tasks.withType<KotlinCompile> {
     val kotlinVersionStr = intellijVersions.kotlinVersion.replace("""^(\d+\.\d+).*""".toRegex(), "$1")
-    val kotlinVersion = org.jetbrains.kotlin.gradle.dsl.KotlinVersion.fromVersion(kotlinVersionStr)
+    val kotlinVersion = GradleKotlinVersion.fromVersion(kotlinVersionStr)
     compilerOptions {
       apiVersion.set(kotlinVersion)
       languageVersion.set(kotlinVersion)
