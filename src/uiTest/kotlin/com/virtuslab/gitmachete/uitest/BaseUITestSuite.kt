@@ -81,9 +81,10 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
         extend(di)
         bindSingleton<CIServer>(overrides = true) {
           object : CIServer by NoCIServer {
+            // For some reason, the actual arguments are passed in message-then-testName order,
+            // unlike testName-then-message order indicated by the superclass method.
+            @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
             override fun reportTestFailure(
-              // For some reason, the actual arguments are passed in message-then-testName order,
-              // unlike testName-then-message order indicated by the superclass method.
               message: String,
               testName: String,
               details: String,

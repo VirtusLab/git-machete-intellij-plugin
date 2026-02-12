@@ -7,7 +7,6 @@ import org.gradle.jvm.tasks.Jar
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.intellij.platform.gradle.tasks.BuildPluginTask
-import org.jetbrains.intellij.platform.gradle.tasks.RunIdeTask
 import org.jetbrains.intellij.platform.gradle.tasks.SignPluginTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
@@ -142,10 +141,11 @@ allprojects {
   configurations.runtimeClasspath { exclude(group = "org.slf4j", module = "slf4j-api") }
 
   tasks.withType<KotlinCompile> {
-    val kotlinLanguageVersion = intellijVersions.kotlinVersion.replace("""^(\d+\.\d+).*""".toRegex(), "$1")
-    kotlinOptions {
-      apiVersion = kotlinLanguageVersion
-      languageVersion = kotlinLanguageVersion
+    val kotlinVersionStr = intellijVersions.kotlinVersion.replace("""^(\d+\.\d+).*""".toRegex(), "$1")
+    val kotlinVersion = org.jetbrains.kotlin.gradle.dsl.KotlinVersion.fromVersion(kotlinVersionStr)
+    compilerOptions {
+      apiVersion.set(kotlinVersion)
+      languageVersion.set(kotlinVersion)
     }
   }
 }

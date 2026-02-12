@@ -1,5 +1,7 @@
 # Changelog
 
+## v7.0.1
+
 ## v7.0.0
 - Added: support for IntelliJ 2026.1.
 - Dropped: support for IntelliJ 2024.2 to 2025.1.
