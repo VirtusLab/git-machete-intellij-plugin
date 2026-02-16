@@ -1,5 +1,5 @@
 [versions]
-junit = "6.0.2"
+junit = "6.0.3"
 spotless = "8.2.1"
 
 [libraries]
