@@ -1,6 +1,6 @@
 [versions]
-checker = "3.53.0"
-junit = "6.0.2"
+checker = "3.53.1"
+junit = "6.0.3"
 remoteRobot = "0.11.23"
 
 [libraries]
@@ -18,7 +18,7 @@ junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "jun
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
 junit-platformLauncher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit" }
-kodein = "org.kodein.di:kodein-di-jvm:7.30.0"
+kodein = "org.kodein.di:kodein-di-jvm:7.31.0"
 kotlin-coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2"
 kotlinxSerializationJson = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0"
 lombok = "org.projectlombok:lombok:1.18.42"
@@ -29,7 +29,7 @@ remoteRobot-serverPlugin = { module = "com.intellij.remoterobot:robot-server-plu
 slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
 slf4j-mock = "org.simplify4u:slf4j-mock:2.4.0"
 slf4j-simple = "org.slf4j:slf4j-simple:2.0.17"
-vavr = "io.vavr:vavr:0.11.0"
+vavr = "io.vavr:vavr:1.0.0"
 
 # Note that certain plugins are also pulled in via buildSrc,
 # where they aren't really `apply`-ed as plugins, but rather added to classpath as plugin packages;
