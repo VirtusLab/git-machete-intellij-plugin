@@ -111,7 +111,7 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
         //  which interferes with automatic UI tests since 2025.3
         applyVMOptionsPatch { addSystemProperty("llm.show.ai.promotion.window.on.start", "false") }
       }
-      val backgroundRun = ideStarter.runIdeWithDriver { }
+      val backgroundRun = ideStarter.runIdeWithDriver()
       println("IDE instance started")
 
       println("Rhino project initializing...")

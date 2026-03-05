@@ -38,7 +38,7 @@ fun Project.configureUiTests() {
       // TODO (#2146): drop support for IntelliJ Community
       systemProperty("intellij.product", version.productCode())
 
-      systemProperty("ide.instance-per", "class")
+      systemProperty("ide.instance-per", "class") // a slower alternative: "method"
 
       testClassesDirs = uiTest.output.classesDirs
       classpath = configurations.getByName("uiTestRuntimeClasspath") + uiTest.output
@@ -62,10 +62,14 @@ fun Project.configureUiTests() {
 
       useJUnitPlatform()
 
-      // Here, add-opens is needed to avoid
       // IllegalArgumentException: Unable to create converter for class com.intellij.remoterobot.client.ExecuteResponse
       // in com.intellij.remoterobot.RemoteRobot.runJs
       jvmArgs(getFlagsForAddOpens("java.lang", module = "java.base"))
+      // Since 2026.1 EAP:
+      // InaccessibleObjectException: Unable to make public static
+      // javax.swing.TimerQueue javax.swing.TimerQueue.sharedInstance() accessible:
+      // module java.desktop does not "opens javax.swing" to unnamed module
+      jvmArgs(getFlagsForAddOpens("javax.swing", module = "java.desktop"))
       testLogging.showStandardStreams = true
     }
   }
