@@ -1,6 +1,6 @@
 [versions]
 junit = "6.0.3"
-spotless = "8.2.1"
+spotless = "8.3.0"
 
 [libraries]
 junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
