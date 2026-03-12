@@ -17,7 +17,7 @@ fun Project.configureSpotless() {
       // and exporting settings from Eclipse
       eclipse().configFile("$rootDir/config/spotless/formatting-rules.xml")
       removeUnusedImports()
-      targetExclude("**/build/generated/**/*.*")
+      targetExclude("**/build/generated/**/*.*", "**/.intellijPlatform/**")
     }
 
     val ktlintEditorConfig = mapOf(
@@ -33,11 +33,15 @@ fun Project.configureSpotless() {
     kotlin {
       ktlint().editorConfigOverride(ktlintEditorConfig)
       target("**/*.kt")
+      // Workaround for JetBrains/intellij-platform-gradle-plugin#2096: exclude plugin sandbox so Spotless
+      // doesn't touch outputs of prepareTestSandbox (previously under build/idea-sandbox, now under .intellijPlatform).
+      targetExclude("**/.intellijPlatform/**")
     }
 
     kotlinGradle {
       ktlint().editorConfigOverride(ktlintEditorConfig)
       target("**/*.gradle.kts")
+      targetExclude("**/.intellijPlatform/**")
     }
   }
 

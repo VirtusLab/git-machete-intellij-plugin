@@ -1,7 +1,7 @@
 import com.virtuslab.gitmachete.buildsrc.*
 
 plugins {
-  alias(libs.plugins.jetbrains.grammarkit)
+  id("org.jetbrains.intellij.platform.grammarkit")
 }
 
 dependencies {
