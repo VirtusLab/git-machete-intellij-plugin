@@ -357,11 +357,14 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     val snapshot = gitMacheteRepositorySnapshot;
     if (snapshot == null) {
       repositoryGraph = NullRepositoryGraph.getInstance();
+      selectedBranchName = null;
     } else {
       repositoryGraph = repositoryGraphCache.getRepositoryGraph(snapshot, isListingCommits);
       if (snapshot.getRootBranches().isEmpty()) {
         if (snapshot.getSkippedBranchNames().isEmpty()) {
           LOG.info("Machete file (${macheteFilePath}) is empty");
+          setModel(new GraphTableModel(repositoryGraph));
+          selectedBranchName = null;
           setTextForEmptyTable(
               getString("string.GitMachete.EnhancedGraphTable.empty-table-text.try-running-discover")
                   .fmt(macheteFilePath.toString()));
@@ -376,6 +379,8 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
     if (!isMacheteFilePresent) {
       LOG.info("Machete file (${macheteFilePath}) is absent, so auto discover is running");
+      setModel(new GraphTableModel(repositoryGraph));
+      selectedBranchName = null;
       // The `doOnUIThreadWhenReady` callback must be executed once the discover task is *complete*,
       // and not just when the discover task is *enqueued*.
       // Otherwise, it'll most likely happen that the callback executes before the discover task is complete,
