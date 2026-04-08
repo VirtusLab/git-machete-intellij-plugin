@@ -50,6 +50,8 @@ public class SquashCurrentAction extends BaseSquashAction {
           presentation.setDescription(getNonHtmlString("action.GitMachete.SquashCurrentAction.description"));
         }
       }
+    } else {
+      presentation.setVisible(false);
     }
   }
 

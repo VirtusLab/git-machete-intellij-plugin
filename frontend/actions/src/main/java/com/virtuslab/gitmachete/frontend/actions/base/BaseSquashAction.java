@@ -85,6 +85,8 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
           }
         }
       }
+    } else {
+      presentation.setVisible(false);
     }
   }
 
