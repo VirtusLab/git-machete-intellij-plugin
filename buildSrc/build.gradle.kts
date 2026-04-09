@@ -24,8 +24,19 @@ plugins {
   alias(libs.plugins.taskTree)
 }
 
+// Same optional proxy as root: gradle-local.properties at repo root (see gradle-local.properties.example).
+val optionalMavenProxyFromGradleLocal: String? = run {
+  val f = rootDir.parentFile.resolve("gradle-local.properties")
+  if (!f.isFile) return@run null
+  Properties().apply { f.reader().use { load(it) } }
+    .getProperty("mavenProxyUrl")
+    ?.trim()
+    ?.takeIf { it.isNotEmpty() }
+}
+
 repositories {
   mavenLocal()
+  optionalMavenProxyFromGradleLocal?.let { maven(it) }
   mavenCentral()
   gradlePluginPortal()
 }

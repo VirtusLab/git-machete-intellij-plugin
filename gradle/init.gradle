@@ -1,0 +1,59 @@
+// Repo-local Gradle init script (applied automatically by ./gradlew when this file exists).
+// Rewrites Maven Central repository base URLs to mavenProxyUrl from gradle-local.properties
+// (same idea as a corporate ~/.gradle/init.gradle, but self-contained in the repo).
+//
+// If gradle-local.properties is missing or has no mavenProxyUrl, this script is a no-op.
+
+import org.gradle.api.artifacts.repositories.MavenArtifactRepository
+
+import java.util.Properties
+
+static String loadMavenProxyUrl(File repoRoot) {
+  def f = new File(repoRoot, "gradle-local.properties")
+  if (!f.isFile()) {
+    return null
+  }
+  def p = new Properties()
+  f.withReader("UTF-8") { p.load(it) }
+  def u = p.getProperty("mavenProxyUrl")?.trim()
+  return u ? u.replaceAll(/\/$/, "") : null
+}
+
+static void rewriteIfMavenCentral(MavenArtifactRepository repo, String proxyBase) {
+  def old = repo.url?.toString()
+  if (old == null) {
+    return
+  }
+  def neu = old
+    .replace("https://repo.maven.apache.org", proxyBase)
+    .replace("https://repo1.maven.org", proxyBase)
+    .replace("http://repo.maven.apache.org", proxyBase)
+    .replace("http://repo1.maven.org", proxyBase)
+  if (neu != old) {
+    repo.url = new URI(neu)
+  }
+}
+
+gradle.settingsEvaluated { settings ->
+  def proxy = loadMavenProxyUrl(settings.rootDir)
+  gradle.ext.set("mavenProxyRewriteBase", proxy)
+  if (proxy == null) {
+    return
+  }
+  settings.pluginManagement.repositories.withType(MavenArtifactRepository).configureEach { repo ->
+    rewriteIfMavenCentral(repo, proxy)
+  }
+}
+
+gradle.afterProject { project ->
+  def proxy = gradle.ext.get("mavenProxyRewriteBase")
+  if (proxy == null) {
+    return
+  }
+  project.repositories.withType(MavenArtifactRepository).configureEach { repo ->
+    rewriteIfMavenCentral(repo, proxy)
+  }
+  project.buildscript.repositories.withType(MavenArtifactRepository).configureEach { repo ->
+    rewriteIfMavenCentral(repo, proxy)
+  }
+}
