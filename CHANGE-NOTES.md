@@ -1,6 +1,8 @@
 # Changelog
 
 ## v7.0.1
+- Added: auto-discovery of the branch layout in case of multiple repositories
+- Fixed: branch layout and actions availability in case of multiple repositories
 
 ## v7.0.0
 - Added: support for IntelliJ 2026.1.
