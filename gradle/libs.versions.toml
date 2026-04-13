@@ -1,5 +1,5 @@
 [versions]
-checker = "3.55.1"
+checker = "4.0.0"
 junit = "6.0.3"
 remoteRobot = "0.11.23"
 
@@ -20,7 +20,7 @@ junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref 
 junit-platformLauncher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit" }
 kodein = "org.kodein.di:kodein-di-jvm:7.31.0"
 kotlin-coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2"
-kotlinxSerializationJson = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0"
+kotlinxSerializationJson = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0"
 lombok = "org.projectlombok:lombok:1.18.44"
 mockito = "org.mockito:mockito-junit-jupiter:5.23.0"
 okhttp = "com.squareup.okhttp3:okhttp:5.3.2"
