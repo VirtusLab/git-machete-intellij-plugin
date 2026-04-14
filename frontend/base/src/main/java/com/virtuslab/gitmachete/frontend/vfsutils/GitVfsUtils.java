@@ -16,7 +16,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 @Slf4j
 public final class GitVfsUtils {
 
-  private static final String MACHETE_FILE_NAME = "machete";
+  public static final String MACHETE_FILE_NAME = "machete";
 
   private GitVfsUtils() {}
 

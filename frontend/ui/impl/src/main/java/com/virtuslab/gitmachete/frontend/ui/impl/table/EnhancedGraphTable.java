@@ -68,7 +68,6 @@ import com.virtuslab.gitmachete.backend.api.NullGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.frontend.common.WriteActionUtils;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
-import com.virtuslab.gitmachete.frontend.defs.FileTypeIds;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphCache;
@@ -201,15 +200,19 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       @ContinuesInBackground
       @UIEffect
       public void after(java.util.List<? extends VFileEvent> events) {
+        boolean macheteFileChanged = false;
         for (val event : events) {
-          if (event instanceof VFileContentChangeEvent vfccEvent) {
-            if (vfccEvent.getFile().getFileType().getName().equals(FileTypeIds.NAME)) {
-              if (unmanagedBranchNotification != null && !unmanagedBranchNotification.isExpired()) {
-                unmanagedBranchNotification.expire();
-              }
-              queueRepositoryUpdateAndModelRefresh();
-            }
+          if (event instanceof VFileContentChangeEvent vfccEvent
+              && vfccEvent.getFile().getName().equals(GitVfsUtils.MACHETE_FILE_NAME)) {
+            macheteFileChanged = true;
+            break;
           }
+        }
+        if (macheteFileChanged) {
+          if (unmanagedBranchNotification != null && !unmanagedBranchNotification.isExpired()) {
+            unmanagedBranchNotification.expire();
+          }
+          queueRepositoryUpdateAndModelRefresh();
         }
       }
 

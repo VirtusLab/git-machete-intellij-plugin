@@ -66,7 +66,7 @@ public final class MacheteFileUtils {
   public static @Nullable VirtualFile getMacheteVirtualFileIfSelected(Project project) {
     val fileEditorManager = FileEditorManager.getInstance(project);
     return List.of(fileEditorManager.getSelectedFiles())
-        .find(virtualFile -> virtualFile.getFileType().equals(MacheteFileType.instance)).getOrNull();
+        .find(virtualFile -> virtualFile.getName().equals(GitVfsUtils.MACHETE_FILE_NAME)).getOrNull();
   }
 
   /**

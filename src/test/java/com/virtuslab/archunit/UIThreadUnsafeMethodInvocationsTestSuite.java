@@ -85,9 +85,10 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
         .check(productionClasses);
   }
 
-  private static final String[] knownBlockingCodeUnits = {
+  private static final String[] uiThreadUnsafeCodeUnits = {
       "com.intellij.dvcs.push.PushController.push(boolean)",
       "com.intellij.openapi.vcs.changes.VcsFreezingProcess.execute()",
+      "com.intellij.openapi.vfs.VirtualFile.getFileType()",
       "java.lang.Process.waitFor(long, java.util.concurrent.TimeUnit)",
       "java.lang.Thread.sleep(long)",
   };
@@ -219,7 +220,7 @@ public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSu
 
     return uiThreadUnsafePackagePrefixes.stream().anyMatch(prefix -> packageName.startsWith(prefix))
         && !uiThreadSafeCodeUnitsInUnsafePackages.asList().contains(fullName)
-        || knownBlockingCodeUnits.asList().contains(fullName)
+        || uiThreadUnsafeCodeUnits.asList().contains(fullName)
         || codeUnit.isAnnotatedWith(UIThreadUnsafe.class);
   }
 
