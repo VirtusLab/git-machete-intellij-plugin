@@ -5,26 +5,31 @@ rootProject.name = "git-machete-intellij-plugin"
 // Plugin resolution for this build (including buildSrc's `plugins { }`). See buildSrc/settings.gradle.kts too.
 //
 // Optional corporate proxy: repo-root `gradle-local.properties` (gitignored), key `mavenProxyUrl`.
-// Without `~/.gradle/init.gradle` rewriting Central, you need that file on networks that require the proxy.
+// When set, plugin resolution uses that mirror only (no mavenCentral() here); otherwise mavenCentral().
 //
 // If plugin resolution still hits repo.maven.apache.org directly and fails, set in ~/.gradle/gradle.properties:
 //   includePublicMavenReposForPlugins=false
 pluginManagement {
   repositories {
     mavenLocal()
-    val f = File(settingsDir, "gradle-local.properties")
-    if (f.isFile) {
-      val url = java.util.Properties().apply { f.reader().use { load(it) } }
+    val mavenProxyUrl = run {
+      val f = File(settingsDir, "gradle-local.properties")
+      if (!f.isFile) {
+        return@run null
+      }
+      java.util.Properties().apply { f.reader().use { load(it) } }
         .getProperty("mavenProxyUrl")
         ?.trim()
         ?.takeIf { it.isNotEmpty() }
-      if (url != null) {
-        maven(url = uri(url))
-      }
+    }
+    if (mavenProxyUrl != null) {
+      maven(url = uri(mavenProxyUrl))
     }
     if (providers.gradleProperty("includePublicMavenReposForPlugins").orNull != "false") {
       gradlePluginPortal()
-      mavenCentral()
+      if (mavenProxyUrl == null) {
+        mavenCentral()
+      }
     }
   }
 }

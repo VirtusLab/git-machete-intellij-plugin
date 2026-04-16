@@ -1,6 +1,6 @@
 // Repo-local Gradle init script (applied automatically by ./gradlew when this file exists).
-// Rewrites Maven Central repository base URLs to mavenProxyUrl from gradle-local.properties
-// (same idea as a corporate ~/.gradle/init.gradle, but self-contained in the repo).
+// When gradle-local.properties sets mavenProxyUrl, rewrites any repository URL still pointing at
+// Central (e.g. added by a plugin) to that mirror. Build scripts use proxy OR mavenCentral exclusively.
 //
 // If gradle-local.properties is missing or has no mavenProxyUrl, this script is a no-op.
 

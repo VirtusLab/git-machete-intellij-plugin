@@ -36,8 +36,11 @@ val optionalMavenProxyFromGradleLocal: String? = run {
 
 repositories {
   mavenLocal()
-  optionalMavenProxyFromGradleLocal?.let { maven(it) }
-  mavenCentral()
+  if (optionalMavenProxyFromGradleLocal != null) {
+    maven(optionalMavenProxyFromGradleLocal)
+  } else {
+    mavenCentral()
+  }
   gradlePluginPortal()
 }
 

@@ -4,7 +4,7 @@
 # Replaces a global ~/.gradle/init.gradle that rewrote Central - this project configures the proxy
 # only here, so other Gradle projects on the same machine are unaffected.
 #
-# gradle/init.gradle (loaded automatically by ./gradlew) rewrites Maven Central repository URLs
-# to this host. You can still omit this file on machines with direct access to Central.
+# With mavenProxyUrl set, the build uses this mirror only (no mavenCentral). ./gradlew loads
+# gradle/init.gradle to rewrite any stray Central URLs some plugins may still declare.
 #
 # mavenProxyUrl=https://maven-proxy.example.com

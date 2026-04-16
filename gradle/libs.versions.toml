@@ -6,7 +6,7 @@ remoteRobot = "0.11.23"
 [libraries]
 # Libraries
 apacheCommonsText = "org.apache.commons:commons-text:1.15.0"
-archunit = "com.tngtech.archunit:archunit:1.4.2"
+archunit = "com.tngtech.archunit:archunit:1.4.1"
 betterStrings = "com.antkorwin:better-strings:0.5"
 checker = { module = "org.checkerframework:checker", version.ref = "checker" }
 checker-qual = { module = "org.checkerframework:checker-qual", version.ref = "checker" }

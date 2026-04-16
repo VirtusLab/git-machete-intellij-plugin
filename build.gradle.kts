@@ -60,12 +60,15 @@ val optionalMavenProxyFromGradleLocal: String? = run {
     ?.takeIf { it.isNotEmpty() }
 }
 
-// gradle/init.gradle (auto-applied by ./gradlew) rewrites mavenCentral() URLs when mavenProxyUrl
-// is set in gradle-local.properties. Optional proxy entry is still listed first for mirrors.
+// Either the corporate proxy or Maven Central - never both (see gradle-local.properties.example).
+// gradle/init.gradle still rewrites any stray Central URLs (e.g. from plugins) when the proxy is set.
 fun org.gradle.api.artifacts.dsl.RepositoryHandler.standardMavenRepositories() {
   mavenLocal()
-  optionalMavenProxyFromGradleLocal?.let { maven(it) }
-  mavenCentral()
+  if (optionalMavenProxyFromGradleLocal != null) {
+    maven(optionalMavenProxyFromGradleLocal)
+  } else {
+    mavenCentral()
+  }
 }
 
 allprojects {
