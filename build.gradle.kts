@@ -306,31 +306,39 @@ val verifyPluginZipTask = tasks.register("verifyPluginZip") {
 
   doLast {
     val pluginZipPath = buildPlugin.archiveFile.get().asFile.path
+    // Entries in the plugin zip look like:
+    //   git-machete-intellij-plugin/lib/<jar>.jar                  -- regular jars
+    //   git-machete-intellij-plugin/lib/modules/<jar>.jar          -- composed jars of frontend modules
+    //     (since org.jetbrains.intellij.platform 2.14.0)
+    // We keep the `modules/` prefix so that we can assert that `-composedJar` jars live under it
+    // (and only there), while regular jars live directly under `lib/`.
     val jarsInPluginZip = ZipFile(pluginZipPath).use { zf ->
       zf.stream()
         .map(ZipEntry::getName)
         .map { it.removePrefix("git-machete-intellij-plugin/").removePrefix("lib/").removeSuffix(".jar") }
-        .filter { it.isNotEmpty() }
+        .filter { it.isNotEmpty() && !it.endsWith("/") }
         .toList()
     }
 
-    // Verify that all subprojects with source code have correctly named jars
-    // Note: For frontend:* projects, the jar may have a "-composedJar" suffix due to Gradle's
-    // default naming for custom jar tasks, so we check for both variants.
+    // Verify that all subprojects with source code have correctly named jars.
+    // For frontend:* projects the jar has a "-composedJar" suffix (due to intellij-platform-gradle-plugin's
+    // composedJar task) and, since platform plugin 2.14.0, is additionally placed under a `modules/` prefix.
     for (proj in subprojects) {
       val projJar = proj.path.replaceFirst(":", "").replace(":", "-")
       val javaExtension = proj.extensions.findByType<JavaPluginExtension>()
       val hasSourceCode = javaExtension?.sourceSets?.get("main")?.allSource?.srcDirs?.any { it.exists() } ?: false
 
+      val composedJarName = "modules/$projJar-composedJar"
+      val jarFound = projJar in jarsInPluginZip || composedJarName in jarsInPluginZip
       if (hasSourceCode) {
-        val jarFound = projJar in jarsInPluginZip || "$projJar-composedJar" in jarsInPluginZip
         check(jarFound) {
-          "$projJar.jar (or $projJar-composedJar.jar) was expected in plugin zip ($pluginZipPath) but was NOT found\nAll entries: $jarsInPluginZip"
+          "$projJar.jar (or $composedJarName.jar) was expected in plugin zip ($pluginZipPath) but was NOT found" +
+            "\nAll entries: $jarsInPluginZip"
         }
       } else {
-        val jarFound = projJar in jarsInPluginZip || "$projJar-composedJar" in jarsInPluginZip
         check(!jarFound) {
-          "$projJar.jar (or $projJar-composedJar.jar) was NOT expected in plugin zip ($pluginZipPath) but was found\nAll entries: $jarsInPluginZip"
+          "$projJar.jar (or $composedJarName.jar) was NOT expected in plugin zip ($pluginZipPath) but was found" +
+            "\nAll entries: $jarsInPluginZip"
         }
       }
     }

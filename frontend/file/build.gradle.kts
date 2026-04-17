@@ -23,7 +23,6 @@ val grammarSourcesRoot = "src/main/grammar"
 val generatedParserJavaSourcesRoot = "build/generated/parser"
 val generatedLexerJavaSourcesRoot = "build/generated/lexer"
 val grammarJavaPackage = "com.virtuslab.gitmachete.frontend.file.grammar"
-val grammarJavaPackagePath = grammarJavaPackage.replace(".", "/")
 
 val additionalSourceDirs = listOf(generatedParserJavaSourcesRoot, generatedLexerJavaSourcesRoot)
 
@@ -32,18 +31,17 @@ sourceSets["main"].java { srcDir(additionalSourceDirs) }
 tasks {
   generateParser {
     sourceFile.set(file("$grammarSourcesRoot/Machete.bnf"))
+    // The output layout (parser class location, PSI root) is derived from the .bnf file's
+    // `parserClass` and `psiPackage` attributes, so no further configuration is needed here.
     targetRootOutputDir.set(file(generatedParserJavaSourcesRoot))
-    pathToParser.set("/$grammarJavaPackagePath/MacheteGeneratedParser.java")
-    pathToPsiRoot.set("/$grammarJavaPackagePath/")
-    purgeOldFiles.set(false)
   }
 
   generateLexer {
     dependsOn(generateParser)
 
     sourceFile.set(file("$grammarSourcesRoot/Machete.flex"))
-    targetOutputDir.set(file("$generatedLexerJavaSourcesRoot/$grammarJavaPackagePath/"))
-    purgeOldFiles.set(false)
+    // The output file is placed in a subdirectory matching the `package` declared in the .flex file.
+    targetRootOutputDir.set(file(generatedLexerJavaSourcesRoot))
   }
 
   compileJava {

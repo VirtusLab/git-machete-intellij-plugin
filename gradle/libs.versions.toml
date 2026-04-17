@@ -36,5 +36,5 @@ vavr = "io.vavr:vavr:1.0.1"
 # see https://docs.gradle.org/current/samples/sample_convention_plugins.html#things_to_note.
 [plugins]
 jetbrains-changelog = "org.jetbrains.changelog:2.5.0"
-jetbrains-intellij = "org.jetbrains.intellij.platform:2.13.1"
+jetbrains-intellij = "org.jetbrains.intellij.platform:2.14.0"
 taskTree = "com.dorongold.task-tree:4.0.1"
