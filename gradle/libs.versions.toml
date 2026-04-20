@@ -6,7 +6,7 @@ remoteRobot = "0.11.23"
 [libraries]
 # Libraries
 apacheCommonsText = "org.apache.commons:commons-text:1.15.0"
-archunit = "com.tngtech.archunit:archunit:1.4.1"
+archunit = "com.tngtech.archunit:archunit:1.4.2"
 betterStrings = "com.antkorwin:better-strings:0.5"
 checker = { module = "org.checkerframework:checker", version.ref = "checker" }
 checker-qual = { module = "org.checkerframework:checker-qual", version.ref = "checker" }
@@ -36,5 +36,5 @@ vavr = "io.vavr:vavr:1.0.1"
 # see https://docs.gradle.org/current/samples/sample_convention_plugins.html#things_to_note.
 [plugins]
 jetbrains-changelog = "org.jetbrains.changelog:2.5.0"
-jetbrains-intellij = "org.jetbrains.intellij.platform:2.13.1"
+jetbrains-intellij = "org.jetbrains.intellij.platform:2.14.0"
 taskTree = "com.dorongold.task-tree:4.0.1"
