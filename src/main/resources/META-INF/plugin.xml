@@ -6,9 +6,18 @@
     <depends>com.intellij.modules.lang</depends>
     <depends>com.intellij.modules.platform</depends>
     <!--
-      Note that since 2022.3:
-      * the plugin *folder* under $PRODUCT_ROOT$/plugins/ is called `vcs-git` and not `git4idea`, but
-      * the <id> of the plugin, as recorded in plugin's META-INF/plugin.xml is still `Git4Idea` - and that's what's expected here in `<depends>`
+      Git4Idea's plugin ID is still `Git4Idea` (unchanged in IJ 2025.3 / 2026.1 - confirmed in
+      https://github.com/JetBrains/intellij-community/blob/253/plugins/git4idea/resources/META-INF/plugin.xml),
+      and the xi:include of `intellij.vcs.git.xml` in Git4Idea's own plugin.xml is explicitly kept
+      (commented there as "Included and not module to preserve compatibility - plugin classes/actions
+      must be available externally") so that `git4idea.repo.*` classes - e.g. `GitRepositoryChangeListener`
+      used by our `ReparseMacheteFileOnGitRepositoryChange` listener - remain on Git4Idea's main
+      classloader and reachable from plugins that `<depends>Git4Idea</depends>`.
+
+      Note: IJ 2025.3+ may emit a spurious warning at install time: "Plugin git-machete depends on
+      unknown plugin Git4Idea". The warning is misleading - Git4Idea IS resolved at runtime and the
+      plugin works correctly. Removing this `<depends>` triggers `NoClassDefFoundError:
+      git4idea/repo/GitRepositoryChangeListener` when `<projectListeners>` is instantiated.
     -->
     <depends>Git4Idea</depends>
 

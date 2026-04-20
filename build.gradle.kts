@@ -3,7 +3,6 @@ import com.virtuslab.gitmachete.buildsrc.*
 import com.virtuslab.gitmachete.buildsrc.AnyVersion.Companion.productCode
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.gradle.jvm.tasks.Jar
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.intellij.platform.gradle.tasks.BuildPluginTask
@@ -168,28 +167,17 @@ subprojects {
   base.archivesName.set(path.replaceFirst(":", "").replace(":", "-"))
 
   if (path.startsWith(":frontend:")) {
-    apply(plugin = "org.jetbrains.intellij.platform.module")
-
-    // The intellij-platform-gradle-plugin sets archiveBaseName in two places:
-    // 1. JarCompanion.kt sets it to project.name (last segment) for the "jar" task
-    // 2. ComposedJarTask.kt sets it to "${rootProject.name}.${project.name}" for the "composedJar" task
-    // The composedJar task is what gets used when resolving project dependencies, so we need
-    // to override both to use the full path-based name.
-    afterEvaluate {
-      tasks.named<Jar>("jar").configure {
-        archiveBaseName.set(path.replaceFirst(":", "").replace(":", "-"))
-        archiveClassifier.set("") // Clear the classifier to avoid "-base" suffix
-      }
-      // The composedJar task is what actually gets included in the plugin zip
-      // The intellij-platform-gradle-plugin sets archiveBaseName to "${rootProject.name}.${project.name}"
-      // for the composedJar task. We override it to use the full path-based name.
-      tasks.named<Jar>("composedJar").configure {
-        val desiredName = path.replaceFirst(":", "").replace(":", "-")
-        archiveBaseName.set(desiredName)
-        archiveVersion.set("") // Clear version to match the pattern
-        archiveClassifier.set("") // Clear classifier
-      }
-    }
+    // We use `.base` rather than `.module` on purpose: `.base` provides exactly what frontend
+    // subprojects need (the `intellijPlatform { ... }` dependencies/repositories DSL and IJ platform
+    // jars on the compile classpath via `compileOnly`) without any of the stuff that `.module` adds
+    // on top - most notably the `composedJar`/`instrumentedJar` tasks, the `-base` archive classifier
+    // from `JarCompanion`, and (since intellij-platform-gradle-plugin 2.14.0) the auto-inference that
+    // treats every `ProjectDependency` into a "pure module project" as a `pluginModule(...)` entry and
+    // packages the resulting jar into `lib/modules/` in the final plugin zip.
+    // That last behavior is incompatible with our flat (v1) plugin.xml layout: classes under
+    // `lib/modules/` are not on the plugin's main runtime classpath unless declared as v2
+    // `<content><module .../></content>`, which we don't use.
+    apply(plugin = "org.jetbrains.intellij.platform.base")
 
     applyGuiEffectChecker()
 
@@ -208,13 +196,18 @@ subprojects {
       }
     }
 
-    intellijPlatform {
-      // It only affects searchability of plugin-specific settings (which we don't provide so far).
-      // Actions remain searchable anyway.
-      // TODO (#270): to be re-enabled (at least in CI) once we provide custom settings
-      buildSearchableOptions = false
-
-      instrumentCode = false
+    // The `.base` plugin extends `compileOnly`/`testCompileOnly` from the IJ platform
+    // configurations, so IJ classes are visible at compile time. It does NOT, however,
+    // put them on the `testRuntimeClasspath` - the `.module` plugin normally does that
+    // indirectly by re-registering the `test` task via `TestCompanion`/`TestIdeTask`
+    // (see `TestIdeTask.configuration` in intellij-platform-gradle-plugin), which
+    // explicitly sets `classpath = files(..., intellijPlatformTestClasspath, ...)`.
+    // Since we're not using `.module`, we wire the IJ platform test classpath (a
+    // resolvable configuration created by `.base`, transitively extending from
+    // `intellijPlatform`/`intellijPlatformPlugins`/`intellijPlatformBundledPlugins`/
+    // `intellijPlatformBundledModules`) onto the plain Gradle `test` task ourselves.
+    tasks.withType<Test>().configureEach {
+      classpath += configurations["intellijPlatformTestClasspath"]
     }
   }
 }
@@ -306,38 +299,27 @@ val verifyPluginZipTask = tasks.register("verifyPluginZip") {
 
   doLast {
     val pluginZipPath = buildPlugin.archiveFile.get().asFile.path
-    // Entries in the plugin zip look like:
-    //   git-machete-intellij-plugin/lib/<jar>.jar                  -- regular jars
-    //   git-machete-intellij-plugin/lib/modules/<jar>.jar          -- composed jars of frontend modules
-    //     (since org.jetbrains.intellij.platform 2.14.0)
-    // We keep the `modules/` prefix so that we can assert that `-composedJar` jars live under it
-    // (and only there), while regular jars live directly under `lib/`.
     val jarsInPluginZip = ZipFile(pluginZipPath).use { zf ->
       zf.stream()
         .map(ZipEntry::getName)
         .map { it.removePrefix("git-machete-intellij-plugin/").removePrefix("lib/").removeSuffix(".jar") }
-        .filter { it.isNotEmpty() && !it.endsWith("/") }
+        .filter { it.isNotEmpty() }
         .toList()
     }
 
-    // Verify that all subprojects with source code have correctly named jars.
-    // For frontend:* projects the jar has a "-composedJar" suffix (due to intellij-platform-gradle-plugin's
-    // composedJar task) and, since platform plugin 2.14.0, is additionally placed under a `modules/` prefix.
     for (proj in subprojects) {
       val projJar = proj.path.replaceFirst(":", "").replace(":", "-")
       val javaExtension = proj.extensions.findByType<JavaPluginExtension>()
       val hasSourceCode = javaExtension?.sourceSets?.get("main")?.allSource?.srcDirs?.any { it.exists() } ?: false
 
-      val composedJarName = "modules/$projJar-composedJar"
-      val jarFound = projJar in jarsInPluginZip || composedJarName in jarsInPluginZip
       if (hasSourceCode) {
-        check(jarFound) {
-          "$projJar.jar (or $composedJarName.jar) was expected in plugin zip ($pluginZipPath) but was NOT found" +
+        check(projJar in jarsInPluginZip) {
+          "$projJar.jar was expected in plugin zip ($pluginZipPath) but was NOT found" +
             "\nAll entries: $jarsInPluginZip"
         }
       } else {
-        check(!jarFound) {
-          "$projJar.jar (or $composedJarName.jar) was NOT expected in plugin zip ($pluginZipPath) but was found" +
+        check(projJar !in jarsInPluginZip) {
+          "$projJar.jar was NOT expected in plugin zip ($pluginZipPath) but was found" +
             "\nAll entries: $jarsInPluginZip"
         }
       }
