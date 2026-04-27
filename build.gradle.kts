@@ -7,6 +7,7 @@ import org.jetbrains.changelog.Changelog
 import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 import org.jetbrains.intellij.platform.gradle.tasks.BuildPluginTask
 import org.jetbrains.intellij.platform.gradle.tasks.SignPluginTask
+import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 import java.util.Base64
@@ -392,6 +393,14 @@ intellijPlatform {
         create(it.productCode(), it)
       }
     }
+    failureLevel.set(
+      setOf(
+        VerifyPluginTask.FailureLevel.COMPATIBILITY_PROBLEMS,
+        VerifyPluginTask.FailureLevel.NON_EXTENDABLE_API_USAGES,
+        VerifyPluginTask.FailureLevel.PLUGIN_STRUCTURE_WARNINGS,
+        VerifyPluginTask.FailureLevel.MISSING_DEPENDENCIES,
+      ),
+    )
   }
 }
 
