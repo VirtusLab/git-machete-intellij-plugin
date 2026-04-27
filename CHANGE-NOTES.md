@@ -1,5 +1,7 @@
 # Changelog
 
+## v7.0.2
+
 ## v7.0.1
 - Added: auto-discovery of the branch layout in case of multiple repositories (contributed by @mkondratek)
 - Fixed: branch layout and actions availability in case of multiple repositories (contributed by @mkondratek)
