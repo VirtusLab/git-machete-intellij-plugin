@@ -10,7 +10,7 @@ archunit = "com.tngtech.archunit:archunit:1.4.2"
 betterStrings = "com.antkorwin:better-strings:0.5"
 checker = { module = "org.checkerframework:checker", version.ref = "checker" }
 checker-qual = { module = "org.checkerframework:checker-qual", version.ref = "checker" }
-commonsIO = "commons-io:commons-io:2.21.0"
+commonsIO = "commons-io:commons-io:2.22.0"
 jetbrains-annotations = "org.jetbrains:annotations:26.1.0"
 jgit = "org.eclipse.jgit:org.eclipse.jgit:7.6.0.202603022253-r"
 junit4 = "junit:junit:4.13.2"
@@ -21,7 +21,7 @@ junit-platformLauncher = { module = "org.junit.platform:junit-platform-launcher"
 kodein = "org.kodein.di:kodein-di-jvm:7.31.0"
 kotlin-coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2"
 kotlinxSerializationJson = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0"
-lombok = "org.projectlombok:lombok:1.18.44"
+lombok = "org.projectlombok:lombok:1.18.46"
 mockito = "org.mockito:mockito-junit-jupiter:5.23.0"
 okhttp = "com.squareup.okhttp3:okhttp:5.3.2"
 remoteRobot-client = { module = "com.intellij.remoterobot:remote-robot", version.ref = "remoteRobot" }
@@ -36,5 +36,5 @@ vavr = "io.vavr:vavr:1.0.1"
 # see https://docs.gradle.org/current/samples/sample_convention_plugins.html#things_to_note.
 [plugins]
 jetbrains-changelog = "org.jetbrains.changelog:2.5.0"
-jetbrains-intellij = "org.jetbrains.intellij.platform:2.14.0"
+jetbrains-intellij = "org.jetbrains.intellij.platform:2.15.0"
 taskTree = "com.dorongold.task-tree:4.0.1"
