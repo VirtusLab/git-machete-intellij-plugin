@@ -1,5 +1,5 @@
 [versions]
-checker = "4.0.0"
+checker = "4.1.0"
 junit = "6.0.3"
 remoteRobot = "0.11.23"
 
@@ -18,7 +18,7 @@ junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "jun
 junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
 junit-platformLauncher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit" }
-kodein = "org.kodein.di:kodein-di-jvm:7.31.0"
+kodein = "org.kodein.di:kodein-di-jvm:7.32.0"
 kotlin-coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2"
 kotlinxSerializationJson = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0"
 lombok = "org.projectlombok:lombok:1.18.46"
@@ -36,5 +36,5 @@ vavr = "io.vavr:vavr:1.0.1"
 # see https://docs.gradle.org/current/samples/sample_convention_plugins.html#things_to_note.
 [plugins]
 jetbrains-changelog = "org.jetbrains.changelog:2.5.0"
-jetbrains-intellij = "org.jetbrains.intellij.platform:2.15.0"
+jetbrains-intellij = "org.jetbrains.intellij.platform:2.16.0"
 taskTree = "com.dorongold.task-tree:4.0.1"
