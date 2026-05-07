@@ -186,7 +186,8 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
         if (containingBranch.getSyncToParentStatus() == SyncToParentStatus.InSyncButForkPointOff) {
           append(
               " ${HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW} "
-                  + getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.fork-point") + " ",
+                  + getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.fork-point-question")
+                  + " ",
               new SimpleTextAttributes(STYLE_PLAIN, Colors.RED));
           append(getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.commit") + " ",
               REGULAR_ATTRIBUTES);
@@ -198,7 +199,7 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
         } else {
           append(
               " ${HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW} "
-                  + getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.fork-point-simple"),
+                  + getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.fork-point"),
               new SimpleTextAttributes(STYLE_PLAIN, Colors.RED));
         }
       }
