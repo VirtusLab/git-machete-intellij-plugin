@@ -14,18 +14,20 @@ fun Driver.getProgressIndicators(project: Project): List<StatusBar.TaskInfoPair>
   return withContext {
     val ideFrame = service<WindowManager>().getIdeFrame(project)
     val statusBar = ideFrame?.getStatusBar() ?: return@withContext emptyList()
-    val processes = statusBar.getBackgroundProcessModels()
-    if (processes.isNotEmpty()) {
-      println("Driver.getProgressIndicators: background processes = $processes")
-    }
-    processes
+    statusBar.getBackgroundProcessModels()
   }
 }
 
-fun Driver.areIndicatorsVisible(project: Project): Boolean {
-  if (service<DumbService>(project).isDumb()) return true
+private sealed interface IndicatorState {
+  object Dumb : IndicatorState
+  data class Running(val processes: List<StatusBar.TaskInfoPair>) : IndicatorState
+  object None : IndicatorState
+}
 
-  return getProgressIndicators(project).isNotEmpty()
+private fun Driver.indicatorState(project: Project): IndicatorState {
+  if (service<DumbService>(project).isDumb()) return IndicatorState.Dumb
+  val processes = getProgressIndicators(project)
+  return if (processes.isEmpty()) IndicatorState.None else IndicatorState.Running(processes)
 }
 
 /**
@@ -75,21 +77,33 @@ internal fun Driver.myWaitForIndicators(projectGet: () -> Project?, timeout: Dur
       println("Driver.myWaitForIndicators: waiting more since project ($project) is not opened")
       return@waitFor false
     }
-    if (areIndicatorsVisible(project)) {
-      smartLongEnoughStart = null
-      println("Driver.myWaitForIndicators: waiting more since indicators in the project are visible, or not enough time passed without indicators")
-      return@waitFor false
+    when (val state = indicatorState(project)) {
+      IndicatorState.Dumb -> {
+        smartLongEnoughStart = null
+        println("Driver.myWaitForIndicators: waiting more since DumbService.isDumb() == true (project is indexing)")
+        return@waitFor false
+      }
+
+      is IndicatorState.Running -> {
+        smartLongEnoughStart = null
+        println("Driver.myWaitForIndicators: waiting more since background processes are running: ${state.processes}")
+        return@waitFor false
+      }
+
+      IndicatorState.None -> { /* fall through to smart-quiescence check */ }
     }
 
     if (waitSmartLongEnough) {
       val start = smartLongEnoughStart
       if (start == null) {
         smartLongEnoughStart = Instant.now()
+        println("Driver.myWaitForIndicators: no indicators visible; starting 10s smart-quiescence timer")
       } else {
         val now = Instant.now()
         if (start.plusSeconds(10).isBefore(now)) {
           return@waitFor true // we are smart long enough
         }
+        println("Driver.myWaitForIndicators: still no indicators; smart-quiescence timer running (${java.time.Duration.between(start, now).toSeconds()}s/10s)")
       }
       false
     } else {
