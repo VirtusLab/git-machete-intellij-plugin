@@ -183,21 +183,23 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
       val forkPoint = containingBranch.getForkPoint();
 
       if (commitItem.getCommit().equals(forkPoint)) {
-        val isForkPointOff = containingBranch.getSyncToParentStatus() == SyncToParentStatus.InSyncButForkPointOff;
-        val forkPointLabelKey = isForkPointOff
-            ? "string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.fork-point"
-            : "string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.fork-point-simple";
-        append(
-            " ${HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW} " + getString(forkPointLabelKey),
-            new SimpleTextAttributes(STYLE_PLAIN, Colors.RED));
-        if (isForkPointOff) {
-          append(" " + getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.commit") + " ",
+        if (containingBranch.getSyncToParentStatus() == SyncToParentStatus.InSyncButForkPointOff) {
+          append(
+              " ${HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW} "
+                  + getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.fork-point") + " ",
+              new SimpleTextAttributes(STYLE_PLAIN, Colors.RED));
+          append(getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.commit") + " ",
               REGULAR_ATTRIBUTES);
           append(forkPoint.getShortHash(), REGULAR_BOLD_ATTRIBUTES);
           append(" " + getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.found-in-reflog")
               + " ", REGULAR_ATTRIBUTES);
           append(forkPoint.getUniqueBranchesContainingInReflog()
               .map(b -> b.getName()).sorted().mkString(", "), REGULAR_BOLD_ATTRIBUTES);
+        } else {
+          append(
+              " ${HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW} "
+                  + getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.fork-point-simple"),
+              new SimpleTextAttributes(STYLE_PLAIN, Colors.RED));
         }
       }
     }
