@@ -1,4 +1,5 @@
   develop  <2 files>
   |
+  | Allow ownership links -> fork point
   | Build arbitrarily long chains
   o-build-chain *  <4 files>
