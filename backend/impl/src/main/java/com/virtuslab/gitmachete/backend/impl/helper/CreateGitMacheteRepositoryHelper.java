@@ -495,6 +495,25 @@ public class CreateGitMacheteRepositoryHelper extends Helper {
   }
 
   @UIThreadUnsafe
+  private boolean isForkPointOnParentRemoteCounterpart(
+      IGitCoreLocalBranchSnapshot parentCoreLocalBranch,
+      IGitCoreCommit forkPoint) throws GitCoreException {
+    // Suppresses the spurious yellow edge that appears when the parent branch is merely behind
+    // its remote counterpart and the child branch was forked from a commit on the remote
+    // that is ahead of parent's local HEAD. We require that the fork point lies strictly
+    // between parent's local HEAD and parent's remote counterpart, so that legitimate
+    // yellow edges (where the fork point is older than parent's local HEAD) are preserved.
+    IGitCoreRemoteBranchSnapshot parentRemoteTrackingBranch = parentCoreLocalBranch.getRemoteTrackingBranch();
+    if (parentRemoteTrackingBranch == null) {
+      return false;
+    }
+    IGitCoreCommit parentPointedCommit = parentCoreLocalBranch.getPointedCommit();
+    IGitCoreCommit parentRemotePointedCommit = parentRemoteTrackingBranch.getPointedCommit();
+    return gitCoreRepository.isAncestor(parentPointedCommit, forkPoint)
+        && gitCoreRepository.isAncestorOrEqual(forkPoint, parentRemotePointedCommit);
+  }
+
+  @UIThreadUnsafe
   public SyncToParentStatus deriveSyncToParentStatus(
       IGitCoreLocalBranchSnapshot coreLocalBranch,
       IGitCoreLocalBranchSnapshot parentCoreLocalBranch,
@@ -531,6 +550,12 @@ public class CreateGitMacheteRepositoryHelper extends Helper {
               () -> "For this branch (${branchName}) its parent's commit is ancestor of this branch pointed commit "
                   + "and fork point is absent or overridden or equal to parent branch commit, " +
                   "so we assume that this branch is in sync");
+          return SyncToParentStatus.InSync;
+        } else if (isForkPointOnParentRemoteCounterpart(parentCoreLocalBranch, forkPoint.getCoreCommit())) {
+          LOG.debug(
+              () -> "For this branch (${branchName}) its parent's commit is ancestor of this branch pointed commit "
+                  + "and fork point lies between parent's local HEAD and parent's remote counterpart "
+                  + "(parent is just behind its remote), so we assume that this branch is in sync");
           return SyncToParentStatus.InSync;
         } else {
           LOG.debug(

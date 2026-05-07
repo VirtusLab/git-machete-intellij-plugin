@@ -4,6 +4,7 @@ import static com.virtuslab.gitmachete.backend.unit.UnitTestUtils.TestGitCoreRef
 import static com.virtuslab.gitmachete.backend.unit.UnitTestUtils.createGitCoreCommit;
 import static com.virtuslab.gitmachete.backend.unit.UnitTestUtils.createGitCoreLocalBranch;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import io.vavr.collection.List;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
+import com.virtuslab.gitcore.api.IGitCoreRemoteBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.impl.ForkPointCommitOfManagedBranch;
 
@@ -90,6 +92,30 @@ public class GitMacheteRepository_deriveSyncToParentStatus_UnitTestSuite extends
 
     // then
     assertEquals(SyncToParentStatus.InSyncButForkPointOff, syncToParentStatus);
+  }
+
+  @Test
+  @SneakyThrows
+  public void parentBehindRemoteAndForkPointBetweenLocalAndRemote_inSync() {
+    // given
+    IGitCoreCommit parentCommit = createGitCoreCommit();
+    IGitCoreCommit forkPointCommit = createGitCoreCommit();
+    IGitCoreCommit parentRemoteCommit = createGitCoreCommit();
+    IGitCoreCommit childCommit = createGitCoreCommit();
+    IGitCoreLocalBranchSnapshot parentBranch = createGitCoreLocalBranch(parentCommit);
+    IGitCoreLocalBranchSnapshot childBranch = createGitCoreLocalBranch(childCommit);
+    IGitCoreRemoteBranchSnapshot parentRemoteBranch = mock(IGitCoreRemoteBranchSnapshot.class);
+    when(parentRemoteBranch.getPointedCommit()).thenReturn(parentRemoteCommit);
+    when(parentBranch.getRemoteTrackingBranch()).thenReturn(parentRemoteBranch);
+    when(gitCoreRepository.isAncestorOrEqual(parentCommit, childCommit)).thenReturn(true);
+    when(gitCoreRepository.isAncestor(parentCommit, forkPointCommit)).thenReturn(true);
+    when(gitCoreRepository.isAncestorOrEqual(forkPointCommit, parentRemoteCommit)).thenReturn(true);
+
+    // when
+    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(childBranch, parentBranch, forkPointCommit);
+
+    // then
+    assertEquals(SyncToParentStatus.InSync, syncToParentStatus);
   }
 
   @Test

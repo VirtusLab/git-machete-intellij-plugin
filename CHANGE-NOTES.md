@@ -1,6 +1,7 @@
 # Changelog
 
 ## v7.0.2
+- Fixed: spurious yellow edge no longer appears in `status` when the parent branch is merely behind its remote counterpart and the child branch was forked from the remote tip
 - Fixed: "Show in Git Log" action jumping to a commit in the wrong repository in multi-root projects
 - Fixed: stale "no need to fetch" cache hits across repositories sharing the same directory name in multi-root projects
 - Fixed: "Don't show for this branch" preference of the unmanaged-branch notification was leaking across repositories that share a branch name in multi-root projects
