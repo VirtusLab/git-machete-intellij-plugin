@@ -1,6 +1,7 @@
 # Changelog
 
 ## v7.0.2
+- Fixed: "Show in Git Log" action jumping to a commit in the wrong repository in multi-root projects
 
 ## v7.0.1
 - Added: auto-discovery of the branch layout in case of multiple repositories (contributed by @mkondratek)

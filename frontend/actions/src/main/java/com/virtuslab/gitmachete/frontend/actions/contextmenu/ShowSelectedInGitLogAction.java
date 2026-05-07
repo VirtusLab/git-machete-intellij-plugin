@@ -3,10 +3,11 @@ package com.virtuslab.gitmachete.frontend.actions.contextmenu;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.vcs.log.Hash;
-import com.intellij.vcs.log.impl.VcsLogContentUtil;
 import com.intellij.vcs.log.impl.VcsProjectLog;
+import com.intellij.vcs.log.ui.VcsLogUiEx;
+import kotlin.Unit;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
@@ -81,19 +82,19 @@ public class ShowSelectedInGitLogAction extends BaseGitMacheteRepositoryReadyAct
         LOG.error("Unable to find commit hash for branch '${selectedBranchName}'");
         return;
       }
-
-      VcsLogContentUtil.runInMainLog(project, logUi -> jumpToRevisionUnderProgress(project, selectedBranchHash));
+      VirtualFile root = gitRepository.getRoot();
+      VcsProjectLog.runInMainLog(project, logUi -> jumpToRevisionUnderProgress(logUi, root, selectedBranchHash));
     }
   }
 
   @ContinuesInBackground
-  private void jumpToRevisionUnderProgress(Project project, Hash hash) {
-    val logUi = VcsProjectLog.getInstance(project).getMainLogUi();
+  private Unit jumpToRevisionUnderProgress(VcsLogUiEx logUi, VirtualFile root, Hash hash) {
     if (logUi == null) {
       LOG.error("Main VCS Log UI is null");
-      return;
+      return Unit.INSTANCE;
     }
-    logUi.getVcsLog().jumpToReference(hash.asString());
+    logUi.getVcsLog().jumpToCommit(hash, root);
+    return Unit.INSTANCE;
   }
 
 }
