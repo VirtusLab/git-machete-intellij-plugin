@@ -221,9 +221,15 @@ public class CreateGitMacheteRepositoryHelper extends Helper {
       uniqueCommits = List.empty();
     } else if (syncToParentStatus == SyncToParentStatus.MergedToParent) {
       uniqueCommits = List.empty();
+    } else if (syncToParentStatus == SyncToParentStatus.OutOfSync) {
+      // For red edges the branch has diverged from its parent: there is no clean linear `parent..branch`
+      // path, and listing the full range would show parent's commits that aren't on the branch at all.
+      // List only the unique commits of the branch (`fork-point..branch`, exclusive); this matches what
+      // side-effecting commands (rebase/squash/...) operate on.
+      uniqueCommits = gitCoreRepository.deriveCommitRange(corePointedCommit, forkPoint.getCoreCommit());
     } else {
-      // For all of yellow, green and red edges we include the entire range from the commit pointed by the branch
-      // until its parent (rather than just until its fork point). This makes it possible to highlight the fork point
+      // For yellow and green edges (where branch IS a descendant of parent), include the entire range from the
+      // commit pointed by the branch until its parent. This makes it possible to highlight the fork point
       // candidate on the commit listing - and lets the user spot commits that side-effecting commands
       // (rebase/squash/etc.) will skip due to a non-trivial fork point (e.g. fork point override or
       // fork point landing on parent's remote counterpart).

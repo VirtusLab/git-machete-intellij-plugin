@@ -2,9 +2,5 @@
   |
   m-allow-ownership-link  PR #123 (untracked)  <3 files>
   |
-  | Allow ownership links
-  | 1st round of fixes
-  | Master commit
-  | Other master commit -> fork point
   | Build arbitrarily long chains
   x-build-chain *  <6 files>
