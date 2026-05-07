@@ -221,13 +221,13 @@ public class CreateGitMacheteRepositoryHelper extends Helper {
       uniqueCommits = List.empty();
     } else if (syncToParentStatus == SyncToParentStatus.MergedToParent) {
       uniqueCommits = List.empty();
-    } else if (syncToParentStatus == SyncToParentStatus.InSyncButForkPointOff) {
-      // In case of yellow edge, we include the entire range from the commit pointed by the branch until its parent,
-      // and not until just its fork point. This makes it possible to highlight the fork point candidate on the commit listing.
-      uniqueCommits = gitCoreRepository.deriveCommitRange(corePointedCommit, parentCoreLocalBranch.getPointedCommit());
     } else {
-      // We're handling the cases of green and red edges here.
-      uniqueCommits = gitCoreRepository.deriveCommitRange(corePointedCommit, forkPoint.getCoreCommit());
+      // For all of yellow, green and red edges we include the entire range from the commit pointed by the branch
+      // until its parent (rather than just until its fork point). This makes it possible to highlight the fork point
+      // candidate on the commit listing - and lets the user spot commits that side-effecting commands
+      // (rebase/squash/etc.) will skip due to a non-trivial fork point (e.g. fork point override or
+      // fork point landing on parent's remote counterpart).
+      uniqueCommits = gitCoreRepository.deriveCommitRange(corePointedCommit, parentCoreLocalBranch.getPointedCommit());
     }
 
     val pointedCommit = new CommitOfManagedBranch(corePointedCommit);

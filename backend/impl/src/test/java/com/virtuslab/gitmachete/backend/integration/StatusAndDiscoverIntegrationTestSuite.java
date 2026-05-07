@@ -117,6 +117,7 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseIntegrationTestSu
 
     val commits = branch.getUniqueCommits().reverse();
     val forkPoint = branch.getForkPoint();
+    val isForkPointOff = branch.getSyncToParentStatus() == SyncToParentStatus.InSyncButForkPointOff;
 
     for (val c : commits) {
       sb.append("  ");
@@ -125,9 +126,13 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseIntegrationTestSu
 
       sb.append(c.getShortMessage());
       if (c.equals(forkPoint)) {
-        sb.append(" -> fork point ??? commit ${forkPoint.getShortHash()} seems to be a part of the unique history of ");
-        List<IBranchReference> uniqueBranchesContainingInReflog = forkPoint.getUniqueBranchesContainingInReflog();
-        sb.append(uniqueBranchesContainingInReflog.map(IBranchReference::getName).sorted().mkString(" and "));
+        if (isForkPointOff) {
+          sb.append(" -> fork point ??? commit ${forkPoint.getShortHash()} seems to be a part of the unique history of ");
+          List<IBranchReference> uniqueBranchesContainingInReflog = forkPoint.getUniqueBranchesContainingInReflog();
+          sb.append(uniqueBranchesContainingInReflog.map(IBranchReference::getName).sorted().mkString(" and "));
+        } else {
+          sb.append(" -> fork point");
+        }
       }
       sb.append(System.lineSeparator());
     }

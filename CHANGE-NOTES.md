@@ -1,6 +1,7 @@
 # Changelog
 
 ## v7.0.2
+- Changed: when listing commits, all commits between the parent branch and the branch tip are now listed (rather than just between the fork point and the branch tip), with the fork point commit annotated `-> fork point`; this makes it easier to spot commits that side-effecting commands (rebase, squash, etc.) will skip due to a non-trivial fork point (e.g. fork point override, or fork point landing on parent's remote counterpart)
 - Fixed: spurious yellow edge no longer appears in `status` when the parent branch is merely behind its remote counterpart and the child branch was forked from the remote tip
 - Fixed: "Show in Git Log" action jumping to a commit in the wrong repository in multi-root projects
 - Fixed: stale "no need to fetch" cache hits across repositories sharing the same directory name in multi-root projects
