@@ -221,19 +221,9 @@ public class CreateGitMacheteRepositoryHelper extends Helper {
       uniqueCommits = List.empty();
     } else if (syncToParentStatus == SyncToParentStatus.MergedToParent) {
       uniqueCommits = List.empty();
-    } else if (syncToParentStatus == SyncToParentStatus.OutOfSync) {
-      // For red edges the branch is NOT a descendant of its parent. Calling `deriveCommitRange` directly with
-      // the parent's tip as `untilExclusive` would expose a quirk of `RevSort.BOUNDARY`: the merge-base would
-      // leak into the result as a phantom extra commit. Instead, we explicitly derive the merge-base and use
-      // it as the lower bound; this matches CLI's `git log parent..branch` semantics (which returns commits
-      // reachable from branch but not parent - i.e. branch's commits since the merge-base).
-      val mergeBase = gitCoreRepository.deriveAnyMergeBase(corePointedCommit, parentCoreLocalBranch.getPointedCommit());
-      uniqueCommits = mergeBase != null
-          ? gitCoreRepository.deriveCommitRange(corePointedCommit, mergeBase)
-          : gitCoreRepository.deriveCommitRange(corePointedCommit, forkPoint.getCoreCommit());
     } else {
-      // For yellow and green edges (where branch IS a descendant of parent), include the entire range from the
-      // commit pointed by the branch until its parent. This makes it possible to highlight the fork point
+      // For all of yellow, green and red edges we include the entire range from the commit pointed by the branch
+      // until its parent (rather than just until its fork point). This makes it possible to highlight the fork point
       // candidate on the commit listing - and lets the user spot commits that side-effecting commands
       // (rebase/squash/etc.) will skip due to a non-trivial fork point (e.g. fork point override or
       // fork point landing on parent's remote counterpart).

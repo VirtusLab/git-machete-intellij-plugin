@@ -594,13 +594,18 @@ public final class GitCoreRepository implements IGitCoreRepository {
       // which by default shows commits in reverse chronological order (https://git-scm.com/docs/git-log#_commit_ordering).
       // In this case (unlike with `ancestorsOf`), apparently there is no significant effect on performance.
       walk.sort(RevSort.COMMIT_TIME_DESC);
-      walk.sort(RevSort.BOUNDARY);
+      // Note: deliberately NOT using `RevSort.BOUNDARY`. With BOUNDARY enabled, JGit yields the boundary commit
+      // (an uninteresting commit with at least one interesting child) in addition to the interesting ones.
+      // When `fromInclusive` is a descendant of `untilExclusive`, the boundary equals `untilExclusive` and could
+      // be filtered out post-hoc; but when the two have diverged (e.g. red edges in `git machete status`), the
+      // boundary equals the merge-base, which is neither `untilExclusive` nor reachable from it, and would leak
+      // into the result. Without BOUNDARY the walk naturally stops before yielding uninteresting commits, which
+      // matches `git log untilExclusive..fromInclusive` semantics for both descendant and divergent histories.
 
       walk.markStart(walk.parseCommit(convertGitCoreCommitToObjectId(fromInclusive)));
       walk.markUninteresting(walk.parseCommit(convertGitCoreCommitToObjectId(untilExclusive)));
 
       return Iterator.ofAll(walk.iterator())
-          .takeWhile(revCommit -> !revCommit.getId().getName().equals(untilExclusive.getHash().getHashString()))
           .toJavaStream()
           .peek(revCommit -> LOG.debug(() -> "* " + revCommit.getId().getName()))
           .map(GitCoreCommit::new)
