@@ -106,8 +106,11 @@ Additional setup:
 
 ## Build
 
-Set up Java 21, preferably using [sdkman](https://sdkman.io/),
+Set up Java 21 or newer, preferably using [sdkman](https://sdkman.io/),
 with [`sdkman_auto_env=true`](https://sdkman.io/usage#config) and [`.sdkmanrc`](https://sdkman.io/usage#env).
+The exact JDK that compiles the plugin (currently Java 21, see `java-version.properties`)
+is auto-provisioned via Gradle's Java toolchain feature backed by [Foojay](https://foojay.io/),
+so any Java &ge; 21 is fine for running Gradle itself.
 
 To build the project, run `./gradlew build`. Please note that for the initial build attempt, you might need to add the `--info` option, in order to respond to the prompt of accepting Gradle Terms of Service.
 

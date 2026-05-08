@@ -4,17 +4,15 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Properties
 
-// Not worth using Gradle toolchains, they don't seem to work as expected for buildSrc (or are just hard to configure properly).
-// Let the developers install sdkman to switch Java versions instead.
-val javaVersionProperties = Properties().apply {
-  load(rootDir.parentFile.resolve("java-version.properties").inputStream())
-}
-val requiredJavaVersion = javaVersionProperties.getProperty("jdkVersionForRunningGradle").toInt()
+// Gradle toolchains aren't easily applicable to buildSrc itself, so we only enforce a *minimum* JVM
+// for running Gradle here. The bytecode targeted by the plugin is decoupled and driven by the
+// `java { toolchain { ... } }` block in the root build (which is auto-provisioned via Foojay).
+val minJavaVersionForRunningGradle = 21
 val currentJavaVersion = JavaVersion.current()
-if (currentJavaVersion != JavaVersion.toVersion(requiredJavaVersion)) {
+if (currentJavaVersion < JavaVersion.toVersion(minJavaVersionForRunningGradle)) {
   throw GradleException(
-    "This build must be run under Java $requiredJavaVersion, rather than the current $currentJavaVersion. " +
-      "Consider using sdkman with .sdkmanrc file for easily switching Java versions.",
+    "This build must be run under Java $minJavaVersionForRunningGradle or newer, rather than the current $currentJavaVersion. " +
+      "Consider using sdkman for easily switching Java versions.",
   )
 }
 

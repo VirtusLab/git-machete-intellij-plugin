@@ -79,8 +79,12 @@ allprojects {
   apply<JavaLibraryPlugin>()
 
   java {
-    sourceCompatibility = targetJavaVersion
-    targetCompatibility = targetJavaVersion // redundant, added for clarity
+    // Drives sourceCompatibility, targetCompatibility and `javac --release` in one place.
+    // Auto-provisioned via Foojay (see settings.gradle.kts) when no matching JDK is present locally,
+    // so the Gradle process JVM no longer has to match the bytecode target.
+    toolchain {
+      languageVersion.set(JavaLanguageVersion.of(targetJavaVersion.majorVersion.toInt()))
+    }
   }
 
   // String interpolation support, see https://github.com/antkorwin/better-strings.
@@ -102,14 +106,8 @@ allprojects {
 
     options.isFork = true
 
-    // `sourceCompatibility` and `targetCompatibility` say nothing about the Java APIs available to the compiled code.
-    // In fact, for X < Y it's perfectly possible to compile Java X code that uses Java Y APIs...
-    // This will work fine, until we actually try to run those compiled classes under Java X-compatible JVM,
-    // when we'll end up with NoSuchMethodError for APIs added between Java X and Java Y
-    // (i.e. for X=8 and Y=11: InputStream#readAllBytes, Stream#takeWhile and String#isBlank).
-    // `options.release = X` makes sure that regardless of Java version used to run the compiler,
-    // only Java X-compatible APIs are available to the compiled code.
-    options.release.set(Integer.parseInt(targetJavaVersion.majorVersion))
+    // No need to set `options.release` here: the Java toolchain (configured in `allprojects { java { toolchain { ... } } }`)
+    // pins the compiler JDK to the same major as the bytecode target, so the available Java APIs match by construction.
   }
 
   tasks.withType<Javadoc> {
