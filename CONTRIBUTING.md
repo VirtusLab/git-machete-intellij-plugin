@@ -81,6 +81,10 @@ In order to make `grep` and eventually the hooks working one must:
 You may want to add the following `export PATH="/opt/homebrew/Cellar/grep/<grep-version>/libexec/gnubin:$PATH"` to (`.zprofile`/`.zshrc`).
 4. Restart the terminal OR run `source` against the `.zprofile`/`.zshrc` file: for example `source ~/.zshrc`.
 
+The `enforce-shell-scripts-pass-shellcheck` pre-commit hook requires `shellcheck` to be installed.
+If it is missing, the hook fails with `xargs: shellcheck: No such file or directory`.
+Install it via `brew install shellcheck`.
+
 It is possible that git `pre-commit` hook will raise the following error: <br/>
 `fatal: cannot use Perl-compatible regexes when not compiled with USE_LIBPCRE` <br/>
 This can be solved by compiling `git` with `USE_LIBPCRE` via `brew` using commands: <br/>
