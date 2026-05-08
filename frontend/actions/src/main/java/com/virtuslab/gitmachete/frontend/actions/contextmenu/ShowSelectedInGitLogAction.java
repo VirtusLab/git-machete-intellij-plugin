@@ -3,11 +3,7 @@ package com.virtuslab.gitmachete.frontend.actions.contextmenu;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.vcs.log.Hash;
 import com.intellij.vcs.log.impl.VcsProjectLog;
-import com.intellij.vcs.log.ui.VcsLogUiEx;
-import kotlin.Unit;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.CustomLog;
 import lombok.experimental.ExtensionMethod;
@@ -17,7 +13,6 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import com.virtuslab.gitmachete.frontend.actions.base.BaseGitMacheteRepositoryReadyAction;
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
-import com.virtuslab.qual.async.ContinuesInBackground;
 
 @ExtensionMethod(GitMacheteBundle.class)
 @CustomLog
@@ -59,7 +54,6 @@ public class ShowSelectedInGitLogAction extends BaseGitMacheteRepositoryReadyAct
   }
 
   @Override
-  @ContinuesInBackground
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
     val selectedBranchName = getSelectedBranchName(anActionEvent);
@@ -82,19 +76,8 @@ public class ShowSelectedInGitLogAction extends BaseGitMacheteRepositoryReadyAct
         LOG.error("Unable to find commit hash for branch '${selectedBranchName}'");
         return;
       }
-      VirtualFile root = gitRepository.getRoot();
-      VcsProjectLog.runInMainLog(project, logUi -> jumpToRevisionUnderProgress(logUi, root, selectedBranchHash));
+      VcsProjectLog.showRevisionInMainLog(project, gitRepository.getRoot(), selectedBranchHash);
     }
-  }
-
-  @ContinuesInBackground
-  private Unit jumpToRevisionUnderProgress(VcsLogUiEx logUi, VirtualFile root, Hash hash) {
-    if (logUi == null) {
-      LOG.error("Main VCS Log UI is null");
-      return Unit.INSTANCE;
-    }
-    logUi.getVcsLog().jumpToCommit(hash, root);
-    return Unit.INSTANCE;
   }
 
 }
