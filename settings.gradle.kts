@@ -34,6 +34,13 @@ pluginManagement {
   }
 }
 
+plugins {
+  // Auto-provisions JDK toolchains via the Foojay Disco API, so CI / fresh dev machines
+  // don't need a system JDK installed that matches every Gradle toolchain query
+  // (e.g. JDK 25 requested by the IntelliJ Platform plugin against newer EAP IDEs).
+  id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+}
+
 // Note: please keep the projects in a topological order
 include(
   "qual",
