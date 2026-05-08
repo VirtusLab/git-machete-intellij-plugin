@@ -290,8 +290,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       String branchName) {
     ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> {
       val showForThisProject = UnmanagedBranchNotificationFactory.shouldShowForThisProject(project);
-      val showForThisBranch = UnmanagedBranchNotificationFactory.shouldShowForThisBranch(project, gitRepository,
-          branchName);
+      val showForThisBranch = UnmanagedBranchNotificationFactory.shouldShowForThisBranch(project, gitRepository, branchName);
       if (showForThisProject && showForThisBranch) {
         val notification = new UnmanagedBranchNotificationFactory(project, gitMacheteRepositorySnapshot, gitRepository,
             branchName, inferredParent).create();
