@@ -20,6 +20,7 @@ import com.intellij.openapi.actionSystem.CustomizedDataContext;
 import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
+import git4idea.repo.GitRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
@@ -37,6 +38,7 @@ import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 public class UnmanagedBranchNotificationFactory {
   private final Project project;
   private final @Nullable IGitMacheteRepositorySnapshot gitMacheteRepositorySnapshot;
+  private final GitRepository gitRepository;
   private final String branchName;
   private final @Nullable ILocalBranchReference inferredParent;
 
@@ -62,9 +64,16 @@ public class UnmanagedBranchNotificationFactory {
   }
 
   @UIEffect
-  public static boolean shouldShowForThisBranch(Project project, String aBranchName) {
-    String propertyKey = "${SHOW_UNMANAGED_BRANCH_NOTIFICATION}.${aBranchName}";
-    return PropertiesComponent.getInstance(project).getBoolean(propertyKey, /* defaultValue */ true);
+  public static boolean shouldShowForThisBranch(Project project, GitRepository gitRepository, String aBranchName) {
+    return PropertiesComponent.getInstance(project)
+        .getBoolean(propertyKeyForBranch(gitRepository, aBranchName), /* defaultValue */ true);
+  }
+
+  // We qualify the key with the absolute repo root path so that two repos in a multi-root project
+  // (or two separately-opened projects sharing the IDE-wide PropertiesComponent) holding a branch
+  // with the same name don't share the "Don't show for this branch" state.
+  static String propertyKeyForBranch(GitRepository gitRepository, String aBranchName) {
+    return "${SHOW_UNMANAGED_BRANCH_NOTIFICATION}.${gitRepository.getRoot().getPath()}.${aBranchName}";
   }
 
   @SuppressWarnings("removal")
@@ -104,8 +113,8 @@ public class UnmanagedBranchNotificationFactory {
             getString("action.GitMachete.EnhancedGraphTable.unmanaged-branch-notification.action.dont-show-for-branch")
                 .fmt(branchName),
             () -> {
-              String propertyKey = "${SHOW_UNMANAGED_BRANCH_NOTIFICATION}.${branchName}";
-              PropertiesComponent.getInstance(project).setValue(propertyKey, false, /* defaultValue */ true);
+              PropertiesComponent.getInstance(project)
+                  .setValue(propertyKeyForBranch(gitRepository, branchName), false, /* defaultValue */ true);
               notification.expire();
             });
   }

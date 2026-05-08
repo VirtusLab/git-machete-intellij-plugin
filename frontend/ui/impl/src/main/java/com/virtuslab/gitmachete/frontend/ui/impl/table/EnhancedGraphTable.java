@@ -281,18 +281,20 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
       @Override
       protected void onInferParentSuccess(ILocalBranchReference inferredParent) {
-        notifyAboutUnmanagedBranch(inferredParent, branchName);
+        notifyAboutUnmanagedBranch(gitRepository, inferredParent, branchName);
       }
     }.queue();
   }
 
-  private void notifyAboutUnmanagedBranch(ILocalBranchReference inferredParent, String branchName) {
+  private void notifyAboutUnmanagedBranch(GitRepository gitRepository, ILocalBranchReference inferredParent,
+      String branchName) {
     ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> {
       val showForThisProject = UnmanagedBranchNotificationFactory.shouldShowForThisProject(project);
-      val showForThisBranch = UnmanagedBranchNotificationFactory.shouldShowForThisBranch(project, branchName);
+      val showForThisBranch = UnmanagedBranchNotificationFactory.shouldShowForThisBranch(project, gitRepository,
+          branchName);
       if (showForThisProject && showForThisBranch) {
-        val notification = new UnmanagedBranchNotificationFactory(project, gitMacheteRepositorySnapshot, branchName,
-            inferredParent).create();
+        val notification = new UnmanagedBranchNotificationFactory(project, gitMacheteRepositorySnapshot, gitRepository,
+            branchName, inferredParent).create();
         VcsNotifier.getInstance(project).notify(notification);
         unmanagedBranchNotification = notification;
       }
