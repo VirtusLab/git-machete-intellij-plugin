@@ -69,8 +69,7 @@ public final class Pull {
       @Override
       @UIEffect
       public void onSuccess() {
-        String repoName = gitRepository.getRoot().getName();
-        FetchUpToDateTimeoutStatus.update(repoName);
+        FetchUpToDateTimeoutStatus.update(gitRepository);
 
         if (gitRepository.getBranches().findBranchByName(remoteBranchName) == null) {
           val errorMessage = fmt(getString("action.GitMachete.Pull.notification.remote-branch-missing.text"), remoteBranchName);

@@ -10,7 +10,9 @@ dependencies {
 
 apacheCommonsText()
 applyKotlinConfig()
+junit()
 lombok()
+mockito()
 slf4jLambdaApi()
 vavr()
 

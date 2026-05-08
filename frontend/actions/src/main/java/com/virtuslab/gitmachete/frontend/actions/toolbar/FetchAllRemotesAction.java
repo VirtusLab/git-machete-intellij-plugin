@@ -77,8 +77,7 @@ public class FetchAllRemotesAction extends BaseProjectDependentAction {
       public void doRun(ProgressIndicator indicator) {
         result = GitFetchSupport.fetchSupport(project).fetchAllRemotes(Option.of(gitRepository).toJavaList());
         if (gitRepository != null) {
-          val repoName = gitRepository.getRoot().getName();
-          FetchUpToDateTimeoutStatus.update(repoName);
+          FetchUpToDateTimeoutStatus.update(gitRepository);
         }
       }
 
