@@ -19,7 +19,7 @@ junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref 
 junit-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
 junit-platformLauncher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit" }
 kodein = "org.kodein.di:kodein-di-jvm:7.32.0"
-kotlin-coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.10.2"
+kotlin-coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.11.0"
 kotlinxSerializationJson = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0"
 lombok = "org.projectlombok:lombok:1.18.46"
 mockito = "org.mockito:mockito-junit-jupiter:5.23.0"
