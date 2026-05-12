@@ -1,3 +1,6 @@
+# Local Maven proxy URL (optional); see gradle-local.properties.example
+/gradle-local.properties
+
 /allure-results/
 bin/
 build/

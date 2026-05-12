@@ -9,9 +9,9 @@
   | Allow ownership links
   x-allow-ownership-link (behind origin)  <3 files>
   | |
-  | | 1st round of fixes -> fork point ??? commit 9d422de seems to be a part of the unique history of allow-ownership-link
+  | | 1st round of fixes -> fork point
   | | Use new icons
-  | ?-update-icons (behind origin)  <5 files>
+  | o-update-icons (behind origin)  <5 files>
   |   |
   |   | Build arbitrarily long chains
   |   o-build-chain (untracked)  <6 files>

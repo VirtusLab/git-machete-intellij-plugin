@@ -53,6 +53,7 @@ import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.IRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.OngoingRepositoryOperationType;
 import com.virtuslab.gitmachete.backend.api.RelationToRemote;
+import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.defs.Colors;
 import com.virtuslab.gitmachete.frontend.graph.api.items.IBranchItem;
 import com.virtuslab.gitmachete.frontend.graph.api.items.ICommitItem;
@@ -182,17 +183,25 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
       val forkPoint = containingBranch.getForkPoint();
 
       if (commitItem.getCommit().equals(forkPoint)) {
-        append(
-            " ${HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW} "
-                + getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.fork-point") + " ",
-            new SimpleTextAttributes(STYLE_PLAIN, Colors.RED));
-        append(getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.commit") + " ",
-            REGULAR_ATTRIBUTES);
-        append(forkPoint.getShortHash(), REGULAR_BOLD_ATTRIBUTES);
-        append(" " + getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.found-in-reflog")
-            + " ", REGULAR_ATTRIBUTES);
-        append(forkPoint.getUniqueBranchesContainingInReflog()
-            .map(b -> b.getName()).sorted().mkString(", "), REGULAR_BOLD_ATTRIBUTES);
+        if (containingBranch.getSyncToParentStatus() == SyncToParentStatus.InSyncButForkPointOff) {
+          append(
+              " ${HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW} "
+                  + getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.fork-point-question")
+                  + " ",
+              new SimpleTextAttributes(STYLE_PLAIN, Colors.RED));
+          append(getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.commit") + " ",
+              REGULAR_ATTRIBUTES);
+          append(forkPoint.getShortHash(), REGULAR_BOLD_ATTRIBUTES);
+          append(" " + getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.found-in-reflog")
+              + " ", REGULAR_ATTRIBUTES);
+          append(forkPoint.getUniqueBranchesContainingInReflog()
+              .map(b -> b.getName()).sorted().mkString(", "), REGULAR_BOLD_ATTRIBUTES);
+        } else {
+          append(
+              " ${HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW} "
+                  + getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.fork-point"),
+              new SimpleTextAttributes(STYLE_PLAIN, Colors.RED));
+        }
       }
     }
   }

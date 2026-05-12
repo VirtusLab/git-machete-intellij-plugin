@@ -11,6 +11,7 @@ import org.jetbrains.intellij.platform.gradle.tasks.VerifyPluginTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.net.URI
 import java.util.Base64
+import java.util.Properties
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion as GradleKotlinVersion
@@ -49,10 +50,30 @@ val shouldRunAllCheckers: Boolean by extra(isCI || project.hasProperty("runAllCh
 
 tasks.register<UpdateIntellijVersions>("updateIntellijVersions")
 
+// Optional Maven proxy URL from gitignored gradle-local.properties (see gradle-local.properties.example).
+val optionalMavenProxyFromGradleLocal: String? = run {
+  val f = rootDir.resolve("gradle-local.properties")
+  if (!f.isFile) return@run null
+  Properties().apply { f.reader().use { load(it) } }
+    .getProperty("mavenProxyUrl")
+    ?.trim()
+    ?.takeIf { it.isNotEmpty() }
+}
+
+// Either the corporate proxy or Maven Central - never both (see gradle-local.properties.example).
+// gradle/init.gradle still rewrites any stray Central URLs (e.g. from plugins) when the proxy is set.
+fun org.gradle.api.artifacts.dsl.RepositoryHandler.standardMavenRepositories() {
+  mavenLocal()
+  if (optionalMavenProxyFromGradleLocal != null) {
+    maven(optionalMavenProxyFromGradleLocal)
+  } else {
+    mavenCentral()
+  }
+}
+
 allprojects {
   repositories {
-    mavenLocal()
-    mavenCentral()
+    standardMavenRepositories()
   }
 
   apply<JavaLibraryPlugin>()
@@ -183,7 +204,7 @@ subprojects {
     applyGuiEffectChecker()
 
     repositories {
-      mavenCentral()
+      standardMavenRepositories()
       intellijPlatform {
         defaultRepositories()
         jetbrainsRuntime()
@@ -220,7 +241,7 @@ group = "com.virtuslab"
 configureVersionFromGit()
 
 repositories {
-  mavenCentral()
+  standardMavenRepositories()
   intellijPlatform {
     defaultRepositories()
     jetbrainsRuntime()

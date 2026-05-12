@@ -1,0 +1,10 @@
+# Copy to `gradle-local.properties` (gitignored) if you need a corporate Maven proxy for this repo.
+# Omit the file on machines with direct access to Maven Central / the Gradle Plugin Portal.
+#
+# Replaces a global ~/.gradle/init.gradle that rewrote Central - this project configures the proxy
+# only here, so other Gradle projects on the same machine are unaffected.
+#
+# With mavenProxyUrl set, the build uses this mirror only (no mavenCentral). ./gradlew loads
+# gradle/init.gradle to rewrite any stray Central URLs some plugins may still declare.
+#
+# mavenProxyUrl=https://maven-proxy.example.com

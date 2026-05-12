@@ -208,10 +208,19 @@ DEFAULT_JVM_OPTS='"-Xmx64m" "-Xms64m"'
 #   * For example: A user cannot expect ${Hostname} to be expanded, as it is an environment variable and will be
 #     treated as '${Hostname}' itself on the command line.
 
-set -- \
-        "-Dorg.gradle.appname=$APP_BASE_NAME" \
-        -jar "$APP_HOME/gradle/wrapper/gradle-wrapper.jar" \
-        "$@"
+# Repo-local init script (optional Maven Central URL rewrite; see gradle/init.gradle).
+if [ -r "$APP_HOME/gradle/init.gradle" ]; then
+  set -- \
+          "-Dorg.gradle.appname=$APP_BASE_NAME" \
+          -jar "$APP_HOME/gradle/wrapper/gradle-wrapper.jar" \
+          -I "$APP_HOME/gradle/init.gradle" \
+          "$@"
+else
+  set -- \
+          "-Dorg.gradle.appname=$APP_BASE_NAME" \
+          -jar "$APP_HOME/gradle/wrapper/gradle-wrapper.jar" \
+          "$@"
+fi
 
 # Stop when "xargs" is not available.
 if ! command -v xargs >/dev/null 2>&1
