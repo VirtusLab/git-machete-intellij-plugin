@@ -183,24 +183,26 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
       val forkPoint = containingBranch.getForkPoint();
 
       if (commitItem.getCommit().equals(forkPoint)) {
-        if (containingBranch.getSyncToParentStatus() == SyncToParentStatus.InSyncButForkPointOff) {
-          append(
-              " ${HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW} "
-                  + getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.fork-point-question")
-                  + " ",
-              new SimpleTextAttributes(STYLE_PLAIN, Colors.RED));
-          append(getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.commit") + " ",
+        val isForkPointOff = containingBranch.getSyncToParentStatus() == SyncToParentStatus.InSyncButForkPointOff;
+        val markerText = isForkPointOff
+            ? getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.fork-point-question")
+            : getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.fork-point");
+        val inferringBranches = forkPoint.getUniqueBranchesContainingInReflog();
+        // `?` already separates the marker from the prose; a colon would be redundant.
+        val separator = !isForkPointOff && (!inferringBranches.isEmpty() || forkPoint.isOverridden()) ? ":" : "";
+        append(
+            " ${HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW} " + markerText + separator,
+            new SimpleTextAttributes(STYLE_PLAIN, Colors.RED));
+        if (!inferringBranches.isEmpty()) {
+          append(" " + getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.commit") + " ",
               REGULAR_ATTRIBUTES);
           append(forkPoint.getShortHash(), REGULAR_BOLD_ATTRIBUTES);
           append(" " + getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.found-in-reflog")
               + " ", REGULAR_ATTRIBUTES);
-          append(forkPoint.getUniqueBranchesContainingInReflog()
-              .map(b -> b.getName()).sorted().mkString(", "), REGULAR_BOLD_ATTRIBUTES);
-        } else {
-          append(
-              " ${HEAVY_WIDE_HEADED_RIGHTWARDS_ARROW} "
-                  + getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.fork-point"),
-              new SimpleTextAttributes(STYLE_PLAIN, Colors.RED));
+          append(inferringBranches.map(b -> b.getName()).sorted().mkString(", "), REGULAR_BOLD_ATTRIBUTES);
+        } else if (forkPoint.isOverridden()) {
+          append(" " + getString("string.GitMachete.BranchOrCommitCellRendererComponent.inferred-fork-point.overridden"),
+              REGULAR_ATTRIBUTES);
         }
       }
     }

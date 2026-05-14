@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 
+# Prevent env-var pollution from leaking author/committer identity into commits.
+# `git config --local user.name/email` (set in `create_repo` below) is shadowed
+# by these env vars whenever they're present, which silently breaks fixture
+# determinism (commits get authored by whoever leaked the vars instead of by
+# `CircleCI <circleci@example.com>`, producing different SHAs).
+# `GIT_*_DATE` are re-exported per commit by `set_fake_git_date`, so it's safe
+# (and equally important) to clear them here too.
+unset GIT_AUTHOR_NAME GIT_AUTHOR_EMAIL GIT_AUTHOR_DATE \
+      GIT_COMMITTER_NAME GIT_COMMITTER_EMAIL GIT_COMMITTER_DATE
+
 status_branch_hook=$(cat <<'EOF'
 #!/usr/bin/env bash
 branch=$1

@@ -1,5 +1,5 @@
   develop  <2 files>
   |
-  | Allow ownership links -> fork point
+  | Allow ownership links -> fork point: overridden
   | Build arbitrarily long chains
   o-build-chain *  <4 files>

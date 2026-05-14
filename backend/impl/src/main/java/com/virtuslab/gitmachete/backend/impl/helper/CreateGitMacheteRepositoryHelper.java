@@ -500,23 +500,25 @@ public class CreateGitMacheteRepositoryHelper extends Helper {
     return applicableCommits.exists(commit -> commit.getTreeHash().equals(equivalentTo.getTreeHash()));
   }
 
-  @UIThreadUnsafe
-  private boolean isForkPointOnParentRemoteCounterpart(
+  private boolean isForkPointInferredByParentRemoteCounterpart(
       IGitCoreLocalBranchSnapshot parentCoreLocalBranch,
-      IGitCoreCommit forkPoint) throws GitCoreException {
+      ForkPointCommitOfManagedBranch forkPoint) {
     // Suppresses the spurious yellow edge that appears when the parent branch is merely behind
-    // its remote counterpart and the child branch was forked from a commit on the remote
-    // that is ahead of parent's local HEAD. We require that the fork point lies strictly
-    // between parent's local HEAD and parent's remote counterpart, so that legitimate
-    // yellow edges (where the fork point is older than parent's local HEAD) are preserved.
-    IGitCoreRemoteBranchSnapshot parentRemoteTrackingBranch = parentCoreLocalBranch.getRemoteTrackingBranch();
-    if (parentRemoteTrackingBranch == null) {
+    // its remote counterpart and the child branch was forked from the remote tip. We only fire
+    // for parents that have a remote counterpart at all (otherwise the "behind remote" situation
+    // cannot arise), and only when the parent shows up among the inferring branches - either as
+    // the parent's remote tracking branch, or as the parent itself (which can happen when the
+    // inferred commit still survives on the parent's own filtered reflog after the push).
+    if (parentCoreLocalBranch.getRemoteTrackingBranch() == null) {
       return false;
     }
-    IGitCoreCommit parentPointedCommit = parentCoreLocalBranch.getPointedCommit();
-    IGitCoreCommit parentRemotePointedCommit = parentRemoteTrackingBranch.getPointedCommit();
-    return gitCoreRepository.isAncestor(parentPointedCommit, forkPoint)
-        && gitCoreRepository.isAncestorOrEqual(forkPoint, parentRemotePointedCommit);
+    val parentName = parentCoreLocalBranch.getName();
+    return forkPoint.getUniqueBranchesContainingInReflog().exists(b -> {
+      ILocalBranchReference correspondingLocalBranch = b.isLocal()
+          ? b.asLocal()
+          : b.asRemote().getTrackedLocalBranch();
+      return correspondingLocalBranch.getName().equals(parentName);
+    });
   }
 
   @UIThreadUnsafe
@@ -557,10 +559,10 @@ public class CreateGitMacheteRepositoryHelper extends Helper {
                   + "and fork point is absent or overridden or equal to parent branch commit, " +
                   "so we assume that this branch is in sync");
           return SyncToParentStatus.InSync;
-        } else if (isForkPointOnParentRemoteCounterpart(parentCoreLocalBranch, forkPoint.getCoreCommit())) {
+        } else if (isForkPointInferredByParentRemoteCounterpart(parentCoreLocalBranch, forkPoint)) {
           LOG.debug(
               () -> "For this branch (${branchName}) its parent's commit is ancestor of this branch pointed commit "
-                  + "and fork point lies between parent's local HEAD and parent's remote counterpart "
+                  + "and fork point was inferred from parent's remote counterpart "
                   + "(parent is just behind its remote), so we assume that this branch is in sync");
           return SyncToParentStatus.InSync;
         } else {

@@ -14,8 +14,10 @@ import org.junit.jupiter.api.Test;
 import com.virtuslab.gitcore.api.IGitCoreCommit;
 import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
 import com.virtuslab.gitcore.api.IGitCoreRemoteBranchSnapshot;
+import com.virtuslab.gitmachete.backend.api.IBranchReference;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.impl.ForkPointCommitOfManagedBranch;
+import com.virtuslab.gitmachete.backend.impl.RemoteTrackingBranchReference;
 
 public class GitMacheteRepository_deriveSyncToParentStatus_UnitTestSuite extends BaseGitMacheteRepositoryUnitTestSuite {
 
@@ -26,9 +28,18 @@ public class GitMacheteRepository_deriveSyncToParentStatus_UnitTestSuite extends
       IGitCoreLocalBranchSnapshot childBranch,
       IGitCoreLocalBranchSnapshot parentBranch,
       IGitCoreCommit forkPointCommit) {
+    return invokeDeriveSyncToParentStatus(childBranch, parentBranch, forkPointCommit, /* containingBranches */ List.empty());
+  }
+
+  @SneakyThrows
+  private SyncToParentStatus invokeDeriveSyncToParentStatus(
+      IGitCoreLocalBranchSnapshot childBranch,
+      IGitCoreLocalBranchSnapshot parentBranch,
+      IGitCoreCommit forkPointCommit,
+      List<IBranchReference> containingBranches) {
     return aux().deriveSyncToParentStatus(
         childBranch, parentBranch,
-        ForkPointCommitOfManagedBranch.inferred(forkPointCommit, /* containingBranches */ List.empty()));
+        ForkPointCommitOfManagedBranch.inferred(forkPointCommit, containingBranches));
   }
 
   @Test
@@ -96,26 +107,39 @@ public class GitMacheteRepository_deriveSyncToParentStatus_UnitTestSuite extends
 
   @Test
   @SneakyThrows
-  public void parentBehindRemoteAndForkPointBetweenLocalAndRemote_inSync() {
+  public void parentBehindRemoteAndForkPointInferredByParentRemoteCounterpart_inSync() {
     // given
     IGitCoreCommit parentCommit = createGitCoreCommit();
     IGitCoreCommit forkPointCommit = createGitCoreCommit();
-    IGitCoreCommit parentRemoteCommit = createGitCoreCommit();
     IGitCoreCommit childCommit = createGitCoreCommit();
     IGitCoreLocalBranchSnapshot parentBranch = createGitCoreLocalBranch(parentCommit);
+    when(parentBranch.getName()).thenReturn("master");
     IGitCoreLocalBranchSnapshot childBranch = createGitCoreLocalBranch(childCommit);
     IGitCoreRemoteBranchSnapshot parentRemoteBranch = mock(IGitCoreRemoteBranchSnapshot.class);
-    when(parentRemoteBranch.getPointedCommit()).thenReturn(parentRemoteCommit);
     when(parentBranch.getRemoteTrackingBranch()).thenReturn(parentRemoteBranch);
     when(gitCoreRepository.isAncestorOrEqual(parentCommit, childCommit)).thenReturn(true);
-    when(gitCoreRepository.isAncestor(parentCommit, forkPointCommit)).thenReturn(true);
-    when(gitCoreRepository.isAncestorOrEqual(forkPointCommit, parentRemoteCommit)).thenReturn(true);
+
+    // The fork point appears in the reflog of `origin/master` (parent's remote counterpart),
+    // so the green-edge classification kicks in.
+    IBranchReference parentRemoteBranchRef = RemoteTrackingBranchReference.of(
+        mockRemoteBranch("origin/master", "refs/remotes/origin/master", "origin"),
+        parentBranch);
 
     // when
-    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(childBranch, parentBranch, forkPointCommit);
+    SyncToParentStatus syncToParentStatus = invokeDeriveSyncToParentStatus(
+        childBranch, parentBranch, forkPointCommit, List.of(parentRemoteBranchRef));
 
     // then
     assertEquals(SyncToParentStatus.InSync, syncToParentStatus);
+  }
+
+  @SneakyThrows
+  private static IGitCoreRemoteBranchSnapshot mockRemoteBranch(String name, String fullName, String remoteName) {
+    IGitCoreRemoteBranchSnapshot snap = mock(IGitCoreRemoteBranchSnapshot.class);
+    when(snap.getName()).thenReturn(name);
+    when(snap.getFullName()).thenReturn(fullName);
+    when(snap.getRemoteName()).thenReturn(remoteName);
+    return snap;
   }
 
   @Test
