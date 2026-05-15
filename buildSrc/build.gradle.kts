@@ -4,17 +4,10 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Properties
 
-// Gradle toolchains aren't easily applicable to buildSrc itself, so we only enforce a *minimum* JVM
-// for running Gradle here. The bytecode targeted by the plugin is decoupled and driven by the
-// `java { toolchain { ... } }` block in the root build (which is auto-provisioned via Foojay).
-val minJavaVersionForRunningGradle = 21
-val currentJavaVersion = JavaVersion.current()
-if (currentJavaVersion < JavaVersion.toVersion(minJavaVersionForRunningGradle)) {
-  throw GradleException(
-    "This build must be run under Java $minJavaVersionForRunningGradle or newer, rather than the current $currentJavaVersion. " +
-      "Consider using sdkman for easily switching Java versions.",
-  )
-}
+// No project-specific JDK check here: Gradle itself enforces its own minimum JVM (and rejects
+// anything below it with a clear error), and the JDK that actually compiles the plugin is
+// auto-provisioned via the Java toolchain set up in the root `build.gradle.kts` and the Foojay
+// resolver in `settings.gradle.kts` - so the JVM running Gradle is purely an implementation detail.
 
 plugins {
   `kotlin-dsl`
