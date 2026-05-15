@@ -109,7 +109,7 @@ Additional setup:
 No JDK has to be installed system-wide before building: the plugin uses Gradle's
 [Java toolchain](https://docs.gradle.org/current/userguide/toolchains.html) feature backed by the
 [Foojay](https://foojay.io/) resolver, so the JDK that actually compiles the plugin
-(see `jdkVersionForGeneratedClassfiles` in `java-version.properties`) is auto-provisioned by Gradle
+(see `jdkVersionForGradleAndGeneratedClassfiles` in `java-version.properties`) is auto-provisioned by Gradle
 on first build. Any JDK supported by Gradle as a runtime is therefore fine for invoking `./gradlew`
 itself - including the one bundled with IntelliJ IDEA, which the IDE uses by default to run Gradle.
 

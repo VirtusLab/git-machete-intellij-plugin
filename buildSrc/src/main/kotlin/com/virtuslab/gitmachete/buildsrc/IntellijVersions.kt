@@ -91,7 +91,11 @@ data class IntellijVersions(
 
       // Most recent minor versions of all major releases between the earliest supported (incl.)
       // and latest stable (excl.), used for binary compatibility checks and UI tests
-      val latestMinorsOfOldSupportedMajors: List<ReleaseVersion> = intellijVersionsProperties.getProperty("latestMinorsOfOldSupportedMajors").split(",").map { ReleaseVersion(it) }
+      val latestMinorsOfOldSupportedMajors: List<ReleaseVersion> =
+        intellijVersionsProperties.getPropertyOrNullIfEmpty("latestMinorsOfOldSupportedMajors")
+          ?.split(",")
+          ?.map { ReleaseVersion(it) }
+          .orEmpty()
 
       val latestStable = ReleaseVersion(intellijVersionsProperties.getProperty("latestStable"))
 

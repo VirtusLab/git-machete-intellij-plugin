@@ -26,7 +26,7 @@ plugins {
 
 val javaVersionProperties = PropertiesHelper.getProperties(rootDir.resolve("java-version.properties"))
 val targetJavaVersion: JavaVersion by extra(
-  JavaVersion.toVersion(javaVersionProperties.getProperty("jdkVersionForGeneratedClassfiles").toInt()),
+  JavaVersion.toVersion(javaVersionProperties.getProperty("jdkVersionForGradleAndGeneratedClassfiles").toInt()),
 )
 
 val ciBranch: String? by extra(System.getenv("CIRCLE_BRANCH"))
