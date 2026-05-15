@@ -9,10 +9,12 @@ import com.intellij.ide.starter.ci.NoCIServer
 import com.intellij.ide.starter.di.di
 import com.intellij.ide.starter.driver.engine.BackgroundRun
 import com.intellij.ide.starter.driver.engine.runIdeWithDriver
-import com.intellij.ide.starter.ide.IdeProductProvider
+import com.intellij.ide.starter.models.IdeInfo
+import com.intellij.ide.starter.models.IdeInfoType
 import com.intellij.ide.starter.models.TestCase
 import com.intellij.ide.starter.project.ProjectInfoSpec
 import com.intellij.ide.starter.runner.Starter
+import com.intellij.platform.testFramework.teamCity.TeamCityReporter.SyntheticTestKind
 import com.intellij.remoterobot.RemoteRobot
 import com.virtuslab.gitmachete.testcommon.SetupScripts
 import com.virtuslab.gitmachete.testcommon.TestGitRepository
@@ -22,6 +24,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.fail
 import org.kodein.di.DI
 import org.kodein.di.bindSingleton
+import org.kodein.di.direct
+import org.kodein.di.instance
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -63,12 +67,15 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
     }
 
     private fun testCase(projectInfo: ProjectInfoSpec): TestCase<ProjectInfoSpec> {
-      val productProvider = when (intelliJProduct) {
-        "IC" -> IdeProductProvider.IC
-        "IU" -> IdeProductProvider.IU
+      val ideInfoType = when (intelliJProduct) {
+        "IC" -> IdeInfoType.IDEA_COMMUNITY
+        "IU" -> IdeInfoType.IDEA_ULTIMATE
         else -> throw IllegalArgumentException("Illegal IntelliJ product: $intelliJProduct")
       }
-      val testCase = TestCase(productProvider, projectInfo)
+      // Each IDE-specific module registers its IdeInfo in DI tagged by the corresponding IdeInfoType
+      // (replacement for the removed `IdeProductProvider.IC`/`IU` constants).
+      val ideInfo = di.direct.instance<IdeInfo>(tag = ideInfoType)
+      val testCase = TestCase(ideInfo, projectInfo)
       return if (intelliJVersion.matches("20[0-9][0-9]\\.[0-9].*".toRegex())) {
         testCase.withVersion(intelliJVersion)
       } else {
@@ -81,14 +88,13 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
         extend(di)
         bindSingleton<CIServer>(overrides = true) {
           object : CIServer by NoCIServer {
-            // For some reason, the actual arguments are passed in message-then-testName order,
-            // unlike testName-then-message order indicated by the superclass method.
-            @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
             override fun reportTestFailure(
-              message: String,
               testName: String,
+              message: String,
               details: String,
               linkToLogs: String?,
+              kind: SyntheticTestKind,
+              generifyTestName: Boolean,
             ) {
               fail { "$testName fails: $message. \n$details" }
             }
