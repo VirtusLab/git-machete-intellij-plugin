@@ -10,7 +10,6 @@ import com.intellij.ide.starter.di.di
 import com.intellij.ide.starter.driver.engine.BackgroundRun
 import com.intellij.ide.starter.driver.engine.runIdeWithDriver
 import com.intellij.ide.starter.models.IdeInfo
-import com.intellij.ide.starter.models.IdeInfoType
 import com.intellij.ide.starter.models.TestCase
 import com.intellij.ide.starter.project.ProjectInfoSpec
 import com.intellij.ide.starter.runner.Starter
@@ -24,8 +23,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.fail
 import org.kodein.di.DI
 import org.kodein.di.bindSingleton
-import org.kodein.di.direct
-import org.kodein.di.instance
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -66,8 +63,17 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
     }
 
     private fun testCase(projectInfo: ProjectInfoSpec): TestCase<ProjectInfoSpec> {
-      // Each IDE-specific module registers its IdeInfo in DI tagged by the corresponding IdeInfoType.
-      val ideInfo = di.direct.instance<IdeInfo>(tag = IdeInfoType.IDEA_ULTIMATE)
+      // ide-starter ships only the core squashed jar with us; the per-product DI bindings
+      // (registered via ServiceLoader<IdeProductInit> in product-specific modules like
+      // `intellij.tools.ide.starter.product.idea_ultimate`) are not on our classpath, so
+      // looking up IdeInfo in DI by tag would fail. Construct it inline instead.
+      val ideInfo = IdeInfo(
+        productCode = "IU",
+        platformPrefix = "idea",
+        executableFileName = "idea",
+        fullName = "IDEA",
+        qodanaProductCode = "QDJVM",
+      )
       val testCase = TestCase(ideInfo, projectInfo)
       return if (intelliJVersion.matches("20[0-9][0-9]\\.[0-9].*".toRegex())) {
         testCase.withVersion(intelliJVersion)
