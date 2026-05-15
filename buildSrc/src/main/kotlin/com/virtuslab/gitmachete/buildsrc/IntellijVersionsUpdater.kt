@@ -2,8 +2,6 @@ package com.virtuslab.gitmachete.buildsrc
 
 class IntellijVersionsUpdater(private val versionsProvider: IntelliJVersionsProvider) {
 
-  // Let's check for releases of IU even up to 2025.2 (they seem to mimic IC releases 1:1 anyway),
-  // even though we actually used to build against IntelliJ Community for those versions.
   private val intellijReleases: List<ReleaseVersion> by lazy {
     versionsProvider.listIntelliJVersionsForType(code = "IU", type = "release", attribute = "version")
       .map { ReleaseVersion(it) }

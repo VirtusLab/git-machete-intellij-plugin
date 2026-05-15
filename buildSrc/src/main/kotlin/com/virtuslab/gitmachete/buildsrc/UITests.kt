@@ -1,6 +1,5 @@
 package com.virtuslab.gitmachete.buildsrc
 
-import com.virtuslab.gitmachete.buildsrc.AnyVersion.Companion.productCode
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.testing.Test
@@ -35,9 +34,6 @@ fun Project.configureUiTests() {
       group = "verification"
 
       systemProperty("intellij.version", version)
-      // TODO (#2146): drop support for IntelliJ Community
-      systemProperty("intellij.product", version.productCode())
-
       systemProperty("ide.instance-per", "class") // a slower alternative: "method"
 
       testClassesDirs = uiTest.output.classesDirs

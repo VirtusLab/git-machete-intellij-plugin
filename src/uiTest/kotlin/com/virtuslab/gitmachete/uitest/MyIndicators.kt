@@ -10,9 +10,6 @@ import java.time.Instant
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
-// Note: as of 2026.2 EAP, `StatusBar#getBackgroundProcessModels()` returns
-// `List<Pair<TaskInfo?, ProgressModel?>>` directly (the previous `StatusBar.TaskInfoPair`
-// helper interface was removed).
 fun Driver.getProgressIndicators(project: Project): List<Pair<TaskInfo?, ProgressModel?>> {
   return withContext {
     val ideFrame = service<WindowManager>().getIdeFrame(project)

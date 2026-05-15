@@ -36,7 +36,6 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
   companion object {
     val robot = RemoteRobot("http://127.0.0.1:8580")
     private val intelliJVersion = System.getProperty("intellij.version")
-    private val intelliJProduct = System.getProperty("intellij.product")
 
     fun <T> retryOnConnectException(attempts: Int, block: () -> T): T = try {
       block()
@@ -67,14 +66,8 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
     }
 
     private fun testCase(projectInfo: ProjectInfoSpec): TestCase<ProjectInfoSpec> {
-      val ideInfoType = when (intelliJProduct) {
-        "IC" -> IdeInfoType.IDEA_COMMUNITY
-        "IU" -> IdeInfoType.IDEA_ULTIMATE
-        else -> throw IllegalArgumentException("Illegal IntelliJ product: $intelliJProduct")
-      }
-      // Each IDE-specific module registers its IdeInfo in DI tagged by the corresponding IdeInfoType
-      // (replacement for the removed `IdeProductProvider.IC`/`IU` constants).
-      val ideInfo = di.direct.instance<IdeInfo>(tag = ideInfoType)
+      // Each IDE-specific module registers its IdeInfo in DI tagged by the corresponding IdeInfoType.
+      val ideInfo = di.direct.instance<IdeInfo>(tag = IdeInfoType.IDEA_ULTIMATE)
       val testCase = TestCase(ideInfo, projectInfo)
       return if (intelliJVersion.matches("20[0-9][0-9]\\.[0-9].*".toRegex())) {
         testCase.withVersion(intelliJVersion)

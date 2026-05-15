@@ -1,6 +1,5 @@
 
 import com.virtuslab.gitmachete.buildsrc.*
-import com.virtuslab.gitmachete.buildsrc.AnyVersion.Companion.productCode
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.jetbrains.changelog.Changelog
@@ -409,7 +408,7 @@ intellijPlatform {
       val maybeEap = listOfNotNull(intellijVersions.upcomingMajorEap)
       val ideVersions = intellijVersions.latestMinorsOfOldSupportedMajors + intellijVersions.latestStable + maybeEap
       ideVersions.map { it.value }.forEach {
-        create(it.productCode(), it)
+        create("IU", it)
       }
     }
     failureLevel.set(
@@ -429,13 +428,7 @@ tasks.runIde {
 
 dependencies {
   intellijPlatform {
-    val productCode = intellijVersions.buildTarget.productCode()
-    // TODO (#2146): drop support for IntelliJ Community
-    if (productCode == "IU") {
-      intellijIdea(intellijVersions.buildTarget)
-    } else {
-      intellijIdeaCommunity(intellijVersions.buildTarget)
-    }
+    intellijIdea(intellijVersions.buildTarget)
     bundledPlugin("Git4Idea")
     pluginVerifier()
     zipSigner()

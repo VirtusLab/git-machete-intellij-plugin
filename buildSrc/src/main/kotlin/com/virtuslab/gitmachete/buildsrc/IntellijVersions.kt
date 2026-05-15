@@ -38,10 +38,6 @@ sealed interface AnyVersion<Self : AnyVersion<Self>> {
         throw IllegalArgumentException("Not a build number or release: $this")
       }
     }
-
-    // TODO (#2146): drop support for IntelliJ Community
-    // IntelliJ 2025.3 removed the distinction between Community and Ultimate
-    fun String.productCode(): String = if (toPlainReleaseNumber() >= 253) "IU" else "IC"
   }
 }
 
