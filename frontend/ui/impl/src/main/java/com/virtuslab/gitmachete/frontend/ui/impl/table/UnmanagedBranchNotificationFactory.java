@@ -76,7 +76,6 @@ public class UnmanagedBranchNotificationFactory {
     return "${SHOW_UNMANAGED_BRANCH_NOTIFICATION}.${gitRepository.getRoot().getPath()}.${aBranchName}";
   }
 
-  @SuppressWarnings("removal")
   private NotificationAction getSlideInAction(Notification notification) {
     val title = inferredParent == null
         ? getString("action.GitMachete.EnhancedGraphTable.unmanaged-branch-notification.action.slide-in-as-root")
@@ -99,7 +98,8 @@ public class UnmanagedBranchNotificationFactory {
             title,
             () -> {
               // TODO (#1982): replace with CustomizedDataContext.withSnapshot(..., new DataSnapshotProvider() { ... })
-              val dataContext = CustomizedDataContext.withProvider(DataManager.getInstance().getDataContext(), provider);
+              @SuppressWarnings("removal") val dataContext = CustomizedDataContext
+                  .withProvider(DataManager.getInstance().getDataContext(), provider);
               @SuppressWarnings("removal") val actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.VCS_NOTIFICATION,
                   new Presentation(), dataContext);
               ActionManager.getInstance().getAction(SLIDE_IN_UNMANAGED_BELOW).actionPerformed(actionEvent);
@@ -130,7 +130,6 @@ public class UnmanagedBranchNotificationFactory {
             });
   }
 
-  @SuppressWarnings("removal")
   private NotificationAction getOpenMacheteFileAction() {
     val provider = new DataProvider() {
       @Override
@@ -141,7 +140,8 @@ public class UnmanagedBranchNotificationFactory {
     return NotificationAction.createSimple(
         getString("action.GitMachete.OpenMacheteFileAction.description"), () -> {
           // TODO (#1982): replace with CustomizedDataContext.withSnapshot(..., new DataSnapshotProvider() { ... })
-          val dataContext = CustomizedDataContext.withProvider(DataManager.getInstance().getDataContext(), provider);
+          @SuppressWarnings("removal") val dataContext = CustomizedDataContext
+              .withProvider(DataManager.getInstance().getDataContext(), provider);
           @SuppressWarnings("removal") val actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.VCS_NOTIFICATION,
               new Presentation(), dataContext);
           ActionManager.getInstance().getAction(OPEN_MACHETE_FILE).actionPerformed(actionEvent);

@@ -43,7 +43,9 @@ public final class GitRepositoryComboBox extends JComboBox<GitRepository>
     this.project = project;
 
     updateRepositories();
-    setRenderer(SimpleListCellRenderer.create( /* nullValue */ "", DvcsUtil::getShortRepositoryName));
+    @SuppressWarnings("removal") val renderer = SimpleListCellRenderer.create( /* nullValue */ "",
+        DvcsUtil::getShortRepositoryName);
+    setRenderer(renderer);
 
     val messageBusConnection = project.getMessageBus().connect();
     messageBusConnection
