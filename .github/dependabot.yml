@@ -9,6 +9,8 @@ updates:
     directory: "/"
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
     target-branch: develop
     groups:
       deps:
@@ -19,6 +21,8 @@ updates:
     directory: "/buildSrc/"
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7
     target-branch: develop
     groups:
       deps:
