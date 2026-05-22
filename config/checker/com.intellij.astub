@@ -223,7 +223,7 @@ interface Application {
 }
 
 @UI
-class WriteAction<T> {
+class WriteAction {
   @UIEffect
   static <E extends Throwable> void run(@UI ThrowableRunnable<E> action);
 }
