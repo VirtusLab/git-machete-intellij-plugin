@@ -63,15 +63,16 @@ public final class GitCoreRepository implements IGitCoreRepository {
   @ToString.Include
   private final Path worktreeGitDirectoryPath;
 
-  // As of early 2022, JGit still doesn't have a first-class support for multiple worktrees in a single repository.
-  // See https://bugs.eclipse.org/bugs/show_bug.cgi?id=477475
-  // As a workaround, let's create two separate JGit Repositories:
-
-  // The one for main .git/ directory, used for most purposes, including as the target location for machete file:
-  private final Repository jgitRepoForMainGitDir;
-  // The one for per-worktree .git/worktrees/<worktree> directory,
-  // used for HEAD and checking repository state (rebasing/merging etc.):
-  private final Repository jgitRepoForWorktreeGitDir;
+  // A single JGit Repository pointed at the per-worktree git dir (`.git/worktrees/<wt>` when the
+  // user is operating in a linked worktree, plain `.git` otherwise). Since JGit 7.0 (Sep 2024),
+  // BaseRepositoryBuilder honors the `commondir` pointer file that `git worktree add` drops next
+  // to the per-worktree HEAD, so a single Repository handle correctly routes:
+  //   - HEAD, reflog of HEAD, in-progress operation files (MERGE_HEAD, CHERRY_PICK_HEAD,
+  //     rebase-merge/, rebase-apply/, BISECT_START, repository state) -> per-worktree git dir,
+  //   - refs, config, object database, per-ref reflogs -> common (main) git dir.
+  // We still keep `mainGitDirectoryPath` as a Path field (and getter) because callers outside
+  // JGit need it to locate the machete file and the merge-base cache.
+  private final Repository jgitRepo;
 
   private static final String ORIGIN = "origin";
 
@@ -87,23 +88,12 @@ public final class GitCoreRepository implements IGitCoreRepository {
     this.mainGitDirectoryPath = mainGitDirectoryPath;
     this.worktreeGitDirectoryPath = worktreeGitDirectoryPath;
 
-    val builderForMainGitDir = new FileRepositoryBuilder();
-    builderForMainGitDir.setWorkTree(rootDirectoryPath.toFile());
-    builderForMainGitDir.setGitDir(mainGitDirectoryPath.toFile());
+    val builder = new FileRepositoryBuilder();
+    builder.setWorkTree(rootDirectoryPath.toFile());
+    builder.setGitDir(worktreeGitDirectoryPath.toFile());
 
     try {
-      this.jgitRepoForMainGitDir = builderForMainGitDir.build();
-    } catch (IOException e) {
-      throw new GitCoreCannotAccessGitDirectoryException("Cannot create a repository object for " +
-          "rootDirectoryPath=${rootDirectoryPath}, mainGitDirectoryPath=${mainGitDirectoryPath}", e);
-    }
-
-    val builderForWorktreeGitDir = new FileRepositoryBuilder();
-    builderForWorktreeGitDir.setWorkTree(rootDirectoryPath.toFile());
-    builderForWorktreeGitDir.setGitDir(worktreeGitDirectoryPath.toFile());
-
-    try {
-      this.jgitRepoForWorktreeGitDir = builderForWorktreeGitDir.build();
+      this.jgitRepo = builder.build();
     } catch (IOException e) {
       throw new GitCoreCannotAccessGitDirectoryException("Cannot create a repository object for " +
           "rootDirectoryPath=${rootDirectoryPath}, worktreeGitDirectoryPath=${worktreeGitDirectoryPath}", e);
@@ -115,13 +105,13 @@ public final class GitCoreRepository implements IGitCoreRepository {
   @Override
   @UIThreadUnsafe
   public @Nullable String deriveConfigValue(String section, String subsection, String name) {
-    return jgitRepoForMainGitDir.getConfig().getString(section, subsection, name);
+    return jgitRepo.getConfig().getString(section, subsection, name);
   }
 
   @Override
   @UIThreadUnsafe
   public @Nullable String deriveConfigValue(String section, String name) {
-    return jgitRepoForMainGitDir.getConfig().getString(section, null, name);
+    return jgitRepo.getConfig().getString(section, null, name);
   }
 
   @Override
@@ -133,7 +123,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
   @UIThreadUnsafe
   @SuppressWarnings("IllegalCatch")
   private <T> T withRevWalk(CheckedFunction1<RevWalk, T> fun) throws GitCoreException {
-    try (RevWalk walk = new RevWalk(jgitRepoForMainGitDir)) {
+    try (RevWalk walk = new RevWalk(jgitRepo)) {
       return fun.apply(walk);
     } catch (Throwable e) {
       throw new GitCoreException(e);
@@ -143,7 +133,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
   @UIThreadUnsafe
   @SneakyThrows
   private <T> T withRevWalkUnchecked(CheckedFunction1<RevWalk, T> fun) {
-    try (RevWalk walk = new RevWalk(jgitRepoForMainGitDir)) {
+    try (RevWalk walk = new RevWalk(jgitRepo)) {
       return fun.apply(walk);
     }
   }
@@ -180,7 +170,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
     for (int numOfSegmentsToUse = 3; numOfSegmentsToUse < segments.size(); numOfSegmentsToUse++) {
       val testedPrefix = segments.take(numOfSegmentsToUse).mkString("/");
       try {
-        val objectId = jgitRepoForMainGitDir.resolve(testedPrefix);
+        val objectId = jgitRepo.resolve(testedPrefix);
         if (objectId != null) {
           return false;
         }
@@ -192,7 +182,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
     }
 
     try {
-      return jgitRepoForMainGitDir.resolve(branchFullName) != null;
+      return jgitRepo.resolve(branchFullName) != null;
     } catch (IOException | RevisionSyntaxException e) {
       return false;
     }
@@ -228,7 +218,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
   @UIThreadUnsafe
   private @Nullable ObjectId convertRevisionToObjectId(String revision) throws GitCoreException {
     try {
-      return jgitRepoForMainGitDir.resolve(revision);
+      return jgitRepo.resolve(revision);
     } catch (IOException e) {
       throw new GitCoreException(e);
     } catch (RevisionSyntaxException e) {
@@ -247,14 +237,15 @@ public final class GitCoreRepository implements IGitCoreRepository {
   @Override
   public IGitCoreHeadSnapshot deriveHead() throws GitCoreException {
     try {
-      Ref ref = jgitRepoForWorktreeGitDir.getRefDatabase().findRef(Constants.HEAD);
+      Ref ref = jgitRepo.getRefDatabase().findRef(Constants.HEAD);
 
       if (ref == null) {
         throw new GitCoreException("Error occurred while getting current branch ref");
       }
 
-      // Unlike branches which are shared between all worktrees, HEAD is defined on per-worktree basis.
-      val reflog = deriveReflogByRefFullName(Constants.HEAD, jgitRepoForWorktreeGitDir);
+      // Unlike branches which are shared between all worktrees, HEAD is defined on per-worktree basis;
+      // JGit honors that via the `commondir` pointer file inside `.git/worktrees/<wt>`.
+      val reflog = deriveReflogByRefFullName(Constants.HEAD);
 
       String currentBranchName = null;
 
@@ -262,7 +253,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
         currentBranchName = Repository.shortenRefName(ref.getTarget().getName());
       } else {
         Option<Path> headNamePath = Stream.of("rebase-apply", "rebase-merge")
-            .map(dir -> jgitRepoForWorktreeGitDir.getDirectory().toPath().resolve(dir).resolve("head-name"))
+            .map(dir -> jgitRepo.getDirectory().toPath().resolve(dir).resolve("head-name"))
             .find(path -> path.toFile().isFile());
 
         if (headNamePath.isDefined()) {
@@ -286,10 +277,9 @@ public final class GitCoreRepository implements IGitCoreRepository {
   }
 
   @UIThreadUnsafe
-  private List<IGitCoreReflogEntry> deriveReflogByRefFullName(String refFullName, Repository repository)
-      throws GitCoreException {
+  private List<IGitCoreReflogEntry> deriveReflogByRefFullName(String refFullName) throws GitCoreException {
     try {
-      ReflogReader reflogReader = repository.getReflogReader(refFullName);
+      ReflogReader reflogReader = jgitRepo.getReflogReader(refFullName);
       if (reflogReader == null) {
         throw new GitCoreNoSuchRevisionException("Ref '${refFullName}' does not exist in this repository");
       }
@@ -342,7 +332,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
     return new GitCoreLocalBranchSnapshot(
         localBranchName,
         convertExistingRevisionToGitCoreCommit(localBranchFullName),
-        deriveReflogByRefFullName(localBranchFullName, jgitRepoForMainGitDir),
+        deriveReflogByRefFullName(localBranchFullName),
         remoteBranch);
   }
 
@@ -358,7 +348,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
     val remoteBranch = new GitCoreRemoteBranchSnapshot(
         remoteBranchName,
         convertExistingRevisionToGitCoreCommit(remoteBranchFullName),
-        deriveReflogByRefFullName(remoteBranchFullName, jgitRepoForMainGitDir),
+        deriveReflogByRefFullName(remoteBranchFullName),
         remoteName);
     return remoteBranch;
   }
@@ -369,7 +359,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
     LOG.debug(() -> "Entering: this = ${this}");
     LOG.debug("List of local branches:");
     List<Try<GitCoreLocalBranchSnapshot>> result = Try
-        .of(() -> jgitRepoForMainGitDir.getRefDatabase().getRefsByPrefix(Constants.R_HEADS))
+        .of(() -> jgitRepo.getRefDatabase().getRefsByPrefix(Constants.R_HEADS))
         .getOrElseThrow(e -> new GitCoreException("Error while getting list of local branches", e))
         .stream()
         .filter(branch -> !branch.getName().equals(Constants.HEAD))
@@ -383,7 +373,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
             throw new GitCoreException("Cannot access git object id corresponding to ${localBranchFullName}");
           }
           val pointedCommit = convertObjectIdToGitCoreCommit(objectId);
-          val reflog = deriveReflogByRefFullName(localBranchFullName, jgitRepoForMainGitDir);
+          val reflog = deriveReflogByRefFullName(localBranchFullName);
           val remoteBranch = deriveRemoteBranchForLocalBranch(localBranchName);
 
           return new GitCoreLocalBranchSnapshot(localBranchName, pointedCommit, reflog, remoteBranch);
@@ -395,14 +385,14 @@ public final class GitCoreRepository implements IGitCoreRepository {
   @Override
   @UIThreadUnsafe
   public List<String> deriveAllRemoteNames() {
-    return List.ofAll(jgitRepoForMainGitDir.getRemoteNames());
+    return List.ofAll(jgitRepo.getRemoteNames());
   }
 
   @Override
   @UIThreadUnsafe
   public @Nullable String deriveRebasedBranch() throws GitCoreException {
     Option<Path> headNamePath = Stream.of("rebase-apply", "rebase-merge")
-        .map(dir -> jgitRepoForWorktreeGitDir.getDirectory().toPath().resolve(dir).resolve("head-name"))
+        .map(dir -> jgitRepo.getDirectory().toPath().resolve(dir).resolve("head-name"))
         .find(path -> path.toFile().isFile());
 
     try {
@@ -419,7 +409,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
   @UIThreadUnsafe
   @Override
   public @Nullable String deriveBisectedBranch() throws GitCoreException {
-    Path headNamePath = jgitRepoForWorktreeGitDir.getDirectory().toPath().resolve("BISECT_START");
+    Path headNamePath = jgitRepo.getDirectory().toPath().resolve("BISECT_START");
 
     try {
       return headNamePath.toFile().isFile()
@@ -461,12 +451,12 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
   @UIThreadUnsafe
   private @Nullable String deriveConfiguredRemoteNameForLocalBranch(String localBranchName) {
-    return jgitRepoForMainGitDir.getConfig().getString(CONFIG_BRANCH_SECTION, localBranchName, CONFIG_KEY_REMOTE);
+    return jgitRepo.getConfig().getString(CONFIG_BRANCH_SECTION, localBranchName, CONFIG_KEY_REMOTE);
   }
 
   @UIThreadUnsafe
   private @Nullable String deriveConfiguredRemoteBranchNameForLocalBranch(String localBranchName) {
-    val branchFullName = jgitRepoForMainGitDir.getConfig().getString(CONFIG_BRANCH_SECTION, localBranchName, CONFIG_KEY_MERGE);
+    val branchFullName = jgitRepo.getConfig().getString(CONFIG_BRANCH_SECTION, localBranchName, CONFIG_KEY_MERGE);
     return branchFullName != null ? branchFullName.replace(Constants.R_HEADS, /* replacement */ "") : null;
   }
 
@@ -630,7 +620,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
   @Override
   @UIThreadUnsafe
   public GitCoreRepositoryState deriveRepositoryState() {
-    val state = jgitRepoForWorktreeGitDir.getRepositoryState();
+    val state = jgitRepo.getRepositoryState();
     return switch (state) {
       case CHERRY_PICKING, CHERRY_PICKING_RESOLVED -> GitCoreRepositoryState.CHERRY_PICKING;
       case MERGING, MERGING_RESOLVED -> GitCoreRepositoryState.MERGING;
@@ -646,7 +636,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
   @Override
   @UIThreadUnsafe
   public Stream<IGitCoreCommit> ancestorsOf(IGitCoreCommit commitInclusive, int maxCommits) throws GitCoreException {
-    RevWalk walk = new RevWalk(jgitRepoForMainGitDir);
+    RevWalk walk = new RevWalk(jgitRepo);
     // Note that `RevSort.COMMIT_TIME_DESC` is both:
     // * compatible with git-machete CLI, which relies on vanilla `git log` under the hood,
     //   which by default shows commits in reverse chronological order (https://git-scm.com/docs/git-log#_commit_ordering),
