@@ -12,7 +12,5 @@ public interface IGitMacheteRepositoryCache {
   }
 
   @UIThreadUnsafe
-  IGitMacheteRepository getInstance(Path rootDirectoryPath, Path mainGitDirectoryPath, Path worktreeGitDirectoryPath,
-      Injector injector)
-      throws GitMacheteException;
+  IGitMacheteRepository getInstance(Path rootDirectoryPath, Injector injector) throws GitMacheteException;
 }

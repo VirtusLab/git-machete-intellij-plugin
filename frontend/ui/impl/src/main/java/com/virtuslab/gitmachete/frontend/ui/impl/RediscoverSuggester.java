@@ -132,12 +132,10 @@ public class RediscoverSuggester {
   @UIThreadUnsafe
   private boolean isDiscoveredBranchLayoutEquivalentToCurrent(Path macheteFilePath) {
     Path rootDirPath = gitRepository.getRootDirectoryPath().toAbsolutePath();
-    Path mainGitDirPath = gitRepository.getMainGitDirectoryPath().toAbsolutePath();
-    Path worktreeGitDirPath = gitRepository.getWorktreeGitDirectoryPath().toAbsolutePath();
 
     try {
       val discoverRunResult = ApplicationManager.getApplication().getService(IGitMacheteRepositoryCache.class)
-          .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath, ApplicationManager.getApplication()::getService)
+          .getInstance(rootDirPath, ApplicationManager.getApplication()::getService)
           .discoverLayoutAndCreateSnapshot();
 
       val currentBranchLayout = ReadAction

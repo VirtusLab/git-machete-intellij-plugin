@@ -95,14 +95,12 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
   @UIThreadUnsafe
   private @Nullable IGitMacheteRepositorySnapshot updateRepositorySnapshot() {
     Path rootDirectoryPath = gitRepository.getRootDirectoryPath();
-    Path mainGitDirectoryPath = gitRepository.getMainGitDirectoryPath();
-    Path worktreeGitDirectoryPath = gitRepository.getWorktreeGitDirectoryPath();
     Path macheteFilePath = gitRepository.getMacheteFilePath();
 
     val macheteVFile = VirtualFileManager.getInstance().findFileByNioPath(macheteFilePath);
     boolean isMacheteFilePresent = macheteVFile != null && !macheteVFile.isDirectory();
 
-    LOG.debug(() -> "Entering: rootDirectoryPath = ${rootDirectoryPath}, mainGitDirectoryPath = ${mainGitDirectoryPath}, " +
+    LOG.debug(() -> "Entering: rootDirectoryPath = ${rootDirectoryPath}, " +
         "macheteFilePath = ${macheteFilePath}, isMacheteFilePresent = ${isMacheteFilePresent}");
 
     if (isMacheteFilePresent) {
@@ -111,7 +109,7 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
       try {
         BranchLayout branchLayout = readBranchLayout(macheteFilePath);
         IGitMacheteRepository gitMacheteRepository = gitMacheteRepositoryCache.getInstance(rootDirectoryPath,
-            mainGitDirectoryPath, worktreeGitDirectoryPath, ApplicationManager.getApplication()::getService);
+            ApplicationManager.getApplication()::getService);
         gitMacheteRepositoryHolder.set(gitMacheteRepository);
         return gitMacheteRepository.createSnapshotForLayout(branchLayout);
       } catch (MacheteFileReaderException e) {

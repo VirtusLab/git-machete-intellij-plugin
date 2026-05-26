@@ -53,6 +53,23 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 @CustomLog
 @ToString(onlyExplicitlyIncluded = true)
 public final class GitCoreRepository implements IGitCoreRepository {
+  // A single JGit Repository inferred from `rootDirectoryPath` via FileRepositoryBuilder#findGitDir,
+  // which follows the `.git` gitlink file inside a linked worktree (yielding `.git/worktrees/<wt>`)
+  // or returns `.git` directly for a plain single-worktree repo.
+  //
+  // Since JGit 7.0 (Sep 2024), BaseRepositoryBuilder honors the `commondir` pointer file that
+  // `git worktree add` drops next to the per-worktree HEAD, so this single Repository handle
+  // correctly routes:
+  //   - HEAD, reflog of HEAD, in-progress operation files (MERGE_HEAD, CHERRY_PICK_HEAD,
+  //     rebase-merge/, rebase-apply/, BISECT_START, repository state) -> per-worktree git dir,
+  //   - refs, config, object database, per-ref reflogs -> common (main) git dir.
+  //
+  // The three Path getters on `IGitCoreRepository` (root / main git dir / worktree git dir) are
+  // backed by `jgitRepo.getWorkTree()` / `getCommonDirectory()` / `getDirectory()` respectively.
+  private final Repository jgitRepo;
+  // Memoized for cheap getter access (the JGit getters return File and we'd be allocating a
+  // fresh Path on every call otherwise; some callers like CreateGitMacheteRepositoryHelper hit
+  // these getters repeatedly during snapshot construction).
   @Getter
   @ToString.Include
   private final Path rootDirectoryPath;
@@ -63,17 +80,6 @@ public final class GitCoreRepository implements IGitCoreRepository {
   @ToString.Include
   private final Path worktreeGitDirectoryPath;
 
-  // A single JGit Repository pointed at the per-worktree git dir (`.git/worktrees/<wt>` when the
-  // user is operating in a linked worktree, plain `.git` otherwise). Since JGit 7.0 (Sep 2024),
-  // BaseRepositoryBuilder honors the `commondir` pointer file that `git worktree add` drops next
-  // to the per-worktree HEAD, so a single Repository handle correctly routes:
-  //   - HEAD, reflog of HEAD, in-progress operation files (MERGE_HEAD, CHERRY_PICK_HEAD,
-  //     rebase-merge/, rebase-apply/, BISECT_START, repository state) -> per-worktree git dir,
-  //   - refs, config, object database, per-ref reflogs -> common (main) git dir.
-  // We still keep `mainGitDirectoryPath` as a Path field (and getter) because callers outside
-  // JGit need it to locate the machete file and the merge-base cache.
-  private final Repository jgitRepo;
-
   private static final String ORIGIN = "origin";
 
   // Note that these caches can be static since merge-base and commit range for the given two commits
@@ -82,22 +88,21 @@ public final class GitCoreRepository implements IGitCoreRepository {
   private static final java.util.Map<Tuple2<IGitCoreCommit, IGitCoreCommit>, List<IGitCoreCommit>> commitRangeCache = new java.util.HashMap<>();
 
   @UIThreadUnsafe
-  public GitCoreRepository(Path rootDirectoryPath, Path mainGitDirectoryPath, Path worktreeGitDirectoryPath)
-      throws GitCoreException {
-    this.rootDirectoryPath = rootDirectoryPath;
-    this.mainGitDirectoryPath = mainGitDirectoryPath;
-    this.worktreeGitDirectoryPath = worktreeGitDirectoryPath;
-
-    val builder = new FileRepositoryBuilder();
-    builder.setWorkTree(rootDirectoryPath.toFile());
-    builder.setGitDir(worktreeGitDirectoryPath.toFile());
+  public GitCoreRepository(Path rootDirectoryPath) throws GitCoreException {
+    val builder = new FileRepositoryBuilder()
+        .findGitDir(rootDirectoryPath.toFile())
+        .setMustExist(true);
 
     try {
       this.jgitRepo = builder.build();
     } catch (IOException e) {
       throw new GitCoreCannotAccessGitDirectoryException("Cannot create a repository object for " +
-          "rootDirectoryPath=${rootDirectoryPath}, worktreeGitDirectoryPath=${worktreeGitDirectoryPath}", e);
+          "rootDirectoryPath=${rootDirectoryPath}", e);
     }
+
+    this.rootDirectoryPath = jgitRepo.getWorkTree().toPath();
+    this.mainGitDirectoryPath = jgitRepo.getCommonDirectory().toPath();
+    this.worktreeGitDirectoryPath = jgitRepo.getDirectory().toPath();
 
     LOG.debug(() -> "Created ${this})");
   }
@@ -279,7 +284,7 @@ public final class GitCoreRepository implements IGitCoreRepository {
   @UIThreadUnsafe
   private List<IGitCoreReflogEntry> deriveReflogByRefFullName(String refFullName) throws GitCoreException {
     try {
-      ReflogReader reflogReader = jgitRepo.getReflogReader(refFullName);
+      ReflogReader reflogReader = jgitRepo.getRefDatabase().getReflogReader(refFullName);
       if (reflogReader == null) {
         throw new GitCoreNoSuchRevisionException("Ref '${refFullName}' does not exist in this repository");
       }

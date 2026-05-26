@@ -34,8 +34,7 @@ class BaseIntegrationTestSuite {
         return (T) gitCoreRepositoryFactory;
       }
     };
-    gitMacheteRepository = gitMacheteRepositoryCache.getInstance(repo.rootDirectoryPath, repo.mainGitDirectoryPath,
-        repo.worktreeGitDirectoryPath, injector);
+    gitMacheteRepository = gitMacheteRepositoryCache.getInstance(repo.rootDirectoryPath, injector);
     branchLayout = branchLayoutReader.read(new FileInputStream(repo.mainGitDirectoryPath.resolve("machete").toFile()));
   }
 }

@@ -3,8 +3,6 @@ package com.virtuslab.gitmachete.backend.impl;
 import java.lang.ref.SoftReference;
 import java.nio.file.Path;
 
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
 import lombok.val;
@@ -19,15 +17,15 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
 
-  private static Map<Tuple2<Path, Path>, SoftReference<GitMacheteRepository>> gitMacheteRepositoryCache = HashMap.empty();
+  // Keyed on the project root path; for linked worktrees this is the per-worktree checkout dir,
+  // which is unique across (repo, worktree) pairs (git itself disallows the same directory being
+  // registered as more than one worktree).
+  private static Map<Path, SoftReference<GitMacheteRepository>> gitMacheteRepositoryCache = HashMap.empty();
 
   @Override
   @UIThreadUnsafe
-  public IGitMacheteRepository getInstance(Path rootDirectoryPath, Path mainGitDirectoryPath,
-      Path worktreeGitDirectoryPath, Injector injector)
-      throws GitMacheteException {
-    val key = Tuple.of(rootDirectoryPath, worktreeGitDirectoryPath);
-    val valueReference = gitMacheteRepositoryCache.get(key).getOrNull();
+  public IGitMacheteRepository getInstance(Path rootDirectoryPath, Injector injector) throws GitMacheteException {
+    val valueReference = gitMacheteRepositoryCache.get(rootDirectoryPath).getOrNull();
 
     if (valueReference != null) {
       val value = valueReference.get();
@@ -36,24 +34,22 @@ public class GitMacheteRepositoryCache implements IGitMacheteRepositoryCache {
       }
     }
 
-    val gitCoreRepository = createGitCoreRepository(rootDirectoryPath, mainGitDirectoryPath, worktreeGitDirectoryPath,
-        injector);
+    val gitCoreRepository = createGitCoreRepository(rootDirectoryPath, injector);
     val newValue = new GitMacheteRepository(gitCoreRepository);
-    gitMacheteRepositoryCache = gitMacheteRepositoryCache.put(key, new SoftReference<>(newValue));
+    gitMacheteRepositoryCache = gitMacheteRepositoryCache.put(rootDirectoryPath, new SoftReference<>(newValue));
 
     return newValue;
   }
 
   @UIThreadUnsafe
-  private IGitCoreRepository createGitCoreRepository(Path rootDirectoryPath, Path mainGitDirectoryPath,
-      Path worktreeGitDirectoryPath, Injector injector) throws GitMacheteException {
+  private IGitCoreRepository createGitCoreRepository(Path rootDirectoryPath, Injector injector)
+      throws GitMacheteException {
     try {
       val gitCoreRepositoryFactory = injector.inject(IGitCoreRepositoryFactory.class);
-      return gitCoreRepositoryFactory.create(rootDirectoryPath, mainGitDirectoryPath, worktreeGitDirectoryPath);
+      return gitCoreRepositoryFactory.create(rootDirectoryPath);
     } catch (GitCoreException e) {
       throw new GitMacheteException("Can't create an ${IGitCoreRepository.class.getSimpleName()} instance " +
-          "under ${rootDirectoryPath} (with main git directory under ${mainGitDirectoryPath} " +
-          "and worktree git directory under ${worktreeGitDirectoryPath})", e);
+          "under ${rootDirectoryPath}", e);
     }
   }
 }

@@ -6,6 +6,5 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 public interface IGitCoreRepositoryFactory {
   @UIThreadUnsafe
-  IGitCoreRepository create(Path rootDirectoryPath, Path mainGitDirectoryPath, Path worktreeGitDirectoryPath)
-      throws GitCoreException;
+  IGitCoreRepository create(Path rootDirectoryPath) throws GitCoreException;
 }

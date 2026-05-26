@@ -71,8 +71,6 @@ public class DiscoverAction extends BaseProjectDependentAction {
     }
 
     val rootDirPath = gitRepository.getRootDirectoryPath().toAbsolutePath();
-    val mainGitDirPath = gitRepository.getMainGitDirectoryPath().toAbsolutePath();
-    val worktreeGitDirPath = gitRepository.getWorktreeGitDirectoryPath().toAbsolutePath();
     val branchLayoutWriter = ApplicationManager.getApplication().getService(IBranchLayoutWriter.class);
 
     new SideEffectingBackgroundable(project, getNonHtmlString("action.GitMachete.DiscoverAction.task.title"), "discovery") {
@@ -81,7 +79,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
       @UIThreadUnsafe
       protected void doRun(ProgressIndicator indicator) {
         val repoSnapshot = ApplicationManager.getApplication().getService(IGitMacheteRepositoryCache.class)
-            .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath, ApplicationManager.getApplication()::getService)
+            .getInstance(rootDirPath, ApplicationManager.getApplication()::getService)
             .discoverLayoutAndCreateSnapshot();
 
         ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> GraphTableDialog.Companion.of(

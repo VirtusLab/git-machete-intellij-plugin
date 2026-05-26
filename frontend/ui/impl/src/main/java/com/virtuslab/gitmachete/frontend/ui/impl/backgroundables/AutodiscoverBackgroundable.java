@@ -55,14 +55,12 @@ public abstract class AutodiscoverBackgroundable extends Task.Backgroundable {
       return;
     }
     Path rootDirPath = gitRepository.getRootDirectoryPath().toAbsolutePath();
-    Path mainGitDirPath = gitRepository.getMainGitDirectoryPath().toAbsolutePath();
-    Path worktreeGitDirPath = gitRepository.getWorktreeGitDirectoryPath().toAbsolutePath();
 
     IGitMacheteRepository repository;
 
     try {
       repository = ApplicationManager.getApplication().getService(IGitMacheteRepositoryCache.class)
-          .getInstance(rootDirPath, mainGitDirPath, worktreeGitDirPath, ApplicationManager.getApplication()::getService);
+          .getInstance(rootDirPath, ApplicationManager.getApplication()::getService);
     } catch (GitMacheteException e) {
       VcsNotifier.getInstance(project)
           .notifyError(

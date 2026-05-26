@@ -35,7 +35,7 @@ public class GitCoreRepositoryIntegrationTest {
   public void setUp() {
     repo = new TestGitRepository(SETUP_WITH_SINGLE_REMOTE);
 
-    gitCoreRepository = new GitCoreRepository(repo.rootDirectoryPath, repo.mainGitDirectoryPath, repo.worktreeGitDirectoryPath);
+    gitCoreRepository = new GitCoreRepository(repo.rootDirectoryPath);
   }
 
   // See https://github.com/VirtusLab/git-machete-intellij-plugin/issues/1029 for the origin of this test

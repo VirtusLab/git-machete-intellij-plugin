@@ -48,11 +48,6 @@ public final class GitVfsUtils {
     return Paths.get(vfGitDir.getPath());
   }
 
-  public static Path getWorktreeGitDirectoryPath(GitRepository gitRepository) {
-    VirtualFile vfGitDir = getWorktreeGitDirectory(gitRepository);
-    return Paths.get(vfGitDir.getPath());
-  }
-
   public static Path getRootDirectoryPath(GitRepository gitRepository) {
     return Paths.get(gitRepository.getRoot().getPath());
   }

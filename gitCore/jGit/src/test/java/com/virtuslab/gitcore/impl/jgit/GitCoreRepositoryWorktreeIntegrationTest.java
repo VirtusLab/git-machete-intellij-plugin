@@ -1,5 +1,6 @@
 package com.virtuslab.gitcore.impl.jgit;
 
+import static com.virtuslab.gitmachete.testcommon.SetupScripts.SETUP_FOR_NO_REMOTES;
 import static com.virtuslab.gitmachete.testcommon.SetupScripts.SETUP_WITH_SINGLE_REMOTE;
 import static com.virtuslab.gitmachete.testcommon.TestFileUtils.cleanUpDir;
 import static com.virtuslab.gitmachete.testcommon.TestProcessUtils.runProcessAndReturnStdout;
@@ -10,10 +11,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
 import lombok.SneakyThrows;
 import lombok.val;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -36,23 +37,22 @@ public class GitCoreRepositoryWorktreeIntegrationTest {
   }
 
   /**
-   * GitCoreRepository scoped at the linked worktree's git dir
-   * ({@code <repo>/.git/worktrees/<wt>}); the typical layout when the IDE is opened on
-   * a linked worktree.
+   * GitCoreRepository scoped at the linked worktree's root; JGit resolves the per-worktree git dir
+   * ({@code <main-repo>/.git/worktrees/<wt>}) by following the gitlink at {@code <wt-root>/.git}.
+   * This is the typical layout when the IDE is opened on a linked worktree.
    */
   @SneakyThrows
   private GitCoreRepository worktreeScoped() {
-    return new GitCoreRepository(repo.rootDirectoryPath, repo.mainGitDirectoryPath, repo.worktreeGitDirectoryPath);
+    return new GitCoreRepository(repo.rootDirectoryPath);
   }
 
   /**
-   * GitCoreRepository scoped at the main git dir
-   * (worktree git dir == main git dir; same shape as a non-worktree project).
+   * GitCoreRepository scoped at the main repo's root (worktree git dir == main git dir;
+   * same shape as a non-worktree project).
    */
   @SneakyThrows
   private GitCoreRepository mainScoped() {
-    Path mainRootPath = repo.mainGitDirectoryPath.getParent();
-    return new GitCoreRepository(mainRootPath, repo.mainGitDirectoryPath, repo.mainGitDirectoryPath);
+    return new GitCoreRepository(repo.mainGitDirectoryPath.getParent());
   }
 
   @Test
@@ -146,6 +146,64 @@ public class GitCoreRepositoryWorktreeIntegrationTest {
 
     assertEquals("develop", worktreeScoped().deriveBisectedBranch());
     assertNull(mainScoped().deriveBisectedBranch(), "Main-scoped repo must not see worktree's bisect state");
+
+    cleanUpDir(repo.parentDirectoryPath);
+  }
+
+  // Pins down the per-path-getter contract that downstream callers (machete-file location,
+  // merge-base cache, snapshot equality checks in EnhancedGraphTable) rely on.
+
+  @Test
+  @SneakyThrows
+  public void getters_onLinkedWorktree_resolveToDistinctPaths() {
+    val gitCoreRepository = worktreeScoped();
+
+    // Root is the linked worktree's checked-out directory, not the main repo's root.
+    assertEquals(repo.rootDirectoryPath.toRealPath(), gitCoreRepository.getRootDirectoryPath().toRealPath());
+
+    // The per-worktree git dir is `<main>/.git/worktrees/<wt>`, distinct from the common dir.
+    assertEquals(repo.worktreeGitDirectoryPath.toRealPath(), gitCoreRepository.getWorktreeGitDirectoryPath().toRealPath());
+
+    // The common (main) git dir is reachable via JGit's `commondir` pointer support.
+    assertEquals(repo.mainGitDirectoryPath.toRealPath(), gitCoreRepository.getMainGitDirectoryPath().toRealPath());
+
+    cleanUpDir(repo.parentDirectoryPath);
+  }
+
+  @Test
+  @SneakyThrows
+  public void getters_onPlainSingleRepo_haveMainEqualToWorktreeGitDir() {
+    // Tear down the SETUP_WITH_SINGLE_REMOTE fixture and set up a non-worktree one for this case.
+    cleanUpDir(repo.parentDirectoryPath);
+    repo = new TestGitRepository(SETUP_FOR_NO_REMOTES);
+
+    val gitCoreRepository = new GitCoreRepository(repo.rootDirectoryPath);
+
+    // For a plain single-worktree repo there's no `commondir` pointer file, so the per-worktree
+    // git dir IS the common git dir. Both getters must agree, and both must equal `<root>/.git`.
+    val rootDotGit = repo.rootDirectoryPath.resolve(".git").toRealPath();
+    assertEquals(rootDotGit, gitCoreRepository.getMainGitDirectoryPath().toRealPath());
+    assertEquals(rootDotGit, gitCoreRepository.getWorktreeGitDirectoryPath().toRealPath());
+    assertEquals(repo.rootDirectoryPath.toRealPath(), gitCoreRepository.getRootDirectoryPath().toRealPath());
+
+    cleanUpDir(repo.parentDirectoryPath);
+  }
+
+  @Test
+  @SneakyThrows
+  public void jgitFindGitDirFromLinkedWorktreeRoot_followsTheGitlinkFile() {
+    // Pointing JGit's FileRepositoryBuilder at the linked worktree's root must yield the
+    // per-worktree git dir (`<main>/.git/worktrees/<wt>`), not the main `.git` dir, by
+    // following the gitlink file at `<wt-root>/.git`.
+    val builder = new FileRepositoryBuilder()
+        .findGitDir(repo.rootDirectoryPath.toFile())
+        .setMustExist(true);
+    try (val resolved = builder.build()) {
+      assertEquals(repo.worktreeGitDirectoryPath.toRealPath(), resolved.getDirectory().toPath().toRealPath());
+      // Common-dir support landed in JGit 7.0; without it the refactor doesn't fly.
+      assertEquals(repo.mainGitDirectoryPath.toRealPath(), resolved.getCommonDirectory().toPath().toRealPath());
+      assertEquals(repo.rootDirectoryPath.toRealPath(), resolved.getWorkTree().toPath().toRealPath());
+    }
 
     cleanUpDir(repo.parentDirectoryPath);
   }
