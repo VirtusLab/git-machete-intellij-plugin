@@ -150,9 +150,15 @@ allprojects {
     if (project.path != ":testCommon") {
       dependsOn(":testCommon:prepareTestRepoTemplates")
       // The path is fixed-by-convention rather than queried from testCommon's `extra`, so we don't
-      // need `evaluationDependsOn(":testCommon")` here. The matching value is registered as a
-      // task output, so build-cache hits still work.
+      // need `evaluationDependsOn(":testCommon")` here.
       val templatesDir = rootProject.layout.projectDirectory.dir("testCommon/build/test-fixture-repos")
+      // Register the prebuilt-templates dir as an explicit Test input so changes to a `setup-*.sh`
+      // script invalidate downstream Test tasks. Without this, the chain would rely on the scripts
+      // being indirectly hashed under `stableClasspath` via `testCommon-test-fixtures.jar`, which
+      // is a brittle dependency on the resources layout.
+      inputs.dir(templatesDir)
+        .withPathSensitivity(PathSensitivity.RELATIVE)
+        .withPropertyName("prebuiltTestRepoTemplates")
       systemProperty("testFixtures.prebuiltTemplatesDir", templatesDir.asFile.absolutePath)
     }
   }

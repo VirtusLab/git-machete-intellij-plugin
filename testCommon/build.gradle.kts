@@ -24,6 +24,18 @@ dependencies {
 // A single tarball per script is opaque to the snapshotter and round-trips through the cache
 // without losing any files.
 //
+// Why not Gradle's standard `Zip` (or `Tar`) task instead of shelling out to `tar`? The idiomatic
+// shape would be one task that runs the script into a staging dir and a second task (the `Zip`)
+// that depends on it and archives the dir. That works, but it sacrifices the cache-hit speedup
+// we're after: the stage task can't be cacheable (its output is a directory holding `.git`, which
+// would be stripped on cache restore - see paragraph above), and the `Zip` task's inputs include
+// the staged dir, so a "cache hit" on the zip still requires the stage task to run first - i.e. we'd
+// re-execute the setup script every time. Collapsing everything into one task whose sole output is
+// the archive avoids that, but then we have to write the archive from inside the task action, where
+// `tar` is the simplest portable mechanism available in our CI (macOS + Linux). `java.util.zip` /
+// `ant.zip` would work too; we picked plain `tar` for its 1:1 parity with the matching `tar -xf`
+// on the test side.
+//
 // Inputs are limited to `*.sh` under the test-fixtures resources; the task is up-to-date and
 // build-cacheable as long as none of those scripts changes.
 val fixtureResourcesDir = file("src/testFixtures/resources")
