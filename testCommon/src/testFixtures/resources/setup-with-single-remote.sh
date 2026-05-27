@@ -73,11 +73,9 @@ cd machete-sandbox
 
   sed 's/^  //' <<< "$machete_file" > .git/machete
 
-  # Let's specify HEAD as the revision to use; otherwise a new `machete-sandbox-worktree` branch would be created.
-  git worktree add ../machete-sandbox-worktree HEAD
-  git config --local core.hooksPath ../machete-sandbox/.git/hooks
-  # git doesn't allow for any branch to be checked out in more than one worktree at any moment.
-  # Let's force-switch to detached HEAD state in the main repository folder
-  # so that we have a freedom to check out any branch in the worktree.
-  git checkout "$(git rev-parse HEAD)"
+  # NB: this script intentionally does NOT do `git worktree add ../machete-sandbox-worktree HEAD`.
+  # The matching `TestGitRepository` runs that step in Java once the (possibly pre-built and copied)
+  # template is in its final location - otherwise the absolute paths baked into
+  # `.git/worktrees/<wt>/gitdir` and `<wt-root>/.git` would point at the pre-build directory rather
+  # than the per-test temp dir.
 cd -

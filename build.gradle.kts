@@ -141,6 +141,20 @@ allprojects {
       showExceptions = true
       showStackTraces = true
     }
+
+    // Wire `:testCommon:prepareTestRepoTemplates` onto every Test task, so that `TestGitRepository`
+    // can use the cached prebuilt repos instead of re-running the setup script on every
+    // `@BeforeEach`. Tests that don't use the fixtures simply ignore the system property.
+    // `:testCommon` is itself the producer; skipping the wiring there avoids a self-cycle (and the
+    // module has no production tests anyway).
+    if (project.path != ":testCommon") {
+      dependsOn(":testCommon:prepareTestRepoTemplates")
+      // The path is fixed-by-convention rather than queried from testCommon's `extra`, so we don't
+      // need `evaluationDependsOn(":testCommon")` here. The matching value is registered as a
+      // task output, so build-cache hits still work.
+      val templatesDir = rootProject.layout.projectDirectory.dir("testCommon/build/test-fixture-repos")
+      systemProperty("testFixtures.prebuiltTemplatesDir", templatesDir.asFile.absolutePath)
+    }
   }
 
   configureCheckerFramework()
