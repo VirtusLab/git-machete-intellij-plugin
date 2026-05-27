@@ -1,5 +1,8 @@
-// TODO (#2194): this is inlined from package com.intellij.driver.sdk + slightly modified
-//  to debug why waiting on indicators stalls every now and then
+// Inlined and slightly adapted from com.intellij.driver.sdk's Indicators.kt:
+//   - extra logging while waiting (helps diagnose stalls; see #2194),
+//   - activity is detected via status-bar progress indicators only;
+//     DumbService.isDumb() is intentionally not consulted (see comment in
+//     indicatorState below).
 
 package com.virtuslab.gitmachete.uitest
 
@@ -19,13 +22,21 @@ fun Driver.getProgressIndicators(project: Project): List<Pair<TaskInfo?, Progres
 }
 
 private sealed interface IndicatorState {
-  object Dumb : IndicatorState
   data class Running(val processes: List<Pair<TaskInfo?, ProgressModel?>>) : IndicatorState
   object None : IndicatorState
 }
 
 private fun Driver.indicatorState(project: Project): IndicatorState {
-  if (service<DumbService>(project).isDumb()) return IndicatorState.Dumb
+  // Activity is judged solely from status-bar progress indicators.
+  // DumbService.isDumb() is NOT used as a gate here: a known platform race
+  // (issue #2194) can leave PushedFilePropertiesUpdaterImpl$MyDumbModeTask
+  // (reason: "Push on VFS changes") paused via the TaskSuspender mechanism
+  // and never resumed. The paused task contributes no progress indicator
+  // but keeps isDumb() true indefinitely, which would stall this wait until
+  // the per-step timeout. Every legitimate long-running scanning/indexing
+  // task surfaces as a progress indicator, and the git/VCS/UI actions
+  // exercised by these tests do not depend on PSI indexes being ready, so
+  // the indicator list is a sufficient signal.
   val processes = getProgressIndicators(project)
   return if (processes.isEmpty()) IndicatorState.None else IndicatorState.Running(processes)
 }
@@ -78,12 +89,6 @@ internal fun Driver.myWaitForIndicators(projectGet: () -> Project?, timeout: Dur
       return@waitFor false
     }
     when (val state = indicatorState(project)) {
-      IndicatorState.Dumb -> {
-        smartLongEnoughStart = null
-        println("Driver.myWaitForIndicators: waiting more since DumbService.isDumb() == true (project is indexing)")
-        return@waitFor false
-      }
-
       is IndicatorState.Running -> {
         smartLongEnoughStart = null
         println("Driver.myWaitForIndicators: waiting more since background processes are running: ${state.processes}")

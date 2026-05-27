@@ -18,126 +18,178 @@ UITestSuite > testPullBranch() FAILED
         at com.virtuslab.gitmachete.uitest.UITestSuite.testPullBranch(UITestSuite.kt:170)
 ```
 
-Always (so far) on `:uiTest_2025.3.5` (IntelliJ Ultimate, `IU-253.33514.17`).
+So far reproduced on `:uiTest_2025.3.5` (IntelliJ Ultimate, `IU-253.33514.17`)
+and `:uiTest_262.6228.19` (`IU-262.6228.19`, upcoming-major-EAP, also Ultimate).
 Community (`:uiTest_2025.2.6.2`, `IC-...`) does not exhibit it.
 
 The action that triggers the wait is irrelevant - it just happens to be the
-first `doAndAwait` call after a project open in whichever test runs into the
-race. `testPullBranch`'s `checkoutBranch('allow-ownership-link')` is one
-example; `testResetBranchToRemote`, `testFastForwardParentOfBranch` etc. are
-all candidates.
+first `doAndAwait` call after a project open / branch checkout in whichever
+test runs into the race. `testPullBranch`'s `checkoutBranch('allow-ownership-link')`,
+`testSkipNonExistentBranches_toggleListingCommits_slideOutRoot`'s
+`checkoutBranch('master')`, `testFastForwardParentOfBranch`'s
+`checkoutBranch('call-ws')` etc. are all candidates.
 
-## Root cause (proven from one failing run)
+## Root cause (proven, 2026-05-27 run, IU-262.6228.19)
 
 The IDE is wedged in **dumb mode (indexing)** for the entire 2-minute timeout,
 because a single `PushedFilePropertiesUpdaterImpl$MyDumbModeTask
-(reason: Push on VFS changes)` task hangs. Same task type normally completes
-in 2-8 ms (multiple healthy occurrences in the same `idea.log`).
+(reason: Push on VFS changes)` task is **paused via a
+`CoroutineSuspender` / `TaskSuspender` and never resumed**.
 
-Concurrently with the hang,
-**`ProvenanceDatabaseService` is creating its project-scoped database**
-(`com.intellij.code.provenance.core.editor.synchronizer.service.ProvenanceDatabaseService`,
-Ultimate-only). The platform's heartbeat freeze detector
-(`-Dide.performance.screenshot=heartbeat`) starts taking screenshots in the
-exact same second.
+The same task instance (`MyDumbModeTask@5bdd0f95`) appears 13+ times in the
+same `idea.log`; healthy occurrences complete in 2-60 ms. The failing
+occurrence "finishes" only when the test teardown cancels it via PCE exactly
+2 minutes after it started.
 
-Strong (but not yet 100%-confirmed) hypothesis: `ProvenanceDatabaseService`
-init blocks the EDT for ~60 s, so the dumb-mode task queued behind it never
-completes within the budget.
+Smoking-gun stack (`threadDump-4`, 33 s into the freeze, identical in
+`threadDump-5` at 93 s in - same `BlockingCoroutine@4fdb7328` instance):
 
-To finalize the diagnosis we need a thread dump from inside the freeze (we
-don't have one yet - see "What's still missing" below).
+```text
+- "com.intellij.openapi.project.MergingQueueGuiExecutor$ScopeHolder":
+   BlockingCoroutine{Active}@4fdb7328, state: SUSPENDED
+   [...,
+    com.intellij.platform.ide.progress.suspender.TaskSuspenderElement,
+    com.intellij.openapi.progress.CoroutineSuspenderElement,
+    ...,
+    BlockingEventLoop]
+    at com.intellij.openapi.progress.CoroutineSuspenderImpl.checkPaused(suspender.kt:118)
+    at com.intellij.openapi.roots.impl.PushedFilePropertiesUpdaterImpl.performDelayedPushTasks(PushedFilePropertiesUpdaterImpl.kt:241)
+    at com.intellij.openapi.roots.impl.PushedFilePropertiesUpdaterImpl$MyDumbModeTask$performInDumbMode$1$1$1.invokeSuspend(PushedFilePropertiesUpdaterImpl.kt:380)
+```
+
+Key facts from the same thread dumps:
+- The EDT (`AWT-EventQueue-0`) is **idle**: `EventQueue.getNextEvent` parked.
+  Nothing is blocking it.
+- The dumb-mode task's worker thread (`DefaultDispatcher-worker-15`) is
+  parked in `BlockingCoroutine.joinBlocking` from the `runBlockingCancellable`
+  wrapper inside `PushedFilePropertiesUpdaterImpl$MyDumbModeTask.performInDumbMode`.
+  The inner coroutine is `SUSPENDED` in `CoroutineSuspenderImpl.checkPaused`.
+- The pre-freeze dump (`threadDump-3`, 13:42:20) does **not** contain any
+  `checkPaused` frame - i.e. the suspender is healthy until the moment the
+  task gets paused at the start of the hang.
+
+### Previous hypothesis (REFUTED)
+
+The earlier version of this file claimed `ProvenanceDatabaseService` was
+blocking the EDT for ~60 s and the dumb-mode task was queued behind it.
+This is **wrong, at least for the 2026-05-27 / IU-262.6228.19 occurrence**:
+- `ProvenanceDatabaseService - Creating ProvenanceDatabase` for the failing
+  project (`ee3c87f6`) logs at `13:42:36,376` and completes - **11 s before**
+  the hang starts at `13:42:47,992`.
+- The EDT is idle throughout the freeze, not in any `ProvenanceDatabaseService`
+  frame.
+
+The 2026-05-07 / 2025.3.5 run did show `Creating ProvenanceDatabase` ~at the
+start of the hang, but no thread dump from inside that freeze is available,
+so the correlation may have been coincidental (the service initializes ~60 s
+after every project open). Treat that earlier hypothesis as unverified.
+
+## Open question: who paused the suspender?
+
+The remaining unknown is **which producer paused the `TaskSuspender` and never
+resumed it**. The stack tells us the suspender is owned by
+`MergingQueueGuiExecutor$ScopeHolder` and that the task was attached via
+`TaskSuspenderImpl.attachTask`. Plausible callers:
+
+- VCS heavy-operation hooks (`HeavyAwareListener`-style code in `git4idea` /
+  `intellij.platform.vcs`). The hang starts immediately after a
+  `git checkout master --` (line 1044-1052 of the failing `idea.log`), so
+  the VCS pause-resume protocol is the prime suspect.
+- The IDE's `MergingQueueGuiSuspender` itself (visible on the
+  `setCurrentSuspenderAndSuspendIfRequested` frame), but that one is the
+  *propagator* of the pause, not the original requester.
+
+This level of detail cannot be extracted from a stack trace alone - we need
+either an upstream YouTrack with the stack above, or extra debug code (see
+"Next-step debug ideas" below) on the *next* CI occurrence.
 
 ## Evidence trail
 
-### 1. `myWaitForIndicators` log pattern during the failure
+### 1. `myWaitForIndicators` log pattern that exposed the issue
 
-In the gradle output (`uiTest_2025.3.5` task), only the dumb-mode branch of
-`indicatorState` keeps firing for ~140 iterations. With the OLD log line
-(pre this PR) the message was misleading and conflated three states:
-
-```text
-Driver.myWaitForIndicators: waiting more since indicators in the project are visible, or not enough time passed without indicators
-...repeated ~140 times for 2 minutes...
-```
-
-No `Driver.getProgressIndicators: background processes = ...` log line in
-that window - which is only possible if the early return
-`if (service<DumbService>(project).isDumb()) return true` in `MyIndicators.kt`
-is the one being taken.
-
-After this PR you will see one of three distinct messages instead:
+Before the `isDumb()` gate was removed, the failure printed:
 
 ```text
 Driver.myWaitForIndicators: waiting more since DumbService.isDumb() == true (project is indexing)
-Driver.myWaitForIndicators: waiting more since background processes are running: [...]
-Driver.myWaitForIndicators: still no indicators; smart-quiescence timer running (Ns/10s)
+...repeated ~140 times for 2 minutes...
 ```
 
-### 2. `idea.log` timeline of the failing project (`testPullBranch`, project hash `72227246`)
+This was the early-return branch in the old `indicatorState`:
+`if (service<DumbService>(project).isDumb()) return IndicatorState.Dumb`.
+Crucially, no `background processes are running` line ever appeared in that
+window - the EDT-visible progress UI was empty, but `DumbService` still
+reported the project as dumb because the `MyDumbModeTask` was technically
+still in the queue (just paused). That asymmetry is what makes the current
+gate-on-progress-indicators-only mitigation safe.
+
+### 2. `idea.log` timeline of the failing project (2026-05-27, project hash `ee3c87f6`)
 
 ```text
-00:22:37,668  enter dumb mode  [machete-sandbox-worktree]   <- shared-indexes attach
-00:22:37,757  exit  dumb mode  [machete-sandbox-worktree]   <- healthy
+13:42:36,376  Creating ProvenanceDatabase ...ee3c87f6/provenance  (clean,
+              completes; not in the freeze window)
 
-00:22:48,135  Progress indicator:started:Updating Git Machete status...
-00:22:48,165  Progress indicator:started:File System Synchronization
-00:22:48,169  enter dumb mode  [machete-sandbox-worktree]   <-- *** the stuck one ***
-00:22:48,179  Running task: (dumb mode task) PushedFilePropertiesUpdaterImpl$MyDumbModeTask@19cf5d21
-              (reason: Push on VFS changes)                 <-- never logs "Task finished"
+--- 11 s of normal activity ---
 
-00:23:12,564  CodeWithMeCleanup ...                          (24-second gap, otherwise nothing)
-00:23:37,453  TakeScreenshotCommand: heartbeat/frame2        <-- heartbeat freeze screenshots
-00:23:37,490  TakeScreenshotCommand: heartbeat/frame1
-00:23:37,564  TakeScreenshotCommand: heartbeat/frame5
-00:23:37,616  TakeScreenshotCommand: heartbeat/frame6
-00:23:37,626  ProvenanceDatabaseService - Creating ProvenanceDatabase at:
-              .../system/projects/machete-sandbox-worktree.72227246/provenance
+13:42:47,929  git checkout master --
+13:42:47,933  Switched to branch 'master'
+13:42:47,992  enter dumb mode  [machete-sandbox-worktree]
+13:42:47,994  Running task: (dumb mode task) MyDumbModeTask@5bdd0f95
+              (reason: Push on VFS changes)        <-- never logs "Task finished"
+              while alive
 
-!!! TOTAL LOG SILENCE FOR 60 SECONDS !!!
+!!! NO LOG ENTRIES (only periodic heartbeat screenshots from JBR) FOR 120s !!!
 
-00:24:37,617  TakeScreenshotCommand: heartbeat (next 60s heartbeat)
-00:24:37,831  TakeScreenshotCommand: heartbeat/frame6
-00:24:49,004  Progress indicator:started:File System Synchronization     <-- project teardown
-00:24:49,041  Progress indicator:started:Closing attached shared indexes...
-00:24:49,053  Dirty file ids stored. Size: 0
-00:24:49,129  Project ProjectId#otnn4ksq126lojs3q6ib is disposed
+13:44:48,661  Task canceled (PCE): MyDumbModeTask@5bdd0f95   <-- test teardown
+13:44:48,661  Task finished:     MyDumbModeTask@5bdd0f95
+13:44:48,669  Project ... is being disposed
 ```
 
-### 3. `ProvenanceDatabase` happens in every test, ~60 s after project open
+### 3. `MyDumbModeTask` finishes promptly under normal conditions
+
+In the same `idea.log`, the same task type ran 13+ times before the freeze
+and completed in 2-60 ms each:
 
 ```text
-11226: 00:18:48,664  Creating ProvenanceDatabase  ...machete-sandbox-worktree.faec58bf/provenance   <- Test 1 OK
-11448: 00:19:52,527  Creating ProvenanceDatabase  ...machete-sandbox-worktree.c667eeaf/provenance   <- Test 2 OK
-11712: 00:21:11,878  Creating ProvenanceDatabase  ...machete-sandbox-worktree.347d86a8/provenance   <- Test 3 OK
-12149: 00:23:37,626  Creating ProvenanceDatabase  ...machete-sandbox-worktree.72227246/provenance   <- Test 4 (testPullBranch) -- hangs
+13:39:36,289  Running    MyDumbModeTask@13939e95
+13:39:36,312  Task finished                              (~23 ms)
+13:39:49,497  Running    MyDumbModeTask@3cfa85be
+13:39:49,500  Task finished                              (~3 ms)
+13:40:05,762  Running    MyDumbModeTask@56743675
+13:40:05,767  Task finished                              (~5 ms)
+... etc ...
 ```
 
-Race window: in tests 1-3 the dumb-mode "Push on VFS changes" task happens to
-finish before the `ProvenanceDatabase` creation begins; in test 4 they
-overlap.
+### 4. Thread-dump availability for the failing run
 
-### 4. Why Ultimate-only?
+CircleCI job 14652 (2026-05-27) artifacts contain:
+- `threadDump-3-...13-42-20.txt` - 27 s before freeze (clean baseline)
+- `threadDump-4-...13-43-20.txt` - 33 s into the freeze (paused at `checkPaused`)
+- `threadDump-5-...13-44-20.txt` - 93 s into the freeze (same instance, still
+  paused at `checkPaused`)
+- `threadDump-6-...13-45-21.txt` - 33 s after the freeze (failing project
+  already torn down, next test started)
 
-`ProvenanceDatabaseService` lives in `intellij.code.provenance.core` which
-ships only with IntelliJ Ultimate (the bundled-plugins list at startup
-confirms `Code Provenance` and the `ServerPortDumpService` writes
-`/tmp/<hash>-provenance-port.txt`). It is not loaded under Community.
+All four are downloaded under `/tmp/issue2194/` during the most recent
+investigation.
 
-## What's still missing
+## Next-step debug ideas
 
-The conclusive piece would be a thread dump *from inside the freeze*:
+If we want to confirm WHICH suspender is holding the pause on the next
+occurrence, the cheapest move is to extend `MyIndicators.kt`:
 
-- `threadDump-6-2026-05-07-00-23-45.txt` (10 s into the freeze)
-- `threadDump-7-2026-05-07-00-24-45.txt` (3 s before the timeout)
+- When `DumbService.isDumb()` has been `true` for more than ~30 s, instead
+  of just logging "still dumb", reflectively peek at:
+    - `DumbServiceImpl.getCurrentTask()` - confirms the task is
+      `PushedFilePropertiesUpdaterImpl$MyDumbModeTask`.
+    - The `CoroutineSuspender` attached to that task (private; needs
+      reflection on `MergingQueueGuiSuspender` or
+      `TaskSuspenderImpl.isPaused`).
+- Log the result. If `isPaused == true`, we have proof on the same
+  occurrence, no need to download thread dumps.
 
-We have only `threadDump-8-2026-05-07-00-25-45.txt` which was taken AFTER
-the failed project was disposed and a new one was opened, so its EDT is
-already idle and unhelpful.
-
-If/when these are obtainable from CircleCI artifacts, the EDT stack should
-show frames inside `ProvenanceDatabaseService.createProvenanceDatabase`
-(probably JDBC/SQLite connection setup) - that would close the loop.
+Filing upstream is also a reasonable parallel step: a YouTrack with the
+`checkPaused` stack above (plus the fact that the EDT is idle and the
+suspender never resumes) is enough for the platform team to investigate.
 
 ## Files involved
 
@@ -146,55 +198,81 @@ show frames inside `ProvenanceDatabaseService.createProvenanceDatabase`
   the spot to add more diagnostics if needed. The TODO at the top references
   this issue (#2194).
 - `src/uiTest/kotlin/com/virtuslab/gitmachete/uitest/BaseUITestSuite.kt`
-  `doAndAwait` (line ~135) calls `myWaitForIndicators(2.minutes)` - the
+  `doAndAwait` (line ~141) calls `myWaitForIndicators(2.minutes)` - the
   effective per-step timeout.
 - `src/uiTest/kotlin/com/virtuslab/gitmachete/uitest/UITestSuite.kt`
-  Each test method; `testPullBranch` is line ~165.
+  Each test method (`testPullBranch`, `testSkipNonExistentBranches_...`,
+  `testFastForwardParentOfBranch`, ...).
 
-## Mitigation options (in order of intrusiveness)
+## Mitigation in place
 
-1. **Bump the per-step timeout** in `BaseUITestSuite.doAndAwait` from
-   `2.minutes` to `4.minutes` (or `5.minutes`). Cheapest; just delays the
-   failure. The freeze itself is ~60 s plus a few seconds for the dumb-mode
-   task to drain afterwards, so 4 min should comfortably cover it.
+`MyIndicators.indicatorState` **no longer consults `DumbService.isDumb()`**;
+the wait is gated solely on the list of status-bar progress indicators
+(`StatusBar.getBackgroundProcessModels()`). This is enough because:
 
-2. **Separate the dumb-mode wait from the progress-indicator wait**:
-   call `service<DumbService>(project).waitForSmartMode()` (or its `Driver`
-   equivalent) before/inside `doAndAwait`, with its own timeout, so dumb-mode
-   time isn't billed against the 2-minute budget meant for "wait for
-   background tasks". Makes future timeouts unambiguous.
+- The paused `MyDumbModeTask` does NOT contribute a progress indicator
+  (we never see a `background processes are running` line during the freeze
+  window in `idea.log`), so it is now invisible to the wait.
+- Healthy occurrences of the same task finish in 2-60 ms, far below any
+  test-meaningful threshold; they would be missed by polling anyway.
+- Every legitimate long-running scanning/indexing operation (initial
+  project indexing, "Updating Git Machete status...", "Closing attached
+  shared indexes...", VCS log refresh, etc.) is visible in
+  `getBackgroundProcessModels()`, so the test still waits for them.
+- The git/VCS/UI actions exercised by these tests do not depend on PSI
+  indexes being ready, so we don't need smart-mode protection.
 
-3. **Disable the misbehaving service in tests**. Either disable the bundled
-   plugin via `com.intellij.ide.starter` plugin-disabling APIs in the
-   `BaseUITestSuite.startIde` setup, or pass an `-D` flag (would have to be
-   confirmed against the IDE source - name unknown as of this writing).
+Side effect: if a future regression introduces a legitimate dumb-mode task
+that lacks a progress indicator AND that the test actually needs to wait
+for, this wait will no longer catch it. None of the current actions look
+like they would suffer; if a future test does, prefer adding a dedicated
+`Driver.waitForSmartMode(timeout)` call at that site rather than
+reintroducing the global `isDumb()` gate.
 
-4. **Report upstream** on YouTrack with the `idea.log` excerpt above plus
-   thread dumps once obtained. This is genuinely a platform issue: a
-   long-running service freezes the EDT for ~60 s on first project open.
+## Other options considered (not applied)
 
-Recommended first step: option 1 (timeout bump). It eliminates the flake
-while we wait for thread-dump confirmation and an upstream fix.
+- **Bump the per-step timeout** (e.g. from `2.minutes` to `4.minutes`). The
+  paused task is paused *indefinitely* (never auto-resumes within 120 s),
+  so a larger budget would only delay the failure rather than fix it.
+
+- **Reflectively call `CoroutineSuspender.resume()` on the stuck task**
+  after N seconds of dumb mode. Workable but masks the platform bug and
+  requires reflection on private internals.
+
+- **Disable the originator service in tests**. Plausible candidates are
+  the VCS heavy-operation chain (`vcs.heavyOperationSuspender`,
+  `HeavyAwareListener`); needs targeted experimentation. Not pursued
+  because we don't yet know the originator.
+
+- **Report upstream**. A YouTrack with the `checkPaused` stack, the
+  "EDT idle, task paused 120 s after `git checkout`" observation, and the
+  thread-dump evidence in this file is still worth filing as a parallel
+  track - the mitigation above keeps our CI green but the platform bug
+  remains.
 
 ## How to reproduce / re-investigate
 
 The flake is timing-dependent and may not reproduce locally. To investigate
 the next failure:
 
-1. Pull the gradle output (`uiTest_2025.3.5` task) - usually attached to the
-   failed CircleCI job as `0.txt` or similar.
-2. Look for the `myWaitForIndicators` log pattern. With the new logging
-   (this PR onward) the line will tell you immediately whether it is
-   dumb mode, a hung progress task, or the smart-quiescence timer.
-3. From the same job's CircleCI artifacts, also pull:
-   - `out/ide-tests/tests/IU-253.33514.17/ui-test/log/idea.log`
-   - `out/ide-tests/tests/IU-253.33514.17/ui-test/log/monitoring-thread-dumps-ide/threadDump-N-...txt`
+1. Pull the gradle output (`uiTest_2025.3.5` / `uiTest_262.6228.19` task) -
+   usually attached to the failed CircleCI job as `0.txt` or similar.
+2. Look for the `myWaitForIndicators` log pattern. With the current logging
+   the line will tell you immediately whether it is dumb mode, a hung
+   progress task, or the smart-quiescence timer.
+3. From the same job's CircleCI artifacts, pull:
+   - `out/ide-tests/tests/IU-.../ui-test/log/idea.log`
+   - `out/ide-tests/tests/IU-.../ui-test/log/monitoring-thread-dumps-ide/threadDump-N-...txt`
      (the one whose timestamp falls between the start of the hang and the
      2-minute timeout fire).
+   Artifact list URL pattern:
+   `https://circleci.com/api/v2/project/gh/VirtusLab/git-machete-intellij-plugin/<job-id>/artifacts`
+   Each `url` in the response needs `curl -L` (follows the S3 redirect).
 4. In `idea.log`, search for `enter dumb mode` followed by *no* matching
    `exit dumb mode` until project disposal - that's the hang. Cross-check
-   with `Creating ProvenanceDatabase` and 60-second silent gaps.
+   that the same `MyDumbModeTask@<hash>` does NOT have a `Task finished`
+   log until ~2 minutes later.
 5. The "smoking gun" stack frame to look for in the thread dump:
-   `AWT-EventQueue-0` parked/blocked inside any of:
-   `ProvenanceDatabaseService.createProvenanceDatabase`,
-   `c.i.c.p.c.e.s.*`, JDBC/SQLite init, or under `runWriteAction`.
+   any `BlockingCoroutine` parked at `CoroutineSuspenderImpl.checkPaused`,
+   inside `PushedFilePropertiesUpdaterImpl.performDelayedPushTasks`.
+   If that stack is present, the diagnosis is confirmed without further work.
