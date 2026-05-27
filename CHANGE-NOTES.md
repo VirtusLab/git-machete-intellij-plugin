@@ -5,7 +5,8 @@
 - Dropped: support for IntelliJ 2025.2 and 2025.3.
   Note that the versions of this plugin published so far will remain available for download in IntelliJ 2025.2 - 2025.3 indefinitely.
   The change in the range of supported IntelliJ versions will only affect the new plugin releases, starting from this one.
-- Changed: when listing commits, all commits between the parent branch and the branch tip are now listed (rather than just between the fork point and the branch tip), with the fork point commit annotated `-> fork point`; this makes it easier to spot commits that side-effecting commands (rebase, squash, etc.) will skip due to a non-trivial fork point (e.g. fork point override, or fork point landing on parent's remote counterpart)
+- Added: each branch checked out in a worktree now renders next to its name with a green `[<worktree>]` label whenever the repository has at least one linked worktree (suggested by @mikechristiansenvae)
+- Changed: when listing commits, all commits between the parent branch and the branch tip are now listed (rather than just between the fork point and the branch tip), with the fork point commit annotated `-> fork point`
 - Fixed: spurious yellow edge no longer appears in `status` when the parent branch is merely behind its remote counterpart and the child branch was forked from the remote tip
 - Fixed: "Show in Git Log" action jumping to a commit in the wrong repository in multi-root projects
 - Fixed: stale "no need to fetch" cache hits across repositories sharing the same directory name in multi-root projects

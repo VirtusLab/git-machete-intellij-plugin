@@ -168,6 +168,17 @@ public final class BranchOrCommitCellRendererComponent extends SimpleColoredRend
         append(CELL_TEXT_FRAGMENTS_SPACING + customAnnotation, GRAY_ATTRIBUTES);
       }
 
+      // Slot the worktree label between annotation and the sync-to-remote suffix, mirroring the
+      // `git machete status` ordering. The map is empty unless at least one linked worktree exists;
+      // when it fires, every branch held by some worktree gets a label (see the API docstring).
+      String worktreeLabel = gitMacheteRepositorySnapshot != null
+          ? gitMacheteRepositorySnapshot.getWorktreeLabelByLocalBranchName().get(branch.getName()).getOrNull()
+          : null;
+      if (worktreeLabel != null) {
+        val worktreeAttributes = new SimpleTextAttributes(STYLE_PLAIN, Colors.GREEN);
+        append(" [" + worktreeLabel + "]", worktreeAttributes);
+      }
+
       String statusHookOutput = branch.getStatusHookOutput();
       if (statusHookOutput != null) {
         append(CELL_TEXT_FRAGMENTS_SPACING + statusHookOutput, GRAY_ATTRIBUTES);
