@@ -57,11 +57,23 @@ public abstract class BaseCheckoutAction extends BaseGitMacheteRepositoryReadyAc
       presentation.setDescription(
           getNonHtmlString("action.GitMachete.BaseCheckoutAction.description.disabled.currently-checked-out")
               .fmt(targetBranchName));
-
-    } else {
-      presentation.setDescription(
-          getNonHtmlString("action.GitMachete.BaseCheckoutAction.description.precise").fmt(targetBranchName));
+      return;
     }
+
+    val worktreeRootHoldingBranch = getWorktreeRootHoldingBranchIfHeldElsewhere(anActionEvent, targetBranchName);
+    if (worktreeRootHoldingBranch != null) {
+      // Git refuses to check out a branch already held by another worktree, so block the action up-front
+      // and surface the holding worktree's path in the tooltip rather than letting the user discover this
+      // through a side-effecting failure.
+      presentation.setEnabled(false);
+      presentation.setDescription(
+          getNonHtmlString("action.GitMachete.description.disabled.branch-held-by-other-worktree")
+              .fmt(targetBranchName, worktreeRootHoldingBranch.toString()));
+      return;
+    }
+
+    presentation.setDescription(
+        getNonHtmlString("action.GitMachete.BaseCheckoutAction.description.precise").fmt(targetBranchName));
   }
 
   @Override

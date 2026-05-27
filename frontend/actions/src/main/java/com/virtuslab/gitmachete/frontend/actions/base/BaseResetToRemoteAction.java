@@ -86,6 +86,18 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
       if (anActionEvent.getPlace().equals(ActionPlaces.CONTEXT_MENU) && isResettingCurrent) {
         anActionEvent.getPresentation().setText(getActionName());
       }
+
+      val presentation = anActionEvent.getPresentation();
+      if (presentation.isEnabledAndVisible()) {
+        val worktreeRootHoldingBranch = getWorktreeRootHoldingBranchIfHeldElsewhere(anActionEvent, branch);
+        if (worktreeRootHoldingBranch != null) {
+          // Reset moves the local branch ref; git refuses to update a branch held by another worktree.
+          presentation.setEnabled(false);
+          presentation.setDescription(
+              getNonHtmlString("action.GitMachete.description.disabled.branch-held-by-other-worktree")
+                  .fmt(branch, worktreeRootHoldingBranch.toString()));
+        }
+      }
     }
   }
 

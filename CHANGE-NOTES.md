@@ -10,6 +10,7 @@
 - Fixed: "Show in Git Log" action jumping to a commit in the wrong repository in multi-root projects
 - Fixed: stale "no need to fetch" cache hits across repositories sharing the same directory name in multi-root projects
 - Fixed: "Don't show for this branch" preference of the unmanaged-branch notification was leaking across repositories that share a branch name in multi-root projects
+- Changed: Checkout, Squash, Rebase Onto Parent and Reset to Remote actions are now disabled for branches that are already checked out in another worktree
 
 ## v7.0.1
 - Added: auto-discovery of the branch layout in case of multiple repositories (contributed by @mkondratek)

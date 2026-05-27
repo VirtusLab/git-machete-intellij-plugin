@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.frontend.actions.expectedkeys;
 
+import java.nio.file.Path;
+
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import lombok.val;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -53,5 +55,27 @@ public interface IExpectsKeyGitMacheteRepository extends IWithLogger {
       log().warn(branchName + " Git Machete branch is undefined");
     }
     return branch;
+  }
+
+  /**
+   * @return the absolute root of an <i>other</i> worktree currently holding {@code branchName} checked out, or
+   *         {@code null} if no other worktree holds it (or the branch is not managed). "Other" means a
+   *         worktree different from the one the enclosing snapshot was built against. Both paths are already
+   *         canonicalized at snapshot creation time, so a plain {@link Path#equals} comparison is sufficient.
+   *         Surfacing this from the action layer lets every checkout-like action share the same up-front
+   *         guard, since git will refuse any operation that tries to switch HEAD to a branch already held
+   *         elsewhere.
+   */
+  default @Nullable Path getWorktreeRootHoldingBranchIfHeldElsewhere(AnActionEvent anActionEvent, @Nullable String branchName) {
+    val snapshot = getGitMacheteRepositorySnapshot(anActionEvent);
+    val branch = getManagedBranchByName(anActionEvent, branchName);
+    if (snapshot == null || branch == null) {
+      return null;
+    }
+    val holder = branch.getWorktreeRootHoldingBranch();
+    if (holder == null || holder.equals(snapshot.getRootDirectoryPath())) {
+      return null;
+    }
+    return holder;
   }
 }

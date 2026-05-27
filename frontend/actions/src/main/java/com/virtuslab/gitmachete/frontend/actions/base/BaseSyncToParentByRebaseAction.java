@@ -94,8 +94,18 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
       } else if (branch.isNonRoot()) {
         val nonRootBranch = branch.asNonRoot();
         val upstream = nonRootBranch.getParent();
-        presentation.setDescription(getNonHtmlString("action.GitMachete.BaseSyncToParentByRebaseAction.description")
-            .fmt(branch.getName(), upstream.getName()));
+        val worktreeRootHoldingBranch = getWorktreeRootHoldingBranchIfHeldElsewhere(anActionEvent, branchName);
+        if (worktreeRootHoldingBranch != null) {
+          // Rebase-onto-parent checks out the branch into the active worktree before invoking rebase; git
+          // refuses if the branch is held elsewhere.
+          presentation.setEnabled(false);
+          presentation.setDescription(
+              getNonHtmlString("action.GitMachete.description.disabled.branch-held-by-other-worktree")
+                  .fmt(branch.getName(), worktreeRootHoldingBranch.toString()));
+        } else {
+          presentation.setDescription(getNonHtmlString("action.GitMachete.BaseSyncToParentByRebaseAction.description")
+              .fmt(branch.getName(), upstream.getName()));
+        }
       }
 
       val currentBranchNameIfManaged = getCurrentBranchNameIfManaged(anActionEvent);
