@@ -20,7 +20,7 @@ public final class NullGitMacheteRepositorySnapshot implements IGitMacheteReposi
   }
 
   @Override
-  public Path getMainGitDirectoryPath() {
+  public Path getRootDirectoryPath() {
     return Path.of("");
   }
 

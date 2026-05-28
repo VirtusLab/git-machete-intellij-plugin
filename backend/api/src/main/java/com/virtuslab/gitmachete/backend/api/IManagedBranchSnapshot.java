@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.backend.api;
 
+import java.nio.file.Path;
+
 import io.vavr.collection.List;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.framework.qual.EnsuresQualifierIf;
@@ -46,4 +48,14 @@ public interface IManagedBranchSnapshot extends ILocalBranchReference {
 
   @Nullable
   String getStatusHookOutput();
+
+  /**
+   * @return the root directory of the worktree currently holding this branch checked out, or {@code null}
+   *         if no worktree holds it. This may be the worktree against which the enclosing
+   *         {@link IGitMacheteRepositorySnapshot} was built (in which case the branch is the snapshot's
+   *         current branch); use {@link IGitMacheteRepositorySnapshot#getRootDirectoryPath()} to tell
+   *         "our" worktree apart from "another" one.
+   */
+  @Nullable
+  Path getWorktreeRootHoldingBranch();
 }

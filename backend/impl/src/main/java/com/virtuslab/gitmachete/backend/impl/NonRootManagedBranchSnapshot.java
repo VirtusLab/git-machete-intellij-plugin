@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.backend.impl;
 
+import java.nio.file.Path;
+
 import io.vavr.collection.List;
 import lombok.CustomLog;
 import lombok.Getter;
@@ -44,11 +46,13 @@ public final class NonRootManagedBranchSnapshot extends BaseManagedBranchSnapsho
       RelationToRemote relationToRemote,
       @Nullable String customAnnotation,
       @Nullable String statusHookOutput,
+      @Nullable Path worktreeRootHoldingBranch,
       @Nullable IForkPointCommitOfManagedBranch forkPoint,
       List<ICommitOfManagedBranch> uniqueCommits,
       List<ICommitOfManagedBranch> commitsUntilParent,
       SyncToParentStatus syncToParentStatus) {
-    super(name, fullName, children, pointedCommit, remoteTrackingBranch, relationToRemote, customAnnotation, statusHookOutput);
+    super(name, fullName, children, pointedCommit, remoteTrackingBranch, relationToRemote, customAnnotation, statusHookOutput,
+        worktreeRootHoldingBranch);
 
     this.forkPoint = forkPoint;
     this.uniqueCommits = uniqueCommits;

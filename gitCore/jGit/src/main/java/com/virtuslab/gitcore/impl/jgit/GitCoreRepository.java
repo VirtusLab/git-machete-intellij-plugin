@@ -13,8 +13,10 @@ import java.nio.file.Path;
 import io.vavr.CheckedFunction1;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
+import io.vavr.collection.HashMap;
 import io.vavr.collection.Iterator;
 import io.vavr.collection.List;
+import io.vavr.collection.Map;
 import io.vavr.collection.Stream;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
@@ -657,5 +659,78 @@ public final class GitCoreRepository implements IGitCoreRepository {
     }
 
     return Stream.ofAll(walk).take(maxCommits).map(GitCoreCommit::new);
+  }
+
+  @Override
+  @UIThreadUnsafe
+  public Map<String, Path> deriveWorktreeRootByLocalBranchName() throws GitCoreException {
+    // We have to read .git/worktrees/<name>/{HEAD,gitdir} files directly here because, as of JGit 7.6, JGit exposes
+    // no API to enumerate (or otherwise interrogate) linked worktrees - the entire `git worktree {list,add,remove,
+    // move,prune,...}` family is unimplemented. Only *read* support for an already-known linked worktree was added
+    // in JGit 7.0 (Sep 2024) via the `commondir` pointer, which is what backs the single `jgitRepo` field above;
+    // but that lets us open a Repository given its per-worktree git dir, not discover those git dirs in the first
+    // place. We could, in principle, list `worktrees/<name>` and build a fresh JGit Repository per linked worktree
+    // just to call `getFullBranch()` on it, but that's strictly more work (a Repository is non-trivial to allocate)
+    // for the same two files we'd be reading anyway.
+    //
+    // Tracking issues for full JGit worktree support:
+    //   - https://bugs.eclipse.org/bugs/show_bug.cgi?id=477475 ("git 2.5 worktree support", open since 2015)
+    //   - https://github.com/eclipse-jgit/jgit/issues/264 ("Feature Request: Git Worktree Support for JGit and EGit")
+    // Until one of the management commands lands upstream, the manual layout walk below is the only option short
+    // of shelling out to `git worktree list --porcelain`.
+    //
+    // The main worktree's HEAD lives at `<common-git-dir>/HEAD`; each linked worktree owns its own per-worktree git
+    // directory under `<common-git-dir>/worktrees/<name>/`, with `HEAD` (same format as the main one) and `gitdir`
+    // (an absolute path to the gitlink file at the worktree's root). The worktree root is therefore the parent of
+    // the path stored in `gitdir`. We deliberately skip worktrees whose HEAD is detached - those cannot collide with
+    // a checkout of a particular branch elsewhere.
+    HashMap<String, Path> result = HashMap.empty();
+    try {
+      Path mainWorktreeRoot = mainGitDirectoryPath.getParent();
+      if (mainWorktreeRoot != null) {
+        String mainBranchName = readBranchShortNameFromHeadFile(mainGitDirectoryPath.resolve(Constants.HEAD));
+        if (mainBranchName != null) {
+          result = result.put(mainBranchName, mainWorktreeRoot);
+        }
+      }
+
+      Path worktreesDir = mainGitDirectoryPath.resolve("worktrees");
+      if (Files.isDirectory(worktreesDir)) {
+        try (val entries = Files.list(worktreesDir)) {
+          for (Path linkedWtGitDir : List.ofAll(entries).filter(Files::isDirectory)) {
+            Path gitdirPointer = linkedWtGitDir.resolve("gitdir");
+            Path headFile = linkedWtGitDir.resolve(Constants.HEAD);
+            if (!Files.isRegularFile(gitdirPointer) || !Files.isRegularFile(headFile)) {
+              continue;
+            }
+            String gitdirContent = Files.readString(gitdirPointer).trim();
+            if (gitdirContent.isEmpty()) {
+              continue;
+            }
+            Path linkedWtRoot = Path.of(gitdirContent).getParent();
+            if (linkedWtRoot == null) {
+              continue;
+            }
+            String linkedWtBranchName = readBranchShortNameFromHeadFile(headFile);
+            if (linkedWtBranchName != null) {
+              result = result.put(linkedWtBranchName, linkedWtRoot);
+            }
+          }
+        }
+      }
+    } catch (IOException e) {
+      throw new GitCoreException("Unable to enumerate worktrees under ${mainGitDirectoryPath}", e);
+    }
+    return result;
+  }
+
+  @UIThreadUnsafe
+  private static @Nullable String readBranchShortNameFromHeadFile(Path headFile) throws IOException {
+    if (!Files.isRegularFile(headFile)) {
+      return null;
+    }
+    String content = Files.readString(headFile).trim();
+    String prefix = "ref: " + Constants.R_HEADS;
+    return content.startsWith(prefix) ? content.substring(prefix.length()).trim() : null;
   }
 }

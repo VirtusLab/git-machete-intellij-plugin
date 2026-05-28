@@ -13,6 +13,7 @@ import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.List;
+import io.vavr.collection.Map;
 import io.vavr.collection.Seq;
 import io.vavr.control.Try;
 import lombok.CustomLog;
@@ -53,7 +54,8 @@ public class CreateGitMacheteRepositoryHelper extends Helper {
   private final StatusBranchHookExecutor statusHookExecutor;
   private final List<String> remoteNames;
   private final java.util.Set<String> createdBranches = new java.util.HashSet<>();
-  private final Path mainGitDirectoryPath;
+  private final Path rootDirectoryPath;
+  private final Map<String, Path> worktreeRootByLocalBranchName;
 
   @UIThreadUnsafe
   public CreateGitMacheteRepositoryHelper(
@@ -63,7 +65,21 @@ public class CreateGitMacheteRepositoryHelper extends Helper {
 
     this.statusHookExecutor = statusHookExecutor;
     this.remoteNames = gitCoreRepository.deriveAllRemoteNames();
-    this.mainGitDirectoryPath = gitCoreRepository.getMainGitDirectoryPath();
+    // Canonicalize both the snapshot's own worktree root and every holder path up front (off-EDT), so
+    // downstream consumers - in particular the action layer that compares "are we held in another worktree?"
+    // on the UI thread - can rely on a plain Path#equals check without doing filesystem I/O.
+    this.rootDirectoryPath = toRealPathOrSelf(gitCoreRepository.getRootDirectoryPath());
+    this.worktreeRootByLocalBranchName = gitCoreRepository.deriveWorktreeRootByLocalBranchName()
+        .mapValues(CreateGitMacheteRepositoryHelper::toRealPathOrSelf);
+  }
+
+  @UIThreadUnsafe
+  private static Path toRealPathOrSelf(Path path) {
+    try {
+      return path.toRealPath();
+    } catch (java.io.IOException e) {
+      return path;
+    }
   }
 
   @UIThreadUnsafe
@@ -103,7 +119,7 @@ public class CreateGitMacheteRepositoryHelper extends Helper {
 
     val operationsBaseBranchName = deriveOngoingOperationsBaseBranchName(ongoingOperationType);
 
-    return new GitMacheteRepositorySnapshot(mainGitDirectoryPath, List.narrow(rootBranches), branchLayout,
+    return new GitMacheteRepositorySnapshot(rootDirectoryPath, List.narrow(rootBranches), branchLayout,
         currentBranchIfManaged, managedBranchByName, duplicatedBranchNames, skippedBranchNames,
         new IGitMacheteRepositorySnapshot.OngoingRepositoryOperation(ongoingOperationType, operationsBaseBranchName));
   }
@@ -182,9 +198,10 @@ public class CreateGitMacheteRepositoryHelper extends Helper {
     val remoteTrackingBranch = getRemoteTrackingBranchForCoreLocalBranch(coreLocalBranch);
     val statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit);
 
+    val worktreeRootHoldingBranch = worktreeRootByLocalBranchName.get(branchName).getOrNull();
     val createdRootBranch = new RootManagedBranchSnapshot(branchName, branchFullName,
         childBranches.getCreatedBranches(), pointedCommit, remoteTrackingBranch, relationToRemote, customAnnotation,
-        statusHookOutput);
+        statusHookOutput, worktreeRootHoldingBranch);
     return CreatedAndDuplicatedAndSkippedBranches.of(List.of(createdRootBranch),
         childBranches.getDuplicatedBranchNames(), childBranches.getSkippedBranchNames());
   }
@@ -244,10 +261,11 @@ public class CreateGitMacheteRepositoryHelper extends Helper {
     val statusHookOutput = statusHookExecutor.deriveHookOutputFor(branchName, pointedCommit);
     val commitsUntilParent = gitCoreRepository.deriveCommitRange(corePointedCommit, parentCoreLocalBranch.getPointedCommit());
 
+    val worktreeRootHoldingBranch = worktreeRootByLocalBranchName.get(branchName).getOrNull();
     val result = new NonRootManagedBranchSnapshot(branchName, branchFullName, childBranches.getCreatedBranches(),
-        pointedCommit, remoteTrackingBranch, relationToRemote, customAnnotation, statusHookOutput, forkPoint,
-        uniqueCommits.map(CommitOfManagedBranch::new), commitsUntilParent.map(CommitOfManagedBranch::new),
-        syncToParentStatus);
+        pointedCommit, remoteTrackingBranch, relationToRemote, customAnnotation, statusHookOutput,
+        worktreeRootHoldingBranch, forkPoint, uniqueCommits.map(CommitOfManagedBranch::new),
+        commitsUntilParent.map(CommitOfManagedBranch::new), syncToParentStatus);
     return CreatedAndDuplicatedAndSkippedBranches.of(List.of(result),
         childBranches.getDuplicatedBranchNames(), childBranches.getSkippedBranchNames());
   }

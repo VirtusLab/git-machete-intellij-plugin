@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
+import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import lombok.SneakyThrows;
 import lombok.val;
@@ -30,6 +31,7 @@ public class BaseGitMacheteRepositoryUnitTestSuite {
     when(gitCoreRepository.deriveConfigValue("core", "hooksPath")).thenReturn(null);
     when(gitCoreRepository.getRootDirectoryPath()).thenReturn(Paths.get("void"));
     when(gitCoreRepository.getMainGitDirectoryPath()).thenReturn(Paths.get("void"));
+    when(gitCoreRepository.deriveWorktreeRootByLocalBranchName()).thenReturn(HashMap.empty());
 
     // cannot be mocked as it is final
     val statusBranchHookExecutor = new StatusBranchHookExecutor(gitCoreRepository);

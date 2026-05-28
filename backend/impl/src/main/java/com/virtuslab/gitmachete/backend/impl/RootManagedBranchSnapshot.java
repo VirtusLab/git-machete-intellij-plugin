@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.backend.impl;
 
+import java.nio.file.Path;
+
 import io.vavr.collection.List;
 import lombok.CustomLog;
 import lombok.ToString;
@@ -22,8 +24,10 @@ public final class RootManagedBranchSnapshot extends BaseManagedBranchSnapshot i
       @Nullable IRemoteTrackingBranchReference remoteTrackingBranch,
       RelationToRemote relationToRemote,
       @Nullable String customAnnotation,
-      @Nullable String statusHookOutput) {
-    super(name, fullName, children, pointedCommit, remoteTrackingBranch, relationToRemote, customAnnotation, statusHookOutput);
+      @Nullable String statusHookOutput,
+      @Nullable Path worktreeRootHoldingBranch) {
+    super(name, fullName, children, pointedCommit, remoteTrackingBranch, relationToRemote, customAnnotation, statusHookOutput,
+        worktreeRootHoldingBranch);
 
     LOG.debug("Creating ${this}");
 

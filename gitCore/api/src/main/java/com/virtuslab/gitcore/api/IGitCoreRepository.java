@@ -3,6 +3,7 @@ package com.virtuslab.gitcore.api;
 import java.nio.file.Path;
 
 import io.vavr.collection.List;
+import io.vavr.collection.Map;
 import io.vavr.collection.Stream;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -75,4 +76,13 @@ public interface IGitCoreRepository {
 
   @UIThreadUnsafe
   GitCoreRepositoryState deriveRepositoryState();
+
+  /**
+   * @return a map from a local-branch short name (e.g. {@code "develop"}) to the absolute path of the worktree
+   *         root directory whose {@code HEAD} currently points at that branch. Includes the main worktree and
+   *         every linked worktree visible under the common git directory. Worktrees with a detached HEAD are
+   *         skipped.
+   */
+  @UIThreadUnsafe
+  Map<String, Path> deriveWorktreeRootByLocalBranchName() throws GitCoreException;
 }

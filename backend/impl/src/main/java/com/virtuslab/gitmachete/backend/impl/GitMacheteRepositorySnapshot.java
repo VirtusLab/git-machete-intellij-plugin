@@ -18,7 +18,7 @@ import com.virtuslab.gitmachete.backend.api.IRootManagedBranchSnapshot;
 public class GitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapshot {
 
   @Getter
-  private final Path mainGitDirectoryPath;
+  private final Path rootDirectoryPath;
 
   @Getter
   private final List<IRootManagedBranchSnapshot> rootBranches;

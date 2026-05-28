@@ -14,7 +14,13 @@ import com.virtuslab.branchlayout.api.BranchLayout;
  * Each {@code get...} method is guaranteed to return the same value each time it's called on a given object.
  */
 public interface IGitMacheteRepositorySnapshot {
-  Path getMainGitDirectoryPath();
+  /**
+   * @return the root directory of the worktree this snapshot was built against
+   *         (the directory containing the per-worktree gitlink {@code .git}).
+   *         Canonicalized at snapshot creation time, so a plain {@link Path#equals} against another canonical path
+   *         is enough to ask "is this snapshot scoped to that worktree?".
+   */
+  Path getRootDirectoryPath();
 
   BranchLayout getBranchLayout();
 

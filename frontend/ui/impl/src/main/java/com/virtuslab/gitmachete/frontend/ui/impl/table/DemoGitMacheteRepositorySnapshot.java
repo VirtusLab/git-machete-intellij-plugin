@@ -92,7 +92,7 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
   }
 
   @Override
-  public Path getMainGitDirectoryPath() {
+  public Path getRootDirectoryPath() {
     return Path.of("dummy");
   }
 
@@ -227,6 +227,11 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
     public @Nullable IRemoteTrackingBranchReference getRemoteTrackingBranch() {
       return null;
     }
+
+    @Override
+    public @Nullable Path getWorktreeRootHoldingBranch() {
+      return null;
+    }
   }
 
   @Getter
@@ -279,6 +284,11 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
 
     @Override
     public @Nullable IRemoteTrackingBranchReference getRemoteTrackingBranch() {
+      return null;
+    }
+
+    @Override
+    public @Nullable Path getWorktreeRootHoldingBranch() {
       return null;
     }
   }

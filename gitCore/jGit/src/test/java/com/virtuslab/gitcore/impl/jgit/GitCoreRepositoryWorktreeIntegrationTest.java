@@ -191,6 +191,125 @@ public class GitCoreRepositoryWorktreeIntegrationTest {
 
   @Test
   @SneakyThrows
+  public void deriveWorktreeRootByLocalBranchName_excludesDetachedHeads() {
+    // Fresh SETUP_WITH_SINGLE_REMOTE leaves both the main repo and the linked worktree on
+    // detached HEADs (see TestGitRepository#addWorktreeAndDetachMain). No branch is held by any
+    // worktree, so the map must be empty.
+    val worktreeRootByBranch = worktreeScoped().deriveWorktreeRootByLocalBranchName();
+    assertTrue(worktreeRootByBranch.isEmpty(),
+        "Both worktrees are detached; map must be empty but was: ${worktreeRootByBranch}");
+
+    cleanUpDir(repo.parentDirectoryPath);
+  }
+
+  @Test
+  @SneakyThrows
+  public void deriveWorktreeRootByLocalBranchName_mapsBranchToHoldingWorktreeRoot() {
+    // Park the linked worktree on `drop-constraint`. Main stays detached, so only one entry
+    // should appear.
+    runProcessAndReturnStdout(repo.rootDirectoryPath, /* timeoutSeconds */ 30, "git", "checkout", "drop-constraint");
+
+    // Map must be identical regardless of whether we look it up from the worktree-scoped or the
+    // main-scoped repository (both share the same common git dir).
+    for (val scoped : new GitCoreRepository[]{worktreeScoped(), mainScoped()}) {
+      val worktreeRootByBranch = scoped.deriveWorktreeRootByLocalBranchName();
+      assertEquals(1, worktreeRootByBranch.size(), "Exactly one worktree is on a branch; got: ${worktreeRootByBranch}");
+      val holder = worktreeRootByBranch.get("drop-constraint").getOrNull();
+      assertNotNull(holder, "`drop-constraint` must map to the linked worktree's root");
+      assertEquals(repo.rootDirectoryPath.toRealPath(), holder.toRealPath());
+    }
+
+    cleanUpDir(repo.parentDirectoryPath);
+  }
+
+  @Test
+  @SneakyThrows
+  public void deriveWorktreeRootByLocalBranchName_includesEveryLinkedWorktreeOnABranch() {
+    // Park the fixture's existing linked worktree on `drop-constraint`, then add a second linked
+    // worktree pointed at `hotfix/add-trigger`. Both branches should show up in the map, each
+    // mapped to the worktree that holds it.
+    runProcessAndReturnStdout(repo.rootDirectoryPath, /* timeoutSeconds */ 30, "git", "checkout", "drop-constraint");
+    val mainRepo = repo.mainGitDirectoryPath.getParent();
+    val secondWorktreeRoot = repo.parentDirectoryPath.resolve("machete-sandbox-worktree-2");
+    runProcessAndReturnStdout(mainRepo, /* timeoutSeconds */ 30,
+        "git", "worktree", "add", secondWorktreeRoot.toString(), "hotfix/add-trigger");
+
+    val worktreeRootByBranch = worktreeScoped().deriveWorktreeRootByLocalBranchName();
+    assertEquals(2, worktreeRootByBranch.size(),
+        "Both linked worktrees are on branches; expected exactly two entries, got: ${worktreeRootByBranch}");
+
+    val dropConstraintHolder = worktreeRootByBranch.get("drop-constraint").getOrNull();
+    assertNotNull(dropConstraintHolder, "`drop-constraint` must map to its linked worktree");
+    assertEquals(repo.rootDirectoryPath.toRealPath(), dropConstraintHolder.toRealPath());
+
+    val hotfixHolder = worktreeRootByBranch.get("hotfix/add-trigger").getOrNull();
+    assertNotNull(hotfixHolder, "`hotfix/add-trigger` must map to the second linked worktree");
+    assertEquals(secondWorktreeRoot.toRealPath(), hotfixHolder.toRealPath());
+
+    cleanUpDir(repo.parentDirectoryPath);
+  }
+
+  @Test
+  @SneakyThrows
+  public void deriveWorktreeRootByLocalBranchName_reportsBranchAsHeldEvenAfterManualMoveWithoutRepair() {
+    // A worktree root moved with plain `mv` (not `git worktree move`) leaves
+    // `.git/worktrees/<wt>/gitdir` pointing at the OLD checkout dir until the user runs
+    // `git worktree repair` (https://git-scm.com/docs/git-worktree#_repair). Git itself still
+    // considers the branch held by that worktree and refuses a second checkout of it elsewhere
+    // until repair (or `prune`) is run, so we deliberately surface the stale entry as well -
+    // disabling the checkout action with a slightly-misleading tooltip is preferable to enabling
+    // it and letting `git checkout` fail.
+    runProcessAndReturnStdout(repo.rootDirectoryPath, /* timeoutSeconds */ 30, "git", "checkout", "drop-constraint");
+    val movedRoot = repo.parentDirectoryPath.resolve("machete-sandbox-worktree-moved");
+    Files.move(repo.rootDirectoryPath, movedRoot);
+
+    val worktreeRootByBranch = mainScoped().deriveWorktreeRootByLocalBranchName();
+    val holder = worktreeRootByBranch.get("drop-constraint").getOrNull();
+    assertNotNull(holder, "`drop-constraint` must remain reported as held while the stale worktree is registered");
+
+    // The returned path is the now-stale OLD checkout dir, mirroring `gitdir`'s contents
+    // verbatim. The IDE's "branch already checked out in worktree X" tooltip will therefore name
+    // a directory that no longer exists - this is the cost of avoiding a per-getter filesystem
+    // probe and matches what `git worktree list` shows before `git worktree prune`. We
+    // canonicalize the *parent* (which still exists) and re-resolve the gone child to compare
+    // without invoking `toRealPath` on a missing path.
+    val staleExpected = repo.parentDirectoryPath.toRealPath().resolve("machete-sandbox-worktree");
+    assertEquals(staleExpected, holder, "Stale `gitdir` content must be surfaced verbatim");
+
+    // After `git worktree repair` is run from the new location, `.git/worktrees/<wt>/gitdir` is
+    // rewritten to the new path; our reader must pick that up on the very next call (we hold no
+    // cache).
+    runProcessAndReturnStdout(movedRoot, /* timeoutSeconds */ 10, "git", "worktree", "repair");
+    val afterRepair = mainScoped().deriveWorktreeRootByLocalBranchName().get("drop-constraint").getOrNull();
+    assertNotNull(afterRepair, "`drop-constraint` must still be reported as held after repair");
+    assertEquals(movedRoot.toRealPath(), afterRepair.toRealPath(),
+        "`git worktree repair` must rewrite `gitdir`; our reader must pick that up on the next call");
+
+    cleanUpDir(repo.parentDirectoryPath);
+  }
+
+  @Test
+  @SneakyThrows
+  public void deriveWorktreeRootByLocalBranchName_onPlainSingleRepo_reflectsCurrentBranch() {
+    // Tear down the SETUP_WITH_SINGLE_REMOTE fixture and set up a non-worktree one for this case.
+    cleanUpDir(repo.parentDirectoryPath);
+    repo = new TestGitRepository(SETUP_FOR_NO_REMOTES);
+
+    val gitCoreRepository = new GitCoreRepository(repo.rootDirectoryPath);
+
+    // The SETUP_FOR_NO_REMOTES script leaves the repo checked out on `develop`.
+    val worktreeRootByBranch = gitCoreRepository.deriveWorktreeRootByLocalBranchName();
+    assertEquals(1, worktreeRootByBranch.size(),
+        "Plain single-worktree repo on `develop` must yield exactly one entry; got: ${worktreeRootByBranch}");
+    val holder = worktreeRootByBranch.get("develop").getOrNull();
+    assertNotNull(holder, "`develop` must map to the repo's root");
+    assertEquals(repo.rootDirectoryPath.toRealPath(), holder.toRealPath());
+
+    cleanUpDir(repo.parentDirectoryPath);
+  }
+
+  @Test
+  @SneakyThrows
   public void jgitFindGitDirFromLinkedWorktreeRoot_followsTheGitlinkFile() {
     // Pointing JGit's FileRepositoryBuilder at the linked worktree's root must yield the
     // per-worktree git dir (`<main>/.git/worktrees/<wt>`), not the main `.git` dir, by

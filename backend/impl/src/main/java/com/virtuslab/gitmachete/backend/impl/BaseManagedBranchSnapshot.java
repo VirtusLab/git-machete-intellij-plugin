@@ -1,5 +1,7 @@
 package com.virtuslab.gitmachete.backend.impl;
 
+import java.nio.file.Path;
+
 import io.vavr.collection.List;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -27,6 +29,7 @@ public abstract class BaseManagedBranchSnapshot implements IManagedBranchSnapsho
   private final RelationToRemote relationToRemote;
   private final @Nullable String customAnnotation;
   private final @Nullable String statusHookOutput;
+  private final @Nullable Path worktreeRootHoldingBranch;
 
   @ToString.Include(name = "children") // avoid recursive `toString` calls on child branches
   private List<String> getChildNames() {
@@ -43,20 +46,5 @@ public abstract class BaseManagedBranchSnapshot implements IManagedBranchSnapsho
     for (val child : children) {
       child.setParent(this);
     }
-  }
-
-  @Override
-  public @Nullable IRemoteTrackingBranchReference getRemoteTrackingBranch() {
-    return remoteTrackingBranch;
-  }
-
-  @Override
-  public @Nullable String getCustomAnnotation() {
-    return customAnnotation;
-  }
-
-  @Override
-  public @Nullable String getStatusHookOutput() {
-    return statusHookOutput;
   }
 }
