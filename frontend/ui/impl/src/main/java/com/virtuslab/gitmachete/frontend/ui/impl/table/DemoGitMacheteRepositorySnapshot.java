@@ -4,7 +4,9 @@ import java.nio.file.Path;
 import java.time.Instant;
 
 import io.vavr.NotImplementedError;
+import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
+import io.vavr.collection.Map;
 import io.vavr.collection.Set;
 import io.vavr.collection.TreeSet;
 import lombok.AllArgsConstructor;
@@ -129,6 +131,11 @@ public class DemoGitMacheteRepositorySnapshot implements IGitMacheteRepositorySn
   @Override
   public Set<String> getSkippedBranchNames() {
     return TreeSet.empty();
+  }
+
+  @Override
+  public Map<String, String> getWorktreeLabelByLocalBranchName() {
+    return HashMap.empty();
   }
 
   @Getter

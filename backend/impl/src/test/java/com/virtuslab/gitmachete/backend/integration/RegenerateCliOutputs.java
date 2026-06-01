@@ -15,6 +15,8 @@ import io.vavr.collection.List;
 import io.vavr.collection.Stream;
 import lombok.SneakyThrows;
 
+import com.virtuslab.gitmachete.testcommon.TestGitRepository;
+
 public class RegenerateCliOutputs {
   @SneakyThrows
   public static void main(String[] args) {
@@ -27,17 +29,20 @@ public class RegenerateCliOutputs {
       System.out.println("Regenerating the output for ${scriptName}...");
 
       Path parentDir = Files.createTempDirectory("machete-tests-");
-      Path repositoryMainDir = parentDir.resolve("machete-sandbox");
 
       copyScriptFromResources("common.sh", parentDir);
       copyScriptFromResources(scriptName, parentDir);
       prepareRepoFromScript(scriptName, parentDir);
-      String statusOutput = runGitMacheteCommandAndReturnStdout(/* workingDirectory */ repositoryMainDir,
+      // Mirror the same post-script setup the tests apply, so the CLI sees the same fixture
+      // shape as our snapshot (e.g. linked worktrees added in Java rather than in the script).
+      TestGitRepository.applyPostScriptSetup(scriptName, parentDir);
+      Path repositoryDir = TestGitRepository.cliWorkingDirectory(scriptName, parentDir);
+      String statusOutput = runGitMacheteCommandAndReturnStdout(/* workingDirectory */ repositoryDir,
           /* timeoutSeconds */ 15, /* command */ "status", "--list-commits");
 
       saveFile(outputDirectory, "${scriptName}-status.txt", statusOutput);
 
-      String rawDiscoverOutput = runGitMacheteCommandAndReturnStdout(/* workingDirectory */ repositoryMainDir,
+      String rawDiscoverOutput = runGitMacheteCommandAndReturnStdout(/* workingDirectory */ repositoryDir,
           /* timeoutSeconds */ 15, /* command */ "discover", "--list-commits", "--yes");
 
       String discoverOutput = Stream.of(rawDiscoverOutput.split(System.lineSeparator()))

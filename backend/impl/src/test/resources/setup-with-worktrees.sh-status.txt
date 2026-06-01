@@ -1,0 +1,9 @@
+  master [<main worktree>]
+
+  develop
+  |
+  | Feature A commit
+  o-feature-a * [<this worktree>]
+  |
+  | Feature B commit
+  o-feature-b [worktree-b]

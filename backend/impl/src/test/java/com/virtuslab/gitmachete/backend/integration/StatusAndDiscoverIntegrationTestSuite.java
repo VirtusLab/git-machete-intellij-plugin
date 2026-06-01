@@ -171,6 +171,17 @@ public class StatusAndDiscoverIntegrationTestSuite extends BaseIntegrationTestSu
       sb.append("  ");
       sb.append(customAnnotation);
     }
+
+    // Slot the worktree label between annotation and the sync-to-remote suffix, mirroring
+    // `git machete status`. Absent unless at least one linked worktree exists for this repo.
+    val worktreeLabel = gitMacheteRepositorySnapshot.getWorktreeLabelByLocalBranchName()
+        .get(branch.getName()).getOrNull();
+    if (worktreeLabel != null) {
+      sb.append(" [");
+      sb.append(worktreeLabel);
+      sb.append("]");
+    }
+
     val relationToRemote = branch.getRelationToRemote();
 
     SyncToRemoteStatus syncToRemoteStatus = relationToRemote.getSyncToRemoteStatus();

@@ -2,7 +2,9 @@ package com.virtuslab.gitmachete.backend.api;
 
 import java.nio.file.Path;
 
+import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
+import io.vavr.collection.Map;
 import io.vavr.collection.Set;
 import io.vavr.collection.TreeSet;
 import lombok.Getter;
@@ -57,6 +59,11 @@ public final class NullGitMacheteRepositorySnapshot implements IGitMacheteReposi
   @Override
   public Set<String> getSkippedBranchNames() {
     return TreeSet.empty();
+  }
+
+  @Override
+  public Map<String, String> getWorktreeLabelByLocalBranchName() {
+    return HashMap.empty();
   }
 
   @Getter

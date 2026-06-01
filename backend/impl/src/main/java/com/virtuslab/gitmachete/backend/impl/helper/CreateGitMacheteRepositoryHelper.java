@@ -56,6 +56,7 @@ public class CreateGitMacheteRepositoryHelper extends Helper {
   private final java.util.Set<String> createdBranches = new java.util.HashSet<>();
   private final Path rootDirectoryPath;
   private final Map<String, Path> worktreeRootByLocalBranchName;
+  private final Map<String, String> worktreeLabelByLocalBranchName;
 
   @UIThreadUnsafe
   public CreateGitMacheteRepositoryHelper(
@@ -71,6 +72,13 @@ public class CreateGitMacheteRepositoryHelper extends Helper {
     this.rootDirectoryPath = toRealPathOrSelf(gitCoreRepository.getRootDirectoryPath());
     this.worktreeRootByLocalBranchName = gitCoreRepository.deriveWorktreeRootByLocalBranchName()
         .mapValues(CreateGitMacheteRepositoryHelper::toRealPathOrSelf);
+    // The main worktree's root is the parent of the common git directory (we make sure to
+    // canonicalize that too, so the comparison inside the computer can rely on plain Path#equals).
+    val mainGitDirectoryPath = gitCoreRepository.getMainGitDirectoryPath();
+    val mainGitDirParent = mainGitDirectoryPath.getParent();
+    val mainWorktreeRoot = mainGitDirParent != null ? toRealPathOrSelf(mainGitDirParent) : mainGitDirectoryPath;
+    this.worktreeLabelByLocalBranchName = WorktreeLabelComputer.compute(
+        worktreeRootByLocalBranchName, rootDirectoryPath, mainWorktreeRoot);
   }
 
   @UIThreadUnsafe
@@ -121,6 +129,7 @@ public class CreateGitMacheteRepositoryHelper extends Helper {
 
     return new GitMacheteRepositorySnapshot(rootDirectoryPath, List.narrow(rootBranches), branchLayout,
         currentBranchIfManaged, managedBranchByName, duplicatedBranchNames, skippedBranchNames,
+        worktreeLabelByLocalBranchName,
         new IGitMacheteRepositorySnapshot.OngoingRepositoryOperation(ongoingOperationType, operationsBaseBranchName));
   }
 

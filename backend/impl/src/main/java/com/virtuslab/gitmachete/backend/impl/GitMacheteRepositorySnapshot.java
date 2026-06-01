@@ -4,6 +4,7 @@ import java.nio.file.Path;
 
 import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.List;
+import io.vavr.collection.Map;
 import io.vavr.collection.Set;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,9 @@ public class GitMacheteRepositorySnapshot implements IGitMacheteRepositorySnapsh
 
   @Getter
   private final Set<String> skippedBranchNames;
+
+  @Getter
+  private final Map<String, String> worktreeLabelByLocalBranchName;
 
   @Getter
   private final OngoingRepositoryOperation ongoingRepositoryOperation;
