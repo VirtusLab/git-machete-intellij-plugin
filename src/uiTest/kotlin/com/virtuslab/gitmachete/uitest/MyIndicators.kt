@@ -3,10 +3,12 @@
 //     so freezes can be diagnosed straight from the gradle output; see #2194),
 //   - activity is detected via status-bar progress indicators only;
 //     DumbService.isDumb() is intentionally not consulted,
-//   - any single indicator that stays visible for STALL_THRESHOLD without
-//     ever disappearing is treated as a platform stall and ignored
-//     (the same #2194 race - paused TaskSuspender that never resumes -
-//     re-surfaced in IU-262.6653.22 as a never-completing background task).
+//   - any indicator whose title stays continuously visible across polls for
+//     STALL_THRESHOLD is treated as a platform stall and dropped. The same
+//     #2194 race (paused TaskSuspender that never resumes) has surfaced as
+//     three different visible-task titles across IDE versions; keying by
+//     title (not by TaskInfo identity, which the SDK doesn't keep stable
+//     across remote calls) is what catches all of them.
 
 package com.virtuslab.gitmachete.uitest
 
@@ -33,12 +35,13 @@ fun Driver.getProgressIndicators(project: Project): List<Pair<TaskInfo?, Progres
 // data within a single wait check (every getTitle() hop crosses the
 // driver <-> IDE boundary).
 //
-// The driver-sdk proxy wrapping the remote TaskInfo reports a stable
-// System.identityHashCode across polls within a single wait (verified in CI
-// logs - see #2194), so identity hash plus title is enough to recognise "the
-// same task again" even if proxy identity ever changes between versions.
+// `identityHash` is only used for logging; the stall tracker keys by title
+// because the driver-sdk does NOT guarantee proxy identity stability across
+// remote calls. In the IU-262.6653.22 "Analyzing project to enable smart
+// features" failure (see #2194) the same logical hung wrapper was returned
+// as a fresh proxy on every poll, churning System.identityHashCode and
+// defeating any identity-keyed tracker.
 private data class IndicatorSnapshot(val identityHash: Int, val title: String) {
-  val identityKey: String get() = "$identityHash|$title"
   val displayLabel: String get() = "$title#$identityHash"
 }
 
@@ -56,20 +59,25 @@ private sealed interface IndicatorState {
 }
 
 private class StallTracker {
+  // title -> Instant when this title first appeared in a *consecutive* run
+  // of polls. Cleared the moment the title disappears from a poll snapshot.
   private val firstSeen = HashMap<String, Instant>()
 
-  // Returns the subset of `snapshots` that have not yet exceeded STALL_THRESHOLD.
-  // Side-effect: bookkeeps first-seen timestamps and evicts entries no longer present.
+  // Returns the subset of `snapshots` whose title has not yet been
+  // continuously visible for STALL_THRESHOLD. Side-effect: bookkeeps
+  // first-seen timestamps and resets the clock for any title that
+  // disappears between polls.
   fun freshOnly(snapshots: List<IndicatorSnapshot>, now: Instant): List<IndicatorSnapshot> {
-    firstSeen.keys.retainAll(snapshots.mapTo(HashSet()) { it.identityKey })
+    firstSeen.keys.retainAll(snapshots.mapTo(HashSet()) { it.title })
     val fresh = mutableListOf<IndicatorSnapshot>()
     for (s in snapshots) {
-      val firstSeenAt = firstSeen.getOrPut(s.identityKey) { now }
+      val firstSeenAt = firstSeen.getOrPut(s.title) { now }
       val ageSecs = java.time.Duration.between(firstSeenAt, now).seconds
       if (ageSecs >= STALL_THRESHOLD.inWholeSeconds) {
         println(
           "Driver.myWaitForIndicators: ignoring stale indicator ${s.displayLabel} " +
-            "(visible for ${ageSecs}s without completing - suspected platform stall, see #2194)",
+            "(title continuously visible for ${ageSecs}s without ever disappearing " +
+            "- suspected platform stall, see #2194)",
         )
       } else {
         fresh += s

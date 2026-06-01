@@ -21,18 +21,20 @@ UITestSuite > testPullBranch() FAILED
 Long-running flake: ~12 distinct CI occurrences logged on
 [#2194](https://github.com/VirtusLab/git-machete-intellij-plugin/issues/2194)
 between 2025-09-25 and 2026-06-01, i.e. roughly one observed failure per
-month on average. Reproduced on `:uiTest_2025.3.5` (IntelliJ Ultimate,
-`IU-253.33514.17`), `:uiTest_262.6228.19` (`IU-262.6228.19`,
-upcoming-major-EAP, also Ultimate) and `:uiTest_262.6653.22`
-(`IU-262.6653.22`, upcoming-major-EAP, also Ultimate). Community
-(`:uiTest_2025.2.6.2`, `IC-...`) does not exhibit it.
+month on average - plus several reproductions hit while iterating on the
+mitigation itself in early June. Reproduced on `:uiTest_2025.3.5`
+(IntelliJ Ultimate, `IU-253.33514.17`), `:uiTest_262.6228.19`
+(`IU-262.6228.19`, upcoming-major-EAP, also Ultimate) and
+`:uiTest_262.6653.22` (`IU-262.6653.22`, upcoming-major-EAP, also
+Ultimate). Community (`:uiTest_2025.2.6.2`, `IC-...`) does not exhibit it.
 
 The action that triggers the wait is irrelevant - it just happens to be
 whichever `doAndAwait` call gets unlucky after a `git` operation that
 re-enters dumb mode. Observed triggers so far include `checkoutBranch(...)`
-(by far the most common: `allow-ownership-link`, `master`, `call-ws`) and
-`syncSelectedToParentByMerge('call-ws')`. The failing test is similarly
-varied: `testPullBranch`, `testSquashBranch`, `testFastForwardParentOfBranch`,
+(by far the most common: `allow-ownership-link`, `master`, `call-ws`),
+`syncSelectedToParentByMerge('call-ws')` and `syncSelectedToParentByRebase`.
+The failing test is similarly varied: `testPullBranch`, `testSquashBranch`,
+`testFastForwardParentOfBranch`, `testSyncToParentByRebaseAction`,
 `testSkipNonExistentBranches_toggleListingCommits_slideOutRoot`.
 
 ## Root cause (proven, 2026-05-27 run, IU-262.6228.19)
@@ -163,6 +165,57 @@ hidden. Same bug, different surface.
 Artifacts pulled under `/tmp/issue2194-v2/` (idea.log + threadDump-2 +
 threadDump-3).
 
+### Third occurrence (2026-06-01 run, IU-262.6653.22, CircleCI job 14776)
+
+Failure in `testSyncToParentByRebaseAction` after `syncSelectedToParentByRebase`.
+Same `MyDumbModeTask` suspender stack in the thread dump - third title for
+the same upstream platform bug:
+
+```text
+"Progress: Analyzing project to enable smart features":ProducerCoroutine{Active},
+  state: SUSPENDED [..., Dispatchers.Default]
+    at com.intellij.openapi.progress.impl.PlatformTaskSupportKt$showIndicator$1.invokeSuspend
+        (PlatformTaskSupport.kt:476)
+
+"com.intellij.util.indexing.UnindexedFilesScannerExecutorImpl":supervisor:ChildScope
+  "Scanning (root)":StandaloneCoroutine{Active}, state: SUSPENDED
+    at UnindexedFilesScannerExecutorImpl$1.invokeSuspend(...:138)
+
+[and, again, in the same dump:]
+PushedFilePropertiesUpdaterImpl$MyDumbModeTask.performInDumbMode  (line 377)
+  ... -> CoroutineSuspenderImpl ... SUSPENDED   <-- same upstream stall
+```
+
+What was new and important is the **logging** added in PR #2305: it printed
+the offending title directly in the gradle output:
+
+```text
+Driver.myWaitForIndicators: waiting more since background processes are
+  running: [Analyzing project to enable smart features#1592099291]
+Driver.myWaitForIndicators: waiting more since background processes are
+  running: [Analyzing project to enable smart features#1972950645]
+Driver.myWaitForIndicators: waiting more since background processes are
+  running: [Analyzing project to enable smart features#1105700164]
+...
+```
+
+Two things this log proves at a glance:
+
+1. The hung task title is `Analyzing project to enable smart features` -
+   the wrapper started around `MyDumbModeTask` during smart-mode init.
+2. The driver-sdk returns a **fresh `TaskInfo` proxy on every call**:
+   `System.identityHashCode` is different on every line, even though
+   logically it's the same task. The first iteration of the stall tracker
+   (PR #2305) keyed on `identityHash + title`, so the stall age never
+   accumulated and the 30 s threshold was never reached. The wait still
+   spun for the full 2 minutes.
+
+Fix: key the stall tracker on **title alone**, with the clock reset only
+when the title disappears entirely from a poll snapshot. Identity hash is
+retained in the log line for human forensics.
+
+Artifacts pulled under `/tmp/issue2194-v3/` (idea.log + threadDump-2).
+
 ## Open question: who paused the suspender?
 
 The remaining unknown is **which producer paused the `TaskSuspender` and never
@@ -255,11 +308,13 @@ investigation.
 
 With the current mitigation, a hung wait that *still* trips the 2-minute
 timeout means either (a) it's a different bug entirely, or (b) the stall
-tracker mis-identified a healthy-but-changing task (e.g. the platform
-publishes a fresh `TaskInfo` proxy instance every poll, so identity
-churns and we never reach the 30 s threshold). In case (b), the
-"waiting more since background processes are running: [<title>#<id>]"
-log lines should show the identity hash *changing* between polls.
+tracker mis-identified a healthy-but-changing task (e.g. two short tasks
+with the same title that briefly alternate so the title never disappears
+from a poll snapshot, yet neither one is actually stalled). In case (b)
+the gradle log will show many distinct `<title>#<id>` suffixes for one
+title, and the test will succeed for the wrong reason after the 30 s
+mark. If that happens, consider also tracking the indicator's fraction /
+text to detect "stuck" vs "merely repeated".
 
 To dig deeper from the test process itself:
 
@@ -297,13 +352,23 @@ Two layers in `MyIndicators.kt`:
    2026-05-27 flavour, where the paused `MyDumbModeTask` keeps `isDumb()`
    true but does not surface as a progress indicator.
 
-2. **Per-task stall threshold (30 s).** `indicatorState` runs every visible
-   `TaskInfo` through a `StallTracker` keyed by `System.identityHashCode +
-   getTitle()`. Any task that has been continuously visible for >= 30 s is
-   logged once and dropped from the "running" set. This handles the
-   2026-06-01 flavour, where the platform DOES register a
-   `withBackgroundProgress(...)` wrapper for the paused dumb-mode task and
-   that wrapper stays visible for the whole 2-minute timeout.
+2. **Per-title stall threshold (30 s).** `indicatorState` runs every visible
+   `TaskInfo` through a `StallTracker` keyed on `getTitle()` alone. Any
+   title that has been continuously visible across polls for >= 30 s is
+   logged once and dropped from the "running" set; the moment a title
+   disappears from a poll snapshot, its first-seen clock is reset. This
+   handles every observed flavour of the platform stall - the
+   `MergingQueueGuiExecutor.withBackgroundProgress(...)` wrapper title in
+   `IU-262.6653.22 / testSquashBranch` and the
+   `Analyzing project to enable smart features` wrapper title in
+   `IU-262.6653.22 / testSyncToParentByRebaseAction`.
+
+   The earlier identity-hash-based variant (`System.identityHashCode +
+   title`, PR #2305) was defeated by the second of those occurrences: the
+   driver-sdk does not cache the `TaskInfo` proxy across remote calls, so
+   the identity hash churns on every poll even when the underlying server
+   task is the same. Logs from a real failure showed dozens of distinct
+   `#<id>` suffixes for one logical task.
 
 Why 30 s is safe in practice:
 
@@ -380,8 +445,8 @@ the next failure:
    `exit dumb mode` until project disposal - that's the hang. Cross-check
    that the same `MyDumbModeTask@<hash>` does NOT have a `Task finished`
    log until ~2 minutes later.
-5. The "smoking gun" stack frames to look for in the thread dump (one of
-   the two equivalent forms, depending on platform version):
+5. The "smoking gun" stack frames to look for in the thread dump (any of
+   these three equivalent forms; they all map to the same upstream bug):
    - `BlockingCoroutine` parked at `CoroutineSuspenderImpl.checkPaused`,
      inside `PushedFilePropertiesUpdaterImpl.performDelayedPushTasks`
      (2026-05-27 / IU-262.6228.19 form), OR
@@ -389,5 +454,10 @@ the next failure:
      SUSPENDED` with both `TaskSuspenderElement` and
      `CoroutineSuspenderElement` in the coroutine context, parked at
      `MyDumbModeTask$performInDumbMode$1$1.invokeSuspend` (2026-06-01 /
-     IU-262.6653.22 form).
-   Either is enough to confirm the diagnosis without further work.
+     `testSquashBranch` / IU-262.6653.22 form), OR
+   - `Progress: Analyzing project to enable smart features:
+     ProducerCoroutine, state: SUSPENDED` plus
+     `UnindexedFilesScannerExecutorImpl ... scanning task execution trigger
+     ... SUSPENDED` plus the same `MyDumbModeTask` frame (2026-06-01 /
+     `testSyncToParentByRebaseAction` / IU-262.6653.22 form).
+   Any one is enough to confirm the diagnosis without further work.
