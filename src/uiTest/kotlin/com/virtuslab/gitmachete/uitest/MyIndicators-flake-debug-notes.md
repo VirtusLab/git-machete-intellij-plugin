@@ -18,16 +18,22 @@ UITestSuite > testPullBranch() FAILED
         at com.virtuslab.gitmachete.uitest.UITestSuite.testPullBranch(UITestSuite.kt:170)
 ```
 
-So far reproduced on `:uiTest_2025.3.5` (IntelliJ Ultimate, `IU-253.33514.17`)
-and `:uiTest_262.6228.19` (`IU-262.6228.19`, upcoming-major-EAP, also Ultimate).
-Community (`:uiTest_2025.2.6.2`, `IC-...`) does not exhibit it.
+Long-running flake: ~12 distinct CI occurrences logged on
+[#2194](https://github.com/VirtusLab/git-machete-intellij-plugin/issues/2194)
+between 2025-09-25 and 2026-06-01, i.e. roughly one observed failure per
+month on average. Reproduced on `:uiTest_2025.3.5` (IntelliJ Ultimate,
+`IU-253.33514.17`), `:uiTest_262.6228.19` (`IU-262.6228.19`,
+upcoming-major-EAP, also Ultimate) and `:uiTest_262.6653.22`
+(`IU-262.6653.22`, upcoming-major-EAP, also Ultimate). Community
+(`:uiTest_2025.2.6.2`, `IC-...`) does not exhibit it.
 
-The action that triggers the wait is irrelevant - it just happens to be the
-first `doAndAwait` call after a project open / branch checkout in whichever
-test runs into the race. `testPullBranch`'s `checkoutBranch('allow-ownership-link')`,
-`testSkipNonExistentBranches_toggleListingCommits_slideOutRoot`'s
-`checkoutBranch('master')`, `testFastForwardParentOfBranch`'s
-`checkoutBranch('call-ws')` etc. are all candidates.
+The action that triggers the wait is irrelevant - it just happens to be
+whichever `doAndAwait` call gets unlucky after a `git` operation that
+re-enters dumb mode. Observed triggers so far include `checkoutBranch(...)`
+(by far the most common: `allow-ownership-link`, `master`, `call-ws`) and
+`syncSelectedToParentByMerge('call-ws')`. The failing test is similarly
+varied: `testPullBranch`, `testSquashBranch`, `testFastForwardParentOfBranch`,
+`testSkipNonExistentBranches_toggleListingCommits_slideOutRoot`.
 
 ## Root cause (proven, 2026-05-27 run, IU-262.6228.19)
 
@@ -83,6 +89,79 @@ The 2026-05-07 / 2025.3.5 run did show `Creating ProvenanceDatabase` ~at the
 start of the hang, but no thread dump from inside that freeze is available,
 so the correlation may have been coincidental (the service initializes ~60 s
 after every project open). Treat that earlier hypothesis as unverified.
+
+### Second occurrence (2026-06-01 run, IU-262.6653.22, CircleCI job 14771)
+
+Same root cause, **different visible symptom**: the paused `MyDumbModeTask`
+this time DOES contribute a status-bar progress indicator, so the previous
+"drop the `isDumb()` gate" mitigation no longer hides the hang. The wait
+now spins for 2 minutes printing
+
+```text
+Driver.myWaitForIndicators: waiting more since background processes are running:
+   [(com.intellij.openapi.progress.impl.PlatformTaskSupportKt$taskInfo$1@7ec76143,
+     com.intellij.openapi.progress.ProgressIndicatorModel@3734a19)]
+```
+
+with the same `@7ec76143` `TaskInfo` instance for all ~120 polling iterations.
+
+`idea.log` correlation (project hash `d3d300a2`):
+
+```text
+17:30:28,110  Progress indicator:started:Checking out call-ws...
+17:30:28,145  git checkout call-ws --
+17:30:28,152  Switched to branch 'call-ws'
+17:30:28,255  enter dumb mode  [machete-sandbox-worktree]
+17:30:28,259  Running task: (dumb mode task) MyDumbModeTask@5a204ebf
+              (reason: Push on VFS changes)        <-- same flavour as 2026-05-27
+17:30:28,283  Progress indicator:finished:Checking out call-ws...
+--- 100 s gap, only periodic heartbeat screenshots ---
+17:32:13  (test gives up - 2 min wait fires)
+```
+
+Smoking-gun stack (`threadDump-2-...17-31-10.txt`, ~57 s into the freeze;
+identical in `threadDump-3-...17-32-10.txt` at ~117 s in - same
+`BlockingCoroutine@530b5f18`):
+
+```text
+"DefaultDispatcher-worker-1" parked in:
+  PushedFilePropertiesUpdaterImpl$MyDumbModeTask.performInDumbMode  (line 377)
+    runBlockingCancellable
+      MergingQueueGuiExecutor.runSingleTask
+        MergingQueueGuiExecutor.processTasksWithProgress
+          ... (MergingQueueGuiSuspender, SingleTaskExecutor) ...
+            MergingQueueGuiExecutor$startBackgroundProcess$1$1.invokeSuspend
+              PlatformTaskSupport.withBackgroundProgressInternal      <-- THIS
+                ProgressPipeImpl.collectProgressUpdates                |
+                  BlockingCoroutine.joinBlocking                       |
+                    LockSupport.parkNanos                              |
+                                                                      v
+                                                  ...is what surfaces as the
+                                                  visible status-bar TaskInfo
+                                                  @7ec76143.
+
+"...MergingQueueGuiExecutor$ScopeHolder":BlockingCoroutine@530b5f18,
+   state: SUSPENDED
+   [..., TaskSuspenderElement, CoroutineSuspenderElement, ...,
+    BlockingEventLoop]
+    at PushedFilePropertiesUpdaterImpl$MyDumbModeTask
+       $performInDumbMode$1$1.invokeSuspend(PushedFilePropertiesUpdaterImpl.kt:379)
+```
+
+Identity:
+- `PlatformTaskSupport$taskInfo$1` = the `withBackgroundProgress(title, ...)`
+  wrapper that `MergingQueueGuiExecutor.startBackgroundProcess` opens for
+  every dumb-mode task. It stays registered until the wrapped task returns.
+- The wrapped task is `MyDumbModeTask`, suspended on the same
+  `TaskSuspender`/`CoroutineSuspender` chain as the 2026-05-27 occurrence.
+- The EDT is idle. The freeze is purely on the never-resumed suspender.
+
+In other words, the platform's wrapper task is now what we see; previously
+only the inner work was visible to `DumbService` while the wrapper stayed
+hidden. Same bug, different surface.
+
+Artifacts pulled under `/tmp/issue2194-v2/` (idea.log + threadDump-2 +
+threadDump-3).
 
 ## Open question: who paused the suspender?
 
@@ -174,16 +253,21 @@ investigation.
 
 ## Next-step debug ideas
 
-If we want to confirm WHICH suspender is holding the pause on the next
-occurrence, the cheapest move is to extend `MyIndicators.kt`:
+With the current mitigation, a hung wait that *still* trips the 2-minute
+timeout means either (a) it's a different bug entirely, or (b) the stall
+tracker mis-identified a healthy-but-changing task (e.g. the platform
+publishes a fresh `TaskInfo` proxy instance every poll, so identity
+churns and we never reach the 30 s threshold). In case (b), the
+"waiting more since background processes are running: [<title>#<id>]"
+log lines should show the identity hash *changing* between polls.
 
-- When `DumbService.isDumb()` has been `true` for more than ~30 s, instead
-  of just logging "still dumb", reflectively peek at:
-    - `DumbServiceImpl.getCurrentTask()` - confirms the task is
-      `PushedFilePropertiesUpdaterImpl$MyDumbModeTask`.
-    - The `CoroutineSuspender` attached to that task (private; needs
-      reflection on `MergingQueueGuiSuspender` or
-      `TaskSuspenderImpl.isPaused`).
+To dig deeper from the test process itself:
+
+- Reflectively peek at `DumbServiceImpl.getCurrentTask()` and confirm the
+  task is `PushedFilePropertiesUpdaterImpl$MyDumbModeTask`.
+- Reflectively read `CoroutineSuspenderImpl.isPaused` for the suspender
+  attached to that task (private; via `MergingQueueGuiSuspender` or
+  `TaskSuspenderImpl`).
 - Log the result. If `isPaused == true`, we have proof on the same
   occurrence, no need to download thread dumps.
 
@@ -206,28 +290,45 @@ suspender never resumes) is enough for the platform team to investigate.
 
 ## Mitigation in place
 
-`MyIndicators.indicatorState` **no longer consults `DumbService.isDumb()`**;
-the wait is gated solely on the list of status-bar progress indicators
-(`StatusBar.getBackgroundProcessModels()`). This is enough because:
+Two layers in `MyIndicators.kt`:
 
-- The paused `MyDumbModeTask` does NOT contribute a progress indicator
-  (we never see a `background processes are running` line during the freeze
-  window in `idea.log`), so it is now invisible to the wait.
-- Healthy occurrences of the same task finish in 2-60 ms, far below any
-  test-meaningful threshold; they would be missed by polling anyway.
-- Every legitimate long-running scanning/indexing operation (initial
-  project indexing, "Updating Git Machete status...", "Closing attached
-  shared indexes...", VCS log refresh, etc.) is visible in
-  `getBackgroundProcessModels()`, so the test still waits for them.
+1. **`DumbService.isDumb()` is no longer consulted.** Activity is gated on
+   `StatusBar.getBackgroundProcessModels()` only. This handles the
+   2026-05-27 flavour, where the paused `MyDumbModeTask` keeps `isDumb()`
+   true but does not surface as a progress indicator.
+
+2. **Per-task stall threshold (30 s).** `indicatorState` runs every visible
+   `TaskInfo` through a `StallTracker` keyed by `System.identityHashCode +
+   getTitle()`. Any task that has been continuously visible for >= 30 s is
+   logged once and dropped from the "running" set. This handles the
+   2026-06-01 flavour, where the platform DOES register a
+   `withBackgroundProgress(...)` wrapper for the paused dumb-mode task and
+   that wrapper stays visible for the whole 2-minute timeout.
+
+Why 30 s is safe in practice:
+
+- Healthy occurrences of the offending task wrapper finish in 2-60 ms (we
+  have 13+ datapoints from the pre-freeze portion of the same `idea.log`s).
+- The longest legitimate visible tasks in these tests are initial project
+  scanning ("Updating Git Machete status...", "Closing attached shared
+  indexes...", VCS log refresh) which complete well under 10 s in CI.
+- The smart-quiescence step still requires a 10 s no-indicator window after
+  the stall guard fires, so an erroneously aged-out task that immediately
+  reappears will keep the wait honest as long as it churns.
 - The git/VCS/UI actions exercised by these tests do not depend on PSI
   indexes being ready, so we don't need smart-mode protection.
 
-Side effect: if a future regression introduces a legitimate dumb-mode task
-that lacks a progress indicator AND that the test actually needs to wait
-for, this wait will no longer catch it. None of the current actions look
-like they would suffer; if a future test does, prefer adding a dedicated
-`Driver.waitForSmartMode(timeout)` call at that site rather than
-reintroducing the global `isDumb()` gate.
+The new logging also prints the task's title (via `TaskInfo.getTitle()`)
+instead of the opaque `PlatformTaskSupportKt$taskInfo$1@<hash>` proxy
+`toString()`. The next occurrence's gradle output should tell us at a glance
+*which* task is hung, without needing a thread dump.
+
+Side effect: if a future regression introduces a legitimate task that needs
+to keep running for more than 30 s while a test waits for it, the wait will
+prematurely succeed. None of the current actions look like they would
+suffer; if a future test does, prefer adding a dedicated
+`Driver.waitForSmartMode(timeout)` or per-call `waitFor("MyCondition") {}`
+at that site rather than raising the global stall threshold.
 
 ## Other options considered (not applied)
 
@@ -237,7 +338,10 @@ reintroducing the global `isDumb()` gate.
 
 - **Reflectively call `CoroutineSuspender.resume()` on the stuck task**
   after N seconds of dumb mode. Workable but masks the platform bug and
-  requires reflection on private internals.
+  requires reflection on private internals. The current stall-tracker
+  approach is the lighter equivalent: rather than resuming the suspender,
+  we just stop *waiting* for the wrapper indicator once it has clearly
+  hung. The platform task remains paused but is harmless.
 
 - **Disable the originator service in tests**. Plausible candidates are
   the VCS heavy-operation chain (`vcs.heavyOperationSuspender`,
@@ -255,11 +359,15 @@ reintroducing the global `isDumb()` gate.
 The flake is timing-dependent and may not reproduce locally. To investigate
 the next failure:
 
-1. Pull the gradle output (`uiTest_2025.3.5` / `uiTest_262.6228.19` task) -
-   usually attached to the failed CircleCI job as `0.txt` or similar.
+1. Pull the gradle output (`uiTest_2025.3.5` / `uiTest_262.6228.19` /
+   `uiTest_262.6653.22` / ... task) - usually attached to the failed
+   CircleCI job as `0.txt` or similar.
 2. Look for the `myWaitForIndicators` log pattern. With the current logging
-   the line will tell you immediately whether it is dumb mode, a hung
-   progress task, or the smart-quiescence timer.
+   the line will tell you immediately:
+   - which indicator was hung (`<title>#<identityHash>`),
+   - whether the stall guard already aged it out
+     (`ignoring stale indicator ... visible for Ns without completing`),
+   - or whether the smart-quiescence timer was running.
 3. From the same job's CircleCI artifacts, pull:
    - `out/ide-tests/tests/IU-.../ui-test/log/idea.log`
    - `out/ide-tests/tests/IU-.../ui-test/log/monitoring-thread-dumps-ide/threadDump-N-...txt`
@@ -272,7 +380,14 @@ the next failure:
    `exit dumb mode` until project disposal - that's the hang. Cross-check
    that the same `MyDumbModeTask@<hash>` does NOT have a `Task finished`
    log until ~2 minutes later.
-5. The "smoking gun" stack frame to look for in the thread dump:
-   any `BlockingCoroutine` parked at `CoroutineSuspenderImpl.checkPaused`,
-   inside `PushedFilePropertiesUpdaterImpl.performDelayedPushTasks`.
-   If that stack is present, the diagnosis is confirmed without further work.
+5. The "smoking gun" stack frames to look for in the thread dump (one of
+   the two equivalent forms, depending on platform version):
+   - `BlockingCoroutine` parked at `CoroutineSuspenderImpl.checkPaused`,
+     inside `PushedFilePropertiesUpdaterImpl.performDelayedPushTasks`
+     (2026-05-27 / IU-262.6228.19 form), OR
+   - `MergingQueueGuiExecutor$ScopeHolder:BlockingCoroutine, state:
+     SUSPENDED` with both `TaskSuspenderElement` and
+     `CoroutineSuspenderElement` in the coroutine context, parked at
+     `MyDumbModeTask$performInDumbMode$1$1.invokeSuspend` (2026-06-01 /
+     IU-262.6653.22 form).
+   Either is enough to confirm the diagnosis without further work.
