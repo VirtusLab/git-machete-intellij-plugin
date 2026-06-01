@@ -29,7 +29,6 @@ remoteRobot-serverPlugin = { module = "com.intellij.remoterobot:robot-server-plu
 slf4j-lambda = "kr.pe.kwonnam.slf4j-lambda:slf4j-lambda-core:0.1"
 slf4j-mock = "org.simplify4u:slf4j-mock:2.4.0"
 slf4j-simple = "org.slf4j:slf4j-simple:2.0.17"
-teamcity-serviceMessages = "org.jetbrains.teamcity:serviceMessages:2024.07"
 vavr = "io.vavr:vavr:1.0.1"
 
 # Note that certain plugins are also pulled in via buildSrc,

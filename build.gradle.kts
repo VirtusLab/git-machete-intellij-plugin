@@ -491,10 +491,6 @@ dependencies {
   uiTestImplementation(libs.okhttp)
   uiTestImplementation(libs.remoteRobot.client)
   uiTestRuntimeOnly(libs.kotlin.coroutines)
-  // Required at runtime by `com.intellij.platform.testFramework.teamCity.TeamCityReporter`,
-  // which `LocalIDEProcess` invokes to emit per-test progress to the surrounding CI process.
-  // Not pulled in transitively via `TestFrameworkType.Starter`, so we add it explicitly.
-  uiTestRuntimeOnly(libs.teamcity.serviceMessages)
 
   robotServerPluginZip(libs.remoteRobot.serverPlugin) {
     artifact {
