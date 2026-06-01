@@ -1,5 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.base;
 
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -49,6 +50,25 @@ public abstract class BasePullAction extends BaseGitMacheteRepositoryReadyAction
   protected void onUpdate(AnActionEvent anActionEvent) {
     super.onUpdate(anActionEvent);
     syncToRemoteStatusDependentActionUpdate(anActionEvent);
+
+    val presentation = anActionEvent.getPresentation();
+    if (!presentation.isEnabledAndVisible()) {
+      return;
+    }
+    val branchName = getNameOfBranchUnderAction(anActionEvent);
+    if (branchName == null) {
+      return;
+    }
+    val worktreeRootHoldingBranch = getWorktreeRootHoldingBranchIfHeldElsewhere(anActionEvent, branchName);
+    if (worktreeRootHoldingBranch != null) {
+      // Pull fast-forwards the target branch via `git fetch . <remote>:<local>`; git refuses to update a
+      // local branch ref while it is checked out in another worktree (the same `refusing to fetch into
+      // branch ... checked out at ...` failure as a bare `git pull` in that situation).
+      presentation.setEnabled(false);
+      presentation.setDescription(
+          getNonHtmlString("action.GitMachete.description.disabled.branch-held-by-other-worktree")
+              .fmt(branchName, worktreeRootHoldingBranch.toString()));
+    }
   }
 
   @Override
