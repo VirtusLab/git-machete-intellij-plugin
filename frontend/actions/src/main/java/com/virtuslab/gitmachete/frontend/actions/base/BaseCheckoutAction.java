@@ -9,7 +9,6 @@ import git4idea.branch.GitBrancher;
 import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.tainting.qual.Untainted;
 
 import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
@@ -20,13 +19,12 @@ import com.virtuslab.qual.async.ContinuesInBackground;
 @ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class})
 public abstract class BaseCheckoutAction extends BaseGitMacheteRepositoryReadyAction
     implements
+      IBranchNameProvider,
       IExpectsKeySelectedBranchName {
   @Override
   protected boolean isSideEffecting() {
     return true;
   }
-
-  protected abstract @Nullable String getTargetBranchName(AnActionEvent anActionEvent);
 
   protected abstract @Untainted String getNonExistentBranchMessage(AnActionEvent anActionEvent);
 
@@ -40,7 +38,7 @@ public abstract class BaseCheckoutAction extends BaseGitMacheteRepositoryReadyAc
       return;
     }
 
-    val targetBranchName = getTargetBranchName(anActionEvent);
+    val targetBranchName = getNameOfBranchUnderAction(anActionEvent);
 
     // It's very unlikely that targetBranchName is empty at this point since it's assigned directly before invoking this
     // action in EnhancedGraphTable.EnhancedGraphTableMouseAdapter#mouseClicked; still, it's better to be safe.
@@ -80,7 +78,7 @@ public abstract class BaseCheckoutAction extends BaseGitMacheteRepositoryReadyAc
   @ContinuesInBackground
   @UIEffect
   public void actionPerformed(AnActionEvent anActionEvent) {
-    val targetBranchName = getTargetBranchName(anActionEvent);
+    val targetBranchName = getNameOfBranchUnderAction(anActionEvent);
     if (targetBranchName == null || targetBranchName.isEmpty()) {
       return;
     }

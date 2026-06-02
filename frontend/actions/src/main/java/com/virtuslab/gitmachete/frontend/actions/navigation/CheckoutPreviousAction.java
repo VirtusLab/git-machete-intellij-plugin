@@ -11,14 +11,11 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.tainting.qual.Untainted;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseCheckoutAction;
-import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 
 @CustomLog
 @ExtensionMethod(GitMacheteBundle.class)
-public class CheckoutPreviousAction extends BaseCheckoutAction
-    implements
-      IExpectsKeySelectedBranchName {
+public class CheckoutPreviousAction extends BaseCheckoutAction {
 
   @Override
   protected @Untainted String getNonExistentBranchMessage(AnActionEvent anActionEvent) {
@@ -29,7 +26,7 @@ public class CheckoutPreviousAction extends BaseCheckoutAction
   }
 
   @Override
-  protected @Nullable String getTargetBranchName(AnActionEvent anActionEvent) {
+  public @Nullable String getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
     val currentBranchName = getCurrentBranchNameIfManaged(anActionEvent);
     val branchLayout = getBranchLayout(anActionEvent);
     if (branchLayout != null && currentBranchName != null) {

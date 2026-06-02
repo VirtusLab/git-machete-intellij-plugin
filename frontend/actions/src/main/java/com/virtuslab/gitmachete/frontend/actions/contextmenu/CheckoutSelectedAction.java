@@ -10,15 +10,12 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.tainting.qual.Untainted;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseCheckoutAction;
-import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeySelectedBranchName;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 
 @ExtensionMethod({GitVfsUtils.class, GitMacheteBundle.class})
 @CustomLog
-public class CheckoutSelectedAction extends BaseCheckoutAction
-    implements
-      IExpectsKeySelectedBranchName {
+public class CheckoutSelectedAction extends BaseCheckoutAction {
 
   @Override
   public LambdaLogger log() {
@@ -26,7 +23,7 @@ public class CheckoutSelectedAction extends BaseCheckoutAction
   }
 
   @Override
-  protected @Nullable String getTargetBranchName(AnActionEvent anActionEvent) {
+  public @Nullable String getNameOfBranchUnderAction(AnActionEvent anActionEvent) {
     return getSelectedBranchName(anActionEvent);
   }
 
