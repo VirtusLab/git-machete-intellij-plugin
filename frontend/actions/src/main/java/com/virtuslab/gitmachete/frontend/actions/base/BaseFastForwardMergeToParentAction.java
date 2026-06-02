@@ -50,9 +50,14 @@ public abstract class BaseFastForwardMergeToParentAction extends BaseGitMacheteR
     if (!anActionEvent.getPresentation().isEnabledAndVisible()) {
       return;
     }
-    // FF-merge target is the (non-root) branch under action - same `git fetch . <parent>:<child>`
-    // refspec as Pull, just sourced locally; git refuses to fast-forward a branch held elsewhere.
-    disableIfBranchHeldByOtherWorktree(anActionEvent, getNameOfBranchUnderAction(anActionEvent));
+    // FF-merge-to-parent advances the *parent's* ref to the child via `git fetch . <child>:<parent>`
+    // (or `git merge --ff-only <child>` if the parent is currently checked out). Git refuses to
+    // update the parent ref while it is held by another worktree, so guard the parent - not the
+    // child branch under action, which is only read.
+    val branch = getManagedBranchByName(anActionEvent, getNameOfBranchUnderAction(anActionEvent));
+    if (branch != null && branch.isNonRoot()) {
+      disableIfBranchHeldByOtherWorktree(anActionEvent, branch.asNonRoot().getParent().getName());
+    }
   }
 
   @Override
