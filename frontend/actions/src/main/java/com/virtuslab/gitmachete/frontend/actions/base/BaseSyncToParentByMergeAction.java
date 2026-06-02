@@ -12,7 +12,6 @@ import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
 import io.vavr.control.Option;
-import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
@@ -21,14 +20,12 @@ import org.checkerframework.checker.tainting.qual.Untainted;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
-import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.async.ContinuesInBackground;
 
-@ExtensionMethod(GitMacheteBundle.class)
 public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteRepositoryReadyAction
     implements
-      IBranchNameProvider,
-      ISyncToParentStatusDependentAction {
+      ISyncToParentStatusDependentAction,
+      IWorktreeGuardedBranchAction {
 
   @Override
   protected boolean isSideEffecting() {
@@ -68,20 +65,14 @@ public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteReposi
       presentation.setText(getString("action.GitMachete.BaseSyncToParentByMergeAction.text"));
     }
 
-    if (!presentation.isEnabledAndVisible() || branchName == null) {
+    if (!presentation.isEnabledAndVisible()) {
       return;
     }
-    val worktreeRootHoldingBranch = getWorktreeRootHoldingBranchIfHeldElsewhere(anActionEvent, branchName);
-    if (worktreeRootHoldingBranch != null) {
-      // Merging parent into a non-current branch first checks the child out into the active worktree
-      // (see doMergeIntoNonCurrentBranch); git refuses if the branch is held elsewhere. The branch
-      // cannot be `current` here either - dual checkout of the same branch is prohibited - so the
-      // checked-out-elsewhere path is the only one that matters.
-      presentation.setEnabled(false);
-      presentation.setDescription(
-          getNonHtmlString("action.GitMachete.description.disabled.branch-held-by-other-worktree")
-              .fmt(branchName, worktreeRootHoldingBranch.toString()));
-    }
+    // Merging parent into a non-current branch first checks the child out into the active worktree
+    // (see doMergeIntoNonCurrentBranch); git refuses if the branch is held elsewhere. The branch
+    // cannot be `current` here either - dual checkout of the same branch is prohibited - so the
+    // checked-out-elsewhere path is the only one that matters.
+    disableIfBranchHeldByOtherWorktree(anActionEvent, branchName);
   }
 
   @Override

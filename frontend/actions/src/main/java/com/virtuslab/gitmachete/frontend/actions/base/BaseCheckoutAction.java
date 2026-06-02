@@ -20,7 +20,8 @@ import com.virtuslab.qual.async.ContinuesInBackground;
 public abstract class BaseCheckoutAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
-      IExpectsKeySelectedBranchName {
+      IExpectsKeySelectedBranchName,
+      IWorktreeGuardedBranchAction {
   @Override
   protected boolean isSideEffecting() {
     return true;
@@ -58,15 +59,10 @@ public abstract class BaseCheckoutAction extends BaseGitMacheteRepositoryReadyAc
       return;
     }
 
-    val worktreeRootHoldingBranch = getWorktreeRootHoldingBranchIfHeldElsewhere(anActionEvent, targetBranchName);
-    if (worktreeRootHoldingBranch != null) {
-      // Git refuses to check out a branch already held by another worktree, so block the action up-front
-      // and surface the holding worktree's path in the tooltip rather than letting the user discover this
-      // through a side-effecting failure.
-      presentation.setEnabled(false);
-      presentation.setDescription(
-          getNonHtmlString("action.GitMachete.description.disabled.branch-held-by-other-worktree")
-              .fmt(targetBranchName, worktreeRootHoldingBranch.toString()));
+    // Git refuses to check out a branch already held by another worktree; surface the holding
+    // worktree's path in the tooltip rather than letting the user discover this through a
+    // side-effecting failure.
+    if (disableIfBranchHeldByOtherWorktree(anActionEvent, targetBranchName)) {
       return;
     }
 

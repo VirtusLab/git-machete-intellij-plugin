@@ -6,7 +6,6 @@ import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCate
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import io.vavr.collection.List;
-import lombok.experimental.ExtensionMethod;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
@@ -15,14 +14,12 @@ import org.checkerframework.checker.tainting.qual.Untainted;
 import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.frontend.actions.common.FastForwardMerge;
 import com.virtuslab.gitmachete.frontend.actions.common.MergeProps;
-import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.async.ContinuesInBackground;
 
-@ExtensionMethod(GitMacheteBundle.class)
 public abstract class BaseFastForwardMergeToParentAction extends BaseGitMacheteRepositoryReadyAction
     implements
-      IBranchNameProvider,
-      ISyncToParentStatusDependentAction {
+      ISyncToParentStatusDependentAction,
+      IWorktreeGuardedBranchAction {
 
   @Override
   protected boolean isSideEffecting() {
@@ -50,23 +47,12 @@ public abstract class BaseFastForwardMergeToParentAction extends BaseGitMacheteR
     super.onUpdate(anActionEvent);
     syncToParentStatusDependentActionUpdate(anActionEvent);
 
-    val presentation = anActionEvent.getPresentation();
-    if (!presentation.isEnabledAndVisible()) {
+    if (!anActionEvent.getPresentation().isEnabledAndVisible()) {
       return;
     }
-    val branchName = getNameOfBranchUnderAction(anActionEvent);
-    if (branchName == null) {
-      return;
-    }
-    val worktreeRootHoldingBranch = getWorktreeRootHoldingBranchIfHeldElsewhere(anActionEvent, branchName);
-    if (worktreeRootHoldingBranch != null) {
-      // FF-merge target is the (non-root) branch under action - same `git fetch . <parent>:<child>`
-      // refspec as Pull, just sourced locally; git refuses to fast-forward a branch held elsewhere.
-      presentation.setEnabled(false);
-      presentation.setDescription(
-          getNonHtmlString("action.GitMachete.description.disabled.branch-held-by-other-worktree")
-              .fmt(branchName, worktreeRootHoldingBranch.toString()));
-    }
+    // FF-merge target is the (non-root) branch under action - same `git fetch . <parent>:<child>`
+    // refspec as Pull, just sourced locally; git refuses to fast-forward a branch held elsewhere.
+    disableIfBranchHeldByOtherWorktree(anActionEvent, getNameOfBranchUnderAction(anActionEvent));
   }
 
   @Override

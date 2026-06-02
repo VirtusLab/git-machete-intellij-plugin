@@ -14,7 +14,6 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 
 import com.virtuslab.gitmachete.backend.api.INonRootManagedBranchSnapshot;
 import com.virtuslab.gitmachete.frontend.actions.backgroundables.RebaseOnParentBackgroundable;
-import com.virtuslab.gitmachete.frontend.actions.expectedkeys.IExpectsKeyGitMacheteRepository;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.async.ContinuesInBackground;
@@ -23,7 +22,7 @@ import com.virtuslab.qual.async.ContinuesInBackground;
 public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
-      IExpectsKeyGitMacheteRepository {
+      IWorktreeGuardedBranchAction {
 
   @Override
   protected boolean isSideEffecting() {
@@ -94,15 +93,9 @@ public abstract class BaseSyncToParentByRebaseAction extends BaseGitMacheteRepos
       } else if (branch.isNonRoot()) {
         val nonRootBranch = branch.asNonRoot();
         val upstream = nonRootBranch.getParent();
-        val worktreeRootHoldingBranch = getWorktreeRootHoldingBranchIfHeldElsewhere(anActionEvent, branchName);
-        if (worktreeRootHoldingBranch != null) {
-          // Rebase-onto-parent checks out the branch into the active worktree before invoking rebase; git
-          // refuses if the branch is held elsewhere.
-          presentation.setEnabled(false);
-          presentation.setDescription(
-              getNonHtmlString("action.GitMachete.description.disabled.branch-held-by-other-worktree")
-                  .fmt(branch.getName(), worktreeRootHoldingBranch.toString()));
-        } else {
+        // Rebase-onto-parent checks out the branch into the active worktree before invoking rebase; git
+        // refuses if the branch is held elsewhere.
+        if (!disableIfBranchHeldByOtherWorktree(anActionEvent, branchName)) {
           presentation.setDescription(getNonHtmlString("action.GitMachete.BaseSyncToParentByRebaseAction.description")
               .fmt(branch.getName(), upstream.getName()));
         }

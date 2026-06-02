@@ -39,7 +39,8 @@ import com.virtuslab.qual.async.ContinuesInBackground;
 public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryReadyAction
     implements
       IBranchNameProvider,
-      ISyncToRemoteStatusDependentAction {
+      ISyncToRemoteStatusDependentAction,
+      IWorktreeGuardedBranchAction {
 
   public static final String VCS_NOTIFIER_TITLE = getString(
       "action.GitMachete.BaseResetToRemoteAction.notification.title");
@@ -89,14 +90,8 @@ public abstract class BaseResetToRemoteAction extends BaseGitMacheteRepositoryRe
 
       val presentation = anActionEvent.getPresentation();
       if (presentation.isEnabledAndVisible()) {
-        val worktreeRootHoldingBranch = getWorktreeRootHoldingBranchIfHeldElsewhere(anActionEvent, branch);
-        if (worktreeRootHoldingBranch != null) {
-          // Reset moves the local branch ref; git refuses to update a branch held by another worktree.
-          presentation.setEnabled(false);
-          presentation.setDescription(
-              getNonHtmlString("action.GitMachete.description.disabled.branch-held-by-other-worktree")
-                  .fmt(branch, worktreeRootHoldingBranch.toString()));
-        }
+        // Reset moves the local branch ref; git refuses to update a branch held by another worktree.
+        disableIfBranchHeldByOtherWorktree(anActionEvent, branch);
       }
     }
   }

@@ -36,7 +36,8 @@ import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 @ExtensionMethod(GitMacheteBundle.class)
 public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyAction
     implements
-      IBranchNameProvider {
+      IBranchNameProvider,
+      IWorktreeGuardedBranchAction {
 
   private final String NL = System.lineSeparator();
 
@@ -70,7 +71,6 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
         val description = getNonHtmlString("action.GitMachete.BaseSquashAction.not-enough-commits")
             .fmt(branchName, numberOfCommits + "", numberOfCommits == 1 ? "" : "s");
 
-        val worktreeRootHoldingBranch = getWorktreeRootHoldingBranchIfHeldElsewhere(anActionEvent, branchName);
         if (numberOfCommits < 2) {
           presentation.setDescription(description);
           presentation.setEnabled(false);
@@ -78,13 +78,10 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
           presentation.setEnabled(false);
           presentation.setDescription(getNonHtmlString("action.GitMachete.BaseSquashAction.fork-point-off")
               .fmt(branchName));
-        } else if (worktreeRootHoldingBranch != null) {
-          // Squashing a non-current branch first switches HEAD to it (see doSquash); git refuses if the branch
-          // is held in another worktree.
-          presentation.setEnabled(false);
-          presentation.setDescription(
-              getNonHtmlString("action.GitMachete.description.disabled.branch-held-by-other-worktree")
-                  .fmt(branchName, worktreeRootHoldingBranch.toString()));
+          // Squashing a non-current branch first switches HEAD to it (see doSquash); git refuses if
+          // the branch is held in another worktree.
+        } else if (disableIfBranchHeldByOtherWorktree(anActionEvent, branchName)) {
+          // Description already set by the helper.
         } else {
           val currentBranchIfManaged = getCurrentBranchNameIfManaged(anActionEvent);
           val isSquashingCurrentBranch = currentBranchIfManaged != null && currentBranchIfManaged.equals(branchName);
