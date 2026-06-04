@@ -1,5 +1,7 @@
 # Changelog
 
+## v8.0.1
+
 ## v8.0.0
 - Added: support for IntelliJ 2026.2.
 - Dropped: support for IntelliJ 2025.2 and 2025.3.
