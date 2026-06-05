@@ -4,6 +4,7 @@ import com.intellij.openapi.application.invokeLater
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.ValidationInfo
+import com.intellij.openapi.ui.validation.WHEN_DOCUMENT_CHANGED
 import com.intellij.openapi.ui.validation.WHEN_STATE_CHANGED
 import com.intellij.openapi.util.text.HtmlBuilder
 import com.intellij.ui.dsl.builder.*
@@ -11,8 +12,6 @@ import com.intellij.ui.layout.ValidationInfoBuilder
 import com.intellij.util.textCompletion.TextFieldWithCompletion
 import com.intellij.util.ui.JBUI
 import com.virtuslab.gitmachete.frontend.actions.common.BranchNamesCompletion
-import com.virtuslab.gitmachete.frontend.actions.dialogs.GitNewBranchDialogCompat.WHEN_TEXT_FIELD_TEXT_CHANGED
-import com.virtuslab.gitmachete.frontend.actions.dialogs.GitNewBranchDialogCompat.conflictsWithLocalBranchDirectory
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString
 import git4idea.branch.GitBranchOperationType
 import git4idea.branch.GitNewBranchOptions
@@ -92,7 +91,7 @@ class MyGitNewBranchDialog @JvmOverloads constructor(
           selectAll()
         }
         .validationRequestor(WHEN_STATE_CHANGED(overwriteCheckbox))
-        .validationRequestor(WHEN_TEXT_FIELD_TEXT_CHANGED)
+        .validationRequestor(WHEN_DOCUMENT_CHANGED)
         .validationOnApply(validateBranchName(/* onApply */ true, overwriteCheckbox))
         .validationOnInput(validateBranchName(/* onApply */ false, overwriteCheckbox))
     }
