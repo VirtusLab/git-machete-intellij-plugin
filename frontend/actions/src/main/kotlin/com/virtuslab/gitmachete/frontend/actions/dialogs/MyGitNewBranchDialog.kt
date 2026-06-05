@@ -9,6 +9,7 @@ import com.intellij.openapi.util.text.HtmlBuilder
 import com.intellij.ui.dsl.builder.*
 import com.intellij.ui.layout.ValidationInfoBuilder
 import com.intellij.util.textCompletion.TextFieldWithCompletion
+import com.intellij.util.ui.JBUI
 import com.virtuslab.gitmachete.frontend.actions.common.BranchNamesCompletion
 import com.virtuslab.gitmachete.frontend.actions.dialogs.GitNewBranchDialogCompat.WHEN_TEXT_FIELD_TEXT_CHANGED
 import com.virtuslab.gitmachete.frontend.actions.dialogs.GitNewBranchDialogCompat.conflictsWithLocalBranchDirectory
@@ -24,8 +25,6 @@ import kotlin.reflect.full.primaryConstructor
  * This class has been inspired by [git4idea.branch.GitNewBranchDialog].
  * The main reason is that we want to rename the checkbox "Set tracking branch"
  * (which is unclear) to "Rename tracking branch".
- *
- * TODO (#1604): update this class (e.g. use align(AlignX.FILL))
  */
 class MyGitNewBranchDialog @JvmOverloads constructor(
   private val project: Project,
@@ -83,8 +82,9 @@ class MyGitNewBranchDialog @JvmOverloads constructor(
         ),
       )
         .bind({ c -> c.text }, { c, v -> c.text = v }, ::branchName.toMutableProperty())
+        .align(AlignX.FILL)
         .applyToComponent {
-          setPreferredWidth(250)
+          minimumSize = JBUI.size(250, 0)
         }
         .label(getString("string.GitMachete.MyGitNewBranchDialog.new-branch-name"), LabelPosition.TOP)
         .focused()
