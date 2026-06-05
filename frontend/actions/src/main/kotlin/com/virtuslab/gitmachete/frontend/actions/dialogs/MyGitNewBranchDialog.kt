@@ -17,7 +17,6 @@ import git4idea.branch.GitBranchOperationType
 import git4idea.branch.GitNewBranchOptions
 import git4idea.repo.GitRepository
 import git4idea.validators.*
-import io.vavr.collection.List
 import javax.swing.JCheckBox
 import kotlin.reflect.full.primaryConstructor
 
@@ -132,7 +131,7 @@ class MyGitNewBranchDialog @JvmOverloads constructor(
     allSuggestions += remoteBranches
     allSuggestions += localDirectories
     allSuggestions += remoteDirectories
-    return BranchNamesCompletion(List.ofAll(localDirectories), List.ofAll(allSuggestions))
+    return BranchNamesCompletion(localDirectories, allSuggestions)
   }
 
   private fun collectLocalBranchNames() = repositories.asSequence().flatMap { it.branches.localBranches }.map { it.name }
