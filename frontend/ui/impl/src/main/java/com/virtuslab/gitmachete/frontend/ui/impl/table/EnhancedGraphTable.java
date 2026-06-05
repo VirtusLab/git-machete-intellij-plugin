@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
-import static com.intellij.openapi.application.ModalityState.NON_MODAL;
+import static com.intellij.openapi.application.ModalityState.nonModal;
 import static com.virtuslab.gitmachete.frontend.datakeys.DataKeys.typeSafeCase;
 import static com.virtuslab.gitmachete.frontend.defs.ActionIds.OPEN_MACHETE_FILE;
 import static com.virtuslab.gitmachete.frontend.file.MacheteFileUtils.isMacheteFileSelected;
@@ -17,16 +17,18 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.swing.ListSelectionModel;
 
-import com.intellij.ide.DataManager;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationAction;
+import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionUiKind;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.actionSystem.ex.ActionUtil;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
@@ -68,6 +70,7 @@ import com.virtuslab.gitmachete.backend.api.NullGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.frontend.common.WriteActionUtils;
 import com.virtuslab.gitmachete.frontend.datakeys.DataKeys;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
+import com.virtuslab.gitmachete.frontend.defs.NotificationGroupIds;
 import com.virtuslab.gitmachete.frontend.file.MacheteFileWriter;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraph;
 import com.virtuslab.gitmachete.frontend.graph.api.repository.IRepositoryGraphCache;
@@ -226,7 +229,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     Topic<GitRepositoryChangeListener> topic = GitRepository.GIT_REPO_CHANGE;
     // Let's explicitly mark this listener as @AlwaysSafe
     // as we've checked experimentally that there is no guarantee that it'll run on UI thread.
-    @AlwaysSafe GitRepositoryChangeListener listener = repository -> ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL,
+    @AlwaysSafe GitRepositoryChangeListener listener = repository -> ModalityUiUtil.invokeLaterIfNeeded(nonModal(),
         () -> trackCurrentBranchChange(repository));
 
     val messageBusConnection = project.getMessageBus().connect();
@@ -288,7 +291,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
   private void notifyAboutUnmanagedBranch(GitRepository gitRepository, ILocalBranchReference inferredParent,
       String branchName) {
-    ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> {
+    ModalityUiUtil.invokeLaterIfNeeded(nonModal(), () -> {
       val showForThisProject = UnmanagedBranchNotificationFactory.shouldShowForThisProject(project);
       val showForThisBranch = UnmanagedBranchNotificationFactory.shouldShowForThisBranch(project, gitRepository, branchName);
       if (showForThisProject && showForThisBranch) {
@@ -418,20 +421,23 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
 
   private Notification getSkippedBranchesNotification(IGitMacheteRepositorySnapshot repositorySnapshot,
       GitRepository gitRepository) {
-    val notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(
-        getString("string.GitMachete.EnhancedGraphTable.skipped-branches-text")
-            .fmt(String.join(", ", repositorySnapshot.getSkippedBranchNames())),
-        NotificationType.WARNING);
+    val notification = NotificationGroupManager.getInstance()
+        .getNotificationGroup(NotificationGroupIds.GIT_MACHETE)
+        .createNotification(
+            getString("string.GitMachete.EnhancedGraphTable.skipped-branches-text")
+                .fmt(String.join(", ", repositorySnapshot.getSkippedBranchNames())),
+            NotificationType.WARNING);
 
     notification.addAction(NotificationAction.createSimple(
         getString("action.GitMachete.EnhancedGraphTable.automatic-discover.slide-out-skipped"), () -> {
           notification.expire();
           slideOutSkippedBranches(repositorySnapshot, gitRepository);
         }));
-    notification.addAction(NotificationAction.createSimple(
-        getString("action.GitMachete.OpenMacheteFileAction.description"), () -> {
-          val actionEvent = createAnActionEvent();
-          ActionManager.getInstance().getAction(OPEN_MACHETE_FILE).actionPerformed(actionEvent);
+    notification.addAction(NotificationAction.create(
+        getString("action.GitMachete.OpenMacheteFileAction.description"), (e, notif) -> {
+          val actionEvent = AnActionEvent.createEvent(e.getDataContext(), new Presentation(),
+              ActionPlaces.VCS_NOTIFICATION, ActionUiKind.NONE, /* inputEvent */ null);
+          ActionUtil.performAction(ActionManager.getInstance().getAction(OPEN_MACHETE_FILE), actionEvent);
         }));
     return notification;
   }
@@ -475,7 +481,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
     new AutodiscoverBackgroundable(gitRepository, macheteFilePath) {
       @Override
       protected void onDiscoverFailure() {
-        ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> setTextForEmptyTable(
+        ModalityUiUtil.invokeLaterIfNeeded(nonModal(), () -> setTextForEmptyTable(
             getString("string.GitMachete.EnhancedGraphTable.empty-table-text.cannot-discover-layout")
                 .fmt(macheteFilePath.toString())));
       }
@@ -485,30 +491,26 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       protected void onDiscoverSuccess(IGitMacheteRepository repository, IGitMacheteRepositorySnapshot repositorySnapshot) {
         gitMacheteRepositoryRef.set(repository);
 
-        ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> {
+        ModalityUiUtil.invokeLaterIfNeeded(nonModal(), () -> {
           gitMacheteRepositorySnapshot = repositorySnapshot;
           queueRepositoryUpdateAndModelRefresh(doOnUIThreadWhenReady);
 
           val notifier = VcsNotifier.getInstance(project);
-          val notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(
-              getString("string.GitMachete.EnhancedGraphTable.automatic-discover.success-message"),
-              NotificationType.INFORMATION);
-          notification.addAction(NotificationAction.createSimple(
-              getString("action.GitMachete.OpenMacheteFileAction.description"), () -> {
-                val actionEvent = createAnActionEvent();
-                ActionManager.getInstance().getAction(OPEN_MACHETE_FILE).actionPerformed(actionEvent);
+          val notification = NotificationGroupManager.getInstance()
+              .getNotificationGroup(NotificationGroupIds.GIT_MACHETE)
+              .createNotification(
+                  getString("string.GitMachete.EnhancedGraphTable.automatic-discover.success-message"),
+                  NotificationType.INFORMATION);
+          notification.addAction(NotificationAction.create(
+              getString("action.GitMachete.OpenMacheteFileAction.description"), (e, notif) -> {
+                val actionEvent = AnActionEvent.createEvent(e.getDataContext(), new Presentation(),
+                    ActionPlaces.VCS_NOTIFICATION, ActionUiKind.NONE, /* inputEvent */ null);
+                ActionUtil.performAction(ActionManager.getInstance().getAction(OPEN_MACHETE_FILE), actionEvent);
               }));
           notifier.notify(notification);
         });
       }
     }.queue();
-  }
-
-  private AnActionEvent createAnActionEvent() {
-    val dataContext = DataManager.getInstance().getDataContext(this);
-    @SuppressWarnings("removal") val event = AnActionEvent.createFromDataContext(ActionPlaces.VCS_NOTIFICATION,
-        new Presentation(), dataContext);
-    return event;
   }
 
   @Override
@@ -548,7 +550,7 @@ public final class EnhancedGraphTable extends BaseEnhancedGraphTable
       return;
     }
 
-    ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> {
+    ModalityUiUtil.invokeLaterIfNeeded(nonModal(), () -> {
       setTextForEmptyTable(getString("string.GitMachete.EnhancedGraphTable.empty-table-text.loading"));
     });
 

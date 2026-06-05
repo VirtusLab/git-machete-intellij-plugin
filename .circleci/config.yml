@@ -233,7 +233,7 @@ jobs:
             # Hence, to speed up the builds, we only run them for develop/master/hotfix/release branches and not on PRs.
             # Also, we run on branches related to UI tests, as indicated by their name.
             matches:
-              pattern: "^(.*ci[-/].+|develop|hotfix/.+|master|release/.+|.*ui(-)?test.*|update-intellij-versions/.+)$"
+              pattern: "^(.*bincompat.*|.*ci[-/].+|develop|hotfix/.+|master|release/.+|.*ui(-)?test.*|update-intellij-versions/.+)$"
               value: << pipeline.git.branch >>
           steps:
             - checkout: {method: blobless}

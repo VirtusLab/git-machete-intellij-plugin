@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.frontend.actions.toolbar;
 
-import static com.intellij.openapi.application.ModalityState.NON_MODAL;
+import static com.intellij.openapi.application.ModalityState.nonModal;
 import static com.virtuslab.gitmachete.frontend.actions.toolbar.OpenMacheteFileAction.openMacheteFile;
 import static com.virtuslab.gitmachete.frontend.common.WriteActionUtils.blockingRunWriteActionOnUIThread;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
@@ -82,7 +82,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
             .getInstance(rootDirPath, ApplicationManager.getApplication()::getService)
             .discoverLayoutAndCreateSnapshot();
 
-        ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> GraphTableDialog.Companion.of(
+        ModalityUiUtil.invokeLaterIfNeeded(nonModal(), () -> GraphTableDialog.Companion.of(
             repoSnapshot,
             /* windowTitle */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.title"),
             /* emptyTableText */ getString("action.GitMachete.DiscoverAction.discovered-branch-tree-dialog.empty-table-text"),
@@ -115,7 +115,7 @@ public class DiscoverAction extends BaseProjectDependentAction {
     VirtualFile macheteFile = gitRepository.getMacheteFile();
     if (openAfterSave && macheteFile != null) {
       VfsUtil.markDirtyAndRefresh(/* async */ false, /* recursive */ false, /* reloadChildren */ false, macheteFile);
-      ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> openMacheteFile(gitRepository));
+      ModalityUiUtil.invokeLaterIfNeeded(nonModal(), () -> openMacheteFile(gitRepository));
     }
   }
 }

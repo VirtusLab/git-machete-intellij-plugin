@@ -5,9 +5,11 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.ide.actions.OpenFileAction;
 import com.intellij.notification.NotificationAction;
+import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.ex.ActionUtil;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.vcs.VcsNotifier;
@@ -23,6 +25,7 @@ import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import com.virtuslab.gitmachete.frontend.actions.base.BaseProjectDependentAction;
+import com.virtuslab.gitmachete.frontend.defs.NotificationGroupIds;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.gitmachete.frontend.vfsutils.GitVfsUtils;
 
@@ -50,9 +53,10 @@ public class OpenMacheteFileAction extends BaseProjectDependentAction {
     val gitRepository = getSelectedGitRepository(anActionEvent);
     val repo = gitRepository != null
         ? gitRepository
-        : DvcsUtil.guessCurrentRepositoryQuick(project,
+        : DvcsUtil.guessWidgetRepository(project,
             GitUtil.getRepositoryManager(project),
-            GitVcsSettings.getInstance(project).getRecentRootPath());
+            GitVcsSettings.getInstance(project).getRecentRootPath(),
+            anActionEvent.getDataContext());
     val gitDir = repo != null ? repo.getMainGitDirectory() : null;
 
     if (repo == null || gitDir == null) {
@@ -73,19 +77,22 @@ public class OpenMacheteFileAction extends BaseProjectDependentAction {
     VirtualFile macheteFile = WriteAction.compute(virtualFileRuntimeExceptionThrowableComputable);
 
     if (macheteFile == null) {
-      val errorWithDiscover = VcsNotifier.STANDARD_NOTIFICATION.createNotification(
-          /* title */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.machete-file-not-found"),
-          /* message */ getString("action.GitMachete.OpenMacheteFileAction.notification.message.machete-file-not-found")
-              .fmt(gitDir.getPath()),
-          NotificationType.ERROR);
+      val errorWithDiscover = NotificationGroupManager.getInstance()
+          .getNotificationGroup(NotificationGroupIds.GIT_MACHETE)
+          .createNotification(
+              /* title */ getString("action.GitMachete.OpenMacheteFileAction.notification.title.machete-file-not-found"),
+              /* content */ getString("action.GitMachete.OpenMacheteFileAction.notification.message.machete-file-not-found")
+                  .fmt(gitDir.getPath()),
+              NotificationType.ERROR);
       // Note there is no `.expire()` call, so the action remains available as long as the notification.
       // It is troublesome to track the notification and cover all cases when it becomes expired.
       // However, the discover action does not perform any changes directly; a dialog appears with options to accept or cancel.
       // Hence, there isn't much harm in leaving this notification without the expiration.
       errorWithDiscover.addAction(NotificationAction
           .createSimple(getString("action.GitMachete.DiscoverAction.GitMacheteToolbar.text"),
-              () -> ActionManager.getInstance().getAction(DiscoverAction.class.getSimpleName())
-                  .actionPerformed(anActionEvent)));
+              () -> ActionUtil.performAction(
+                  ActionManager.getInstance().getAction(DiscoverAction.class.getSimpleName()),
+                  anActionEvent)));
 
       VcsNotifier.getInstance(project).notify(errorWithDiscover);
 

@@ -2,6 +2,7 @@ package com.virtuslab.gitmachete.frontend.ui.impl.gitrepositoryselection;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JList;
 
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.dvcs.repo.VcsRepositoryManager;
@@ -43,15 +44,13 @@ public final class GitRepositoryComboBox extends JComboBox<GitRepository>
     this.project = project;
 
     updateRepositories();
-    @SuppressWarnings("removal") val renderer = SimpleListCellRenderer.create( /* nullValue */ "",
-        DvcsUtil::getShortRepositoryName);
-    setRenderer(renderer);
+    setRenderer(new ShortRepositoryNameRenderer());
 
     val messageBusConnection = project.getMessageBus().connect();
     messageBusConnection
         .<VcsRepositoryMappingListener>subscribe(VcsRepositoryManager.VCS_REPOSITORY_MAPPING_UPDATED, () -> {
           LOG.debug("Git repository mappings changed");
-          ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, () -> updateRepositories());
+          ModalityUiUtil.invokeLaterIfNeeded(ModalityState.nonModal(), () -> updateRepositories());
         });
     Disposer.register(this, messageBusConnection);
     ComboboxSpeedSearch.installSpeedSearch(this, DvcsUtil::getShortRepositoryName);
@@ -119,5 +118,19 @@ public final class GitRepositoryComboBox extends JComboBox<GitRepository>
   @Override
   public void dispose() {
 
+  }
+
+  // Declared as a static nested class (rather than an anonymous subclass instantiated from the
+  // constructor) to satisfy `ClassStructureTestSuite#inner_classes_should_not_be_instantiated_from_constructor_of_enclosing_class`.
+  private static final class ShortRepositoryNameRenderer extends SimpleListCellRenderer<GitRepository> {
+    @UIEffect
+    ShortRepositoryNameRenderer() {}
+
+    @Override
+    @UIEffect
+    public void customize(JList<? extends GitRepository> list, @Nullable GitRepository value, int index,
+        boolean selected, boolean hasFocus) {
+      setText(value == null ? "" : DvcsUtil.getShortRepositoryName(value));
+    }
   }
 }

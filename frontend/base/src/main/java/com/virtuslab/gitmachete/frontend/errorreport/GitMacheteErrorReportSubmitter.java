@@ -56,7 +56,7 @@ public class GitMacheteErrorReportSubmitter extends ErrorReportSubmitter {
     try {
       val uri = constructNewGitHubIssueUri(events, additionalInfo);
 
-      ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, () -> BrowserUtil.browse(uri));
+      ModalityUiUtil.invokeLaterIfNeeded(ModalityState.nonModal(), () -> BrowserUtil.browse(uri));
     } catch (URISyntaxException e) {
       LOG.error("Cannot construct URI to open new bug issue!", e);
     }

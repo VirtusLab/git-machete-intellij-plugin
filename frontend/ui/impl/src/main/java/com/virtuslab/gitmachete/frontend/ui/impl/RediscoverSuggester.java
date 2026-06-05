@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.frontend.ui.impl;
 
-import static com.intellij.openapi.application.ModalityState.NON_MODAL;
+import static com.intellij.openapi.application.ModalityState.nonModal;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
@@ -106,9 +106,9 @@ public class RediscoverSuggester {
       @Override
       public void run(ProgressIndicator indicator) {
         if (areAllLocalBranchesManaged(macheteFilePath) || isDiscoveredBranchLayoutEquivalentToCurrent(macheteFilePath)) {
-          ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> refreshFileModificationDate(macheteFilePath));
+          ModalityUiUtil.invokeLaterIfNeeded(nonModal(), () -> refreshFileModificationDate(macheteFilePath));
         } else {
-          ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> queueSuggestion(macheteFilePath));
+          ModalityUiUtil.invokeLaterIfNeeded(nonModal(), () -> queueSuggestion(macheteFilePath));
         }
       }
     }.queue();
@@ -118,7 +118,7 @@ public class RediscoverSuggester {
     val localBranches = gitRepository.getBranches().getLocalBranches();
     try {
       val branchLayout = ReadAction
-          .<BranchLayout, BranchLayoutException>compute(
+          .<BranchLayout, BranchLayoutException>computeBlocking(
               () -> MacheteFileReader.readBranchLayout(macheteFilePath, branchLayoutReader));
       val localBranchNames = List.ofAll(localBranches)
           .map(GitReference::getName);
@@ -139,7 +139,7 @@ public class RediscoverSuggester {
           .discoverLayoutAndCreateSnapshot();
 
       val currentBranchLayout = ReadAction
-          .<BranchLayout, BranchLayoutException>compute(
+          .<BranchLayout, BranchLayoutException>computeBlocking(
               () -> MacheteFileReader.readBranchLayout(macheteFilePath, branchLayoutReader));
 
       val discoveredBranchLayout = discoverRunResult.getBranchLayout();

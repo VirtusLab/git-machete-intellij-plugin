@@ -86,7 +86,7 @@ public class SlideOut {
             /* title */ "",
             getString("action.GitMachete.SlideOut.notification.title.slide-out-success.is-current.HTML").fmt(
                 branchToSlideOutName));
-        ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, doInUIThreadWhenReady);
+        ModalityUiUtil.invokeLaterIfNeeded(ModalityState.nonModal(), doInUIThreadWhenReady);
       });
     } else if (branchToSlideOutHasChildren) {
       LOG.debug("Skipping (optional) local branch deletion because it has children");
@@ -95,13 +95,13 @@ public class SlideOut {
             /* title */ "",
             getString("action.GitMachete.SlideOut.notification.title.slide-out-success.has-children.HTML").fmt(
                 branchToSlideOutName));
-        ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, doInUIThreadWhenReady);
+        ModalityUiUtil.invokeLaterIfNeeded(ModalityState.nonModal(), doInUIThreadWhenReady);
       });
     } else {
       val root = gitRepository.getRoot();
       getDeleteLocalBranchOnSlideOutGitConfigValueAndExecute(root, (@Nullable Boolean shouldDelete) -> {
         if (shouldDelete == null) {
-          ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, () -> suggestBranchDeletion(doInUIThreadWhenReady));
+          ModalityUiUtil.invokeLaterIfNeeded(ModalityState.nonModal(), () -> suggestBranchDeletion(doInUIThreadWhenReady));
         } else {
           handleBranchDeletionDecision(shouldDelete, doInUIThreadWhenReady);
         }
@@ -148,7 +148,7 @@ public class SlideOut {
             /* title */ "",
             getString("action.GitMachete.SlideOut.notification.title.slide-out-success.without-delete.HTML").fmt(
                 branchToSlideOutName));
-        ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, doInUIThreadWhenReady);
+        ModalityUiUtil.invokeLaterIfNeeded(ModalityState.nonModal(), doInUIThreadWhenReady);
       }
     });
   }

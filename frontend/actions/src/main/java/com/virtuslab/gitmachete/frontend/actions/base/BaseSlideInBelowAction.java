@@ -13,10 +13,10 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.vcs.VcsNotifier;
 import git4idea.GitRemoteBranch;
+import git4idea.remote.hosting.GitRemoteBranchesUtil;
 import git4idea.repo.GitRemote;
 import git4idea.repo.GitRepository;
 import git4idea.ui.branch.GitBranchCheckoutOperation;
-import git4idea.ui.branch.GitBranchPopupActions.RemoteBranchActions;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.List;
@@ -197,10 +197,9 @@ public abstract class BaseSlideInBelowAction extends BaseGitMacheteRepositoryRea
     } else if (options.shouldCheckout()) {
       return Tuple.of(branchName, () -> ApplicationManager.getApplication().invokeAndWait(new @UI Runnable() {
         @Override
-        @SuppressWarnings("removal")
         @UIEffect
         public void run() {
-          RemoteBranchActions.CheckoutRemoteBranchAction.checkoutRemoteBranch(project, repositories, remoteBranch.getName());
+          GitRemoteBranchesUtil.checkoutRemoteBranch(project, repositories, remoteBranch.getName());
         }
       }));
 

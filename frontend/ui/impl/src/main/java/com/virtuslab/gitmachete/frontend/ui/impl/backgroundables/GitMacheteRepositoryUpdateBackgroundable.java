@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.backgroundables;
 
-import static com.intellij.openapi.application.ModalityState.NON_MODAL;
+import static com.intellij.openapi.application.ModalityState.nonModal;
 import static com.virtuslab.gitmachete.frontend.file.MacheteFileUtils.isMacheteFileSelected;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
@@ -85,7 +85,7 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
 
     // ... and only once it completes, we queue `doOnUIThreadWhenDone` onto the UI thread.
     LOG.debug("Queuing graph table refresh onto the UI thread");
-    ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> doOnUIThreadWhenDone.accept(gitMacheteRepositorySnapshot));
+    ModalityUiUtil.invokeLaterIfNeeded(nonModal(), () -> doOnUIThreadWhenDone.accept(gitMacheteRepositorySnapshot));
   }
 
   /**
@@ -132,7 +132,8 @@ public final class GitMacheteRepositoryUpdateBackgroundable extends Task.Backgro
   private BranchLayout readBranchLayout(Path path) throws MacheteFileReaderException {
     try {
       return ReadAction
-          .<BranchLayout, BranchLayoutException>compute(() -> MacheteFileReader.readBranchLayout(path, branchLayoutReader));
+          .<BranchLayout, BranchLayoutException>computeBlocking(
+              () -> MacheteFileReader.readBranchLayout(path, branchLayoutReader));
     } catch (BranchLayoutException e) {
       @Positive Integer errorLine = e.getErrorLine();
       throw new MacheteFileReaderException("Error occurred while parsing machete file" +

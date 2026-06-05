@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.table;
 
-import static com.intellij.openapi.application.ModalityState.NON_MODAL;
+import static com.intellij.openapi.application.ModalityState.nonModal;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -30,7 +30,7 @@ class EnhancedGraphTablePopupMenuListener extends PopupMenuListenerAdapter {
     new Timer().schedule(new TimerTask() {
       @Override
       public void run() {
-        ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> graphTable.setRowSelectionAllowed(true));
+        ModalityUiUtil.invokeLaterIfNeeded(nonModal(), () -> graphTable.setRowSelectionAllowed(true));
       }
     }, /* delay in ms */ 35);
   }

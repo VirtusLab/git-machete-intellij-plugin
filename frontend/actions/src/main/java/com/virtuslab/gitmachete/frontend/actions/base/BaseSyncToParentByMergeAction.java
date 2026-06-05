@@ -7,6 +7,7 @@ import static org.checkerframework.checker.i18nformatter.qual.I18nConversionCate
 import java.util.Collections;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import git4idea.GitLocalBranch;
 import git4idea.GitReference;
 import git4idea.branch.GitBrancher;
 import git4idea.repo.GitRepository;
@@ -115,7 +116,8 @@ public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteReposi
         " stayingBranch = ${stayingBranch}");
 
     GitBrancher.getInstance(project)
-        .merge(stayingBranch, GitBrancher.DeleteOnMergeOption.NOTHING, Collections.singletonList(gitRepository));
+        .merge(new GitLocalBranch(stayingBranch), GitBrancher.DeleteOnMergeOption.NOTHING,
+            Collections.singletonList(gitRepository));
   }
 
   @ContinuesInBackground
@@ -129,7 +131,8 @@ public abstract class BaseSyncToParentByMergeAction extends BaseGitMacheteReposi
     val gitBrancher = GitBrancher.getInstance(gitRepository.getProject());
     val repositories = Collections.singletonList(gitRepository);
 
-    Runnable callInAwtLater = () -> gitBrancher.merge(stayingBranch, GitBrancher.DeleteOnMergeOption.NOTHING, repositories);
+    Runnable callInAwtLater = () -> gitBrancher.merge(new GitLocalBranch(stayingBranch),
+        GitBrancher.DeleteOnMergeOption.NOTHING, repositories);
     gitBrancher.checkout(/* reference */ movingBranch, /* detach */ false, repositories, callInAwtLater);
   }
 

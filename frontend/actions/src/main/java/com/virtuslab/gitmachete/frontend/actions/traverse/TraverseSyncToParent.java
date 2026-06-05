@@ -75,7 +75,7 @@ public class TraverseSyncToParent {
         // A repository refresh isn't needed here.
         // Each side-effecting action like push/rebase is responsible for refreshing repository on its own,
         // so we can assume that the repository is already up to date once we enter void execute().
-        ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, syncToRemoteRunnable);
+        ModalityUiUtil.invokeLaterIfNeeded(ModalityState.nonModal(), syncToRemoteRunnable);
 
       case MergedToParent -> {
         @UI Runnable slideOut = () -> handleMergedToParent(repositorySnapshot, gitMacheteBranch.asNonRoot(),
@@ -87,7 +87,7 @@ public class TraverseSyncToParent {
 
       case InSyncButForkPointOff, OutOfSync -> {
         if (syncToRemoteStatus == DivergedFromAndOlderThanRemote) {
-          ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, syncToRemoteRunnable);
+          ModalityUiUtil.invokeLaterIfNeeded(ModalityState.nonModal(), syncToRemoteRunnable);
         } else {
           @UI Runnable rebase = () -> handleOutOfSyncOrInSyncButForkPointOff(gitMacheteBranch.asNonRoot(),
               syncToRemoteRunnable);

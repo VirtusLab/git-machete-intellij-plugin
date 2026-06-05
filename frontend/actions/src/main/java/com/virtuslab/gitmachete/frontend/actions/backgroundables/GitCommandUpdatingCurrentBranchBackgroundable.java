@@ -9,6 +9,7 @@ import static git4idea.update.GitUpdateSessionKt.getTitleForUpdateNotification;
 import com.intellij.dvcs.DvcsUtil;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationAction;
+import com.intellij.notification.NotificationGroupManager;
 import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.vcs.VcsNotifier;
@@ -31,6 +32,7 @@ import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.tainting.qual.Untainted;
 
+import com.virtuslab.gitmachete.frontend.defs.NotificationGroupIds;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
@@ -124,9 +126,9 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Side
           val title = getTitleForUpdateNotification(notificationData.getUpdatedFilesCount(),
               notificationData.getReceivedCommitsCount());
           val content = getBodyForUpdateNotification(notificationData.getFilteredCommitsCount());
-          notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(title,
-              content,
-              INFORMATION);
+          notification = NotificationGroupManager.getInstance()
+              .getNotificationGroup(NotificationGroupIds.GIT_MACHETE)
+              .createNotification(title, content, INFORMATION);
           notification.addAction(NotificationAction.createSimple(getString(
               "action.GitMachete.GitCommandUpdatingCurrentBranchBackgroundable.notification.message.view-commits"),
               notificationData.getViewCommitAction()));
@@ -134,22 +136,24 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Side
         } else {
           // When the pull results with no commits, there is no git update info (as log).
           // Based on that we know that all files are up-to-date.
-          notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(
-              getString(
-                  "action.GitMachete.GitCommandUpdatingCurrentBranchBackgroundable.notification.title.all-files-are-up-to-date"),
-              /* content */ "", INFORMATION);
+          notification = NotificationGroupManager.getInstance()
+              .getNotificationGroup(NotificationGroupIds.GIT_MACHETE)
+              .createNotification(
+                  getString(
+                      "action.GitMachete.GitCommandUpdatingCurrentBranchBackgroundable.notification.title.all-files-are-up-to-date"),
+                  /* content */ "", INFORMATION);
         }
         VcsNotifier.getInstance(project).notify(notification);
       }
 
-    } else if (localChangesDetector.wasMessageDetected()) {
+    } else if (localChangesDetector.isDetected()) {
       LocalChangesWouldBeOverwrittenHelper.showErrorNotification(project,
           LOCAL_CHANGES_DETECTED_DISPLAY_ID,
           gitRepository.getRoot(),
           getOperationName(),
           localChangesDetector.getRelativeFilePaths());
 
-    } else if (untrackedFilesDetector.wasMessageDetected()) {
+    } else if (untrackedFilesDetector.isDetected()) {
       GitUntrackedFilesHelper.notifyUntrackedFilesOverwrittenBy(project,
           root,
           untrackedFilesDetector.getRelativeFilePaths(),

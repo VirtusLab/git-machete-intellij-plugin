@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.frontend.file;
 
-import static com.intellij.openapi.application.ModalityState.NON_MODAL;
+import static com.intellij.openapi.application.ModalityState.nonModal;
 import static com.virtuslab.gitmachete.frontend.file.MacheteFileUtils.getMacheteVirtualFileIfSelected;
 
 import com.intellij.openapi.project.Project;
@@ -25,7 +25,7 @@ public class ReparseMacheteFileOnGitRepositoryChange implements GitRepositoryCha
     // even once that branch has already been created, e.g. by user firing our Alt+Enter quick fix.
     val macheteVirtualFile = getMacheteVirtualFileIfSelected(project);
     if (macheteVirtualFile != null) {
-      ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> FileContentUtilCore.reparseFiles(macheteVirtualFile));
+      ModalityUiUtil.invokeLaterIfNeeded(nonModal(), () -> FileContentUtilCore.reparseFiles(macheteVirtualFile));
     }
   }
 }

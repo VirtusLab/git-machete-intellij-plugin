@@ -149,6 +149,8 @@ class NotificationAction {
   static NotificationAction createSimple(Supplier<String> dynamicText, @UI Runnable performAction);
 
   static NotificationAction createSimple(String text, @UI Runnable performAction);
+
+  static NotificationAction create(String text, @UI BiConsumer performAction);
 }
 
 class NotificationGroup {

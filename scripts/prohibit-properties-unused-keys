@@ -6,18 +6,39 @@ self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
 source "$self_dir"/utils.sh
 
 bundle=frontend/base/src/main/resources/GitMacheteBundle.properties
+plugin_xml=src/main/resources/META-INF/plugin.xml
 [[ -f $bundle ]] || die "Bundle file ($bundle) has been (re)moved"
+[[ -f $plugin_xml ]] || die "plugin.xml ($plugin_xml) has been (re)moved"
 
-# Let's exclude the keys that are used by IntelliJ implicitly as action descriptions (see `<override-text>` tags in plugin.xml).
 all_declared_keys=$(
-  grep --only-matching --perl-regexp '^[^= ]*(?==)' -- $bundle \
-    | grep --extended-regexp --invert-match --line-regexp 'action\.GitMachete\.[A-Za-z]+\.(description|GitMachete(ContextMenu|Toolbar).text|text)' \
-    | sort
+  grep --only-matching --perl-regexp '^[^= ]*(?==)' -- $bundle | sort
 )
 
+# Action/group text & description keys are resolved by IntelliJ implicitly from the `id` and
+# `<override-text place=...>` attributes in plugin.xml - they never appear as literal strings in
+# source. Reconstruct the expected keys here so a bundle entry is considered used iff plugin.xml
+# actually declares the matching `<action>` / `<group>` / `<override-text>` (instead of broadly
+# whitelisting every `action.GitMachete.*.text|description` key).
+implicit_action_keys=$(awk '
+  match($0, /id="GitMachete[.][A-Za-z]+"/) {
+    aid = substr($0, RSTART+4, RLENGTH-5)
+    print "action." aid ".text"
+    print "action." aid ".description"
+    last_aid = aid
+    next
+  }
+  match($0, /place="[A-Za-z]+"/) {
+    place = substr($0, RSTART+7, RLENGTH-8)
+    if (last_aid != "") print "action." last_aid "." place ".text"
+  }
+' "$plugin_xml")
+
+# XML is also scanned for literal-key references (e.g. `key="notification-group.<id>"` on
+# `<notificationGroup>` and any future extension points that look up bundle keys by attribute).
 all_used_keys=$(
-  git grep -h --only-matching --fixed-strings "$all_declared_keys" -- '*.java' '*.kt' ":!$bundle" \
-    | sort | uniq
+  { git grep -h --only-matching --fixed-strings "$all_declared_keys" -- '*.java' '*.kt' '*.xml' ":!$bundle"
+    echo "$implicit_action_keys"
+  } | sort -u
 )
 
 output=$(echo "$all_declared_keys" | exclude <(echo "$all_used_keys"))

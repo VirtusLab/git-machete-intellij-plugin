@@ -19,7 +19,6 @@ import git4idea.repo.GitRepository
 import git4idea.ui.ComboBoxWithAutoCompletion
 import net.miginfocom.swing.MigLayout
 import org.apache.commons.text.StringEscapeUtils.escapeHtml4
-import java.awt.Insets
 import javax.swing.JCheckBox
 import javax.swing.JLabel
 import javax.swing.JPanel
@@ -198,8 +197,11 @@ class SlideInDialog(
           "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.placeholder",
         ),
       )
-      @Suppress("DEPRECATION")
-      setUI(DarculaComboBoxUI(/* arc */ 0f, Insets(1, 0, 1, 0), /* paintArrowButton */false))
+      // The only non-deprecated DarculaComboBoxUI constructor takes no parameters and defaults
+      // to painting the arrow button, so we flip that off via the public setter. The custom arc
+      // and border-compensation insets from the previous wiring no longer have a public knob;
+      // the visual difference is negligible inside this small inline editor.
+      setUI(DarculaComboBoxUI().apply { isPaintArrowButton = false })
       addDocumentListener(
         object : DocumentListener {
           override fun documentChanged(event: DocumentEvent) {

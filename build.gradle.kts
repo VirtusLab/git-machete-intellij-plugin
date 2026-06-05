@@ -460,15 +460,10 @@ intellijPlatform {
         create("IU", it)
       }
     }
-    failureLevel.set(
-      setOf(
-        VerifyPluginTask.FailureLevel.COMPATIBILITY_PROBLEMS,
-        VerifyPluginTask.FailureLevel.INTERNAL_API_USAGES,
-        VerifyPluginTask.FailureLevel.NON_EXTENDABLE_API_USAGES,
-        VerifyPluginTask.FailureLevel.PLUGIN_STRUCTURE_WARNINGS,
-        VerifyPluginTask.FailureLevel.MISSING_DEPENDENCIES,
-      ),
-    )
+    // Fail the build on any verifier finding. The default convention covers only
+    // COMPATIBILITY_PROBLEMS / INTERNAL_API_USAGES / OVERRIDE_ONLY_API_USAGES, which would let
+    // deprecated, scheduled-for-removal, experimental and structural issues slip through silently.
+    failureLevel.set(VerifyPluginTask.FailureLevel.ALL)
   }
 }
 

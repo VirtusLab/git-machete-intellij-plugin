@@ -22,7 +22,7 @@ final class CheckoutAndExecute {
       @UI Runnable doOnUIThreadAfterCheckout) {
     val currentBranch = gitRepository.getCurrentBranch();
     if (currentBranch != null && currentBranch.getName().equals(branchName)) {
-      ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL, doOnUIThreadAfterCheckout);
+      ModalityUiUtil.invokeLaterIfNeeded(ModalityState.nonModal(), doOnUIThreadAfterCheckout);
     } else {
       LOG.debug(() -> "Queuing '${branchName}' branch checkout background task");
 

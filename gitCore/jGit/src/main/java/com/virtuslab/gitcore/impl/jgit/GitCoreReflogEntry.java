@@ -32,7 +32,7 @@ public class GitCoreReflogEntry implements IGitCoreReflogEntry {
   @Override
   @ToString.Include(name = "timestamp")
   public Instant getTimestamp() {
-    return reflogEntry.getWho().getWhen().toInstant();
+    return reflogEntry.getWho().getWhenAsInstant();
   }
 
   @Override

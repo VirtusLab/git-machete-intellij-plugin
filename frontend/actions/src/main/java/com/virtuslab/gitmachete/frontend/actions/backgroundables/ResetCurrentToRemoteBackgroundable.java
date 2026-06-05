@@ -70,7 +70,7 @@ public class ResetCurrentToRemoteBackgroundable extends SideEffectingBackgrounda
                   .fmt(localBranchName));
           LOG.debug(() -> "Branch '${localBranchName}' has been reset to '${remoteTrackingBranchName}");
 
-        } else if (localChangesDetector.wasMessageDetected()) {
+        } else if (localChangesDetector.isDetected()) {
           LocalChangesWouldBeOverwrittenHelper.showErrorNotification(project,
               LOCAL_CHANGES_DETECTED_DISPLAY_ID,
               gitRepository.getRoot(),

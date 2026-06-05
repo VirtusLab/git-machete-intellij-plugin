@@ -6,6 +6,7 @@ import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle
 
 import java.util.Collections;
 
+import com.intellij.notification.NotificationGroupManager;
 import com.intellij.notification.NotificationType;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.progress.ProgressIndicator;
@@ -29,6 +30,7 @@ import com.virtuslab.gitmachete.frontend.actions.backgroundables.SideEffectingBa
 import com.virtuslab.gitmachete.frontend.actions.common.VcsCommitMetadataAdapterForSquash;
 import com.virtuslab.gitmachete.frontend.actions.dialogs.GitNewCommitMessageActionDialog;
 import com.virtuslab.gitmachete.frontend.defs.ActionPlaces;
+import com.virtuslab.gitmachete.frontend.defs.NotificationGroupIds;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
@@ -172,7 +174,9 @@ public abstract class BaseSquashAction extends BaseGitMacheteRepositoryReadyActi
 
               if (isComplete(operationResult)) {
                 val title = getString("action.GitMachete.BaseSquashAction.notification.title");
-                val notification = VcsNotifier.STANDARD_NOTIFICATION.createNotification(title, NotificationType.INFORMATION);
+                val notification = NotificationGroupManager.getInstance()
+                    .getNotificationGroup(NotificationGroupIds.GIT_MACHETE)
+                    .createNotification(title, NotificationType.INFORMATION);
                 VcsNotifier.getInstance(project).notify(notification);
               }
             }

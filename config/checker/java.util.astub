@@ -42,6 +42,12 @@ interface Consumer<T> {
   void accept(T var1);
 }
 
+@PolyUIType
+interface BiConsumer<T, U> {
+  @PolyUIEffect
+  void accept(T var1, U var2);
+}
+
 
 package java.util.stream;
 

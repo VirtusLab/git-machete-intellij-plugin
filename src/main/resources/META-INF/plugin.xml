@@ -27,6 +27,15 @@
                             predicateClassName="com.virtuslab.gitmachete.frontend.ui.impl.root.GitMacheteVisibilityPredicate"/>
         <errorHandler implementation="com.virtuslab.gitmachete.frontend.errorreport.GitMacheteErrorReportSubmitter"/>
 
+        <!--
+          User-facing balloon notification group, fetched in code via
+          `NotificationGroupManager.getInstance().getNotificationGroup(NotificationGroupIds.GIT_MACHETE)`.
+          The group id keeps Git Machete's notifications under their own preferences entry instead of
+          piggybacking on git4idea's `Vcs Messages` group, whose `VcsNotifier.STANDARD_NOTIFICATION`
+          accessor is deprecated.
+        -->
+        <notificationGroup id="GitMachete" displayType="BALLOON" key="notification-group.GitMachete"/>
+
         <!-- Git Machete file type/language -->
         <annotator language="Git Machete" implementationClass="com.virtuslab.gitmachete.frontend.file.highlighting.MacheteAnnotator"/>
         <codeStyleSettingsProvider implementation="com.virtuslab.gitmachete.frontend.file.codestyle.MacheteCodeStyleSettingsProvider"/>

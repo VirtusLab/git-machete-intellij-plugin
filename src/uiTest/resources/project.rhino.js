@@ -158,7 +158,7 @@ function Project(underlyingProject) {
     const action = getActionByName(actionName);
     const actionEvent = createActionEvent(actionPlace, data);
 
-    ModalityUiUtil.invokeLaterIfNeeded(ModalityState.NON_MODAL,
+    ModalityUiUtil.invokeLaterIfNeeded(ModalityState.nonModal(),
       () => action.actionPerformed(actionEvent)
     );
   };

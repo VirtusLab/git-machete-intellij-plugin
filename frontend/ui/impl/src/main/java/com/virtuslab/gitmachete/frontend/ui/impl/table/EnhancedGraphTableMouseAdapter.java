@@ -12,9 +12,11 @@ import javax.swing.SwingUtilities;
 import com.intellij.ide.DataManager;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionUiKind;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.actionSystem.ex.ActionUtil;
 import lombok.val;
 import org.checkerframework.checker.guieffect.qual.UIEffect;
 
@@ -79,9 +81,9 @@ class EnhancedGraphTableMouseAdapter extends MouseAdapter {
 
       e.consume();
       DataContext dataContext = DataManager.getInstance().getDataContext(graphTable);
-      @SuppressWarnings("removal") val actionEvent = AnActionEvent.createFromDataContext(ActionPlaces.CONTEXT_MENU,
-          new Presentation(), dataContext);
-      actionManager.getAction(CHECK_OUT_SELECTED).actionPerformed(actionEvent);
+      val actionEvent = AnActionEvent.createEvent(dataContext, new Presentation(),
+          ActionPlaces.CONTEXT_MENU, ActionUiKind.NONE, /* inputEvent */ e);
+      ActionUtil.performAction(actionManager.getAction(CHECK_OUT_SELECTED), actionEvent);
     }
   }
 

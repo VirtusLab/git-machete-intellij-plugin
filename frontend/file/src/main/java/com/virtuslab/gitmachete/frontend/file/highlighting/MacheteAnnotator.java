@@ -1,6 +1,6 @@
 package com.virtuslab.gitmachete.frontend.file.highlighting;
 
-import static com.intellij.openapi.application.ModalityState.NON_MODAL;
+import static com.intellij.openapi.application.ModalityState.nonModal;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
 
@@ -75,7 +75,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
 
     if (branchNames.isEmpty()) {
       if (!cantGetBranchesMessageWasShown) {
-        ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> showCantGetBranchesMessage(file));
+        ModalityUiUtil.invokeLaterIfNeeded(nonModal(), () -> showCantGetBranchesMessage(file));
       }
       return;
     }
@@ -84,7 +84,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
     String processedBranchName = branch.getText();
 
     // update the state of the .git/machete VirtualFile so that new entry is available in the VirtualFile
-    ModalityUiUtil.invokeLaterIfNeeded(NON_MODAL, () -> MacheteFileUtils.saveDocument(file));
+    ModalityUiUtil.invokeLaterIfNeeded(nonModal(), () -> MacheteFileUtils.saveDocument(file));
     /*
      * Check for duplicate entries in the machete file. Note: there's no guarantee that at the point when
      * isBranchNameRepeated(branchLayoutReader, file, processedBranchName) is invoked, saveDocument(file) is already completed.
@@ -119,7 +119,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
   private boolean isBranchNameRepeated(IBranchLayoutReader branchLayoutReader, PsiFile file, String branchName) {
     BranchLayout branchLayout;
     try {
-      branchLayout = ReadAction.<BranchLayout, BranchLayoutException>compute(
+      branchLayout = ReadAction.<BranchLayout, BranchLayoutException>computeBlocking(
           () -> MacheteFileReader.readBranchLayout(Path.of(file.getVirtualFile().getPath()), branchLayoutReader));
     } catch (BranchLayoutException e) { // might appear if branchLayout has inconsistent indentation characters or file is inaccessible
       return false;
@@ -130,7 +130,7 @@ public class MacheteAnnotator implements Annotator, DumbAware {
   private @Nullable String getParentBranchName(IBranchLayoutReader branchLayoutReader, PsiFile file, String branchName) {
     BranchLayout branchLayout;
     try {
-      branchLayout = ReadAction.<BranchLayout, BranchLayoutException>compute(
+      branchLayout = ReadAction.<BranchLayout, BranchLayoutException>computeBlocking(
           () -> MacheteFileReader.readBranchLayout(Path.of(file.getVirtualFile().getPath()), branchLayoutReader));
     } catch (BranchLayoutException e) { // might appear if branchLayout has inconsistent indentation characters or file is inaccessible
       return null;
