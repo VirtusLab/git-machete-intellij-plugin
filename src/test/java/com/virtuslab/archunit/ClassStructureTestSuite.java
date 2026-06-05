@@ -132,6 +132,9 @@ public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
         .and().doNotBelongToAnyOf(classesReferencedFromPluginXmlAttributes)
         // SubtypingBottom is processed by CheckerFramework based on its annotations
         .and().doNotHaveFullyQualifiedName(com.virtuslab.qual.subtyping.internal.SubtypingBottom.class.getName())
+        // BuildInfo.PLUGIN_VERSION is a compile-time String constant (JLS 13.1) that javac inlines
+        // into every consumer's constant pool, so the consumer's bytecode never names BuildInfo.
+        .and().doNotHaveFullyQualifiedName(com.virtuslab.gitmachete.BuildInfo.class.getName())
         .should(new BeReferencedFromOutsideItself())
         .check(productionClasses);
   }

@@ -168,6 +168,15 @@ jobs:
       - run:
           name: Verify binary compatibility with supported IntelliJ versions
           command: ./gradlew verifyPlugin
+      # Upload the entire reports tree (Gradle's `problems/` report + per-IDE
+      # `pluginVerifier/` reports, with their CSS/JS assets) so the violation
+      # details are inspectable from the CircleCI run page even when the build
+      # is red. Runs unconditionally - `store_artifacts` silently skips a
+      # missing path, so a clean build (no reports generated) doesn't fail.
+      - store_artifacts:
+          path: build/reports/
+          destination: reports
+          when: always
 
       - when:
           condition:

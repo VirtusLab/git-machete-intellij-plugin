@@ -257,6 +257,35 @@ group = "com.virtuslab"
 
 configureVersionFromGit()
 
+// Bake the plugin version into a `com.virtuslab.gitmachete.BuildInfo` constant. The generation
+// lives at the root because the version itself is a project-wide concern - any subproject that
+// needs it just wires the output of this task into its own source set (see e.g. `:frontend:base`).
+// This avoids the alternative of querying the IDE at runtime via `PluginManager`, whose every
+// relevant accessor is flagged internal by Marketplace verifier.
+val generatedVersionSourceDir = layout.buildDirectory.dir("generated/sources/version/java/main")
+
+tasks.register("generatePluginVersionSource") {
+  val pluginVersion = version.toString()
+  inputs.property("pluginVersion", pluginVersion)
+  outputs.dir(generatedVersionSourceDir)
+  doLast {
+    val pkgDir = generatedVersionSourceDir.get().asFile.resolve("com/virtuslab/gitmachete")
+    pkgDir.mkdirs()
+    pkgDir.resolve("BuildInfo.java").writeText(
+      """
+        |package com.virtuslab.gitmachete;
+        |
+        |public final class BuildInfo {
+        |  public static final String PLUGIN_VERSION = "$pluginVersion";
+        |
+        |  private BuildInfo() {}
+        |}
+        |
+      """.trimMargin(),
+    )
+  }
+}
+
 repositories {
   standardMavenRepositories()
   intellijPlatform {
@@ -434,6 +463,7 @@ intellijPlatform {
     failureLevel.set(
       setOf(
         VerifyPluginTask.FailureLevel.COMPATIBILITY_PROBLEMS,
+        VerifyPluginTask.FailureLevel.INTERNAL_API_USAGES,
         VerifyPluginTask.FailureLevel.NON_EXTENDABLE_API_USAGES,
         VerifyPluginTask.FailureLevel.PLUGIN_STRUCTURE_WARNINGS,
         VerifyPluginTask.FailureLevel.MISSING_DEPENDENCIES,

@@ -1,6 +1,7 @@
 # Changelog
 
 ## v8.0.1
+- Fixed: compatibility issues with IntelliJ 2026.2
 
 ## v8.0.0
 - Added: support for IntelliJ 2026.2.

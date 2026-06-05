@@ -1,9 +1,9 @@
 package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
+import static com.virtuslab.gitmachete.frontend.actions.backgroundables.GitCommandUpdatingCurrentBranchBackgroundable.LOCAL_CHANGES_DETECTED_DISPLAY_ID;
 import static com.virtuslab.gitmachete.frontend.actions.base.BaseResetToRemoteAction.VCS_NOTIFIER_TITLE;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getNonHtmlString;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
-import static git4idea.GitNotificationIdsHolder.LOCAL_CHANGES_DETECTED;
 import static git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector.Operation.RESET;
 
 import com.intellij.dvcs.DvcsUtil;
@@ -72,7 +72,7 @@ public class ResetCurrentToRemoteBackgroundable extends SideEffectingBackgrounda
 
         } else if (localChangesDetector.wasMessageDetected()) {
           LocalChangesWouldBeOverwrittenHelper.showErrorNotification(project,
-              LOCAL_CHANGES_DETECTED,
+              LOCAL_CHANGES_DETECTED_DISPLAY_ID,
               gitRepository.getRoot(),
               /* operationName */ "Reset",
               localChangesDetector.getRelativeFilePaths());

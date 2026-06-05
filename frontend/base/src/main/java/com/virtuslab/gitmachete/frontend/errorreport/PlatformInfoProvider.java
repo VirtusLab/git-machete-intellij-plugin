@@ -1,11 +1,10 @@
 package com.virtuslab.gitmachete.frontend.errorreport;
 
-import com.intellij.ide.plugins.IdeaPluginDescriptor;
-import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.openapi.application.ApplicationInfo;
-import com.intellij.openapi.extensions.PluginId;
 import org.apache.commons.lang3.SystemUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
+
+import com.virtuslab.gitmachete.BuildInfo;
 
 class PlatformInfoProvider {
   @Nullable
@@ -24,7 +23,9 @@ class PlatformInfoProvider {
 
   @Nullable
   String getPluginVersion() {
-    IdeaPluginDescriptor pluginDescriptor = PluginManagerCore.getPlugin(PluginId.getId("com.virtuslab.git-machete"));
-    return pluginDescriptor != null ? pluginDescriptor.getVersion() : null;
+    // Baked in at build time by the `generatePluginVersionSource` Gradle task,
+    // so we don't need to query the IDE's plugin manager (all relevant accessors
+    // there are flagged internal by IntelliJ compatibility verifier).
+    return BuildInfo.PLUGIN_VERSION;
   }
 }

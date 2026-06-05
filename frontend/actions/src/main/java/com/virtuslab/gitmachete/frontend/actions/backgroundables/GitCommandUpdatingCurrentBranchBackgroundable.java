@@ -2,38 +2,24 @@ package com.virtuslab.gitmachete.frontend.actions.backgroundables;
 
 import static com.intellij.notification.NotificationType.INFORMATION;
 import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
-import static git4idea.GitNotificationIdsHolder.LOCAL_CHANGES_DETECTED;
 import static git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector.Operation.MERGE;
 import static git4idea.update.GitUpdateSessionKt.getBodyForUpdateNotification;
 import static git4idea.update.GitUpdateSessionKt.getTitleForUpdateNotification;
 
 import com.intellij.dvcs.DvcsUtil;
-import com.intellij.history.Label;
-import com.intellij.history.LocalHistory;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationAction;
 import com.intellij.openapi.application.AccessToken;
-import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.vcs.VcsException;
 import com.intellij.openapi.vcs.VcsNotifier;
-import com.intellij.openapi.vcs.ex.ProjectLevelVcsManagerEx;
-import com.intellij.openapi.vcs.update.AbstractCommonUpdateAction;
-import com.intellij.openapi.vcs.update.ActionInfo;
-import com.intellij.openapi.vcs.update.UpdatedFiles;
 import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.util.ModalityUiUtil;
-import com.intellij.vcs.ViewUpdateInfoNotification;
 import git4idea.GitBranch;
-import git4idea.GitRevisionNumber;
-import git4idea.GitVcs;
 import git4idea.branch.GitBranchPair;
 import git4idea.commands.Git;
 import git4idea.commands.GitCommandResult;
 import git4idea.commands.GitLineHandler;
 import git4idea.commands.GitLocalChangesWouldBeOverwrittenDetector;
 import git4idea.commands.GitUntrackedFilesOverwrittenByOperationDetector;
-import git4idea.merge.MergeChangeCollector;
 import git4idea.repo.GitRepository;
 import git4idea.update.GitUpdateInfoAsLog;
 import git4idea.update.GitUpdatedRanges;
@@ -41,8 +27,6 @@ import git4idea.util.GitUntrackedFilesHelper;
 import git4idea.util.LocalChangesWouldBeOverwrittenHelper;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
 import lombok.val;
-import org.checkerframework.checker.guieffect.qual.UI;
-import org.checkerframework.checker.guieffect.qual.UIEffect;
 import org.checkerframework.checker.i18nformatter.qual.I18nFormat;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.tainting.qual.Untainted;
@@ -51,6 +35,13 @@ import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends SideEffectingBackgroundable {
+
+  // Plugin-owned notification display-id passed to LocalChangesWouldBeOverwrittenHelper.
+  // The id only feeds notification settings/telemetry bookkeeping (Settings -> Notifications grouping
+  // and FUS) - it's not part of the notification's title, body, severity or actions, so picking a
+  // plugin-namespaced value keeps the user-facing behavior identical while leaving the plugin fully
+  // decoupled from git4idea's internal id naming.
+  public static final String LOCAL_CHANGES_DETECTED_DISPLAY_ID = "git-machete.local-changes-detected";
 
   protected final GitRepository gitRepository;
 
@@ -85,23 +76,11 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Side
     handler.addLineListener(localChangesDetector);
     handler.addLineListener(untrackedFilesDetector);
 
-    Label beforeLabel = LocalHistory.getInstance().putSystemLabel(project, /* name */ "Before update");
-
     GitUpdatedRanges updatedRanges = deriveGitUpdatedRanges(getTargetBranchName());
 
-    String beforeRevision = gitRepository.getCurrentRevision();
     try (AccessToken ignore = DvcsUtil.workingTreeChangeStarted(project, getOperationName())) {
       GitCommandResult result = Git.getInstance().runCommand(handler);
-
-      if (beforeRevision != null) {
-        GitRevisionNumber currentRev = new GitRevisionNumber(beforeRevision);
-        handleResult(result,
-            localChangesDetector,
-            untrackedFilesDetector,
-            currentRev,
-            beforeLabel,
-            updatedRanges);
-      }
+      handleResult(result, localChangesDetector, untrackedFilesDetector, updatedRanges);
     }
   }
 
@@ -127,16 +106,15 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Side
       GitCommandResult result,
       GitLocalChangesWouldBeOverwrittenDetector localChangesDetector,
       GitUntrackedFilesOverwrittenByOperationDetector untrackedFilesDetector,
-      GitRevisionNumber currentRev,
-      Label beforeLabel,
       @Nullable GitUpdatedRanges updatedRanges) {
     val root = gitRepository.getRoot();
     if (result.success()) {
       VfsUtil.markDirtyAndRefresh(/* async */ false, /* recursive */ true, /* reloadChildren */ false, root);
       gitRepository.update();
-      if (updatedRanges != null &&
-          AbstractCommonUpdateAction
-              .showsCustomNotification(java.util.Collections.singletonList(GitVcs.getInstance(project)))) {
+      // updatedRanges is null only when the ref pair couldn't be assembled (detached HEAD, or the
+      // target branch is unknown to git4idea). In that edge case we skip the post-update notification
+      // entirely - the VFS refresh + repo update above are still enough to keep the UI consistent.
+      if (updatedRanges != null) {
         val ranges = updatedRanges.calcCurrentPositions();
         GitUpdateInfoAsLog.NotificationData notificationData = new GitUpdateInfoAsLog(project, ranges)
             .calculateDataAndCreateLogTab();
@@ -162,14 +140,11 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Side
               /* content */ "", INFORMATION);
         }
         VcsNotifier.getInstance(project).notify(notification);
-
-      } else {
-        showUpdates(currentRev, beforeLabel);
       }
 
     } else if (localChangesDetector.wasMessageDetected()) {
       LocalChangesWouldBeOverwrittenHelper.showErrorNotification(project,
-          LOCAL_CHANGES_DETECTED,
+          LOCAL_CHANGES_DETECTED_DISPLAY_ID,
           gitRepository.getRoot(),
           getOperationName(),
           localChangesDetector.getRelativeFilePaths());
@@ -189,33 +164,6 @@ public abstract class GitCommandUpdatingCurrentBranchBackgroundable extends Side
               getOperationName()),
           result.getErrorOutputAsJoinedString());
       gitRepository.update();
-    }
-  }
-
-  @UIThreadUnsafe
-  private void showUpdates(GitRevisionNumber currentRev, Label beforeLabel) {
-    String operationName = GitCommandUpdatingCurrentBranchBackgroundable.this.getOperationName();
-    try {
-      UpdatedFiles files = UpdatedFiles.create();
-
-      val collector = new MergeChangeCollector(project, gitRepository, currentRev);
-      collector.collect(files);
-
-      ModalityUiUtil.invokeLaterIfNeeded(ModalityState.defaultModalityState(), new @UI Runnable() {
-        @Override
-        @UIEffect
-        public void run() {
-          val manager = ProjectLevelVcsManagerEx.getInstanceEx(project);
-          val tree = manager.showUpdateProjectInfo(files, operationName, ActionInfo.UPDATE, /* canceled */ false);
-          if (tree != null) {
-            tree.setBefore(beforeLabel);
-            tree.setAfter(LocalHistory.getInstance().putSystemLabel(project, /* name */ "After update"));
-            ViewUpdateInfoNotification.focusUpdateInfoTree(project, tree);
-          }
-        }
-      });
-    } catch (VcsException e) {
-      GitVcs.getInstance(project).showErrors(java.util.Collections.singletonList(e), operationName);
     }
   }
 }
