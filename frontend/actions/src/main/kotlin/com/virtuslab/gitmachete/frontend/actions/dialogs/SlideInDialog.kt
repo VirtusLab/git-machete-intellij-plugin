@@ -8,7 +8,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.ui.MutableCollectionComboBoxModel
-import com.intellij.util.ui.JBUI
+import com.intellij.ui.dsl.builder.AlignX
+import com.intellij.ui.dsl.builder.panel
 import com.virtuslab.branchlayout.api.BranchLayout
 import com.virtuslab.branchlayout.api.BranchLayoutEntry
 import com.virtuslab.gitmachete.frontend.actions.common.SlideInOptions
@@ -17,16 +18,11 @@ import git4idea.branch.GitBranchUtil
 import git4idea.merge.GitMergeDialog
 import git4idea.repo.GitRepository
 import git4idea.ui.ComboBoxWithAutoCompletion
-import net.miginfocom.swing.MigLayout
 import org.apache.commons.text.StringEscapeUtils.escapeHtml4
 import javax.swing.JCheckBox
 import javax.swing.JLabel
-import javax.swing.JPanel
 import javax.swing.JTextField
 import kotlin.apply
-import net.miginfocom.layout.AC as AxisConstraint
-import net.miginfocom.layout.CC as ComponentConstraint
-import net.miginfocom.layout.LC as LayoutConstraint
 
 /**
 * This class has been inspired by [git4idea.merge.GitMergeDialog].
@@ -54,8 +50,20 @@ class SlideInDialog(
 
   private val branchField = createBranchField()
   private val customAnnotationField = JTextField()
-  private val innerPanel = createInnerPanel()
-  private val panel = createPanel()
+  private val dialogPanel = panel {
+    row(getString("action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.label.parent")) {
+      cell(JLabel("<html><b>${escapeHtml4(parentName)}</b></html>"))
+    }
+    row(getString("action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.label.branch-name")) {
+      cell(branchField).align(AlignX.FILL)
+    }
+    row(getString("action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.label.custom-annotation")) {
+      cell(customAnnotationField).align(AlignX.FILL)
+    }
+    row("") {
+      cell(reattachCheckbox)
+    }
+  }
 
   init {
     title = getString("action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.title")
@@ -68,7 +76,7 @@ class SlideInDialog(
     rerender()
   }
 
-  override fun createCenterPanel() = panel
+  override fun createCenterPanel() = dialogPanel
 
   override fun getPreferredFocusedComponent() = branchField
 
@@ -135,58 +143,6 @@ class SlideInDialog(
     model?.update(branches)
 
     branchField.selectAll()
-  }
-
-  private fun createPanel() = JPanel().apply {
-    layout = MigLayout(LayoutConstraint().insets("0").hideMode(3), AxisConstraint().grow())
-
-    add(innerPanel, ComponentConstraint().growX())
-  }
-
-  private fun createInnerPanel(): JPanel = JPanel().apply {
-    layout =
-      MigLayout(
-        LayoutConstraint().fillX().insets("0").gridGap("0", "0").noVisualPadding(),
-        AxisConstraint().grow(100f, 1),
-      )
-
-    add(
-      JLabel(
-        getString(
-          "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.label.parent",
-        ),
-      ),
-      ComponentConstraint().gapAfter("0").minWidth("${JBUI.scale(100)}px"),
-    )
-
-    add(
-      JLabel("<html><b>${escapeHtml4(parentName)}</b></html>"),
-      ComponentConstraint().minWidth("${JBUI.scale(300)}px").growX().wrap(),
-    )
-
-    add(
-      JLabel(
-        getString(
-          "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.label.branch-name",
-        ),
-      ),
-      ComponentConstraint().gapAfter("0").minWidth("${JBUI.scale(100)}px"),
-    )
-
-    add(branchField, ComponentConstraint().minWidth("${JBUI.scale(300)}px").growX().wrap())
-
-    add(
-      JLabel(
-        getString(
-          "action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.label.custom-annotation",
-        ),
-      ),
-      ComponentConstraint().gapAfter("0").minWidth("${JBUI.scale(100)}px"),
-    )
-
-    add(customAnnotationField, ComponentConstraint().minWidth("${JBUI.scale(300)}px").growX().wrap())
-
-    add(reattachCheckbox)
   }
 
   private fun createBranchField(): ComboBoxWithAutoCompletion<String> = ComboBoxWithAutoCompletion(MutableCollectionComboBoxModel(mutableListOf<String>()), project)
