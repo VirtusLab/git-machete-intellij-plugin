@@ -15,7 +15,7 @@ import com.virtuslab.gitcore.api.IGitCoreCheckoutEntry;
 import com.virtuslab.gitcore.api.IGitCoreCommitHash;
 import com.virtuslab.gitcore.api.IGitCoreReflogEntry;
 
-@RequiredArgsConstructor(access = AccessLevel.MODULE)
+@RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 @ExtensionMethod(GitCoreCommitHash.class)
 @ToString(onlyExplicitlyIncluded = true)
 @UsesObjectEquals
