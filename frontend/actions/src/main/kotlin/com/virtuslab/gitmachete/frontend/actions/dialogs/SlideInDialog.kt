@@ -10,6 +10,7 @@ import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.ui.MutableCollectionComboBoxModel
 import com.intellij.ui.dsl.builder.AlignX
 import com.intellij.ui.dsl.builder.panel
+import com.intellij.util.ui.JBUI
 import com.virtuslab.branchlayout.api.BranchLayout
 import com.virtuslab.branchlayout.api.BranchLayoutEntry
 import com.virtuslab.gitmachete.frontend.actions.common.SlideInOptions
@@ -55,10 +56,14 @@ class SlideInDialog(
       cell(JLabel("<html><b>${escapeHtml4(parentName)}</b></html>"))
     }
     row(getString("action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.label.branch-name")) {
-      cell(branchField).align(AlignX.FILL)
+      cell(branchField)
+        .align(AlignX.FILL)
+        .applyToComponent { minimumSize = JBUI.size(MIN_VALUE_FIELD_WIDTH, 0) }
     }
     row(getString("action.GitMachete.BaseSlideInBelowAction.dialog.slide-in.label.custom-annotation")) {
-      cell(customAnnotationField).align(AlignX.FILL)
+      cell(customAnnotationField)
+        .align(AlignX.FILL)
+        .applyToComponent { minimumSize = JBUI.size(MIN_VALUE_FIELD_WIDTH, 0) }
     }
     row("") {
       cell(reattachCheckbox)
@@ -185,5 +190,9 @@ class SlideInDialog(
 
   companion object {
     val LOG = logger<GitMergeDialog>()
+
+    // Unscaled; JBUI.size scales it. Keeps the value column from collapsing to the components'
+    // natural width once it's free to grow with the dialog (align(AlignX.FILL)).
+    private const val MIN_VALUE_FIELD_WIDTH = 300
   }
 }
