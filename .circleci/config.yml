@@ -235,6 +235,22 @@ jobs:
       - store_test_results:
           path: build/test-results/
       - store_ui_test_artifacts
+      # Coverage is collected here regardless of which IDE version `ui-tests-recent` ran against
+      # (latestStable or EAP). EAP and latestStable exercise nearly the same production paths in
+      # this plugin (only explicit bincompat shims would differ), so accepting that drift is
+      # simpler than gating on the IDE version. `ui-tests-earlier` and the nested latestStable
+      # rerun inside it intentionally skip the upload - the data they'd add over what
+      # `ui-tests-recent` already covers isn't worth the extra Codecov flag.
+      - run:
+          name: Generate JaCoCo UI-test coverage report
+          command: ./gradlew jacocoUiTestReport
+      - codecov/upload:
+          # Pin to the single XML so the orb doesn't also walk the working tree for stray
+          # `.exec`/`.xml` files - there aren't any in this job, but pinning keeps the upload
+          # deterministic.
+          files: build/reports/jacoco/jacocoUiTestReport/jacocoUiTestReport.xml
+          disable_search: true
+          flags: ui-tests
 
   ui-tests-earlier:
     executor: ubuntu_executor

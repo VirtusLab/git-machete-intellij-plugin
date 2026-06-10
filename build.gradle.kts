@@ -79,9 +79,25 @@ allprojects {
   apply<JavaLibraryPlugin>()
   apply<JacocoPlugin>()
 
-  // The `jacocoTestReport` task that JaCoCo plugin auto-creates per subproject only emits HTML
-  // by default; Codecov ingests JaCoCo XML, so flip XML on for every subproject's report.
+  // JaCoCo report tasks emit HTML by default and skip XML; we want the opposite - Codecov
+  // ingests XML and renders its own HTML, so generating local HTML is wasted CPU/disk in CI.
+  // This catches both each subproject's auto-created `jacocoTestReport` and the root project's
+  // `jacocoUiTestReport` (registered from buildSrc).
+  //
+  // Heads-up: the auto-created `jacocoTestReport` only fires for subprojects whose `test` task
+  // actually runs (i.e. that have any unit-test sources). Subprojects with no unit tests of their
+  // own - notably the `*/api` interface modules, `qual`, etc. - therefore don't emit a
+  // `jacocoTestReport.xml` at all, and Codecov's working-tree walk never sees those classes from
+  // the unit-test layer alone. Today they're covered by `jacocoUiTestReport`, which sweeps
+  // `classDirectories` across every subproject's `main` source set (see
+  // `configureUiTestCoverage()` in buildSrc) and reports whatever coverage the UI-test runs
+  // actually exercised - which is typically non-trivial, since the running plugin exercises the
+  // `*/api` interfaces and their implementations through normal use. If the UI-test coverage
+  // layer is ever removed, those subprojects will silently drop out of the Codecov denominator
+  // and the project-wide percentage will jump for no real reason - if that matters, register an
+  // aggregated unit-test report mirroring `jacocoUiTestReport`.
   tasks.withType<JacocoReport>().configureEach {
+    reports.html.required.set(false)
     reports.xml.required.set(true)
   }
 
@@ -536,4 +552,5 @@ dependencies {
   }
 }
 
+configureUiTestCoverage()
 configureUiTests()
