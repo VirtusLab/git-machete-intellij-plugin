@@ -146,15 +146,17 @@ jobs:
       - run:
           name: Run unit & integration tests
           command: ./gradlew :buildSrc:test test
-      # Unfortunately, wildcards for test result paths aren't supported by CircleCI yet.
+      # `store_test_results` doesn't support globs (still true as of CircleCI docs 2026), so
+      # gather every subproject's JUnit XMLs into one staging dir first. This auto-tracks any
+      # new subprojects (and any new Test tasks beyond `test`) without needing CI edits.
+      - run:
+          name: Gather JUnit test result XMLs from every subproject
+          when: always
+          command: |
+            mkdir -p test-results/junit
+            find . -type f -regex '.*/build/test-results/.*\.xml' -exec cp {} test-results/junit/ \;
       - store_test_results:
-          path: branchLayout/impl/build/test-results/test/
-      - store_test_results:
-          path: backend/impl/build/test-results/test/
-      - store_test_results:
-          path: frontend/base/build/test-results/test/
-      - store_test_results:
-          path: build/test-results/
+          path: test-results
 
       - run:
           name: Build plugin artifact
