@@ -17,6 +17,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion as GradleKotlinVersion
 
 plugins {
   checkstyle
+  jacoco
   `java-library`
   alias(libs.plugins.jetbrains.changelog)
   alias(libs.plugins.jetbrains.intellij)
@@ -76,6 +77,13 @@ allprojects {
   }
 
   apply<JavaLibraryPlugin>()
+  apply<JacocoPlugin>()
+
+  // The `jacocoTestReport` task that JaCoCo plugin auto-creates per subproject only emits HTML
+  // by default; Codecov ingests JaCoCo XML, so flip XML on for every subproject's report.
+  tasks.withType<JacocoReport>().configureEach {
+    reports.xml.required.set(true)
+  }
 
   java {
     // Drives sourceCompatibility, targetCompatibility and `javac --release` in one place.

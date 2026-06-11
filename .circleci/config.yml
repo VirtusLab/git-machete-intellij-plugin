@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  codecov: codecov/codecov@6.0.0
+
 executors:
   ubuntu_executor:
     machine:
@@ -144,19 +147,28 @@ jobs:
           name: Compile tests
           command: ./gradlew testClasses
       - run:
-          name: Run unit & integration tests
-          command: ./gradlew :buildSrc:test test
+          name: Run unit & integration tests and generate coverage reports
+          command: ./gradlew :buildSrc:test test jacocoTestReport
       # `store_test_results` doesn't support globs (still true as of CircleCI docs 2026), so
       # gather every subproject's JUnit XMLs into one staging dir first. This auto-tracks any
       # new subprojects (and any new Test tasks beyond `test`) without needing CI edits.
+      # Gradle names each file `TEST-<fully-qualified-class-name>.xml` (one per test class), and
+      # every subproject in this repo uses a package prefix matching its module coordinates
+      # (`com.virtuslab.branchlayout.*`, `com.virtuslab.gitcore.*`, `com.virtuslab.gitmachete.backend.*`,
+      # ...), so two subprojects can't end up with the same FQN and a flat copy can't clobber files.
       - run:
           name: Gather JUnit test result XMLs from every subproject
           when: always
           command: |
             mkdir -p test-results/junit
-            find . -type f -regex '.*/build/test-results/.*\.xml' -exec cp {} test-results/junit/ \;
+            find . -type f -regex '.*/build/test-results/.*\.xml' -exec cp -v {} test-results/junit/ \;
       - store_test_results:
           path: test-results
+      # The Codecov uploader walks the working tree by default, picks up every subproject's
+      # `<sub>/build/reports/jacoco/test/jacocoTestReport.xml`, and merges them server-side by
+      # file path - no Gradle-side aggregation needed.
+      - codecov/upload:
+          flags: unit-tests
 
       - run:
           name: Build plugin artifact
@@ -170,14 +182,20 @@ jobs:
       - run:
           name: Verify binary compatibility with supported IntelliJ versions
           command: ./gradlew verifyPlugin
-      # Upload the entire reports tree (Gradle's `problems/` report + per-IDE
-      # `pluginVerifier/` reports, with their CSS/JS assets) so the violation
-      # details are inspectable from the CircleCI run page even when the build
-      # is red. Runs unconditionally - `store_artifacts` silently skips a
-      # missing path, so a clean build (no reports generated) doesn't fail.
+      # Upload only the `verifyPlugin`-related reports: Gradle's `problems/` summary and the
+      # per-IDE `pluginVerifier/` reports (with their CSS/JS assets), so the violation details
+      # are inspectable from the CircleCI run page even when the build is red. The sibling
+      # `build/reports/jacoco/` (uploaded to Codecov above) and `build/reports/tests/` (HTML
+      # mirror of the JUnit XMLs we already ship to `store_test_results`) are deliberately left
+      # out. Runs unconditionally - `store_artifacts` silently skips a missing path, so a clean
+      # build (no reports generated) doesn't fail.
       - store_artifacts:
-          path: build/reports/
-          destination: reports
+          path: build/reports/problems/
+          destination: reports/problems
+          when: always
+      - store_artifacts:
+          path: build/reports/pluginVerifier/
+          destination: reports/pluginVerifier
           when: always
 
       - when:
