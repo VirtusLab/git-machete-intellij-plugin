@@ -48,6 +48,34 @@ val pluginSignPrivateKeyPass: String? by extra(System.getenv("PLUGIN_SIGN_PRIVAT
 
 val shouldRunAllCheckers: Boolean by extra(isCI || project.hasProperty("runAllCheckers"))
 
+// VCS-related platform modules that the 2026.2 EAP carved out of the implicit IDE compile classpath
+// previously brought in transitively by `bundledPlugin("Git4Idea")`. Each entry is annotated with
+// the symbol(s) in our codebase that pulled it in.
+val intellijVcsBundledModules: List<String> by extra(
+  listOf(
+    // `dvcs.repo.Repository` (supertype of `GitRepository`), `dvcs.repo.RepositoryManager`,
+    // `dvcs.push.PushSource`/`PushSupport`/`VcsPushOptionValue`.
+    "intellij.platform.vcs.dvcs",
+    // `dvcs.DvcsUtil`, `dvcs.repo.VcsRepositoryManager`, `dvcs.repo.VcsRepositoryMappingListener`,
+    // `dvcs.push.ui.VcsPushDialog`, plus `dvcs.repo.AbstractRepositoryManager` (supertype of
+    // `GitRepositoryManager`).
+    "intellij.platform.vcs.dvcs.impl",
+    // `dvcs.branch.DvcsSyncSettings` (supertype of `GitVcsSettings`).
+    "intellij.platform.vcs.dvcs.impl.shared",
+    // `openapi.vcs.VcsNotifier`, `openapi.vcs.ui.CommitMessage`,
+    // `openapi.vcs.changes.ui.ChangesViewContentProvider`.
+    "intellij.platform.vcs.impl",
+    // `vcs.log.impl.HashImpl`.
+    "intellij.platform.vcs.impl.shared",
+    // `vcs.log.VcsCommitMetadata`.
+    "intellij.platform.vcs.log",
+    // `vcs.log.graph.GraphCommit` (supertype reachable via `VcsCommitMetadata`).
+    "intellij.platform.vcs.log.graph",
+    // `vcs.log.impl.VcsProjectLog`.
+    "intellij.platform.vcs.log.impl",
+  ),
+)
+
 tasks.register<UpdateIntellijVersions>("updateIntellijVersions")
 
 // Optional Maven proxy URL from gitignored gradle-local.properties (see gradle-local.properties.example).
@@ -256,6 +284,7 @@ subprojects {
       intellijPlatform {
         intellijIdea(intellijVersions.buildTarget)
         bundledPlugin("Git4Idea")
+        intellijVcsBundledModules.forEach { bundledModule(it) }
       }
     }
 
@@ -499,6 +528,7 @@ dependencies {
   intellijPlatform {
     intellijIdea(intellijVersions.buildTarget)
     bundledPlugin("Git4Idea")
+    intellijVcsBundledModules.forEach { bundledModule(it) }
     pluginVerifier()
     zipSigner()
   }
