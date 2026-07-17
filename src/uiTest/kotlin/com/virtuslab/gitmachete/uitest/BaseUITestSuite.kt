@@ -116,6 +116,14 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
         //  which interferes with automatic UI tests since 2025.3
         applyVMOptionsPatch { addSystemProperty("llm.show.ai.promotion.window.on.start", "false") }
 
+        // Opt the IDE-under-test out of the Islands A/B experiment so it keeps the classic default
+        // Look and Feel. The stripped IDE-under-test doesn't bundle the Islands editor color scheme,
+        // so with the Islands theme active the first project-view repaint logs
+        // `Theme Islands Dark refers to unknown color scheme Islands Dark`, which ide-starter's
+        // ErrorReporterToCI reports as a test failure. `applyIslandsTheme` returns early
+        // on `control.option`, leaving the Dark/Darcula default whose color scheme does resolve.
+        applyVMOptionsPatch { addSystemProperty("platform.experiment.ab.manual.option", "control.option") }
+
         // When the surrounding Gradle task supplies a JaCoCo agent jar and a destination (the
         // `uiTest_*` task family in `UITests.kt`), attach the agent to the IDE-under-test JVM
         // so UI-test runs contribute to the coverage report.
