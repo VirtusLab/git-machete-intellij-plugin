@@ -34,6 +34,12 @@ tasks {
     // The output layout (parser class location, PSI root) is derived from the .bnf file's
     // `parserClass` and `psiPackage` attributes, so no further configuration is needed here.
     targetRootOutputDir.set(file(generatedParserJavaSourcesRoot))
+    // `targetRootOutputDir` is `@Internal`; the task's only tracked outputs are the `@Optional` `@OutputFile`/`@OutputDirectory`
+    // derived from `pathToParser`/`pathToPsiRoot`, which we deliberately leave unset.
+    // With no output declared, Gradle tracks nothing here, so on a wiped `build/` (fresh CI checkout)
+    // the task reports UP-TO-DATE / FROM-CACHE yet restores no sources, breaking `compileJava`.
+    // Declaring the generated root as an output makes the task properly incremental and cacheable.
+    outputs.dir(generatedParserJavaSourcesRoot)
   }
 
   generateLexer {
@@ -42,6 +48,7 @@ tasks {
     sourceFile.set(file("$grammarSourcesRoot/Machete.flex"))
     // The output file is placed in a subdirectory matching the `package` declared in the .flex file.
     targetRootOutputDir.set(file(generatedLexerJavaSourcesRoot))
+    outputs.dir(generatedLexerJavaSourcesRoot)
   }
 
   compileJava {
