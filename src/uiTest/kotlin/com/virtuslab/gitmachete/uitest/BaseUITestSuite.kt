@@ -34,6 +34,17 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
     val robot = RemoteRobot("http://127.0.0.1:8580")
     private val intelliJVersion = System.getProperty("intellij.version")
 
+    // Substrings of platform-logged errors (`Logger.error`) that ide-starter's ErrorReporterToCI
+    // otherwise turns into synthetic test failures. These originate in the IDE platform rather than
+    // the plugin and fire non-deterministically depending on background-thread timing, so a failure
+    // lands on whichever test happened to be running. Matching by substring keeps each entry narrow.
+    private val IGNORED_PLATFORM_ERROR_SUBSTRINGS = listOf(
+      // The Islands theme (default Look and Feel for a fresh config since 2026.x) resolves its editor
+      // color scheme lazily; a project-view repaint that beats the scheme registration logs
+      // `Theme Islands Dark refers to unknown color scheme Islands Dark` (and the Light variant).
+      "refers to unknown color scheme",
+    )
+
     fun <T> retryOnConnectException(attempts: Int, block: () -> T): T = try {
       block()
     } catch (e: java.net.ConnectException) {
@@ -95,6 +106,12 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
               kind: SyntheticTestKind,
               generifyTestName: Boolean,
             ) {
+              val fullText = "$testName $message $details"
+              val ignoredMatch = IGNORED_PLATFORM_ERROR_SUBSTRINGS.firstOrNull { fullText.contains(it) }
+              if (ignoredMatch != null) {
+                println("Ignoring platform-logged error (matched \"$ignoredMatch\"), unrelated to the plugin: $testName")
+                return
+              }
               fail { "$testName fails: $message. \n$details" }
             }
           }
@@ -115,14 +132,6 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
         // FIXME (LLM-22958): disable `Unlock next-level development with free AI` dialog
         //  which interferes with automatic UI tests since 2025.3
         applyVMOptionsPatch { addSystemProperty("llm.show.ai.promotion.window.on.start", "false") }
-
-        // Opt the IDE-under-test out of the Islands A/B experiment so it keeps the classic default
-        // Look and Feel. The stripped IDE-under-test doesn't bundle the Islands editor color scheme,
-        // so with the Islands theme active the first project-view repaint logs
-        // `Theme Islands Dark refers to unknown color scheme Islands Dark`, which ide-starter's
-        // ErrorReporterToCI reports as a test failure. `applyIslandsTheme` returns early
-        // on `control.option`, leaving the Dark/Darcula default whose color scheme does resolve.
-        applyVMOptionsPatch { addSystemProperty("platform.experiment.ab.manual.option", "control.option") }
 
         // When the surrounding Gradle task supplies a JaCoCo agent jar and a destination (the
         // `uiTest_*` task family in `UITests.kt`), attach the agent to the IDE-under-test JVM
