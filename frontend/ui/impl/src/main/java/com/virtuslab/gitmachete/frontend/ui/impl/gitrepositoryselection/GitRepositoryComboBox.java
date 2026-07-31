@@ -1,5 +1,8 @@
 package com.virtuslab.gitmachete.frontend.ui.impl.gitrepositoryselection;
 
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.fmt;
+import static com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle.getString;
+
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JList;
@@ -11,11 +14,17 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
+import com.intellij.openapi.vcs.VcsNotifier;
+import com.intellij.openapi.vfs.VirtualFileManager;
+import com.intellij.openapi.vfs.newvfs.BulkFileListener;
+import com.intellij.openapi.vfs.newvfs.events.VFileDeleteEvent;
+import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
 import com.intellij.ui.ComboboxSpeedSearch;
 import com.intellij.ui.MutableCollectionComboBoxModel;
 import com.intellij.ui.SimpleListCellRenderer;
 import com.intellij.util.ModalityUiUtil;
 import com.intellij.util.SmartList;
+import com.intellij.util.messages.MessageBusConnection;
 import git4idea.GitUtil;
 import git4idea.repo.GitRepository;
 import io.vavr.collection.List;
@@ -47,13 +56,26 @@ public final class GitRepositoryComboBox extends JComboBox<GitRepository>
     setRenderer(new ShortRepositoryNameRenderer());
 
     val messageBusConnection = project.getMessageBus().connect();
+    subscribeToRepositoryChanges(messageBusConnection);
+    ComboboxSpeedSearch.installSpeedSearch(this, DvcsUtil::getShortRepositoryName);
+  }
+
+  private void subscribeToRepositoryChanges(MessageBusConnection messageBusConnection) {
     messageBusConnection
         .<VcsRepositoryMappingListener>subscribe(VcsRepositoryManager.VCS_REPOSITORY_MAPPING_UPDATED, () -> {
           LOG.debug("Git repository mappings changed");
           ModalityUiUtil.invokeLaterIfNeeded(ModalityState.nonModal(), () -> updateRepositories());
         });
+    messageBusConnection.subscribe(VirtualFileManager.VFS_CHANGES, new BulkFileListener() {
+      @Override
+      public void after(java.util.List<? extends VFileEvent> events) {
+        if (events.stream().anyMatch(GitRepositoryComboBox::isGitDirectoryDeletion)) {
+          LOG.debug("Git directory deleted");
+          ModalityUiUtil.invokeLaterIfNeeded(ModalityState.nonModal(), () -> updateRepositories());
+        }
+      }
+    });
     Disposer.register(this, messageBusConnection);
-    ComboboxSpeedSearch.installSpeedSearch(this, DvcsUtil::getShortRepositoryName);
   }
 
   @Override
@@ -64,7 +86,7 @@ public final class GitRepositoryComboBox extends JComboBox<GitRepository>
 
   @UIEffect
   private void updateRepositories() {
-    val repositories = List.ofAll(GitUtil.getRepositories(project));
+    val repositories = getAvailableRepositories(project);
     LOG.debug("Git repositories:");
     repositories.forEach(r -> LOG.debug("* ${r.getRoot().getName()}"));
 
@@ -72,6 +94,14 @@ public final class GitRepositoryComboBox extends JComboBox<GitRepository>
     // before `com.intellij.ui.MutableCollectionComboBoxModel.update`
     // because the update method sets the selected item to null
     val selected = getModel().getSelected();
+    if (selected != null && GitUtil.findGitDir(selected.getRoot()) == null) {
+      VcsNotifier.getInstance(project).notifyWarning(
+          /* displayId */ null,
+          getString("string.GitMachete.GitRepositoryComboBox.removed-git-root.notification.title"),
+          fmt(
+              getString("string.GitMachete.GitRepositoryComboBox.removed-git-root.notification.text"),
+              selected.getRoot().getPath()));
+    }
     if (!getModel().getItems().equals(repositories)) {
       getModel().update(DvcsUtil.sortRepositories(repositories.asJavaMutable()));
     }
@@ -92,6 +122,16 @@ public final class GitRepositoryComboBox extends JComboBox<GitRepository>
       // GitRepositoryComboBox#setSelectedItem is omitted to avoid unnecessary observers call
       getModel().setSelectedItem(selected);
     }
+  }
+
+  static List<GitRepository> getAvailableRepositories(Project project) {
+    return List.ofAll(GitUtil.getRepositories(project))
+        .filter(repository -> GitUtil.findGitDir(repository.getRoot()) != null);
+  }
+
+  static boolean isGitDirectoryDeletion(VFileEvent event) {
+    val file = event.getFile();
+    return event instanceof VFileDeleteEvent && file != null && file.getName().equals(".git");
   }
 
   @Override
