@@ -10,6 +10,17 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 fun Project.configureSpotless() {
   apply<SpotlessPlugin>()
+  // Every target below is anchored at the project directory (`src/...`, `*.gradle.kts`) rather than starting with `**/`.
+  // Spotless compiles each pattern into a `fileTree(projectDir)` carrying that single include,
+  // and a leading `**/` matches at any depth, which forbids Gradle from pruning a single directory
+  // while snapshotting the task's inputs - it then walks and pattern-matches the entire project tree,
+  // `.git` and the multi-gigabyte `.intellijPlatform` IDE sandbox included, on every build.
+  // Anchoring also keeps out of scope, by construction rather than by exclusion:
+  // generated sources under `build/` (GrammarKit parser/lexer, the baked-in version constant),
+  // the sandbox that `prepareTestSandbox` populates (see JetBrains/intellij-platform-gradle-plugin#2096),
+  // and IDE-managed output dirs such as `bin/`, whose stale copies of our sources would otherwise
+  // get reformatted and invalidate these tasks whenever the IDE refreshes them.
+  // Finally, it stops every parent project from redundantly formatting its children's sources.
   configure<SpotlessExtension> {
     java {
       importOrder("java", "javax", "", "com.virtuslab")
@@ -17,7 +28,7 @@ fun Project.configureSpotless() {
       // and exporting settings from Eclipse
       eclipse().configFile("$rootDir/config/spotless/formatting-rules.xml")
       removeUnusedImports()
-      targetExclude("**/build/generated/**/*.*", "**/.intellijPlatform/**")
+      target("src/**/*.java")
     }
 
     val ktlintEditorConfig = mapOf(
@@ -32,16 +43,14 @@ fun Project.configureSpotless() {
 
     kotlin {
       ktlint().editorConfigOverride(ktlintEditorConfig)
-      target("**/*.kt")
-      // Workaround for JetBrains/intellij-platform-gradle-plugin#2096: exclude plugin sandbox so Spotless
-      // doesn't touch outputs of prepareTestSandbox (previously under build/idea-sandbox, now under .intellijPlatform).
-      targetExclude("**/.intellijPlatform/**")
+      target("src/**/*.kt")
     }
 
     kotlinGradle {
       ktlint().editorConfigOverride(ktlintEditorConfig)
-      target("**/*.gradle.kts")
-      targetExclude("**/.intellijPlatform/**")
+      // Each project covers its own build script, the root project additionally `settings.gradle.kts`
+      // and `version.gradle.kts`; buildSrc has its own Spotless setup.
+      target("*.gradle.kts")
     }
   }
 

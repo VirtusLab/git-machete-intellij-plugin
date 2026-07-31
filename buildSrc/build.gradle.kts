@@ -66,14 +66,17 @@ spotless {
     "ktlint_standard_no-wildcard-imports" to "disabled",
   )
 
+  // Both targets are anchored at the project dir rather than starting with `**/`,
+  // so that Gradle can prune `build/` and IDE-managed output dirs while snapshotting these tasks' inputs
+  // instead of walking and pattern-matching the whole tree.
   kotlin {
     ktlint().editorConfigOverride(ktlintEditorConfig)
-    target("**/*.kt")
+    target("src/**/*.kt")
   }
 
   kotlinGradle {
     ktlint().editorConfigOverride(ktlintEditorConfig)
-    target("**/*.gradle.kts")
+    target("*.gradle.kts")
   }
 }
 
