@@ -1,6 +1,7 @@
 # Changelog
 
 ## v8.0.2
+- Fixed: removing a Git root's `.git` directory no longer causes an error.
 
 ## v8.0.1
 - Fixed: compatibility issues with IntelliJ 2026.2
