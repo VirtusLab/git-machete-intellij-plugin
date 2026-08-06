@@ -1,0 +1,14 @@
+# Every build uploads exactly two coverage reports - `unit-tests` from the `build` job (via the
+# Codecov orb's working-tree walk over per-subproject `jacocoTestReport.xml`s) and `ui-tests`
+# from the `ui-tests-recent` job (via `jacocoUiTestReport.xml`).
+# By default Codecov posts the PR comment as soon as the first report lands and then edits it
+# when the second arrives, so reviewers briefly see numbers that reflect only one of the two
+# layers (e.g. ~17% "unit-tests only" before the `ui-tests` upload brings it back to ~52%).
+# Waiting for both uploads before posting keeps the initial comment showing the final numbers.
+codecov:
+  notify:
+    after_n_builds: 2
+    wait_for_ci: true
+
+comment:
+  after_n_builds: 2
