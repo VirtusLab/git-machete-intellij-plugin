@@ -27,6 +27,7 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.attribute.PosixFilePermission.*
+import java.util.Locale.getDefault
 import kotlin.time.Duration.Companion.minutes
 
 abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGLE_REMOTE) {
@@ -329,6 +330,9 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
     rootDirectoryPath.resolve("machete-post-slide-out-hook-executed")
 
   fun Path.makeExecutable() {
+    if (System.getProperty("os.name").lowercase(getDefault()).contains("windows")) {
+      return
+    }
     val attributes = Files.getPosixFilePermissions(this)
     attributes.add(OWNER_EXECUTE)
     attributes.add(GROUP_EXECUTE)

@@ -20,16 +20,16 @@ public final class TestProcessUtils {
     Process process = new ProcessBuilder()
         .command(command)
         .directory(workingDirectory.toFile())
+        .redirectErrorStream(true)
         .start();
-    boolean completed = process.waitFor(timeoutSeconds, TimeUnit.SECONDS);
 
     String stdout = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
-    String stderr = IOUtils.toString(process.getErrorStream(), StandardCharsets.UTF_8);
+    boolean completed = process.waitFor(timeoutSeconds, TimeUnit.SECONDS);
+
     String commandRepr = Arrays.toString(command);
     String NL = System.lineSeparator();
     String stdoutMessage = "Stdout of " + commandRepr + ": " + NL + stdout;
-    String stderrMessage = "Stderr of " + commandRepr + ": " + NL + stderr;
-    String joinedMessage = NL + NL + stdoutMessage + NL + stderrMessage + NL;
+    String joinedMessage = NL + NL + stdoutMessage + NL;
 
     assertTrue(
         completed, "command " + commandRepr + " has not completed within " + timeoutSeconds + " seconds" + joinedMessage);

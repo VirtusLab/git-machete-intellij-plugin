@@ -1,11 +1,10 @@
 package com.virtuslab.gitmachete.testcommon;
 
-import static com.virtuslab.gitmachete.testcommon.TestProcessUtils.runProcessAndReturnStdout;
-
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Comparator;
 
@@ -23,9 +22,33 @@ public final class TestFileUtils {
         StandardCopyOption.REPLACE_EXISTING);
   }
 
+  @SneakyThrows
+  public static String runProcessAndReturnStdout(int timeoutSeconds, String... command) {
+    Path currentDir = Paths.get(".").toAbsolutePath().normalize();
+    return TestProcessUtils.runProcessAndReturnStdout(currentDir, timeoutSeconds, command);
+  }
+
+  public static String getShellExecutable() {
+    String shell = "bash";
+    String osName = System.getProperty("os.name").toLowerCase();
+    if (osName.contains("windows")) {
+      String gitPath = runProcessAndReturnStdout(5, "where", "git").trim().split(System.lineSeparator())[0];
+      if (gitPath.endsWith("cmd\\git.exe")) {
+        shell = gitPath.replace("cmd\\git.exe", "bin\\sh.exe");
+      } else if (gitPath.endsWith("bin\\git.exe")) {
+        shell = gitPath.replace("bin\\git.exe", "bin\\sh.exe");
+      } else {
+        shell = "sh"; // fall back to PATH
+      }
+    }
+    return shell;
+  }
+
+  @SneakyThrows
   public static void prepareRepoFromScript(String scriptName, Path workingDir) {
-    runProcessAndReturnStdout(/* workingDirectory */ workingDir, /* timeoutSeconds */ 60,
-        /* command */ "bash", workingDir.resolve(scriptName).toString());
+    String shell = getShellExecutable();
+    String scriptPath = workingDir.resolve(scriptName).toString();
+    TestProcessUtils.runProcessAndReturnStdout(/* workingDirectory */ workingDir, /* timeoutSeconds */ 60, shell, scriptPath);
   }
 
   @SneakyThrows

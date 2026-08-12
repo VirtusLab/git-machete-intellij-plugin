@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
+import com.virtuslab.qual.guieffect.IgnoreUIThreadUnsafeCalls;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import kr.pe.kwonnam.slf4jlambda.LambdaLogger;
@@ -24,11 +25,13 @@ public abstract class BaseHookExecutor {
   protected final String name;
   protected final File rootDirectory;
   protected final File hookFile;
+  protected final @Nullable String gitConfigCoreHooksPath;
 
   protected BaseHookExecutor(String name, Path rootDirectoryPath, Path mainGitDirectoryPath,
       @Nullable String gitConfigCoreHooksPath) {
     this.name = name;
     this.rootDirectory = rootDirectoryPath.toFile();
+    this.gitConfigCoreHooksPath = gitConfigCoreHooksPath;
 
     Path hooksDirPath;
     if (gitConfigCoreHooksPath == null) {
@@ -44,6 +47,7 @@ public abstract class BaseHookExecutor {
   protected abstract LambdaLogger log();
 
   @UIThreadUnsafe
+  @IgnoreUIThreadUnsafeCalls("com.virtuslab.gitmachete.testcommon.TestFileUtils")
   protected @Nullable ExecutionResult executeHook(int timeoutSeconds, OnExecutionTimeout onTimeout,
       Map<String, String> environment, String... args)
       throws GitMacheteException {
@@ -59,8 +63,23 @@ public abstract class BaseHookExecutor {
 
     log().debug(() -> "Executing ${name} hook (${hookFilePath}) for ${argsToString} in cwd=${rootDirectory}");
     ProcessBuilder pb = new ProcessBuilder();
-    String[] commandAndArgs = List.of(args).prepend(hookFilePath).toJavaArray(String[]::new);
-    pb.command(commandAndArgs);
+    val command = List.of(args).prepend(hookFilePath);
+    val osName = System.getProperty("os.name").toLowerCase();
+    if (osName.contains("windows")) {
+      String shell = "sh";
+      try {
+        val testFileUtilsClass = Class.forName("com.virtuslab.gitmachete.testcommon.TestFileUtils");
+        shell = (String) testFileUtilsClass.getMethod("getShellExecutable").invoke(null);
+      } catch (ClassNotFoundException ignored) {
+        // This is expected when the hook is executed from the plugin, not from the tests.
+        // In that case, we rely on the shell being in the PATH.
+      } catch (Exception e) {
+        log().warn("Could not determine shell executable for ${name} hook: ${e.getMessage()}. Falling back to 'sh'");
+      }
+      pb.command(command.prepend(shell).toJavaArray(String[]::new));
+    } else {
+      pb.command(command.toJavaArray(String[]::new));
+    }
     for (val item : environment) {
       pb.environment().put(item._1(), item._2());
     }
