@@ -38,4 +38,4 @@ vavr = "io.vavr:vavr:1.0.1"
 [plugins]
 jetbrains-changelog = "org.jetbrains.changelog:2.5.0"
 jetbrains-intellij = "org.jetbrains.intellij.platform:2.18.1"
-taskTree = "com.dorongold.task-tree:4.0.1"
+taskTree = "com.dorongold.task-tree:4.0.2"
