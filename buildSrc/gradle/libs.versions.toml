@@ -1,5 +1,5 @@
 [versions]
-junit = "6.1.2"
+junit = "6.1.3"
 spotless = "8.9.0"
 
 [libraries]
@@ -17,4 +17,4 @@ pluginPackages-spotless = { module = "com.diffplug.spotless:spotless-plugin-grad
 
 [plugins]
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
-taskTree = "com.dorongold.task-tree:4.0.1"
+taskTree = "com.dorongold.task-tree:4.0.2"
