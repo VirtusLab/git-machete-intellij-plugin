@@ -142,8 +142,7 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
           applyVMOptionsPatch { addLine(jacocoJavaAgentArgument(jacocoAgentJar, jacocoExecFile)) }
         }
       }
-      // TODO (#2288): drop `.alsoBypassTestNameSynchronizer()` once 2026.1 support is removed
-      val backgroundRun = ideStarter.runIdeWithDriver().alsoBypassTestNameSynchronizer()
+      val backgroundRun = ideStarter.runIdeWithDriver()
       println("IDE instance started")
 
       println("Rhino project initializing...")

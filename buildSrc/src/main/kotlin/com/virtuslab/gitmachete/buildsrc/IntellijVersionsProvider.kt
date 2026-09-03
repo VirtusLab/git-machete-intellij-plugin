@@ -62,7 +62,7 @@ class RealIntelliJVersionsProvider : IntelliJVersionsProvider {
   }
 
   override fun getKotlinLibraryVersionsForIntelliJ(intellijVersion: String): KotlinLibraryVersions {
-    // See https://www.jetbrains.com/legal/third-party-software/?product=IIU&version=2026.1 for web version.
+    // See https://www.jetbrains.com/legal/third-party-software/?product=IIU&version=2026.2 for web version.
     val url = "https://resources.jetbrains.com/storage/third-party-libraries/idea/idea-$intellijVersion-third-party-libraries.json"
     val jsonString = fetchJson(url)
 
