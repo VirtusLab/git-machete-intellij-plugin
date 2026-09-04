@@ -4,7 +4,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 import org.junit.jupiter.api.Test;
 
-public class ForbiddenFieldsTestSuite extends BaseArchUnitTestSuite {
+public class ForbiddenFieldsTest extends BaseArchUnitTest {
 
   @Test
   public void no_classes_should_access_RevSort_TOPO() {

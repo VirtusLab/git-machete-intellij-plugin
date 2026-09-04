@@ -5,7 +5,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 import org.junit.jupiter.api.Test;
 
-public class NamingTestSuite extends BaseArchUnitTestSuite {
+public class NamingTest extends BaseArchUnitTest {
 
   @Test
   public void exception_class_names_should_end_with_Exception() {

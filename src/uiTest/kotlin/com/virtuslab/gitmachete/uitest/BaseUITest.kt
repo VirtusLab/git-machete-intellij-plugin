@@ -27,7 +27,7 @@ import java.nio.file.Path
 import java.nio.file.attribute.PosixFilePermission.*
 import kotlin.time.Duration.Companion.minutes
 
-abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGLE_REMOTE) {
+abstract class BaseUITest : TestGitRepository(SetupScripts.SETUP_WITH_SINGLE_REMOTE) {
   companion object {
     val robot = RemoteRobot("http://127.0.0.1:8580")
     private val intelliJVersion = System.getProperty("intellij.version")
@@ -163,8 +163,8 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
         "destfile=$execFile",
         // Append rather than overwrite if the exec already exists. Also the agent default, but
         // kept explicit as a guard for the moment ide-starter ends up restarting the IDE more
-        // than once per `uiTest_*` run - either because a second concrete `*TestSuite` is
-        // added (today there's only `UITestSuite`, so `ide.instance-per=class` restarts the
+        // than once per `uiTest_*` run - either because a second concrete `*Test` is
+        // added (today there's only `UITest`, so `ide.instance-per=class` restarts the
         // IDE once and append is a no-op), or because we switch to `ide.instance-per=method`
         // and the agent dumps after every test method. Without this flag, each restart would
         // clobber the previous one's coverage and the final exec would only cover the last

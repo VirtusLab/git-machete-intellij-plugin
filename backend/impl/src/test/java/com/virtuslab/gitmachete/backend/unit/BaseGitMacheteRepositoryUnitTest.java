@@ -17,7 +17,7 @@ import com.virtuslab.gitcore.api.IGitCoreRepository;
 import com.virtuslab.gitmachete.backend.impl.StatusBranchHookExecutor;
 import com.virtuslab.gitmachete.backend.impl.helper.CreateGitMacheteRepositoryHelper;
 
-public class BaseGitMacheteRepositoryUnitTestSuite {
+public class BaseGitMacheteRepositoryUnitTest {
 
   protected final IGitCoreRepository gitCoreRepository = mock(IGitCoreRepository.class);
 

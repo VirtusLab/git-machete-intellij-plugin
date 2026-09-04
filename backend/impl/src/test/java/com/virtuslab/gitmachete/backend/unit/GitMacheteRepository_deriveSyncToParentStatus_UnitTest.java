@@ -19,7 +19,7 @@ import com.virtuslab.gitmachete.backend.api.SyncToParentStatus;
 import com.virtuslab.gitmachete.backend.impl.ForkPointCommitOfManagedBranch;
 import com.virtuslab.gitmachete.backend.impl.RemoteTrackingBranchReference;
 
-public class GitMacheteRepository_deriveSyncToParentStatus_UnitTestSuite extends BaseGitMacheteRepositoryUnitTestSuite {
+public class GitMacheteRepository_deriveSyncToParentStatus_UnitTest extends BaseGitMacheteRepositoryUnitTest {
 
   private static final IGitCoreCommit MISSING_FORK_POINT = createGitCoreCommit();
 

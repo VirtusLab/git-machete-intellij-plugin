@@ -15,7 +15,7 @@ import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositoryCache;
 import com.virtuslab.gitmachete.testcommon.TestGitRepository;
 
-class BaseIntegrationTestSuite {
+class BaseIntegrationTest {
   protected static final IGitCoreRepositoryFactory gitCoreRepositoryFactory = new GitCoreRepositoryFactory();
   protected static final IGitMacheteRepositoryCache gitMacheteRepositoryCache = new GitMacheteRepositoryCache();
   protected static final IBranchLayoutReader branchLayoutReader = new BranchLayoutReader();

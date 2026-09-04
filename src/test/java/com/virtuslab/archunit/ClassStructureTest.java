@@ -25,7 +25,7 @@ import lombok.SneakyThrows;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
-public class ClassStructureTestSuite extends BaseArchUnitTestSuite {
+public class ClassStructureTest extends BaseArchUnitTest {
 
   @Test
   public void abstract_classes_should_not_declare_LOG_field() {

@@ -10,10 +10,10 @@ import java.lang.annotation.Target;
  * but do <b>not</b> call {@code #queue()}.
  * <p>
  * Typically, it is a smell that indicates that the programmer forgot to actually schedule the task.
- * Such cases are detected by ArchUnit test {@code com.virtuslab.archunit.BackgroundTaskEnqueuingTestSuite}.
+ * Such cases are detected by ArchUnit test {@code com.virtuslab.archunit.BackgroundTaskEnqueuingTest}.
  * Still, in some rare cases it might happen that a method passes the newly-created backgroundable
  * to downstream APIs to actually enqueue.
- * Such methods must be marked as {@link BackgroundableQueuedElsewhere} for {@code BackgroundTaskEnqueuingTestSuite} to ignore.
+ * Such methods must be marked as {@link BackgroundableQueuedElsewhere} for {@code BackgroundTaskEnqueuingTest} to ignore.
  * <p>
  * This annotation must have runtime retention to be visible to ArchUnit tests.
  */

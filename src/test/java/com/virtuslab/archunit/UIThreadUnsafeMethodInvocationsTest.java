@@ -22,7 +22,7 @@ import com.virtuslab.qual.guieffect.IgnoreUIThreadUnsafeCalls;
 import com.virtuslab.qual.guieffect.UIThreadUnsafe;
 
 @ExtensionMethod(Arrays.class)
-public class UIThreadUnsafeMethodInvocationsTestSuite extends BaseArchUnitTestSuite {
+public class UIThreadUnsafeMethodInvocationsTest extends BaseArchUnitTest {
 
   private static final String UIThreadUnsafeName = "@" + UIThreadUnsafe.class.getSimpleName();
 

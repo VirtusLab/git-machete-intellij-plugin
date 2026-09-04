@@ -11,7 +11,7 @@ import lombok.val;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.jupiter.api.Test;
 
-public class MethodCallsTestSuite extends BaseArchUnitTestSuite {
+public class MethodCallsTest extends BaseArchUnitTest {
 
   @Test
   public void methods_calling_a_method_throwing_RevisionSyntaxException_should_catch_it_explicitly() {

@@ -160,7 +160,7 @@ set `printTestOutput` project property: `./gradlew -PprintTestOutput test`.
 ### Regenerate pre-recorded CLI outputs
 
 See [`backend/impl/src/test/resources`](backend/impl/src/test/resources) and
-[`StatusAndDiscoverIntegrationTestSuite`](backend/impl/src/test/java/com/virtuslab/gitmachete/backend/integration/StatusAndDiscoverIntegrationTestSuite.java)
+[`StatusAndDiscoverIntegrationTest`](backend/impl/src/test/java/com/virtuslab/gitmachete/backend/integration/StatusAndDiscoverIntegrationTest.java)
 for context.
 
 Regeneration is needed when:

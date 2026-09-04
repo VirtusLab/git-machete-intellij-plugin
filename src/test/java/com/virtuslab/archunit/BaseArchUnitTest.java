@@ -16,7 +16,7 @@ import io.vavr.collection.List;
 import io.vavr.control.Option;
 import lombok.val;
 
-public class BaseArchUnitTestSuite {
+public class BaseArchUnitTest {
   protected static final JavaClasses productionClasses = new ClassFileImporter()
       .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
       .importPackages("com.virtuslab");

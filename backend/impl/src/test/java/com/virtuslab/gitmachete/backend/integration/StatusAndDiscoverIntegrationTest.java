@@ -17,7 +17,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import com.virtuslab.gitmachete.backend.api.*;
 
-public class StatusAndDiscoverIntegrationTestSuite extends BaseIntegrationTestSuite {
+public class StatusAndDiscoverIntegrationTest extends BaseIntegrationTest {
 
   public static String[] getScriptNames() {
     return ALL_SETUP_SCRIPTS;

@@ -22,7 +22,7 @@ import com.virtuslab.qual.async.ContinuesInBackground;
 import com.virtuslab.qual.async.DoesNotContinueInBackground;
 
 @ExtensionMethod(Arrays.class)
-public class BackgroundTaskEnqueuingTestSuite extends BaseArchUnitTestSuite {
+public class BackgroundTaskEnqueuingTest extends BaseArchUnitTest {
 
   private static final String ContinuesInBackgroundName = "@" + ContinuesInBackground.class.getSimpleName();
 
