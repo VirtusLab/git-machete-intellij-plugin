@@ -1,6 +1,8 @@
 importClass(java.lang.IllegalStateException);
+importClass(java.lang.System);
 importClass(java.lang.Thread);
 importClass(java.nio.file.Paths);
+importClass(java.util.Arrays);
 importClass(java.util.stream.Collectors);
 
 importClass(com.intellij.ide.plugins.PluginManagerCore);
@@ -23,6 +25,7 @@ importClass(com.intellij.openapi.vcs.VcsConfiguration);
 importClass(com.intellij.openapi.wm.ToolWindowId);
 importClass(com.intellij.openapi.wm.ToolWindowManager);
 importClass(com.intellij.util.ModalityUiUtil);
+importClass(org.assertj.swing.core.MouseButton);
 
 // Do not run any of the methods on the UI thread.
 function Project(underlyingProject) {
@@ -170,11 +173,50 @@ function Project(underlyingProject) {
     ApplicationManager.getApplication().invokeAndWait(() => action.actionPerformed(actionEvent));
   };
 
-  // Note that clicking the toolbar actions doesn't seem to work for most cases reliably in UI tests.
-  // Some of the errors include:
-  //  java.awt.IllegalComponentStateException: component must be showing on the screen to determine its location
-  //  org.assertj.swing.exception.ActionFailedException: The component to click is out of the boundaries of the screen
-  // Let's invoke the toolbar actions directly instead in the more brittle cases.
+  // Note that clicking toolbar ActionButtons is brittle in UI tests
+  // (IllegalComponentStateException / ActionFailedException: out of screen boundaries).
+  // Prefer invokeAction* for toolbar/context-menu actions; use findAndClickButton only for dialog JButtons.
+
+  const clickMouseInGraphTable = function () {
+    const graphTable = getGraphTable();
+    robot.click(graphTable);
+    sleep();
+  };
+
+  // Finds a JButton (or subclass) by exact getText() and clicks it via the in-IDE robot.
+  const findAndClickButton = function (name) {
+    const button = getComponentByClassAndPredicate('javax.swing.JButton',
+        /* predicate */ component => name.equals(component.getText())
+    );
+    robot.click(button, MouseButton.LEFT_BUTTON);
+  };
+
+  // Checks for components of the provided class or any subclass.
+  const getComponentByClassAndPredicate = function (className, predicate) {
+    const searchForComponent = function () {
+      const clazz = pluginClassLoader.loadClass(className);
+      const result = robot.finder().findAll(component =>
+        clazz.isInstance(component) && predicate(component)
+      ).toArray();
+      System.out.println("getComponentByClassAndPredicate(" + className + ", [predicate]) = "
+          + Arrays.deepToString(result) + "(" + result.length + " element(s))");
+      return result.length === 1 ? result[0] : null;
+    }
+    // The action is invoked asynchronously, let's first make sure the component has already appeared.
+    let component = searchForComponent(), i = 0;
+    while (component === null && i++ < 100) {
+      clickMouseInGraphTable();
+      component = searchForComponent();
+    }
+    if (component === null) {
+      throw new IllegalStateException("Waiting for '" + className + "' component timed out");
+    }
+    return component;
+  };
+
+  this.clickButton = function (visibleText) {
+    findAndClickButton(visibleText);
+  };
 
   this.discoverBranchLayout = function () {
     invokeActionAsync('GitMachete.DiscoverAction', ActionPlaces.ACTION_SEARCH, {});
@@ -230,8 +272,16 @@ function Project(underlyingProject) {
     invokeActionAndWait('GitMachete.SquashSelectedAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
   };
 
+  this.squashCurrent = function () {
+    invokeActionAndWait('GitMachete.SquashCurrentAction', ACTION_PLACE_TOOLBAR, {});
+  };
+
   this.pullSelected = function (branchName) {
     invokeActionAndWait('GitMachete.PullSelectedAction', ACTION_PLACE_CONTEXT_MENU, { SELECTED_BRANCH_NAME: branchName });
+  };
+
+  this.pullCurrent = function () {
+    invokeActionAndWait('GitMachete.PullCurrentAction', ACTION_PLACE_TOOLBAR, {});
   };
 
   this.resetToRemote = function (branchName) {

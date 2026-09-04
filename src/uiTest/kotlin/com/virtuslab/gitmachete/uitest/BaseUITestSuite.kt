@@ -2,8 +2,6 @@ package com.virtuslab.gitmachete.uitest
 
 import com.intellij.driver.client.Driver
 import com.intellij.driver.sdk.isProjectOpened
-import com.intellij.driver.sdk.ui.components.common.ideFrame
-import com.intellij.driver.sdk.ui.xQuery
 import com.intellij.ide.starter.ci.CIServer
 import com.intellij.ide.starter.ci.NoCIServer
 import com.intellij.ide.starter.di.di
@@ -257,18 +255,15 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
   fun getHashOfCommitPointedByBranch(branch: String): String = callJs("project.getHashOfCommitPointedByBranch('$branch')")
   fun getSyncToParentStatus(child: String): String = callJs("project.getSyncToParentStatus('$child')")
 
+  // Click dialog buttons via the in-IDE Remote Robot finder (Rhino), not Driver ideFrame/xQuery.
+  // Driver UI remoting asks the IDE-under-test for classes from the Performance Testing remotedriver
+  // API that matches the Starter/driver-sdk on the test classpath (resolved once against buildTarget;
+  // see build.gradle.kts / IJPL-234281). When buildTarget is a newer major (e.g. EAP 263) than the
+  // IDE under test (e.g. 2026.2), that client may look up an FQCN such as IdeRobot that the older
+  // remotedriver module simply does not define yet - even though Performance Testing itself is present.
   private fun clickButton(visibleText: String) {
     println("clickButton: $visibleText")
-    driver().ideFrame {
-      x(xQuery { byVisibleText(visibleText) }).click()
-    }
-  }
-
-  private fun clickToolbarButton(name: String) {
-    println("clickToolbarButton: $name")
-    driver().ideFrame {
-      x(xQuery { byAccessibleName(name) }).click()
-    }
+    runJs("project.clickButton('$visibleText')")
   }
 
   fun acceptBranchDeletionOnSlideOut() = doAndAwait { clickButton("Slide Out & Delete Local Branch") }
@@ -286,9 +281,7 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
   fun fastForwardMergeCurrentToParent() = doAndAwait { runJs("project.fastForwardMergeCurrentToParent()") }
   fun fastForwardMergeSelectedToParent(branch: String) = doAndAwait { runJs("project.fastForwardMergeSelectedToParent('$branch')") }
   fun openGitMacheteTab() = runJs("project.openGitMacheteTab()")
-  fun pullCurrent() {
-    doAndAwait { clickToolbarButton("Pull Current Branch") }
-  }
+  fun pullCurrent() = doAndAwait { runJs("project.pullCurrent()") }
   fun pullSelected(branch: String) = doAndAwait { runJs("project.pullSelected('$branch')") }
   fun refreshModelAndGetManagedBranches(): Array<String> = callJs("project.refreshGraphTableModel(); project.getManagedBranches()")
   fun refreshModelAndGetManagedBranchesAndCommits(): Array<String> = callJs("project.refreshGraphTableModel(); project.getManagedBranchesAndCommits()")
@@ -296,9 +289,7 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
   fun resetCurrentToRemote() = doAndAwait { runJs("project.resetCurrentToRemote()") }
   fun resetToRemote(branch: String) = doAndAwait { runJs("project.resetToRemote('$branch')") }
   fun slideOutSelected(branch: String) = runJs("project.slideOutSelected('$branch')")
-  fun squashCurrent() {
-    doAndAwait { clickToolbarButton("Squash\u2026") }
-  }
+  fun squashCurrent() = doAndAwait { runJs("project.squashCurrent()") }
   fun squashSelected(branch: String) = doAndAwait { runJs("project.squashSelected('$branch')") }
   fun syncCurrentToParentByRebase() {
     runJs("project.syncCurrentToParentByRebase()")
