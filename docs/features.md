@@ -260,26 +260,26 @@ For more information about the `machete` file, look at the [reference blog post]
 ## Other actions
 
 On the left side bar you can find other actions (from top to bottom):
-- ![](left_bar_actions/traverse.png) **Traverse** &mdash; starts the interactive walk over branches from the first branch
-- ![](left_bar_actions/toggleListingCommits.png) **Toggle Listing Commits** &mdash; show or hide commits belonging to branches (for more details see `Toggle listing commits` section)
-- ![](left_bar_actions/edit.png) **Open Machete File** &mdash; open the `machete` file in IntelliJ editor (to see what this editor can do see `Edit machete file` section)
-- ![](left_bar_actions/fetch.png) **Fetch All Remotes** &mdash; equivalent to `git fetch --all` command
+- ![](../frontend/base/src/main/resources/icons/traverse.svg) **Traverse** &mdash; starts the interactive walk over branches from the first branch
+- ![](../frontend/base/src/main/resources/icons/toggleListingCommits.svg) **Toggle Listing Commits** &mdash; show or hide commits belonging to branches (for more details see `Toggle listing commits` section)
+- ![](../frontend/base/src/main/resources/icons/edit.svg) **Open Machete File** &mdash; open the `machete` file in IntelliJ editor (to see what this editor can do see `Edit machete file` section)
+- ![](../frontend/base/src/main/resources/icons/fetch.svg) **Fetch All Remotes** &mdash; equivalent to `git fetch --all` command
 - The most suitable actions (each is equivalent to one of the context menu actions) for a current branch that include one or more of:
     - **Checkout** - however a double click is more handy
-    - ![](left_bar_actions/rebase.png) **Sync Current Branch to Parent by Rebase...**
-    - ![](left_bar_actions/merge.png) **Sync Current Branch to Parent by Merge**
-    - ![](left_bar_actions/overrideForkPoint.png) **Override Fork Point of Current Branch...**
-    - ![](left_bar_actions/squash.png) **Squash...**
-    - ![](left_bar_actions/traverse.png) **Traverse from Here...**
-    - ![](left_bar_actions/push.png) **Push...**
-    - ![](left_bar_actions/pull.png) **Pull**
-    - ![](left_bar_actions/reset.png) **Reset to Remote**
-    - ![](left_bar_actions/ffmerge.png) **Fast-forward Merge into Parent**
-    - ![](left_bar_actions/slideIn.png) **Slide In Branch Below...**
-    - ![](left_bar_actions/slideOut.png) **Slide Out**
+    - ![](../frontend/base/src/main/resources/icons/rebase.svg) **Sync Current Branch to Parent by Rebase...**
+    - ![](../frontend/base/src/main/resources/icons/merge.svg) **Sync Current Branch to Parent by Merge**
+    - ![](../frontend/base/src/main/resources/icons/overrideForkPoint.svg) **Override Fork Point of Current Branch...**
+    - ![](../frontend/base/src/main/resources/icons/squash.svg) **Squash...**
+    - ![](../frontend/base/src/main/resources/icons/traverse.svg) **Traverse from Here...**
+    - ![](../frontend/base/src/main/resources/icons/push.svg) **Push...**
+    - ![](../frontend/base/src/main/resources/icons/pull.svg) **Pull**
+    - ![](../frontend/base/src/main/resources/icons/reset.svg) **Reset to Remote**
+    - ![](../frontend/base/src/main/resources/icons/fastForward.svg) **Fast-forward Merge into Parent**
+    - ![](../frontend/base/src/main/resources/icons/slideIn.svg) **Slide In Branch Below...**
+    - ![](../frontend/base/src/main/resources/icons/slideOut.svg) **Slide Out**
     - **Show in Git log**
-- ![](left_bar_actions/discover.png) **Discover Branch Layout...**
-- ![](left_bar_actions/help.png) **Show Help Window** &mdash; show window with a sample branch layout and explanation what parts of this graph mean
+- ![](../frontend/base/src/main/resources/icons/macheteLogoIcon.svg) **Discover Branch Layout...**
+- ![](../frontend/base/src/main/resources/icons/help.svg) **Show Help Window** &mdash; show window with a sample branch layout and explanation what parts of this graph mean
 
 
 ## Multi-repository support
