@@ -9,7 +9,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 
-abstract class ConfigurableIdeLifecycleTestSuite : BaseUITestSuite() {
+abstract class ConfigurableIdeLifecycleTest : BaseUITest() {
 
   companion object {
     private val ideInstancePer = System.getProperty("ide.instance-per", "class")

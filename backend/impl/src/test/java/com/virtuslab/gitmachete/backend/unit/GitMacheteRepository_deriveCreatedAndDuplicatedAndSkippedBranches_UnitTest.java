@@ -19,9 +19,9 @@ import com.virtuslab.gitcore.api.IGitCoreLocalBranchSnapshot;
 import com.virtuslab.gitmachete.backend.api.IGitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 
-public class GitMacheteRepository_deriveCreatedAndDuplicatedAndSkippedBranches_UnitTestSuite
+public class GitMacheteRepository_deriveCreatedAndDuplicatedAndSkippedBranches_UnitTest
     extends
-      BaseGitMacheteRepositoryUnitTestSuite {
+      BaseGitMacheteRepositoryUnitTest {
 
   @SneakyThrows
   private IGitMacheteRepositorySnapshot invokeCreateSnapshot(

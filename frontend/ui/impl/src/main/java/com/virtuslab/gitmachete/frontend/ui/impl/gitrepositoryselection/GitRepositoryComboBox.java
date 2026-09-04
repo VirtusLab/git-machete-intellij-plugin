@@ -161,7 +161,7 @@ public final class GitRepositoryComboBox extends JComboBox<GitRepository>
   }
 
   // Declared as a static nested class (rather than an anonymous subclass instantiated from the
-  // constructor) to satisfy `ClassStructureTestSuite#inner_classes_should_not_be_instantiated_from_constructor_of_enclosing_class`.
+  // constructor) to satisfy `ClassStructureTest#inner_classes_should_not_be_instantiated_from_constructor_of_enclosing_class`.
   private static final class ShortRepositoryNameRenderer extends SimpleListCellRenderer<GitRepository> {
     @UIEffect
     ShortRepositoryNameRenderer() {}

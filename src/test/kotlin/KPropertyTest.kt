@@ -32,7 +32,7 @@ class PublicClass {
 // which doesn't lead to a fatal `.call()` on the property.
 // We no longer ban the use of private properties and/or private classes in Kotlin,
 // however we need to be aware that the risk of some of IntelliJ Kotlin libs using `.call()` still exists.
-class KPropertyTestSuite {
+class KPropertyTest {
   @Test
   fun calling_public_val_of_private_class_should_fail() {
     val prop: KCallable<Int> = PrivateClass()::publicVal

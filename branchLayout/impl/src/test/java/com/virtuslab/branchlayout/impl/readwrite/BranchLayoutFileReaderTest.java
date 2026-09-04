@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 import com.virtuslab.branchlayout.api.BranchLayout;
 import com.virtuslab.branchlayout.api.BranchLayoutException;
 
-public class BranchLayoutFileReaderTestSuite {
+public class BranchLayoutFileReaderTest {
 
   public static InputStream getInputStreamFromLines(List<String> lines) {
     return new ByteArrayInputStream(

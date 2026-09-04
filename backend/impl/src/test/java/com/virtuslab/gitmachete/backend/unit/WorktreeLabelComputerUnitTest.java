@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import com.virtuslab.gitmachete.backend.impl.helper.WorktreeLabelComputer;
 
-public class WorktreeLabelComputerUnitTestSuite {
+public class WorktreeLabelComputerUnitTest {
 
   private static final Path MAIN = Path.of("/repos/proj/main");
   private static final Path WT_A = Path.of("/repos/proj/wt-a");

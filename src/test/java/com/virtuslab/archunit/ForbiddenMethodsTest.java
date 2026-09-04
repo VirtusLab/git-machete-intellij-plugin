@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import com.virtuslab.gitmachete.backend.impl.GitMacheteRepositorySnapshot;
 import com.virtuslab.gitmachete.frontend.resourcebundles.GitMacheteBundle;
 
-public class ForbiddenMethodsTestSuite extends BaseArchUnitTestSuite {
+public class ForbiddenMethodsTest extends BaseArchUnitTest {
 
   @Test
   public void no_classes_should_call_AnActionEvent_getRequiredData() {

@@ -8,14 +8,14 @@ by an LLM so we don't have to re-derive the same conclusions every time.
 A spurious failure that happens every few dozen CI runs:
 
 ```text
-UITestSuite > testPullBranch() FAILED
+UITest > testPullBranch() FAILED
     com.intellij.driver.sdk.WaitForException: Timeout(2m): Failed: Indicators
         at com.intellij.driver.sdk.WaitsKt.waitFor-FbhrOv8(waits.kt:130)
         ...
         at com.virtuslab.gitmachete.uitest.MyIndicatorsKt.myWaitForIndicators-exY8QGI(MyIndicators.kt:66)
-        at com.virtuslab.gitmachete.uitest.BaseUITestSuite.doAndAwait(BaseUITestSuite.kt:138)
-        at com.virtuslab.gitmachete.uitest.BaseUITestSuite.checkoutBranch(BaseUITestSuite.kt:205)
-        at com.virtuslab.gitmachete.uitest.UITestSuite.testPullBranch(UITestSuite.kt:170)
+        at com.virtuslab.gitmachete.uitest.BaseUITest.doAndAwait(BaseUITest.kt:138)
+        at com.virtuslab.gitmachete.uitest.BaseUITest.checkoutBranch(BaseUITest.kt:205)
+        at com.virtuslab.gitmachete.uitest.UITest.testPullBranch(UITest.kt:170)
 ```
 
 Long-running flake: ~12 distinct CI occurrences logged on
@@ -336,10 +336,10 @@ suspender never resumes) is enough for the platform team to investigate.
   Inlined-from-platform copy of `Indicators.kt` with extra logging; this is
   the spot to add more diagnostics if needed. The TODO at the top references
   this issue (#2194).
-- `src/uiTest/kotlin/com/virtuslab/gitmachete/uitest/BaseUITestSuite.kt`
+- `src/uiTest/kotlin/com/virtuslab/gitmachete/uitest/BaseUITest.kt`
   `doAndAwait` (line ~141) calls `myWaitForIndicators(2.minutes)` - the
   effective per-step timeout.
-- `src/uiTest/kotlin/com/virtuslab/gitmachete/uitest/UITestSuite.kt`
+- `src/uiTest/kotlin/com/virtuslab/gitmachete/uitest/UITest.kt`
   Each test method (`testPullBranch`, `testSkipNonExistentBranches_...`,
   `testFastForwardParentOfBranch`, ...).
 

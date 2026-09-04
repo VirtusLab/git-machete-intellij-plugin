@@ -9,7 +9,7 @@ import io.vavr.collection.List;
 import lombok.val;
 import org.junit.jupiter.api.Test;
 
-public class BranchLayoutTestSuite {
+public class BranchLayoutTest {
 
   @Test
   public void shouldBeAbleToFindNextAndPreviousBranches() {

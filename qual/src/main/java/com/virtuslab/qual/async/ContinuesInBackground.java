@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  * Its purpose is to make the programmer aware of the increased risk of race conditions,
  * esp. to avoid treating such methods as if they completed in a fully synchronous/blocking manner.
  * <p>
- * As for now, we use an ArchUnit test {@code com.virtuslab.archunit.BackgroundTaskEnqueuingTestSuite}
+ * As for now, we use an ArchUnit test {@code com.virtuslab.archunit.BackgroundTaskEnqueuingTest}
  * to enforce that:
  * <ol>
  * <li>methods that call {@code queue()} on classes extending {@code Task.Backgroundable} are marked as {@link ContinuesInBackground}</li>

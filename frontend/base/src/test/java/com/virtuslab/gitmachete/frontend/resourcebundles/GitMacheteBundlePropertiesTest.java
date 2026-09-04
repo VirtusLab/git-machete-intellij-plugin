@@ -9,7 +9,7 @@ import java.util.Properties;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
-public class GitMacheteBundlePropertiesTestSuite {
+public class GitMacheteBundlePropertiesTest {
 
   private static final String macheteBundleProperties = "GitMacheteBundle.properties";
 

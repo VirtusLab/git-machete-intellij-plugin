@@ -19,7 +19,7 @@ fun Project.configureUiTests() {
   tasks.named<KotlinCompile>("compileUiTestKotlin") {
     // See https://kotlinlang.org/docs/gradle-compilation-and-caches.html#defining-kotlin-compiler-execution-strategy
     // This is needed to avoid a fallback to In process since compilation in Kotlin daemon fails on
-    // `bindSingleton<CIServer>(overrides = true)` in BaseUITestSuite, and it's unclear how to fix/replace it.
+    // `bindSingleton<CIServer>(overrides = true)` in BaseUITest, and it's unclear how to fix/replace it.
     compilerExecutionStrategy = KotlinCompilerExecutionStrategy.IN_PROCESS
   }
 
@@ -53,7 +53,7 @@ fun Project.configureUiTests() {
       systemProperty("path.to.robot.server.plugin", robotServerPluginZip.singleFile.path)
 
       // Hand the standalone JaCoCo agent jar and a per-IDE-version `.exec` destination to
-      // `BaseUITestSuite`, which then attaches the agent to the IDE-under-test JVM via
+      // `BaseUITest`, which then attaches the agent to the IDE-under-test JVM via
       // `applyVMOptionsPatch`. The Gradle test JVM that runs RemoteRobot client code is just a
       // thin shell that doesn't load production plugin classes, so the only coverage worth
       // collecting lives in the IDE process.

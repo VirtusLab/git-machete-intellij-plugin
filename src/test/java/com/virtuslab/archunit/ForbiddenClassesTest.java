@@ -4,7 +4,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 import org.junit.jupiter.api.Test;
 
-public class ForbiddenClassesTestSuite extends BaseArchUnitTestSuite {
+public class ForbiddenClassesTest extends BaseArchUnitTest {
 
   @Test
   public void no_classes_should_depend_on_java_collections() {

@@ -14,7 +14,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import com.virtuslab.gitmachete.backend.api.IManagedBranchSnapshot;
 
-public class ParentInferenceIntegrationTestSuite extends BaseIntegrationTestSuite {
+public class ParentInferenceIntegrationTest extends BaseIntegrationTest {
 
   public static String[][] getTestData() {
     return new String[][]{
