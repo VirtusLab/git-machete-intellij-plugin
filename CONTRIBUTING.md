@@ -1,5 +1,36 @@
 # Development
 
+<!-- START generated TOC -->
+<!-- Keep this section in sync by running ./scripts/update-markdown-toc -->
+
+- [Prerequisites](#prerequisites)
+  - [IntelliJ](#intellij)
+  - [Git config/hooks](#git-confighooks)
+  - [Windows](#windows)
+- [Build](#build)
+  - [Fix problems with the build](#fix-problems-with-the-build)
+- [Run](#run)
+  - [Debug](#debug)
+- [Test](#test)
+  - [Regenerate pre-recorded CLI outputs](#regenerate-pre-recorded-cli-outputs)
+  - [Run UI tests](#run-ui-tests)
+- [Generate and/or install snapshot build of the plugin](#generate-andor-install-snapshot-build-of-the-plugin)
+- [Logging](#logging)
+- [Coding conventions](#coding-conventions)
+  - [Markdown table of contents](#markdown-table-of-contents)
+- [UI conventions](#ui-conventions)
+- [Versioning](#versioning)
+  - [Sample sequence of versions between releases](#sample-sequence-of-versions-between-releases)
+  - [Change notes](#change-notes)
+  - [Supported IDE versions](#supported-ide-versions)
+- [PRs & releases](#prs--releases)
+- [Plugin signing](#plugin-signing)
+  - [Plugin signing as part of the CI publish process through the Gradle Plugin](#plugin-signing-as-part-of-the-ci-publish-process-through-the-gradle-plugin)
+  - [Local plugin signing for test, through the Gradle plugin](#local-plugin-signing-for-test-through-the-gradle-plugin)
+- [Scenario recordings](#scenario-recordings)
+
+<!-- END generated TOC -->
+
 ## Prerequisites
 
 ### IntelliJ
@@ -219,6 +250,17 @@ Most non-standard/project-specific conventions are enforced by:
   (see [tests in top-level project](src/test/java/com/virtuslab/archunit))
 * [Checker Framework](https://checkerframework.org/manual/) for formal correctness, esp. wrt. null safety and UI thread handling
   (most config in [build.gradle.kts](build.gradle.kts), stubs in [config/checker/](config/checker))
+
+### Markdown table of contents
+
+`CONTRIBUTING.md` and [`docs/features.md`](docs/features.md) include a generated table of contents.
+After you add or rename headings, regenerate it with:
+
+```shell
+./scripts/update-markdown-toc
+```
+
+The [pre-commit hook](scripts/run-pre-build-checks) fails when the ToC is stale.
 
 Other coding conventions include:
 

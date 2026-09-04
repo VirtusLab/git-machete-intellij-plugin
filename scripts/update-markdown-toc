@@ -1,0 +1,159 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail -u
+
+self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
+root_dir=$(cd "$self_dir/.." &>/dev/null; pwd -P)
+source "$self_dir"/utils.sh
+
+check_only=0
+if [[ ${1-} == --check ]]; then
+  check_only=1
+fi
+
+# Keep this list in sync with the files named in CONTRIBUTING.md.
+toc_files=(
+  CONTRIBUTING.md
+  docs/features.md
+)
+
+start_marker='<!-- START generated TOC -->'
+end_marker='<!-- END generated TOC -->'
+
+generate_toc() {
+  local file=$1
+  python3 - "$file" <<'PY'
+import re
+import sys
+
+path = sys.argv[1]
+heading_re = re.compile(r'^(#{2,3})\s+(.*)$')
+punct_re = re.compile(r'[^a-z0-9 _-]')
+
+def slugify(title):
+    text = title
+    text = re.sub(r'`([^`]*)`', r'\1', text)
+    text = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', text)
+    text = text.replace('*', '')
+    text = text.lower()
+    text = punct_re.sub('', text)
+    text = text.replace(' ', '-')
+    text = text.strip('-')
+    return text
+
+seen = {}
+lines = []
+with open(path, encoding='utf-8') as fh:
+    in_toc = False
+    for raw in fh:
+        line = raw.rstrip('\n')
+        if line == '<!-- START generated TOC -->':
+            in_toc = True
+            continue
+        if line == '<!-- END generated TOC -->':
+            in_toc = False
+            continue
+        if in_toc:
+            continue
+        match = heading_re.match(line)
+        if not match:
+            continue
+        hashes, title = match.groups()
+        slug = slugify(title)
+        if slug in seen:
+            seen[slug] += 1
+            slug = '%s-%s' % (slug, seen[slug])
+        else:
+            seen[slug] = 0
+        indent = '  ' if len(hashes) == 3 else ''
+        lines.append('%s- [%s](#%s)' % (indent, title, slug))
+
+print('\n'.join(lines))
+PY
+}
+
+insert_or_replace_toc() {
+  local file=$1
+  local toc=$2
+  python3 - "$file" "$start_marker" "$end_marker" "$toc" <<'PY'
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+start = sys.argv[2]
+end = sys.argv[3]
+toc = sys.argv[4].rstrip('\n')
+text = path.read_text(encoding='utf-8')
+block = (
+    start
+    + '\n<!-- Keep this section in sync by running ./scripts/update-markdown-toc -->\n\n'
+    + toc
+    + '\n\n'
+    + end
+)
+if start in text and end in text:
+    pre = text.split(start, 1)[0]
+    post = text.split(end, 1)[1]
+    if not pre.endswith('\n\n'):
+        if pre.endswith('\n'):
+            pre += '\n'
+        else:
+            pre += '\n\n'
+    if not post.startswith('\n'):
+        post = '\n' + post
+    new = pre + block + post
+else:
+    lines = text.splitlines(keepends=True)
+    if not lines:
+        raise SystemExit('%s: empty file' % path)
+    idx = 0
+    while idx < len(lines) and not lines[idx].startswith('# '):
+        idx += 1
+    if idx >= len(lines):
+        raise SystemExit('%s: no H1 heading found' % path)
+    idx += 1
+    if idx < len(lines) and lines[idx].strip() == '':
+        idx += 1
+    new = ''.join(lines[:idx]) + block + '\n\n' + ''.join(lines[idx:])
+if not new.endswith('\n'):
+    new += '\n'
+path.write_text(new, encoding='utf-8')
+PY
+}
+
+stale=0
+cd "$root_dir"
+for rel in "${toc_files[@]}"; do
+  if [[ ! -f $rel ]]; then
+    die "expected $rel to exist for the markdown ToC check"
+  fi
+  toc=$(generate_toc "$rel")
+  if [[ -z $toc ]]; then
+    die "$rel has no ## / ### headings to put in the ToC"
+  fi
+  if [[ $check_only -eq 1 ]]; then
+    current=$(python3 - "$rel" "$start_marker" "$end_marker" <<'PY'
+import sys
+from pathlib import Path
+text = Path(sys.argv[1]).read_text(encoding='utf-8')
+start, end = sys.argv[2], sys.argv[3]
+if start not in text or end not in text:
+    sys.exit(0)
+body = text.split(start, 1)[1].split(end, 1)[0]
+lines = [ln for ln in body.splitlines() if ln and not ln.startswith('<!--')]
+print('\n'.join(lines))
+PY
+)
+    if [[ $current != "$toc" ]]; then
+      error "$rel table of contents is out of date"
+      stale=1
+    fi
+  else
+    insert_or_replace_toc "$rel" "$toc"
+    echo "updated $rel"
+  fi
+done
+
+if [[ $check_only -eq 1 && $stale -ne 0 ]]; then
+  die 'Markdown ToC is out of date, run ./scripts/update-markdown-toc'
+fi

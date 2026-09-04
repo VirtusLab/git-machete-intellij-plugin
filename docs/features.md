@@ -1,5 +1,32 @@
 # Git Machete Features
 
+<!-- START generated TOC -->
+<!-- Keep this section in sync by running ./scripts/update-markdown-toc -->
+
+- [Where to find the plugin tab](#where-to-find-the-plugin-tab)
+- [Branch layout graph](#branch-layout-graph)
+- [Check out branches](#check-out-branches)
+- [Toggle listing commits](#toggle-listing-commits)
+- [Traverse](#traverse)
+- [Sync by rebase](#sync-by-rebase)
+- [Sync by merge](#sync-by-merge)
+- [Push](#push)
+- [Pull](#pull)
+- [Reset to remote](#reset-to-remote)
+- [Fast-forward merge into parent](#fast-forward-merge-into-parent)
+- [Rename branch](#rename-branch)
+- [Slide out branch](#slide-out-branch)
+- [Slide in branch](#slide-in-branch)
+- [Override fork point](#override-fork-point)
+- [Squash](#squash)
+- [Show in Git log](#show-in-git-log)
+- [Discover](#discover)
+- [Edit machete file](#edit-machete-file)
+- [Other actions](#other-actions)
+- [Multi-repository support](#multi-repository-support)
+
+<!-- END generated TOC -->
+
 ## Where to find the plugin tab
 
 Git Machete IntelliJ Plugin is available under the `Git` tool window in the `Git Machete` tab.
