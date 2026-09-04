@@ -2,8 +2,6 @@ package com.virtuslab.gitmachete.uitest
 
 import com.intellij.driver.client.Driver
 import com.intellij.driver.sdk.isProjectOpened
-import com.intellij.driver.sdk.ui.components.common.ideFrame
-import com.intellij.driver.sdk.ui.xQuery
 import com.intellij.ide.starter.ci.CIServer
 import com.intellij.ide.starter.ci.NoCIServer
 import com.intellij.ide.starter.di.di
@@ -15,6 +13,8 @@ import com.intellij.ide.starter.project.ProjectInfoSpec
 import com.intellij.ide.starter.runner.Starter
 import com.intellij.platform.testFramework.teamCity.TeamCityReporter.SyntheticTestKind
 import com.intellij.remoterobot.RemoteRobot
+import com.intellij.remoterobot.fixtures.ComponentFixture
+import com.intellij.remoterobot.search.locators.byXpath
 import com.virtuslab.gitmachete.testcommon.SetupScripts
 import com.virtuslab.gitmachete.testcommon.TestGitRepository
 import org.intellij.lang.annotations.Language
@@ -257,18 +257,20 @@ abstract class BaseUITestSuite : TestGitRepository(SetupScripts.SETUP_WITH_SINGL
   fun getHashOfCommitPointedByBranch(branch: String): String = callJs("project.getHashOfCommitPointedByBranch('$branch')")
   fun getSyncToParentStatus(child: String): String = callJs("project.getSyncToParentStatus('$child')")
 
+  // Prefer RemoteRobot over Driver `ideFrame` / `xQuery` clicks: uiTest Starter/driver-sdk is
+  // resolved once against `buildTarget` (see build.gradle.kts / IJPL-234281), so when that is an
+  // upcoming EAP major while `-Pagainst=` launches an older stable IDE, Driver remotedriver
+  // lookups fail with ClassNotFoundException for IdeRobot.
   private fun clickButton(visibleText: String) {
     println("clickButton: $visibleText")
-    driver().ideFrame {
-      x(xQuery { byVisibleText(visibleText) }).click()
-    }
+    robot.find<ComponentFixture>(
+      byXpath("//div[@text='$visibleText' or @visible_text='$visibleText']"),
+    ).click()
   }
 
   private fun clickToolbarButton(name: String) {
     println("clickToolbarButton: $name")
-    driver().ideFrame {
-      x(xQuery { byAccessibleName(name) }).click()
-    }
+    robot.find<ComponentFixture>(byXpath("//div[@accessiblename='$name']")).click()
   }
 
   fun acceptBranchDeletionOnSlideOut() = doAndAwait { clickButton("Slide Out & Delete Local Branch") }
