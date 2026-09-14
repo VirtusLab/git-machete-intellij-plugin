@@ -92,6 +92,7 @@ fun Project.configureUiTests() {
       // IllegalAccessError: com.intellij.platform.core.nio.fs.MultiRoutingFsPath cannot access
       // sun.nio.fs.BasicFileAttributesHolder because java.base does not export sun.nio.fs
       jvmArgs(getFlagsForAddExports("sun.nio.fs", module = "java.base"))
+
       testLogging.showStandardStreams = true
     }
   }
