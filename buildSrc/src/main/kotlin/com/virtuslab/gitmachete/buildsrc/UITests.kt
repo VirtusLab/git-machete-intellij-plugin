@@ -88,6 +88,11 @@ fun Project.configureUiTests() {
       // javax.swing.TimerQueue javax.swing.TimerQueue.sharedInstance() accessible:
       // module java.desktop does not "opens javax.swing" to unnamed module
       jvmArgs(getFlagsForAddOpens("javax.swing", module = "java.desktop"))
+      // Since 2026.3 EAP:
+      // IllegalAccessError: com.intellij.platform.core.nio.fs.MultiRoutingFsPath cannot access
+      // sun.nio.fs.BasicFileAttributesHolder because java.base does not export sun.nio.fs
+      jvmArgs(getFlagsForAddExports("sun.nio.fs", module = "java.base"))
+
       testLogging.showStandardStreams = true
     }
   }
