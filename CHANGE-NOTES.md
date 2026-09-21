@@ -1,5 +1,7 @@
 # Changelog
 
+## v9.0.1
+
 ## v9.0.0
 - Dropped: support for IntelliJ 2026.1.
   Note that the versions of this plugin published so far will remain available for download in IntelliJ 2026.1 indefinitely.
