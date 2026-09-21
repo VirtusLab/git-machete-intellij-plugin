@@ -10,17 +10,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 fun Project.configureSpotless() {
   apply<SpotlessPlugin>()
-  // Every target below is anchored at the project directory (`src/...`, `*.gradle.kts`) rather than starting with `**/`.
-  // Spotless compiles each pattern into a `fileTree(projectDir)` carrying that single include,
-  // and a leading `**/` matches at any depth, which forbids Gradle from pruning a single directory
-  // while snapshotting the task's inputs - it then walks and pattern-matches the entire project tree,
-  // `.git` and the multi-gigabyte `.intellijPlatform` IDE sandbox included, on every build.
-  // Anchoring also keeps out of scope, by construction rather than by exclusion:
-  // generated sources under `build/` (GrammarKit parser/lexer, the baked-in version constant),
-  // the sandbox that `prepareTestSandbox` populates (see JetBrains/intellij-platform-gradle-plugin#2096),
-  // and IDE-managed output dirs such as `bin/`, whose stale copies of our sources would otherwise
-  // get reformatted and invalidate these tasks whenever the IDE refreshes them.
-  // Finally, it stops every parent project from redundantly formatting its children's sources.
   configure<SpotlessExtension> {
     java {
       importOrder("java", "javax", "", "com.virtuslab")

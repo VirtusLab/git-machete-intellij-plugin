@@ -4,9 +4,7 @@
 - Dropped: support for IntelliJ 2026.1.
   Note that the versions of this plugin published so far will remain available for download in IntelliJ 2026.1 indefinitely.
   The change in the range of supported IntelliJ versions will only affect the new plugin releases, starting from this one.
-
-## v8.0.2
-- Fixed: removing a Git root's `.git` directory no longer causes an error (contributed by @Guflly).
+- Fixed: removing a Git root's `.git` directory no longer causes an error (contributed by @Guflly)
 
 ## v8.0.1
 - Fixed: compatibility issues with IntelliJ 2026.2
