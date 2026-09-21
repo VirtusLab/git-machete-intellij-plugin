@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+set -e -o pipefail -u -x
+
+# Opens a routine patch-version-bump PR (`<major>.<minor>.<patch>++`) atop the
+# mainline `develop` branch (where the next release is being prepared) rather
+# than `master` - so the bump rides along with whatever else is already queued
+# for the next release.
+#
+# Runs as part of the `master`-only `publish-plugin` job, so the workspace starts out
+# on `master` at the just-released commit.
+
+self_dir=$(cd "$(dirname "$0")" &>/dev/null; pwd -P)
+source "$self_dir"/utils.sh
+
+# Captured up-front from master's `version.gradle.kts` (= the version that was just
+# released); used only in the PR body.
+released_version=$(extract_version_from_current_wd)
+
+# Same git identity used by the `check-for-updates` job for CI-authored bot commits.
+git config user.name "Git Machete Bot"
+git config user.email "gitmachete@virtuslab.com"
+
+# Read the version off `develop` (which may already be ahead of the just-released
+# `master` - e.g. a minor-bump landed there meanwhile) so the new patch number
+# is computed relative to what develop will actually compare against.
+git fetch origin develop
+develop_version=$(extract_version_from_git_revision origin/develop)
+IFS=. read -r major minor patch <<< "$develop_version"
+new_version="${major}.${minor}.$((patch + 1))"
+branch="bump-version-to-v${new_version}"
+
+# Idempotent: bail out if the bump PR for this version already exists
+# (e.g. the CI job is being re-run after a transient failure downstream).
+if [[ -n $(gh pr list --head "$branch" --state all --json number --jq '.[].number' 2>/dev/null || true) ]]; then
+  echo "PR for branch '$branch' already exists; nothing to do."
+  exit 0
+fi
+
+git checkout -b "$branch" origin/develop
+
+sed -i "s/by extra(\"$develop_version\")/by extra(\"$new_version\")/" version.gradle.kts
+
+# Insert a new `## v<new>` header (plus a blank line below it)
+# above the previous latest-version section.
+# `verifyChangeLogVersion` requires the top section of `CHANGE-NOTES.md`
+# to match `prospectiveReleaseVersion`.
+{ head -n 2 CHANGE-NOTES.md
+  echo "## v${new_version}"
+  echo
+  tail -n +3 CHANGE-NOTES.md
+} > CHANGE-NOTES.md.tmp
+mv CHANGE-NOTES.md.tmp CHANGE-NOTES.md
+
+git add version.gradle.kts CHANGE-NOTES.md
+git commit -m "Bump version to v${new_version}"
+git push origin "$branch"
+
+gh pr create \
+  --title "Bump version to v${new_version}" \
+  --body "Routine patch-version bump opened automatically after \`v${released_version}\` was released." \
+  --base develop \
+  --head "$branch"

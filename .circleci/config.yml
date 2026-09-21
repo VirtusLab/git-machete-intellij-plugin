@@ -328,6 +328,10 @@ jobs:
             source scripts/utils.sh
             milestone=v$(extract_version_from_current_wd)
             scripts/close-github-milestone "$milestone"
+      - run:
+          name: Open version-bump PR
+          # Implicit usage of ${GITHUB_TOKEN} by gh
+          command: scripts/open-version-bump-pr
 
   check-for-updates:
     executor: ubuntu_executor
