@@ -12,6 +12,7 @@ import com.intellij.ide.starter.models.TestCase
 import com.intellij.ide.starter.project.ProjectInfoSpec
 import com.intellij.ide.starter.runner.Starter
 import com.intellij.platform.testFramework.teamCity.TeamCityReporter.SyntheticTestKind
+import com.intellij.platform.testFramework.teamCity.TeamCityReporter.TestMetadata
 import com.intellij.remoterobot.RemoteRobot
 import com.virtuslab.gitmachete.testcommon.SetupScripts
 import com.virtuslab.gitmachete.testcommon.TestGitRepository
@@ -103,6 +104,7 @@ abstract class BaseUITest : TestGitRepository(SetupScripts.SETUP_WITH_SINGLE_REM
               linkToLogs: String?,
               kind: SyntheticTestKind,
               generifyTestName: Boolean,
+              additionalMetadata: List<TestMetadata>,
             ) {
               val fullText = "$testName $message $details"
               val ignoredMatch = IGNORED_PLATFORM_ERROR_SUBSTRINGS.firstOrNull { fullText.contains(it) }
