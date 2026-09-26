@@ -53,6 +53,9 @@ val shouldRunAllCheckers: Boolean by extra(isCI || project.hasProperty("runAllCh
 // the symbol(s) in our codebase that pulled it in.
 val intellijVcsBundledModules: List<String> by extra(
   listOf(
+    // `vcs.commit.CommitMessageUi` and `openapi.vcs.CommitMessageI` (supertypes of
+    // `openapi.vcs.ui.CommitMessage`).
+    "intellij.platform.vcs",
     // `dvcs.repo.Repository` (supertype of `GitRepository`), `dvcs.repo.RepositoryManager`,
     // `dvcs.push.PushSource`/`PushSupport`/`VcsPushOptionValue`.
     "intellij.platform.vcs.dvcs",
