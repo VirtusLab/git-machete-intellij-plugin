@@ -56,6 +56,10 @@ val intellijVcsBundledModules: List<String> by extra(
     // `vcs.commit.CommitMessageUi` and `openapi.vcs.CommitMessageI` (supertypes of
     // `openapi.vcs.ui.CommitMessage`).
     "intellij.platform.vcs",
+    // `openapi.vcs.VcsException`
+    "intellij.platform.vcs.core",
+    // `vcs.log.Hash`
+    "intellij.platform.vcs.shared",
     // `dvcs.repo.Repository` (supertype of `GitRepository`), `dvcs.repo.RepositoryManager`,
     // `dvcs.push.PushSource`/`PushSupport`/`VcsPushOptionValue`.
     "intellij.platform.vcs.dvcs",
