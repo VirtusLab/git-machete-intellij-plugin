@@ -151,17 +151,30 @@ internal fun Driver.myWaitForIndicators(projectGet: () -> Project?, timeout: Dur
   val stallTracker = StallTracker()
 
   waitFor("Indicators", timeout) {
-    val project = runCatching { projectGet.invoke() }.getOrNull()
+    val projectResult = runCatching { projectGet.invoke() }
+    val project = projectResult.getOrNull()
     if (project == null) {
       smartLongEnoughStart = null
       stallTracker.clear()
-      println("Driver.myWaitForIndicators: waiting more since project is null")
+      val failure = projectResult.exceptionOrNull()
+      val failureDetail = if (failure != null) {
+        " (project getter threw ${failure::class.java.simpleName}: ${failure.message})"
+      } else {
+        ""
+      }
+      val openProjects = runCatching {
+        withContext { service<ProjectManager>().getOpenProjects().map { it.toString() } }
+      }.getOrNull()
+      val openProjectsDetail = if (openProjects != null) "; open projects: $openProjects" else ""
+      println("Driver.myWaitForIndicators: waiting more since project is null$failureDetail$openProjectsDetail")
       return@waitFor false
     }
     if (!isProjectOpened(project)) {
       smartLongEnoughStart = null
       stallTracker.clear()
-      println("Driver.myWaitForIndicators: waiting more since project ($project) is not opened")
+      val anyProjectOpened = runCatching { isProjectOpened() }.getOrNull()
+      val globalStatus = if (anyProjectOpened != null) "; any project opened: $anyProjectOpened" else ""
+      println("Driver.myWaitForIndicators: waiting more since project ($project) is not opened$globalStatus")
       return@waitFor false
     }
     when (val state = indicatorState(project, stallTracker)) {
