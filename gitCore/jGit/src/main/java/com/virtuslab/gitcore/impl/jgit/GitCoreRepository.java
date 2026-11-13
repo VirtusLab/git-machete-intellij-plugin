@@ -91,6 +91,8 @@ public final class GitCoreRepository implements IGitCoreRepository {
 
   @UIThreadUnsafe
   public GitCoreRepository(Path rootDirectoryPath) throws GitCoreException {
+    JGitFileStoreAttributesWorkaround.ensureSafeFor(rootDirectoryPath);
+
     val builder = new FileRepositoryBuilder()
         .findGitDir(rootDirectoryPath.toFile())
         .setMustExist(true);
@@ -105,6 +107,11 @@ public final class GitCoreRepository implements IGitCoreRepository {
     this.rootDirectoryPath = jgitRepo.getWorkTree().toPath();
     this.mainGitDirectoryPath = jgitRepo.getCommonDirectory().toPath();
     this.worktreeGitDirectoryPath = jgitRepo.getDirectory().toPath();
+
+    JGitFileStoreAttributesWorkaround.ensureSafeFor(mainGitDirectoryPath);
+    if (!worktreeGitDirectoryPath.equals(mainGitDirectoryPath)) {
+      JGitFileStoreAttributesWorkaround.ensureSafeFor(worktreeGitDirectoryPath);
+    }
 
     LOG.debug(() -> "Created ${this})");
   }
