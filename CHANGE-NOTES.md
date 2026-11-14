@@ -1,5 +1,7 @@
 # Changelog
 
+## v9.0.2
+
 ## v9.0.1
 - Fixed: `NotImplementedError` reported on Windows when the project is located on a WSL filesystem (reported by @professional-sourav)
 
