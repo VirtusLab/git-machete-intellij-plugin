@@ -1,6 +1,7 @@
 # Changelog
 
 ## v9.0.1
+- Fixed: `NotImplementedError` reported on Windows when the project is located on a WSL filesystem (reported by @professional-sourav)
 
 ## v9.0.0
 - Dropped: support for IntelliJ 2026.1.
